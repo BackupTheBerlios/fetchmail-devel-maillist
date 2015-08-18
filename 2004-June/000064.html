@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: m4 directories?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20m4%20directories%3F&In-Reply-To=%3Cm3pt7m1z99.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000061.html">
+   <LINK REL="Next"  HREF="000067.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: m4 directories?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20m4%20directories%3F&In-Reply-To=%3Cm3pt7m1z99.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: m4 directories?">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Sat Jun 26 10:48:02 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000061.html">[fetchmail-devel] Re: m4 directories?
+</A></li>
+        <LI>Next message: <A HREF="000067.html">[fetchmail-devel] Re: m4 directories?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#64">[ date ]</a>
+              <a href="thread.html#64">[ thread ]</a>
+              <a href="subject.html#64">[ subject ]</a>
+              <a href="author.html#64">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">bob at decoy.wox.org</A>&gt; writes:
+
+&gt;<i> On Sat, Jun 26, 2004 at 02:11:24AM +0200, Matthias Andree wrote:
+</I>&gt;&gt;<i> I have taken this acinclude.m4 approach in bogofilter and am not very
+</I>&gt;&gt;<i> happy with that, updating individual macros is then more effort than
+</I>&gt;&gt;<i> necessary. I'd rather stick with a file per macro (or file per logic
+</I>&gt;&gt;<i> group of macros, call it module if you like).
+</I>&gt;<i>
+</I>&gt;<i> Do you mean that you'd have to search through the global file, rather
+</I>&gt;<i> than replacing just a single file?
+</I>
+Yes, that's exactly it.
+
+&gt;<i> If so, I'd rather go through that each time (I wouldn't think it would
+</I>&gt;<i> be too often) rather than have a bunch of M4 macro files laying
+</I>&gt;<i> around.
+</I>
+I've found that solution to be impractical and would rather have a set
+of files lingering on the floor that I can nuke individually.
+
+&gt;<i> Additionally, can't the license file be added to the top of the macro
+</I>&gt;<i> file, or to the COPYING file?
+</I>
+That might be doable but makes the COPYING file a bit lenghty and
+cumbersome to read.
+
+&gt;<i> Sorry for being persistent, I would just like to keep the tree as
+</I>&gt;<i> organized as possible.
+</I>
+That's why I went with m4-local first :)
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000061.html">[fetchmail-devel] Re: m4 directories?
+</A></li>
+	<LI>Next message: <A HREF="000067.html">[fetchmail-devel] Re: m4 directories?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#64">[ date ]</a>
+              <a href="thread.html#64">[ thread ]</a>
+              <a href="subject.html#64">[ subject ]</a>
+              <a href="author.html#64">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

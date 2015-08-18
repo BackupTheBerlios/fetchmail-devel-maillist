@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [fetchmail-users] poblems with pop3 and	expunge
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bfetchmail-users%5D%20poblems%20with%20pop3%20and%0A%09expunge&In-Reply-To=%3Cop.veufzksx1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001395.html">
+   <LINK REL="Next"  HREF="001397.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [fetchmail-users] poblems with pop3 and	expunge</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bfetchmail-users%5D%20poblems%20with%20pop3%20and%0A%09expunge&In-Reply-To=%3Cop.veufzksx1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [fetchmail-users] poblems with pop3 and	expunge">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Jun 25 08:51:10 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001395.html">[fetchmail-devel] [Bug #17272] Fetchmail does not fetch some Web.DE	mails
+</A></li>
+        <LI>Next message: <A HREF="001397.html">[fetchmail-devel] [Bug #17295] Ferchmail provides insufficient log	information
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1396">[ date ]</a>
+              <a href="thread.html#1396">[ thread ]</a>
+              <a href="subject.html#1396">[ subject ]</a>
+              <a href="author.html#1396">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 25.06.2010, 02:58 Uhr, schrieb Lorenzo Milesi:
+
+&gt;&gt;<i> The configuration is contradictory. &quot;keep&quot; prevents deletions
+</I>&gt;&gt;<i> altogether -
+</I>&gt;&gt;<i> and then there will be nothing to expunge.
+</I>&gt;<i>
+</I>&gt;<i> I don't think so.
+</I>&gt;<i> I run with keep in daemon mode, to keep mail on the server. Once in a  
+</I>&gt;<i> while I execute with -F, to free up server.
+</I>&gt;<i>
+</I>&gt;<i> In fact, removing the &quot;keep&quot; and running, doesn't seem to expunge  
+</I>&gt;<i> anything.
+</I>
+--flush isn't the same as omitting --keep, and these are not opposites.
+
+Unfortunately, this is not too obvious from the documentation, and it  
+might be (I'll have to dig deeper in the source code to figure, which  
+won't happen today) that --expunge isn't taken into account with --flush.
+
+If someone else wants to take a look and possibly send a patch, feel free.
+
+Relevant code is in driver.c's fetch_messages() near the check for  
+ctl-&gt;flush, code available at &lt;<A HREF="http://gitorious.org/fetchmail/fetchmail/">http://gitorious.org/fetchmail/fetchmail/</A>&gt;,  
+on the master branch.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001395.html">[fetchmail-devel] [Bug #17272] Fetchmail does not fetch some Web.DE	mails
+</A></li>
+	<LI>Next message: <A HREF="001397.html">[fetchmail-devel] [Bug #17295] Ferchmail provides insufficient log	information
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1396">[ date ]</a>
+              <a href="thread.html#1396">[ thread ]</a>
+              <a href="subject.html#1396">[ subject ]</a>
+              <a href="author.html#1396">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

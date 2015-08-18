@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Password prompt on stderr
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Password%20prompt%20on%20stderr&In-Reply-To=%3Cop.urr7fgrs1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001053.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Password prompt on stderr</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Password%20prompt%20on%20stderr&In-Reply-To=%3Cop.urr7fgrs1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Password prompt on stderr">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Apr  3 00:58:18 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001053.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1052">[ date ]</a>
+              <a href="thread.html#1052">[ thread ]</a>
+              <a href="subject.html#1052">[ subject ]</a>
+              <a href="author.html#1052">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 09.02.2009, 12:58 Uhr, schrieb Prasad J Pandit &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">pj.pandit at yahoo.co.in</A>&gt;:
+
+&gt;<i>    Hello folks,
+</I>&gt;<i>
+</I>&gt;<i> I was using fetchmail-6.3.9 as
+</I>&gt;<i>
+</I>&gt;<i> $ fetchmail -cu &lt;name&gt; -D <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">name at mymail.com</A> --ssl mail-server 2&gt; /dev/null
+</I>&gt;<i>
+</I>&gt;<i> and noticed that the prompt which says: &quot;Enter password for %s@%s&quot; is  
+</I>&gt;<i> displayed on stderr instead of steout.
+</I>
+Hi Prasad,
+
+thanks for your effort to contribute.
+
+While undocumented, chances are that this was intentional for some reason.  
+I've checked the relevant code, and fetchmail opens /dev/tty from file  
+descriptor #2 with fdopen(), which is also stderr, to save/change/restore  
+settings such as not echoing the password back to the user.
+
+I wonder if it's more common that people discard stdout (progress) instead  
+of stderr (problems) - and I suspect that was the reason to use stderr...
+
+At least, if we go this way, we need to fix the fdopen as well to use  
+stdout.
+
+I wonder if &quot;-s&quot; (--silent) is an option that works for you if you want  
+less output, rather than discarding 2&gt;/dev/null - it is currently unclear  
+to me which ACTUAL problem you try to solve by redirecting stderr to the  
+bit bucket. Would you care to enlighten me a bit?
+
+&gt;<i> The attached patch fixes this bug and a warning message encountered  
+</I>&gt;<i> while compiling the source.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> The other warning messages were:
+</I>&gt;<i>
+</I>&gt;<i> smbutil.c:207: warning: the address of &#8216;lmRespData&#8217; will always evaluate  
+</I>&gt;<i> as &#8216;true&#8217;
+</I>&gt;<i> smbutil.c:208: warning: the address of &#8216;ntRespData&#8217; will always evaluate  
+</I>&gt;<i> as &#8216;true&#8217;
+</I>&gt;<i>
+</I>&gt;<i> that's because both are statically allocated array variables.
+</I>
+Yes. :-( I currently understand too little of NTLM authentication to  
+actually touch this code myself. I'd be more comfortable with using an  
+external NTLM library. I still need to look at the GSoC 2008 patches to  
+add OpenChange support (my fault - haven't had the time, and I feel sorry  
+for not yet merging Yangyan's code) - perhaps this is a way to do away  
+with our old NTLM code.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001053.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1052">[ date ]</a>
+              <a href="thread.html#1052">[ thread ]</a>
+              <a href="subject.html#1052">[ subject ]</a>
+              <a href="author.html#1052">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

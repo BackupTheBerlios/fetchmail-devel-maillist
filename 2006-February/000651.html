@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail-users%5D%20Incorrect%20header%20line%0A%20and%20lost%20mails&In-Reply-To=%3C43F45934.6010301%40wowcompany.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000650.html">
+   <LINK REL="Next"  HREF="000654.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails</H1>
+    <B>Frederic Marchal</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail-users%5D%20Incorrect%20header%20line%0A%20and%20lost%20mails&In-Reply-To=%3C43F45934.6010301%40wowcompany.com%3E"
+       TITLE="[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails">frederic.marchal at wowcompany.com
+       </A><BR>
+    <I>Thu Feb 16 11:51:32 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000650.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000654.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#651">[ date ]</a>
+              <a href="thread.html#651">[ thread ]</a>
+              <a href="subject.html#651">[ subject ]</a>
+              <a href="author.html#651">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rob MacGregor wrote:
+&gt;<i> On 2/14/06, Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; wrote:
+</I>&gt;<i>   
+</I>&gt;<i> Personally, I'm curious to know what mail client is producing such
+</I>&gt;<i> borken emails, and what MTAs are passing them on.
+</I>&gt;<i>   
+</I>Here it is. I just got one from fetchmail-devel:
+
+Received: from spooler by webmobile.be (Mercury/32 v4.01a); 14 Feb 2006 
+14:47:07 +0100
+X-Envelope-To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">frederic.marchal at wowcompany.com</A>&gt;
+Return-path: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel-admin at lists.berlios.de</A>&gt;
+Received: from bat.berlios.de (195.37.77.135) by webmobile.be 
+(Mercury/32 v4.01a) with ESMTP ID MG001FEF;
+   14 Feb 2006 14:47:03 +0100
+Received: from bat.berlios.de (localhost [127.0.0.1])
+    by bat.berlios.de (8.11.3/8.11.3/SuSE Linux 8.11.1-0.5) with ESMTP 
+id k1EDm2E08521;
+    Tue, 14 Feb 2006 14:48:02 +0100
+Received: from outmx024.isp.belgacom.be (outmx024.isp.belgacom.be 
+[195.238.4.128])
+    by bat.berlios.de (8.11.3/8.11.3/SuSE Linux 8.11.1-0.5) with ESMTP 
+id k1EDlLE08506
+    for &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at berlios.de</A>&gt;; Tue, 14 Feb 2006 14:47:21 +0100
+Received: from outmx024.isp.belgacom.be (localhost [127.0.0.1])
+        by outmx024.isp.belgacom.be (8.12.11/8.12.11/Skynet-OUT-2.22) 
+with ESMTP id k1EDlDjl009366
+        for &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at berlios.de</A>&gt;; Tue, 14 Feb 2006 14:47:13 +0100
+        (envelope-from &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">frederic.marchal at wowcompany.com</A>&gt;)
+Received: from [192.168.100.30] (167.191-201-80.adsl.skynet.be 
+[80.201.191.167])
+        by outmx024.isp.belgacom.be (8.12.11/8.12.11/Skynet-OUT-2.22) 
+with ESMTP id k1EDl5Rq009276
+        for &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at berlios.de</A>&gt;; Tue, 14 Feb 2006 14:47:05 +0100
+        (envelope-from &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">frederic.marchal at wowcompany.com</A>&gt;)
+Message-ID: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">43F1DF62.4050109 at wowcompany.com</A>&gt;
+From: Frederic Marchal &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">frederic.marchal at wowcompany.com</A>&gt;
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at berlios.de</A>
+Subject: Re: [fetchmail-devel] Re: [fetchmail-users] Incorrect header line
+ and lost mails
+References: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">43F06B6F.6090707 at wowcompany.com</A>&gt;    
+ &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">43ea8d070602130847t5cb0a423ped50747b470e686b at mail.gmail.com</A>&gt;    
+ &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">m3hd73j8yj.fsf at merlin.emma.line.org</A>&gt;    
+ &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">43F19A54.1000301 at wowcompany.com</A>&gt;    
+ &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">m3oe1atdlu.fsf at merlin.emma.line.org</A>&gt; &lt;43ea8d070602140508w6af9d34aq5c
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">222caec13d56c9 at mail.gmail.com</A>&gt;
+In-Reply-To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">43ea8d070602140508w6af9d34aq5c222caec13d56c9 at mail.gmail.com</A>&gt;
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel-admin at berlios.de</A>
+Errors-To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel-admin at berlios.de</A>
+X-BeenThere: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>
+X-Mailman-Version: 2.0.13
+Precedence: bulk
+List-Help: &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel-request at lists.berlios.de</A>?subject=help&gt;
+List-Post: &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>&gt;
+List-Subscribe: &lt;<A HREF="http://lists.berlios.de/mailman/listinfo/fetchmail-devel">http://lists.berlios.de/mailman/listinfo/fetchmail-devel</A>&gt;,
+    &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel-request at lists.berlios.de</A>?subject=subscribe&gt;
+List-Id: &lt;fetchmail-devel.lists.berlios.de&gt;
+List-Unsubscribe: 
+&lt;<A HREF="http://lists.berlios.de/mailman/listinfo/fetchmail-devel">http://lists.berlios.de/mailman/listinfo/fetchmail-devel</A>&gt;,
+    &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel-request at lists.berlios.de</A>?subject=unsubscribe&gt;
+List-Archive: &lt;<A HREF="../index.html">http://lists.berlios.de/pipermail/fetchmail-devel/</A>&gt;
+Date: Tue, 14 Feb 2006 14:47:14 +0100
+X-CC-Diagnostic: Body has &quot;colon&quot; (20)
+
+
+I expect this mail will be wrapped so here is the explanation. The 
+References header is one long line and is wrapped at some point after 
+the &lt;43ea8d070602140508w6af9d34aq5c which leaves the 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">222caec13d56c9 at mail.gmail.com</A>&gt; all by itself on a line. You have 
+received that e-mail and can compare it to your copy
+
+On my side, the References line is truncated at column 263. rfc821 
+specifies a maximum line length of 1000 characters but an implementation 
+should be prepared for longer lines or reject the mail. It is not what 
+is happening here.
+
+The culprit may be Mercury/32 or the Wingate proxy which is not listed 
+in the header. Anyway, I can't change any of them and nothing prevent 
+the mail from being delivered. Moreover I can read it in thunderbird 
+without any warning or inconvenience.
+
+Frederic
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000650.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000654.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#651">[ date ]</a>
+              <a href="thread.html#651">[ thread ]</a>
+              <a href="subject.html#651">[ subject ]</a>
+              <a href="author.html#651">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

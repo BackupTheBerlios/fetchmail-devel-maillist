@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] PopDel.py patch to show from address
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20PopDel.py%20patch%20to%20show%20from%20address&In-Reply-To=%3C20060426164738.GA3011%40bruce.home.invalid%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000730.html">
+   <LINK REL="Next"  HREF="000733.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] PopDel.py patch to show from address</H1>
+    <B>Joshua Crawford</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20PopDel.py%20patch%20to%20show%20from%20address&In-Reply-To=%3C20060426164738.GA3011%40bruce.home.invalid%3E"
+       TITLE="[fetchmail-devel] PopDel.py patch to show from address">mortarn_lists at yahoo.com.au
+       </A><BR>
+    <I>Wed Apr 26 18:47:39 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000730.html">[fetchmail-devel] Wish: fetchids via database
+</A></li>
+        <LI>Next message: <A HREF="000733.html">[fetchmail-devel] PopDel.py patch to show from address
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#732">[ date ]</a>
+              <a href="thread.html#732">[ thread ]</a>
+              <a href="subject.html#732">[ subject ]</a>
+              <a href="author.html#732">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Here's a patch to PopDel.py to make it also display the From: address of
+messages on the server.
+
+I've added this because I almost deleted an email from my mother yesterday.
+She'd forwarded me an amusing video file someone had sent to her, and the
+Subject: looked rather like spam (&quot;Fw: COMMUNICATION&quot;).
+
+Also, I don't know if it's technically possible to have an email with no
+Subject header, but previously PopDel would have ignored any that didn't,
+causing indexing errors (deleting the wrong mail if it comes after the
+Subject-less one). This patch corrects that also, as a byproduct of how I've
+implemented the other change.
+-- 
+Joshua 'bruce' Crawford ... <A HREF="http://www.geocities.com/mortarn">http://www.geocities.com/mortarn</A>
+
+Any fool can criticize, condemn, and complain. And most do.
+-------------- next part --------------
+--- /usr/doc/fetchmail-6.3.4/contrib/PopDel.py	2005-12-01 10:33:08.000000000 +1100
++++ PopDel.py	2006-04-27 00:51:00.000000000 +1000
+@@ -10,10 +10,13 @@
+ # created: 01 May 02
+ #
+ # change log:
++# Joshua Crawford, April 2006:
++#	Display From: address
++#	List every email, even if it has no Subject: header
+ # Joshua Crawford, November 2004:
+ # 	Out of range error fixed
+ #	Allow for all caps SUBJECT:
+-#	Display email address
++#	Display user and server name in messages
+ #	Don't prompt for save if no changes
+ #	Don't clear the screen until we're displaying a menu
+ #	Check for invalid choice
+@@ -22,7 +25,7 @@
+ #	Return 1 on errors, 0 otherwise
+ # Hacked to support message ranges by ESR, January 2003.
+ #
+-import os, poplib, string, sys
++import os, poplib, re, string, sys
+ 
+ class PopDel:
+ 	HDR = &quot;\nPopDel - Delete messages from popmail - Ver. 0.1&quot;
+@@ -101,6 +104,8 @@
+ 		else:
+ 			for entry in list:
+ 				tokens = string.split(entry)
++				subject = '(no subject)'
++				address = '(no address)'
+ 				try:
+ 					head = M.top(int(tokens[0]), 32)
+ 				except:
+@@ -111,11 +116,14 @@
+ 					return 1
+ 				for line in head[1]:
+ 					if (string.find(string.upper(line), 'SUBJECT:') == 0):
+-						subject = string.replace(line, 'Subject:','')
+-						subject = string.replace(subject, 'SUBJECT:','')
+-						subject = subject + ' - ' + tokens[1] + ' octets'
+-						subjects.append(subject)
+-						break
++						subject = line[9:]
++					if (string.find(string.upper(line), 'FROM:') == 0):
++						line = line[6:]
++						result = re.search(r'([^\t &lt;&gt;]*@[^\t &lt;&gt;]*)', line)
++						if (result != None):
++							address = result.expand(r'\1')
++				subj = address[:40] + ' [' + tokens[1] + 'o] ' + subject
++				subjects.append(subj)
+ 
+ 			while not self.done:
+ 				os.system('clear')
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20060427/413ee49f/attachment.pgp">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20060427/413ee49f/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000730.html">[fetchmail-devel] Wish: fetchids via database
+</A></li>
+	<LI>Next message: <A HREF="000733.html">[fetchmail-devel] PopDel.py patch to show from address
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#732">[ date ]</a>
+              <a href="thread.html#732">[ thread ]</a>
+              <a href="subject.html#732">[ subject ]</a>
+              <a href="author.html#732">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

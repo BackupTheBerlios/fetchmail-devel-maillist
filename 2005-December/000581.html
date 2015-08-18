@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] imap rfc issues
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20imap%20rfc%20issues&In-Reply-To=%3C20051208071442.GA1349%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000576.html">
+   <LINK REL="Next"  HREF="000582.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] imap rfc issues</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20imap%20rfc%20issues&In-Reply-To=%3C20051208071442.GA1349%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] imap rfc issues">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Thu Dec  8 08:14:42 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000576.html">[fetchmail-devel] Fetchmail 6.3.0 released
+</A></li>
+        <LI>Next message: <A HREF="000582.html">[fetchmail-devel] [PATCH] imap rfc issues
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#581">[ date ]</a>
+              <a href="thread.html#581">[ thread ]</a>
+              <a href="subject.html#581">[ subject ]</a>
+              <a href="author.html#581">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+The code in imap.c incorrectly indicates that &quot;STORE ... +FLAGS.SILENT&quot;
+has been removed in IMAP4rev1. RFCs 3501 and 2060 clearly state that
+this is supported. This patch uses FLAGS.SILENT for IMAP4rev1 too.
+
+Also, fetchmailconf warns of BODY[TEXT] with Netscape IMAP4rev1.
+However, since fetchmail uses BODY.PEEK[TEXT] with an IMAP4rev1
+server, the warning is not required.
+
+Also, RFC 2060 is obsoleted by RFC 3501.
+
+This patch fixes all these issues.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/esrs-design-notes.html
+===================================================================
+--- fetchmail/esrs-design-notes.html	(revision 4518)
++++ fetchmail/esrs-design-notes.html	(working copy)
+@@ -672,7 +672,7 @@
+ &lt;dd&gt;Local Mail Transfer Protocol&lt;/dd&gt;
+ 
+ &lt;dt&gt;&lt;a
+-href=&quot;<A HREF="ftp://ftp.isi.edu/in-notes/rfc2060.txt">ftp://ftp.isi.edu/in-notes/rfc2060.txt</A>&quot;&gt;RFC2060&lt;/a&gt;&lt;/dt&gt;
++href=&quot;<A HREF="ftp://ftp.isi.edu/in-notes/rfc3501.txt">ftp://ftp.isi.edu/in-notes/rfc3501.txt</A>&quot;&gt;RFC3501&lt;/a&gt;&lt;/dt&gt;
+ 
+ &lt;dd&gt;Internet Message Access Protocol - Version 4rev1&lt;/dd&gt;
+ 
+Index: fetchmail/fetchmailconf.py
+===================================================================
+--- fetchmail/fetchmailconf.py	(revision 4518)
++++ fetchmail/fetchmailconf.py	(working copy)
+@@ -1421,13 +1421,6 @@
+ for it with other problems.&lt;p&gt;
+ 
+ &quot;&quot;&quot;
+-	    if string.find(greetline, &quot;Netscape IMAP4rev1 Service 3.6&quot;) &gt; 0:
+-		warnings = warnings + &quot;&quot;&quot;
+-This server violates the RFC2060 requirement that a BODY[TEXT] fetch should
+-set the messages's Seen flag.  As a result, if you use the keep option the
+-same messages will be downloaded over and over.
+-
+-&quot;&quot;&quot;
+ 	    if string.find(greetline, &quot;InterChange&quot;) &gt; 0:
+ 		warnings = warnings + &quot;&quot;&quot;
+ 
+Index: fetchmail/fetchmail.man
+===================================================================
+--- fetchmail/fetchmail.man	(revision 4518)
++++ fetchmail/fetchmail.man	(working copy)
+@@ -2554,7 +2554,7 @@
+ .TP 5
+ IMAP4/IMAP4rev1:
+ RFC 1730, RFC 1731, RFC 1732, RFC 2060, RFC 2061, RFC 2195, RFC 2177,
+-RFC 2683.
++RFC 2683, RFC 3501.
+ .TP 5
+ ETRN:
+ RFC 1985.
+Index: fetchmail/fetchmail.h
+===================================================================
+--- fetchmail/fetchmail.h	(revision 4518)
++++ fetchmail/fetchmail.h	(working copy)
+@@ -84,7 +84,7 @@
+ 
+ /*
+  * Definitions for buffer sizes.  We get little help on setting maxima
+- * from IMAP RFCs up to 2060, so these are mostly from POP3.
++ * from IMAP RFCs up to 3501, so these are mostly from POP3.
+  */
+ #define		HOSTLEN		635	/* max hostname length (RFC1123) */
+ #define		POPBUFSIZE	512	/* max length of response (RFC1939) */
+Index: fetchmail/driver.c
+===================================================================
+--- fetchmail/driver.c	(revision 4518)
++++ fetchmail/driver.c	(working copy)
+@@ -676,7 +676,7 @@
+ 		     * broken GroupWise IMAP server;
+ 		     * its body FETCH response is missing
+ 		     * the required length for the data
+-		     * string.  This violates RFC2060.
++		     * string.  This violates RFC3501.
+ 		     */
+ 		    if (len == -1)
+ 			len = msgsize - msgblk.msglen;
+Index: fetchmail/imap.c
+===================================================================
+--- fetchmail/imap.c	(revision 4518)
++++ fetchmail/imap.c	(working copy)
+@@ -22,7 +22,7 @@
+ /* imap_version values */
+ #define IMAP2		-1	/* IMAP2 or IMAP2BIS, RFC1176 */
+ #define IMAP4		0	/* IMAP4 rev 0, RFC1730 */
+-#define IMAP4rev1	1	/* IMAP4 rev 1, RFC2060 */
++#define IMAP4rev1	1	/* IMAP4 rev 1, RFC3501 */
+ 
+ /* global variables: please reinitialize them explicitly for proper
+  * working in daemon mode */
+@@ -141,8 +141,8 @@
+ 		 * This checks for the condition and aborts if 
+ 		 * the mailbox is read-only. 
+ 		 *
+-		 * See RFC 2060 section 6.3.1 (SELECT).
+-		 * See RFC 2060 section 6.3.2 (EXAMINE).
++		 * See RFC3501 section 6.3.1 (SELECT).
++		 * See RFC3501 section 6.3.2 (EXAMINE).
+ 		 */ 
+ 	    else if (!check_only &amp;&amp; strstr(buf, &quot;[READ-ONLY]&quot;))
+ 	    {
+@@ -179,7 +179,7 @@
+ 	else if (strncasecmp(cp, &quot;NO&quot;, 2) == 0)
+ 	{
+ 	    if (stage == STAGE_GETAUTH) 
+-		return(PS_AUTHFAIL);	/* RFC2060, 6.2.2 */
++		return(PS_AUTHFAIL);	/* RFC3501 section 6.2.2 */
+ 	    else
+ 		return(PS_ERROR);
+ 	}
+@@ -297,7 +297,7 @@
+ 	for (cp = capabilities; *cp; cp++)
+ 	    *cp = toupper((unsigned char)*cp);
+ 
+-	/* UW-IMAP server 10.173 notifies in all caps, but RFC2060 says we
++	/* UW-IMAP server 10.173 notifies in all caps, but RFC3501 says we
+ 	   should expect a response in mixed-case */
+ 	if (strstr(capabilities, &quot;IMAP4REV1&quot;))
+ 	{
+@@ -623,7 +623,7 @@
+ 	    return ok;
+     } else {  /* no idle support, fake it */
+ 	/* when faking an idle, we can't assume the server will
+-	 * send us the new messages out of the blue (RFC2060);
++	 * send us the new messages out of the blue (RFC3501);
+ 	 * this timeout is potentially the delay before we notice
+ 	 * new mail (can be small since NOOP checking is cheap) */
+ 	mytimeout = 28;
+@@ -934,7 +934,7 @@
+     number -= expunged;
+ 
+     /*
+-     * This is blessed by RFC1176, RFC1730, RFC2060.
++     * This is blessed by RFC1176, RFC1730, RFC3501.
+      * According to the RFCs, it should *not* set the \Seen flag.
+      */
+     gen_send(sock, &quot;FETCH %d RFC822.HEADER&quot;, number);
+@@ -988,7 +988,7 @@
+      * craps out during the message, it will still be marked `unseen' on
+      * the server.
+      *
+-     * According to RFC2060, and Mark Crispin the IMAP maintainer,
++     * According to RFC3501, and Mark Crispin the IMAP maintainer,
+      * FETCH %d BODY[TEXT] and RFC822.TEXT are &quot;functionally 
+      * equivalent&quot;.  However, we know of at least one server that
+      * treats them differently in the presence of MIME attachments;
+@@ -1004,7 +1004,7 @@
+      */
+     switch (imap_version)
+     {
+-    case IMAP4rev1:	/* RFC 2060 */
++    case IMAP4rev1:	/* RFC 3501 */
+ 	gen_send(sock, &quot;FETCH %d BODY.PEEK[TEXT]&quot;, number);
+ 	break;
+ 
+@@ -1030,7 +1030,7 @@
+ 	return(PS_ERROR);
+ 
+     /*
+-     * Try to extract a length from the FETCH response.  RFC2060 requires
++     * Try to extract a length from the FETCH response.  RFC3501 requires
+      * it to be present, but at least one IMAP server (Novell GroupWise)
+      * botches this.  The overflow check is needed because of a broken
+      * server called dbmail that returns huge garbage lengths.
+@@ -1083,7 +1083,6 @@
+ 
+     /*
+      * Use SILENT if possible as a minor throughput optimization.
+-     * Note: this has been dropped from IMAP4rev1.
+      *
+      * We set Seen because there are some IMAP servers (notably HP
+      * OpenMail) that do message-receipt DSNs, but only when the seen
+@@ -1092,7 +1091,7 @@
+      * successful.
+      */
+     if ((ok = gen_transact(sock,
+-			imap_version == IMAP4 
++			imap_version &gt;= IMAP4
+ 				? &quot;STORE %d +FLAGS.SILENT (\\Seen \\Deleted)&quot;
+ 				: &quot;STORE %d +FLAGS (\\Seen \\Deleted)&quot;, 
+ 			number)))
+@@ -1116,7 +1115,7 @@
+ /* mark the given message as seen */
+ {
+     return(gen_transact(sock,
+-	imap_version == IMAP4
++	imap_version &gt;= IMAP4
+ 	? &quot;STORE %d +FLAGS.SILENT (\\Seen)&quot;
+ 	: &quot;STORE %d +FLAGS (\\Seen)&quot;,
+ 	number));
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000576.html">[fetchmail-devel] Fetchmail 6.3.0 released
+</A></li>
+	<LI>Next message: <A HREF="000582.html">[fetchmail-devel] [PATCH] imap rfc issues
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#581">[ date ]</a>
+              <a href="thread.html#581">[ thread ]</a>
+              <a href="subject.html#581">[ subject ]</a>
+              <a href="author.html#581">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

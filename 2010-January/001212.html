@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20IMAP%20bug%20-%20causes%20some%20mails%20to%20not%0A%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3C20100114104524.GA2843%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001210.html">
+   <LINK REL="Next"  HREF="001213.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20IMAP%20bug%20-%20causes%20some%20mails%20to%20not%0A%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3C20100114104524.GA2843%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Thu Jan 14 11:45:24 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001210.html">[fetchmail-devel] [Patch #1859] PWMD support
+</A></li>
+        <LI>Next message: <A HREF="001213.html">[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1212">[ date ]</a>
+              <a href="thread.html#1212">[ thread ]</a>
+              <a href="subject.html#1212">[ subject ]</a>
+              <a href="author.html#1212">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>[switching to fetchmail-devel]
+
+Hi Matthias,
+
+Quoting from Sunil Shetye's mail on Wed, Jan 13, 2010:
+&gt;<i> I agree that many servers do not send it. Also, fetchmail can and should handle
+</I>&gt;<i> the counts better. However, in my opinion, the fix from dovecot side should be
+</I>&gt;<i> trivial. Whereas, the fix from fetchmail side will be non-trivial as a major
+</I>&gt;<i> rewrite of the imap driver will be required.
+</I>
+I was thinking of rewriting the imap driver so that all imap server
+responses are routed via the imap_ok() function. This is so that all
+the unexpected 'EXISTS', 'EXPUNGE' responses get trapped properly.
+This is how it will work:
+
+Any imap command will go through this kind of loop:
+
+===============================================================================
+#define PS_UNTAGGED 30 /* untagged response on imap command (internal use) */
+
+ok = gen_send(sock, &quot;SEARCH UNSEEN&quot;);
+while ((ok = imap_ok(sock, buf)) == PS_UNTAGGED)
+{
+
+    /* if we have reached here, we have got an untagged response not parsable by imap_ok(). */
+
+    if ((cp = strstr(buf, &quot;* SEARCH&quot;)))
+    {
+	/* parse the response */
+    }
+
+    /* go back to get the remaining response */
+}
+if (ok != 0)
+{
+    report(stderr, GT_(&quot;search for unseen messages failed\n&quot;));
+    return(ok);
+}
+===============================================================================
+
+In essence, gen_recv() at many places in imap.c will get replaced by
+imap_ok().
+
+Are all the above changes okay? Should I start with the changes in
+imap_getrange() only? imap_getpartialsizes() can be the next function
+if this works out.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001210.html">[fetchmail-devel] [Patch #1859] PWMD support
+</A></li>
+	<LI>Next message: <A HREF="001213.html">[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1212">[ date ]</a>
+              <a href="thread.html#1212">[ thread ]</a>
+              <a href="subject.html#1212">[ subject ]</a>
+              <a href="author.html#1212">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

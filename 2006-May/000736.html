@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Workaround%20for%20unavoidable%20SSL%20CommonName%20mismatch%3F&In-Reply-To=%3C20060501041014.GB4498%40mail.iSKUNK.ORG%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000737.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?</H1>
+    <B>Daniel Richard G.</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Workaround%20for%20unavoidable%20SSL%20CommonName%20mismatch%3F&In-Reply-To=%3C20060501041014.GB4498%40mail.iSKUNK.ORG%3E"
+       TITLE="[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?">skunk at iSKUNK.ORG
+       </A><BR>
+    <I>Mon May  1 06:10:14 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000737.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#736">[ date ]</a>
+              <a href="thread.html#736">[ thread ]</a>
+              <a href="subject.html#736">[ subject ]</a>
+              <a href="author.html#736">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I've gone ahead and put together a preliminary patch, against the SVN code. 
+This implements a new keyword: &quot;sslcommonname&quot;. (Forget my earlier 
+suggestion of &quot;sslalternate&quot;---I wasn't thinking straight when I made it :]
+
+The approach I took was basically to find all instances of 
+&quot;sslfingerprint&quot;, and implement the new keyword similarly at each turn
+(which turned out to be quite easy). On the downside, you can only specify 
+one CommonName, whereas I had originally envisioned allowing many.
+
+You'll notice that the critical bits are in driver.c, imap.c and pop3.c, 
+before and when the call to SSLOpen() is made. Everything else is 
+supporting boilerplate.
+
+Please let me know how this patch looks, and if it looks good, I'll flesh 
+it out (with deltas on the man page and documentation) for submission.
+
+
+--Daniel
+
+
+-- 
+NAME   = Daniel Richard G.       ##  Remember, skunks       _\|/_  meef?
+EMAIL1 = <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">skunk at iskunk.org</A>        ##  don't smell bad---    (/o|o\) /
+EMAIL2 = <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">skunk at alum.mit.edu</A>      ##  it's the people who   &lt; (^),&gt;
+WWW    = <A HREF="http://www.******.org/">http://www.******.org/</A>  ##  annoy them that do!    /   \
+--
+(****** = site not yet online)
+-------------- next part --------------
+Index: conf.c
+===================================================================
+--- conf.c	(revision 4811)
++++ conf.c	(working copy)
+@@ -370,6 +370,7 @@
+ 	stringdump(&quot;sslproto&quot;, ctl-&gt;sslproto);
+ 	booldump(&quot;sslcertck&quot;, ctl-&gt;sslcertck);
+ 	stringdump(&quot;sslcertpath&quot;, ctl-&gt;sslcertpath);
++	stringdump(&quot;sslcommonname&quot;, ctl-&gt;sslcommonname);
+ 	stringdump(&quot;sslfingerprint&quot;, ctl-&gt;sslfingerprint);
+ #endif /* SSL_ENABLE */
+ 	numdump(&quot;expunge&quot;, ctl-&gt;expunge);
+Index: driver.c
+===================================================================
+--- driver.c	(revision 4811)
++++ driver.c	(working copy)
+@@ -1094,10 +1094,16 @@
+ 	set_timeout(mytimeout);
+ 
+ 	/* perform initial SSL handshake on open connection */
+-	/* Note:  We pass the realhost name over for certificate
+-		verification.  We may want to make this configurable */
+-	if (ctl-&gt;use_ssl &amp;&amp; SSLOpen(mailserver_socket,ctl-&gt;sslcert,ctl-&gt;sslkey,ctl-&gt;sslproto,ctl-&gt;sslcertck,
+-	    ctl-&gt;sslcertpath,ctl-&gt;sslfingerprint,realhost,ctl-&gt;server.pollname) == -1) 
++	if (ctl-&gt;use_ssl &amp;&amp;
++	    SSLOpen(mailserver_socket,
++	            ctl-&gt;sslcert,
++	            ctl-&gt;sslkey,
++	            ctl-&gt;sslproto,
++	            ctl-&gt;sslcertck,
++	            ctl-&gt;sslcertpath,
++	            ctl-&gt;sslfingerprint,
++	            ctl-&gt;sslcommonname ? ctl-&gt;sslcommonname : realhost,
++	            ctl-&gt;server.pollname) == -1)
+ 	{
+ 	    report(stderr, GT_(&quot;SSL connection failed.\n&quot;));
+ 	    err = PS_SOCKET;
+Index: fetchmail.c
+===================================================================
+--- fetchmail.c	(revision 4811)
++++ fetchmail.c	(working copy)
+@@ -904,6 +904,7 @@
+     FLAG_MERGE(sslproto);
+     FLAG_MERGE(sslcertck);
+     FLAG_MERGE(sslcertpath);
++    FLAG_MERGE(sslcommonname);
+     FLAG_MERGE(sslfingerprint);
+ #endif
+     FLAG_MERGE(expunge);
+@@ -1551,6 +1552,8 @@
+ 	    if (ctl-&gt;sslcertpath != NULL)
+ 		printf(GT_(&quot;  SSL trusted certificate directory: %s\n&quot;), ctl-&gt;sslcertpath);
+ 	}
++	if (ctl-&gt;sslcommonname != NULL)
++		printf(GT_(&quot;  SSL server CommonName: %s\n&quot;), ctl-&gt;sslcommonname);
+ 	if (ctl-&gt;sslfingerprint != NULL)
+ 		printf(GT_(&quot;  SSL key fingerprint (checked against the server key): %s\n&quot;), ctl-&gt;sslfingerprint);
+ #endif
+Index: fetchmail.h
+===================================================================
+--- fetchmail.h	(revision 4811)
++++ fetchmail.h	(working copy)
+@@ -336,6 +336,7 @@
+ 	char *sslproto;		/* force usage of protocol (ssl2|ssl3|tls1) - defaults to ssl23 */
+     char *sslcertpath;		/* Trusted certificate directory for checking the server cert */
+     flag sslcertck;		/* Strictly check the server cert. */
++    char *sslcommonname;	/* Server must have this CommonName */
+     char *sslfingerprint;	/* Fingerprint to check against */
+     char *properties;		/* passthrough properties for extensions */
+ 
+Index: imap.c
+===================================================================
+--- imap.c	(revision 4811)
++++ imap.c	(working copy)
+@@ -371,16 +371,27 @@
+         &amp;&amp; !ctl-&gt;use_ssl
+         &amp;&amp; strstr(capabilities, &quot;STARTTLS&quot;))
+     {
+-           char *realhost;
++	   char *cname;
++
++	   cname = ctl-&gt;server.pollname;
++	   if (ctl-&gt;server.via) cname = ctl-&gt;server.via;
++	   if (ctl-&gt;sslcommonname) cname = ctl-&gt;sslcommonname;
+ 
+-           realhost = ctl-&gt;server.via ? ctl-&gt;server.via : ctl-&gt;server.pollname;
+            ok = gen_transact(sock, &quot;STARTTLS&quot;);
+ 
+            /* We use &quot;tls1&quot; instead of ctl-&gt;sslproto, as we want STARTTLS,
+             * not other SSL protocols
+             */
+            if (ok == PS_SUCCESS &amp;&amp;
+-	       SSLOpen(sock,ctl-&gt;sslcert,ctl-&gt;sslkey,&quot;tls1&quot;,ctl-&gt;sslcertck, ctl-&gt;sslcertpath,ctl-&gt;sslfingerprint,realhost,ctl-&gt;server.pollname) == -1)
++	       SSLOpen(sock,
++	               ctl-&gt;sslcert,
++	               ctl-&gt;sslkey,
++	               &quot;tls1&quot;,
++	               ctl-&gt;sslcertck,
++	               ctl-&gt;sslcertpath,
++	               ctl-&gt;sslfingerprint,
++	               cname,
++	               ctl-&gt;server.pollname) == -1)
+            {
+ 	       if (!ctl-&gt;sslproto &amp;&amp; !ctl-&gt;wehaveauthed)
+ 	       {
+Index: options.c
+===================================================================
+--- options.c	(revision 4811)
++++ options.c	(working copy)
+@@ -45,6 +45,7 @@
+ 		 LA_SSLPROTO,
+ 		 LA_SSLCERTCK,
+ 		 LA_SSLCERTPATH,
++		 LA_SSLCOMMONNAME,
+ 		 LA_SSLFINGERPRINT,
+ 		 LA_FETCHSIZELIMIT,
+ 		 LA_FASTUIDL,
+@@ -120,6 +121,7 @@
+   {&quot;sslproto&quot;,	 required_argument, (int *) 0, LA_SSLPROTO },
+   {&quot;sslcertck&quot;, no_argument,	   (int *) 0, LA_SSLCERTCK },
+   {&quot;sslcertpath&quot;,   required_argument, (int *) 0, LA_SSLCERTPATH },
++  {&quot;sslcommonname&quot;,    required_argument, (int *) 0, LA_SSLCOMMONNAME },
+   {&quot;sslfingerprint&quot;,   required_argument, (int *) 0, LA_SSLFINGERPRINT },
+ #endif
+ 
+@@ -525,6 +527,10 @@
+ 	    ctl-&gt;sslcertpath = prependdir(optarg, currentwd);
+ 	    break;
+ 
++	case LA_SSLCOMMONNAME:
++	    ctl-&gt;sslcommonname = xstrdup(optarg);
++	    break;
++
+ 	case LA_SSLFINGERPRINT:
+ 	    ctl-&gt;sslfingerprint = xstrdup(optarg);
+ 	    break;
+@@ -595,6 +601,7 @@
+ 	P(GT_(&quot;      --sslkey      ssl private key file\n&quot;));
+ 	P(GT_(&quot;      --sslcert     ssl client certificate\n&quot;));
+ 	P(GT_(&quot;      --sslcertpath path to ssl certificates\n&quot;));
++	P(GT_(&quot;      --sslcommonname  server must have this CommonName\n&quot;));
+ 	P(GT_(&quot;      --sslfingerprint fingerprint that must match that of the server's cert.\n&quot;));
+ 	P(GT_(&quot;      --sslproto    force ssl protocol (ssl2/ssl3/tls1)\n&quot;));
+ #endif
+Index: pop3.c
+===================================================================
+--- pop3.c	(revision 4811)
++++ pop3.c	(working copy)
+@@ -412,16 +412,27 @@
+ 	    &amp;&amp; !ctl-&gt;use_ssl
+ 	    &amp;&amp; (!ctl-&gt;sslproto || !strcmp(ctl-&gt;sslproto,&quot;tls1&quot;)))
+ 	{
+-	    char *realhost;
++	    char *cname;
++
++	   cname = ctl-&gt;server.pollname;
++	   if (ctl-&gt;server.via) cname = ctl-&gt;server.via;
++	   if (ctl-&gt;sslcommonname) cname = ctl-&gt;sslcommonname;
+ 
+-	   realhost = ctl-&gt;server.via ? ctl-&gt;server.via : ctl-&gt;server.pollname;
+            ok = gen_transact(sock, &quot;STLS&quot;);
+ 
+            /* We use &quot;tls1&quot; instead of ctl-&gt;sslproto, as we want STLS,
+             * not other SSL protocols
+             */
+ 	   if (ok == PS_SUCCESS &amp;&amp;
+-	       SSLOpen(sock,ctl-&gt;sslcert,ctl-&gt;sslkey,&quot;tls1&quot;,ctl-&gt;sslcertck, ctl-&gt;sslcertpath,ctl-&gt;sslfingerprint,realhost,ctl-&gt;server.pollname) == -1)
++	       SSLOpen(sock,
++	               ctl-&gt;sslcert,
++	               ctl-&gt;sslkey,
++	               &quot;tls1&quot;,
++	               ctl-&gt;sslcertck,
++	               ctl-&gt;sslcertpath,
++	               ctl-&gt;sslfingerprint,
++	               cname,
++	               ctl-&gt;server.pollname) == -1)
+ 	   {
+ 	       if (!ctl-&gt;sslproto &amp;&amp; !ctl-&gt;wehaveauthed)
+ 	       {
+Index: rcfile_l.l
+===================================================================
+--- rcfile_l.l	(revision 4811)
++++ rcfile_l.l	(working copy)
+@@ -185,6 +185,7 @@
+ sslproto	{ return SSLPROTO; }
+ sslcertck	{ return SSLCERTCK; }
+ sslcertpath	{ return SSLCERTPATH; }
++sslcommonname	{ return SSLCOMMONNAME; }
+ sslfingerprint	{ return SSLFINGERPRINT; }
+ checkalias	{ return CHECKALIAS; }
+ 
+Index: rcfile_y.y
+===================================================================
+--- rcfile_y.y	(revision 4811)
++++ rcfile_y.y	(working copy)
+@@ -76,7 +76,7 @@
+ %token NO KEEP FLUSH LIMITFLUSH FETCHALL REWRITE FORCECR STRIPCR PASS8BITS 
+ %token DROPSTATUS DROPDELIVERED
+ %token DNS SERVICE PORT UIDL INTERVAL MIMEDECODE IDLE CHECKALIAS 
+-%token SSL SSLKEY SSLCERT SSLPROTO SSLCERTCK SSLCERTPATH SSLFINGERPRINT
++%token SSL SSLKEY SSLCERT SSLPROTO SSLCERTCK SSLCERTPATH SSLCOMMONNAME SSLFINGERPRINT
+ %token PRINCIPAL ESMTPNAME ESMTPPASSWORD
+ %token TRACEPOLLS
+ 
+@@ -337,6 +337,7 @@
+ 		| SSLPROTO STRING	{current.sslproto = xstrdup($2);}
+ 		| SSLCERTCK             {current.sslcertck = FLAG_TRUE;}
+ 		| SSLCERTPATH STRING    {current.sslcertpath = prependdir($2, rcfiledir);}
++		| SSLCOMMONNAME STRING  {current.sslcommonname = xstrdup($2);}
+ 		| SSLFINGERPRINT STRING {current.sslfingerprint = xstrdup($2);}
+ 
+ 		| NO KEEP		{current.keep        = FLAG_FALSE;}
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000737.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#736">[ date ]</a>
+              <a href="thread.html#736">[ thread ]</a>
+              <a href="subject.html#736">[ subject ]</a>
+              <a href="author.html#736">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

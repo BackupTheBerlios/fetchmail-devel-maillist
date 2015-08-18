@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060228135522.GA28688%40zoidberg.homeip.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000663.html">
+   <LINK REL="Next"  HREF="000662.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD</H1>
+    <B>Casper Gripenberg</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060228135522.GA28688%40zoidberg.homeip.net%3E"
+       TITLE="[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD">casper.gripenberg at kotiportti.fi
+       </A><BR>
+    <I>Tue Feb 28 14:55:22 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000663.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+        <LI>Next message: <A HREF="000662.html">[fetchmail-devel] Re: handle imap EXPUNGE better
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#664">[ date ]</a>
+              <a href="thread.html#664">[ thread ]</a>
+              <a href="subject.html#664">[ subject ]</a>
+              <a href="author.html#664">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Tue, Feb 28, 2006 at 02:53:24PM +0530, Sunil Shetye wrote:
+&gt;<i> Quoting from Casper Gripenberg's mail on Sun, Feb 19, 2006:
+</I>&gt;<i> &gt; [...]
+</I>&gt;<i> &gt; fetchmail: IMAP&gt; A0005 NOOP
+</I>&gt;<i> &gt; fetchmail: IMAP&lt; A0005 OK NOOP completed
+</I>&gt;<i> &gt; fetchmail: IMAP&lt; * 1 EXISTS
+</I>&gt;<i> &gt; fetchmail: IMAP&lt; * 2 EXISTS
+</I>&gt;<i> &gt; fetchmail: IMAP&lt; * 3 EXISTS
+</I>&gt;<i> &gt; fetchmail: IMAP&lt; * 4 EXISTS
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Here fetchmail hangs..nothing happens for 300 secs (unless a new
+</I>&gt;<i> &gt; &quot;EXISTS&quot; event arrives and then the 300 secs timer resets)..it's totally
+</I>&gt;<i> &gt; dead. Sending SIGHUP doesn't help. So I enter GDB on another terminal:
+</I>&gt;<i> 
+</I>&gt;<i> The problem is that you are getting an EXISTS *after* NOOP. Thus, you
+</I>&gt;<i> are getting unsolicited response between two IMAP commands. fetchmail
+</I>&gt;<i> expects this kind of response:
+</I>&gt;<i> 
+</I>&gt;<i> IMAP&gt; A0005 NOOP
+</I>&gt;<i> IMAP&lt; * 1 EXISTS
+</I>&gt;<i> IMAP&lt; * 1 RECENT
+</I>&gt;<i> IMAP&lt; A0005 OK NOOP completed
+</I>
+Ok. Well then it is clear why it hangs. This does never happen
+on my server. An &quot;OK NOOP&quot; always comes IMMIDIATELY after the
+&quot;NOOP&quot;. It looks like it's a 'canned response' in the server.
+I.e. no processing is done on the server between NOOP and
+OK NOOP.
+
+&gt;<i> Are you checking your mailbox via some other e-mail client at the same
+</I>&gt;<i> time when fetchmail is idling on the mailbox? 
+</I>
+No. Nothing else I have is touching the mailbox, only fetchmail.
+
+&gt;<i> This could explain the
+</I>&gt;<i> unsolicited EXISTS reply and the missing RECENT reply. 
+</I>
+The server does give RECENT replies, but not in response
+to the NOOP loop. Here's how it works currently with my
+own patch that I am using now:
+
+fetchmail: IMAP&gt; A0004 NOOP
+fetchmail: IMAP&lt; A0004 OK NOOP completed
+fetchmail: IMAP&lt; * 1 EXISTS
+fetchmail: IMAP&gt; A0005 EXPUNGE
+fetchmail: IMAP&lt; * 1 RECENT
+fetchmail: IMAP&lt; A0005 OK EXPUNGE completed
+fetchmail: 1 message waiting after expunge
+fetchmail: IMAP&gt; A0006 SEARCH UNSEEN NOT DELETED
+fetchmail: IMAP&lt; * SEARCH 1
+fetchmail: 1 is unseen
+fetchmail: IMAP&lt; A0006 OK SEARCH completed
+fetchmail: 1 is first unseen
+...and then the mail is fetched..
+
+&gt;<i> Here is the first patch which will solve this problem partially.
+</I>&gt;<i> Please test this patch:
+</I>&gt;<i>
+</I>&gt;<i> [...]
+</I>&gt;<i>
+</I>&gt;<i> Another patch will follow (based upon whether one previous pending
+</I>&gt;<i> patch has been accepted or not) which will solve this issue
+</I>&gt;<i> completely. Please try this patch and report the results.
+</I>
+Ok. Here's what happens with your patch:
+
+fetchmail: IMAP&gt; A0014 NOOP
+fetchmail: IMAP&lt; A0014 OK NOOP completed
+fetchmail: IMAP&gt; A0015 NOOP
+fetchmail: IMAP&lt; * 1 EXISTS
+fetchmail: IMAP&lt; * 1 RECENT
+fetchmail: IMAP&lt; A0015 OK NOOP completed
+fetchmail: 1 message waiting after re-poll
+fetchmail: IMAP&gt; A0016 SEARCH UNSEEN NOT DELETED
+fetchmail: IMAP&lt; * SEARCH 1
+fetchmail: 1 is unseen
+...
+
+To me it looks like you are deliberately sleeping instead
+of &quot;NOOP&quot;:ing. To get the EXISTS message to appear after
+the NOOP, right? In that sense I like my fix better, because
+it returns the mails immidiately. Your fix introduces an 
+unnecessary delay(?), but in the debug output it does
+now looks like everything is working like it should. 
+
+Casper
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000663.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+	<LI>Next message: <A HREF="000662.html">[fetchmail-devel] Re: handle imap EXPUNGE better
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#664">[ date ]</a>
+              <a href="thread.html#664">[ thread ]</a>
+              <a href="subject.html#664">[ subject ]</a>
+              <a href="author.html#664">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #15103] Fetchmail Fails with	ASSP	(http://assp.sourceforge.net/)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2315103%5D%20Fetchmail%20Fails%20with%0A%09ASSP%09%28http%3A//assp.sourceforge.net/%29&In-Reply-To=%3C49798840.6090704%40wowcompany.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001036.html">
+   <LINK REL="Next"  HREF="001040.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #15103] Fetchmail Fails with	ASSP	(http://assp.sourceforge.net/)</H1>
+    <B>Frederic Marchal</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2315103%5D%20Fetchmail%20Fails%20with%0A%09ASSP%09%28http%3A//assp.sourceforge.net/%29&In-Reply-To=%3C49798840.6090704%40wowcompany.com%3E"
+       TITLE="[fetchmail-devel] [Bug #15103] Fetchmail Fails with	ASSP	(http://assp.sourceforge.net/)">frederic.marchal at wowcompany.com
+       </A><BR>
+    <I>Fri Jan 23 10:05:04 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001036.html">[fetchmail-devel] [Bug #15103] Fetchmail Fails with ASSP	(http://assp.sourceforge.net/)
+</A></li>
+        <LI>Next message: <A HREF="001040.html">[fetchmail-devel] [Bug #15103] Fetchmail Fails	with	ASSP	(http://assp.sourceforge.net/)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1039">[ date ]</a>
+              <a href="thread.html#1039">[ thread ]</a>
+              <a href="subject.html#1039">[ subject ]</a>
+              <a href="author.html#1039">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE><A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">admin at berlios.de</A> a &#233;crit :
+&gt;<i> Bug #15103, was updated on 2009-Jan-23 07:36
+</I>&gt;<i> Here is a current snapshot of the bug.
+</I>&gt;<i>
+</I>&gt;<i> Project: Community Fetchmail
+</I>&gt;<i> Category: None
+</I>&gt;<i> Status: Open
+</I>&gt;<i> Resolution: None
+</I>&gt;<i> Bug Group: None
+</I>&gt;<i> Priority: 5
+</I>&gt;<i> Submitted by: darthasp
+</I>&gt;<i> Assigned to : none
+</I>&gt;<i> Summary: Fetchmail Fails with ASSP (<A HREF="http://assp.sourceforge.net/">http://assp.sourceforge.net/</A>)
+</I>&gt;<i>
+</I>&gt;<i> Details: Hi There,
+</I>&gt;<i>
+</I>&gt;<i> I am trying to download messages from a catchall mailbox and forward them on to a mail server that sits been an ASSP installation.
+</I>&gt;<i>
+</I>&gt;<i> The problem I am having is that ASSP only looks at the first 2000 bytes of the message in order to determine whether it is SPAM or not.
+</I>&gt;<i>
+</I>&gt;<i> If the message that Fetchmail is sending is larger than this size and ASSP considers it to be SPAM - ASSP closes the connection with a 550: response before Fetchmail has finished copying the mail.
+</I>&gt;<i>
+</I>&gt;<i> Fetchmail then errors with Query status=6 (IOERR)
+</I>&gt;<i>
+</I>&gt;<i> It does not delete the message or mark it as seen.
+</I>&gt;<i>
+</I>&gt;<i> next time fetchmail logs in try's to send the message again with the same result.
+</I>&gt;<i>
+</I>&gt;<i> I can increase the amount of bytes that ASSP looks at and while this solves the issue temporary it is not a permanent solution.  ASSP was not designed to look that the whole message.
+</I>&gt;<i> When I increase the amount of bytes ASSP looks at the system resources go through the roof.
+</I>&gt;<i>
+</I>&gt;<i> Is it possible that Fetchmail could somehow recognise the 550 response from ASSP half way through message sending.
+</I>&gt;<i>
+</I>&gt;<i> I have enclosed log file for you to look at
+</I>&gt;<i>
+</I>&gt;<i> Hope you can help 
+</I>&gt;<i>
+</I>&gt;<i> Regards
+</I>&gt;<i>
+</I>&gt;<i> Phil 
+</I>&gt;<i>
+</I>&gt;<i> fetchmail: SMTP&gt; MAIL FROM:&lt;externaluser&gt; SIZE=861742
+</I>&gt;<i> fetchmail: SMTP&lt; 250 2.1.0 externaluser....Sender OK
+</I>&gt;<i> fetchmail: SMTP&gt; RCPT TO:&lt;internaluser&gt;
+</I>&gt;<i> fetchmail: SMTP&lt; 250 2.1.5 internaluser
+</I>&gt;<i> fetchmail: SMTP&gt; DATA
+</I>&gt;<i> fetchmail: SMTP&lt; 354 Start mail input; end with &lt;CRLF&gt;.&lt;CRLF&gt;
+</I>&gt;<i> fetchmail: error writing message text
+</I>&gt;<i> fetchmail: POP3&gt; QUIT
+</I>&gt;<i> fetchmail: POP3&lt; O07etM6Coi+kFL/DyxZouBPCFDIAEiwZWHF6pjPuZt2vAR+/F0pCL8Re3Qva/m6kfYL7EsD+Vd52
+</I>&gt;<i> fetchmail: MDA error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shrelay at domain</A>@mail.domain
+</I>&gt;<i> fetchmail: 6.3.9 querying server1 (protocol POP3) at Fri Jan 23 07:26:46 2009: poll completed
+</I>&gt;<i> fetchmail: Query status=6 (IOERR)
+</I>&gt;<i> fetchmail: normal termination, status 6
+</I>&gt;<i> fetchmail: 1 message for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shrelay at domain</A> at mail.domain (861742 octets).
+</I>&gt;<i> fetchmail: reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shrelay at domain</A>@mail.domain:1 of 1 (861742 octets) (log message incomplete)fetchmail: error writing message text
+</I>&gt;<i> fetchmail: MDA error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shrelay at domain</A>@mail.domain
+</I>&gt;<i> fetchmail: Query status=6 (IOERR)
+</I>&gt;<i>   
+</I>
+I solved this issue by running ASSP in test mode (check option &quot;Bayesian 
+Test Mode&quot;) and prefixing the subject with something like [SPAM] (in 
+option &quot;Prepend Spam Subject&quot;). It means ASSP won't stop mails seen as 
+bayesian spam but will tag the subject. The mails can then be filtered 
+out automatically by the final recipient.
+
+Since you are downloading your mails with fetchmail, you can't simply 
+reject them because it is too late to do that. The purpose in rejecting 
+them is to leave the bad mails on the hand of the one that accepted them 
+in the first place. But in your case, you already have accepted them and 
+you have to deal with them...
+
+If your server is also accepting external mails through direct 
+connections via port 25 and you want ASSP to reject those mails, then 
+you have to open some kind of backdoor on your mail server to let 
+fetchmail inject the mails it is reading. Be sure to properly firewall 
+that port to prevent anybody but fetchmail to inject mails.
+
+By the way, I don't advise to let ASSP delete or reject blindly bayesian 
+spams because, as you noticed, it doesn't take the whole mail into 
+account and, in general, it does a poor job at filtering spams. It tends 
+to have a high rate of false positives and you will loose good e-mails 
+if you don't keep an eye on what it does.
+
+Frederic
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001036.html">[fetchmail-devel] [Bug #15103] Fetchmail Fails with ASSP	(http://assp.sourceforge.net/)
+</A></li>
+	<LI>Next message: <A HREF="001040.html">[fetchmail-devel] [Bug #15103] Fetchmail Fails	with	ASSP	(http://assp.sourceforge.net/)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1039">[ date ]</a>
+              <a href="thread.html#1039">[ thread ]</a>
+              <a href="subject.html#1039">[ subject ]</a>
+              <a href="author.html#1039">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

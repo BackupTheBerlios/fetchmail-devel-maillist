@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] 6.3.0 is out - draft announcement
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%206.3.0%20is%20out%20-%20draft%20announcement&In-Reply-To=%3C200512051313.40508.rfunk%40funknet.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000566.html">
+   <LINK REL="Next"  HREF="000572.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] 6.3.0 is out - draft announcement</H1>
+    <B>Rob Funk</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%206.3.0%20is%20out%20-%20draft%20announcement&In-Reply-To=%3C200512051313.40508.rfunk%40funknet.net%3E"
+       TITLE="[fetchmail-devel] 6.3.0 is out - draft announcement">rfunk at funknet.net
+       </A><BR>
+    <I>Mon Dec  5 19:13:40 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000566.html">[fetchmail-devel] 6.3.0 is out - SVN overview
+</A></li>
+        <LI>Next message: <A HREF="000572.html">[fetchmail-devel] 6.3.0 is out - draft announcement
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#571">[ date ]</a>
+              <a href="thread.html#571">[ thread ]</a>
+              <a href="subject.html#571">[ subject ]</a>
+              <a href="author.html#571">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+&gt;<i> Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; writes:
+</I>&gt;<i> &gt; Matthias Andree wrote:
+</I>&gt;<i> &gt;&gt; I have not yet managed to write a decent release announcement and
+</I>&gt;<i> &gt;&gt; rework every tiny bit of the web page - help welcome.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; I also have not yet announced this 6.3.0 widely (freshmeat, other
+</I>&gt;<i> &gt;&gt; mailing lists) - we'll see how the first downloaders receive this
+</I>&gt;<i> &gt;&gt; software and if we need to do 6.3.1 quickly or not.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Anything in particular you do or don't want to see in an announcement?
+</I>&gt;<i>
+</I>&gt;<i> Nothing special. There are various bits you can collect from:
+</I>&gt;<i>
+</I>&gt;<i> 
+</I>&lt;<A HREF="http://freshmeat.net/projects/fetchmail/?branch_id=2635&amp;release_id=213450">http://freshmeat.net/projects/fetchmail/?branch_id=2635&amp;release_id=213450</A>&gt; 
+&lt;<A HREF="http://fetchmail.berlios.de/">http://fetchmail.berlios.de/</A>&gt; (newsflash)
+&gt;<i> &lt;<A HREF="http://developer.berlios.de/forum/forum.php?forum_id=16515">http://developer.berlios.de/forum/forum.php?forum_id=16515</A>&gt;
+</I>
+OK, I've used those plus a small paragraph about the transition from ESR in 
+the attached draft.  Also a few other minor edits.  Let me know what you 
+think...
+
+-- 
+==============================| &quot;A slice of life isn't the whole cake
+ Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; | One tooth will never make a full grin&quot;
+ <A HREF="http://www.funknet.net/rfunk">http://www.funknet.net/rfunk</A> |    -- Chris Mars, &quot;Stuck in Rewind&quot;
+-------------- next part --------------
+The Community Fetchmail team is happy to announce the release of Fetchmail 6.3.0 as of 30 November, 2005.
+
+More than two years after the previous formal 6.2.5 release, this collects several dozen bug fixes, documentation, portability and IPv6 improvements and marks the beginning of a new &quot;stable&quot; 6.3.X branch that will not change, except for bug fixes and documentation updates.
+
+This is also the first major release from the new Community Fetchmail maintenance team, which took over from longtime maintainer Eric S. Raymond in June 2004.  As a result of this change, the Fetchmail home page moved to:
+  <A HREF="http://fetchmail.berlios.de/">http://fetchmail.berlios.de/</A>
+And the mailing list focus has moved to the lists hosted at Berlios, located at:
+  <A HREF="http://developer.berlios.de/mail/?group_id=1824">http://developer.berlios.de/mail/?group_id=1824</A>
+
+Future versions of Fetchmail with new features or changes that affect Fetchmail's behavior will be called 6.4.0 or 7.0.0 depending how large the impact is.  This means that we will not have &quot;gold&quot; releases any more, but instead the 6.3.X release with the greatest X is usually the best.
+
+Changes between Fetchmail 6.2.5 and 6.3.0:
+The --netsec/-T options were removed. The --smtphost is now always &quot;localhost&quot;. fetchmail now uses automake. Internationalization now requires gettext 0.14 to be installed separately. More than 140 user-visible changes were made, most of them bugfixes. Some documentation and translation updates were made to improve stability and protocol conformance, to improve bounce and warning messages, and to improve portability.
+
+(Note: for those who downloaded the .asc GnuPG signature file in the first 23 hours after release, they will have seen &quot;BAD signature&quot;. The signature file was broken by the maintainer's last-minute change to the NEWS file. A new signature file was uploaded on 2005-12-01 at 23:57 UTC.)
+
+
+About Fetchmail:
+Fetchmail is a free, full-featured, robust, well-documented remote-mail retrieval and forwarding utility intended to be used over on-demand TCP/IP links (such as SLIP or PPP connections). It supports every remote-mail protocol now in use on the Internet: POP2, POP3, RPOP, APOP, KPOP, all flavors of IMAP, and ESMTP ETRN. It can even support IPv6 and IPSEC. 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000566.html">[fetchmail-devel] 6.3.0 is out - SVN overview
+</A></li>
+	<LI>Next message: <A HREF="000572.html">[fetchmail-devel] 6.3.0 is out - draft announcement
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#571">[ date ]</a>
+              <a href="thread.html#571">[ thread ]</a>
+              <a href="subject.html#571">[ subject ]</a>
+              <a href="author.html#571">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

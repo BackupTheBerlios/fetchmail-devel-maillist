@@ -1,0 +1,45 @@
+From robot at translationproject.org  Mon Jan 27 12:27:05 2014
+From: robot at translationproject.org (Translation Project Robot)
+Date: Mon, 27 Jan 2014 12:27:05 +0100
+Subject: [fetchmail-devel] New Indonesian PO file for 'fetchmail' (version
+	6.3.24.1)
+Message-ID: <E1W7kLJ-0002RR-PI@duik.vrijschrift.org>
+
+Hello, gentle maintainer.
+
+This is a message from the Translation Project robot.
+
+A revised PO file for textual domain 'fetchmail' has been submitted
+by the Indonesian team of translators.  The file is available at:
+
+    http://translationproject.org/latest/fetchmail/id.po
+
+(We can arrange things so that in the future such files are automatically
+e-mailed to you when they arrive.  Ask at the address below if you want this.)
+
+All other PO files for your package are available in:
+
+    http://translationproject.org/latest/fetchmail/
+
+Please consider including all of these in your next release, whether
+official or a pretest.
+
+Whenever you have a new distribution with a new version number ready,
+containing a newer POT file, please send the URL of that distribution
+tarball to the address below.  The tarball may be just a pretest or a
+snapshot, it does not even have to compile.  It is just used by the
+translators when they need some extra translation context.
+
+The following HTML page has been updated:
+
+    http://translationproject.org/domain/fetchmail.html
+
+If any question arises, please contact the translation coordinator.
+
+Thank you for all your work,
+
+                                The Translation Project robot, in the
+                                name of your translation coordinator.
+                                <coordinator at translationproject.org>
+
+

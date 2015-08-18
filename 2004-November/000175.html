@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Assorted minor bugs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3C20041108085826.GA770%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000174.html">
+   <LINK REL="Next"  HREF="000176.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Assorted minor bugs</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3C20041108085826.GA770%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] Assorted minor bugs">B.Candler at pobox.com
+       </A><BR>
+    <I>Mon Nov  8 09:58:26 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000174.html">[fetchmail-devel] [BUG] fetchmail hangs during pop3 pull after a mail with a null char
+</A></li>
+        <LI>Next message: <A HREF="000176.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#175">[ date ]</a>
+              <a href="thread.html#175">[ thread ]</a>
+              <a href="subject.html#175">[ subject ]</a>
+              <a href="author.html#175">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Mon, Nov 08, 2004 at 01:01:31AM +0100, Matthias Andree wrote:
+&gt;<i> Can you try the tarball from
+</I>&gt;<i> <A HREF="http://home.pages.de/~mandree/tmp/fetchmail-6.2.6.tar.bz2">http://home.pages.de/~mandree/tmp/fetchmail-6.2.6.tar.bz2</A>
+</I>
+Thanks for making this interim release.
+
+I reported some problems with 6.2.5 and posted patches to the old
+fetchmail-friends list in April, but none appear to have been incorporated
+into 6.2.6. The small patchset I keep is attached, and still applies cleanly
+to 6.2.6.
+
+The bugs were described more fully on fetchmail-friends, but in summary:
+
+(1) There is a completely unnecessary sleep(3) after logging in. I cannot
+see any justification for this; the comment in the code talks about mailbox
+locking and tempfiles, but when the POP3 server has replied &quot;+OK&quot; to a
+login, then it is by its own admission locked and ready to receive commands.
+
+I am guessing this was a workaround for some ancient and broken server, but
+I think it should be removed as it just wastes time and resources.
+
+(2a) When talking to an SSL server, where the certificate name does not
+match, then annoyingly a 'certificate name mismatch' error is given three
+times. The patch changes it so that this warning is only given if you select
+verbose or sslcertck, to be the same as the other certificate
+warnings/errors.
+
+(2b) When talking to an SSL server, honour the sslcertpath option even if
+sslcertck is not set (currently it is ignored); this allows you to use
+fetchmail -v to get useful information on the certificate chain, even if
+it's not being strictly enforced using sslcertck.
+
+(3) There is a bug where 'showdots' fails to work if there are two 'poll'
+entries in .fetchmailrc; I spent a while chasing this down, and it turns out
+to be an option parsing bug. Full description here:
+<A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2004-April/008518.html">http://lists.ccil.org/pipermail/fetchmail-friends/2004-April/008518.html</A>
+
+This URL also contains separately the patches which are combined in the
+attached bundle.
+
+You might want to change my fix for (1) though: instead of #ifdef BOLLOCKS
+then just remove the sleep and the (incorrect) comment associated with it
+:<i>-)
+</I>
+Regards,
+
+Brian.
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: fetchmail-6.2.5-miscfix-patch.gz
+Type: application/x-gunzip
+Size: 1454 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20041108/689d1586/attachment.bin">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20041108/689d1586/attachment.bin</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000174.html">[fetchmail-devel] [BUG] fetchmail hangs during pop3 pull after a mail with a null char
+</A></li>
+	<LI>Next message: <A HREF="000176.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#175">[ date ]</a>
+              <a href="thread.html#175">[ thread ]</a>
+              <a href="subject.html#175">[ subject ]</a>
+              <a href="author.html#175">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

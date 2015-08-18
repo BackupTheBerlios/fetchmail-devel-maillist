@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Some PATRICIA numbers
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3Cop.vcw0njhl1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001370.html">
+   <LINK REL="Next"  HREF="001372.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Some PATRICIA numbers</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3Cop.vcw0njhl1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Some PATRICIA numbers">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue May 18 21:05:33 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001370.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+        <LI>Next message: <A HREF="001372.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1371">[ date ]</a>
+              <a href="thread.html#1371">[ thread ]</a>
+              <a href="subject.html#1371">[ subject ]</a>
+              <a href="author.html#1371">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 18.05.2010, 19:48 Uhr, schrieb Rainer Weikusat:
+
+&gt;<i> &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;&gt;<i> Am 16.05.2010, 23:33 Uhr, schrieb Rainer Weikusat:
+</I>&gt;&gt;&gt;<i> The trie implementation is meanwhile complete
+</I>&gt;<i>
+</I>&gt;<i> [...]
+</I>&gt;<i>
+</I>&gt;&gt;<i> I'm really looking forward to your code :-)
+</I>&gt;<i>
+</I>&gt;<i> I hope that I've now also found the 'obvious' optimizations (even with
+</I>&gt;<i> 'full' tail pointers, save_str is the third most expensive operation
+</I>&gt;<i> accomplished by fetchmail, so increasing insert times potentially
+</I>&gt;<i> matters a lot). I am going to start with integrating the uidl db
+</I>&gt;<i> implementation I have with the POP3 code now. If this was ok, I would
+</I>&gt;<i> like to send an 'advance' version of the code (basically, the
+</I>&gt;<i> 'stand-alone test program' I have used so far) to the list in order to
+</I>&gt;<i> enable some third-party review. The code is, however, presently
+</I>&gt;<i> completely comment-free (could be added to some reasonable degree, eg
+</I>&gt;<i> no 'fuck me gently with a chainsaw'-style witticisms) and presumably
+</I>&gt;<i> somewhat dense to people who are not used to regard 'integers' a
+</I>&gt;<i> finite, ordered bit-sets.
+</I>
+Hi Rainer,
+
+please do (show an advance/preview version) - if you don't want to expose  
+it to the list yet for whatever reason, but want my comments, feel free to  
+send personal mail.
+
+WRT commentary, I think I am with Stroustrup here, meaning that the  
+commentary is good to fill in what *cannot* be better said in code.  
+Instead, comments should provide a general idea of what a piece of code  
+does, and possibly describe the interfaces and return values, at least the  
+special cases (if any) such as NULL, -1, 0, ...  descriptive and accurate  
+variable and function names also reduce the need for commentary in epic  
+breadth. :-)
+
+Best regards
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001370.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+	<LI>Next message: <A HREF="001372.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1371">[ date ]</a>
+              <a href="thread.html#1371">[ thread ]</a>
+              <a href="subject.html#1371">[ subject ]</a>
+              <a href="author.html#1371">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

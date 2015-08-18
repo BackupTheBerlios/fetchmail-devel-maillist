@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Fetchmail From space or not?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Fetchmail%20From%20space%20or%20not%3F&In-Reply-To=%3C20050815165516.GB18042%40ngolde.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000431.html">
+   <LINK REL="Next"  HREF="000434.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Fetchmail From space or not?</H1>
+    <B>Nico Golde</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Fetchmail%20From%20space%20or%20not%3F&In-Reply-To=%3C20050815165516.GB18042%40ngolde.de%3E"
+       TITLE="[fetchmail-devel] Fetchmail From space or not?">nico at ngolde.de
+       </A><BR>
+    <I>Mon Aug 15 18:55:16 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000431.html">[fetchmail-devel] Fetchmail From space or not?
+</A></li>
+        <LI>Next message: <A HREF="000434.html">[fetchmail-devel] Fetchmail From space or not?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#432">[ date ]</a>
+              <a href="thread.html#432">[ thread ]</a>
+              <a href="subject.html#432">[ subject ]</a>
+              <a href="author.html#432">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+* Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; [2005-08-15 18:48]:
+&gt;<i> Nico Golde wrote:
+</I>&gt;<i> &gt; I received this bug message:
+</I>&gt;<i> &gt; When i do 'fetchmail --bsmtp test.mail'
+</I>&gt;<i> &gt; test.mail looks like that:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; MAIL FROM:<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">user at user.net</A>
+</I>&gt;<i> &gt; RCPT TO: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">user2 at user2.net</A>
+</I>&gt;<i> &gt; DATA..
+</I>&gt;<i> 
+</I>&gt;<i> There are supposed to be &lt;angle brackets&gt; around those email addresses.  
+</I>&gt;<i> I'm a bit concerned that they aren't there.  It should look like:
+</I>&gt;<i> 
+</I>&gt;<i> MAIL FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">user at user.net</A>&gt;
+</I>&gt;<i> RCPT TO:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">user2 at user2.net</A>&gt;
+</I>
+--- sink.c      2005-08-15 18:54:07.000000000 +0200
++++ la.c        2005-08-15 18:54:58.000000000 +0200
+@@ -721,7 +721,7 @@
+
+     /* see the ap computation under the SMTP branch */
+     fprintf(sinkfp,
+-           &quot;MAIL FROM:%s&quot;, (msg-&gt;return_path[0]) ? msg-&gt;return_path : user);
++           &quot;MAIL FROM:&lt;%s&gt;&quot;, (msg-&gt;return_path[0]) ? msg-&gt;return_path : user);
+
+     if (ctl-&gt;pass8bits || (ctl-&gt;mimemsg &amp; MSG_IS_8BIT))
+        fputs(&quot; BODY=8BITMIME&quot;, sinkfp);
+@@ -746,7 +746,7 @@
+     for (idp = msg-&gt;recipients; idp; idp = idp-&gt;next)
+        if (idp-&gt;val.status.mark == XMIT_ACCEPT)
+        {
+-           fprintf(sinkfp, &quot;RCPT TO: %s\r\n&quot;,
++           fprintf(sinkfp, &quot;RCPT TO:&lt;%s&gt;\r\n&quot;,
+                rcpt_address (ctl, idp-&gt;id, 1));
+            (*good_addresses)++;
+        }
+
+Regards Nico
+
+-- 
+Nico Golde - JAB: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nion at jabber.ccc.de</A> | GPG: 0x73647CFF
+<A HREF="http://www.ngolde.de">http://www.ngolde.de</A> | <A HREF="http://www.muttng.org">http://www.muttng.org</A> | <A HREF="http://grml.org">http://grml.org</A> 
+VIM has two modes - the one in which it beeps 
+and the one in which it doesn't -- encrypted mail preferred
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20050815/f146718b/attachment.pgp">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20050815/f146718b/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000431.html">[fetchmail-devel] Fetchmail From space or not?
+</A></li>
+	<LI>Next message: <A HREF="000434.html">[fetchmail-devel] Fetchmail From space or not?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#432">[ date ]</a>
+              <a href="thread.html#432">[ thread ]</a>
+              <a href="subject.html#432">[ subject ]</a>
+              <a href="author.html#432">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

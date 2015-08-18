@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] automake migration
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20automake%20migration&In-Reply-To=%3Cm3659ofv41.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000018.html">
+   <LINK REL="Next"  HREF="000021.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] automake migration</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20automake%20migration&In-Reply-To=%3Cm3659ofv41.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] automake migration">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Fri Jun 18 22:51:10 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000018.html">[fetchmail-devel] why one person hates fetchmail
+</A></li>
+        <LI>Next message: <A HREF="000021.html">[fetchmail-devel] automake migration
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Dear fellow hackers,
+
+I've automake-ified fetchmail, but haven't commited the (huge!) change
+set yet. The reason I've done this before 6.2.6 is that I have been
+unable to compile the current intl/ stuff on Solaris and FreeBSD, and
+haven't been able to fix this. So I was fed up, upgraded gettext,
+switched to automake and voil&#224; it works on SuSE Linux 8.2 x86 (with GCC
+3.4 and ICC 8.0), on Solaris 8 SPARC (with GCC 3.4 and Sun Workshop) and
+on FreeBSD 4.10 i386.
+
+I believe I have tested this well, checked it is fully self-contained
+and am confident that after the commit, the package will still build.
+
+A bug the commit would also fix is the generation of text from HTML,
+which can currently create empty files if lynx isn't installed.
+
+Please let me know what you think.
+
+Rob, does this get your OK? If you can tell me how to fork a branch and
+commit that stuff to a branch, I'll do that, for the time being, I have
+exported the repository to a directory and packaged it as
+<A HREF="http://home.pages.de/~mandree/fetchmail/.hidden/fetchmail-6.2.6.svn+automake.tar.bz2">http://home.pages.de/~mandree/fetchmail/.hidden/fetchmail-6.2.6.svn+automake.tar.bz2</A>
+
+Building it after &quot;autoreconf -is&quot; with the software mentioned below
+works for me:
+
+This is what the new README.svn file reads:
+
+|<i> In order to be able to build from the subversion repository (working
+</I>|<i> directory), some files need to be (re-)generated.
+</I>|<i> 
+</I>|<i> Note that these generated files will be shipped with &quot;make dist&quot;,
+</I>|<i> so the end user will not need these packages.
+</I>|<i> 
+</I>|<i> The prerequisite packages are:
+</I>|<i> 
+</I>|<i> - GNU autoconf &gt;= 2.54
+</I>|<i> - GNU automake &gt;= 1.7
+</I>|<i> - GNU gettext &gt;= 0.13
+</I>|<i> - GNU m4
+</I>|<i> - bison or yacc
+</I>|<i> - flex or lex
+</I>|<i> 
+</I>|<i> If you have these installed, type:
+</I>|<i> 
+</I>|<i> $ rm -r -f autom4te.cache
+</I>|<i> $ autoreconf -i -s
+</I>|<i> 
+</I>|<i> This will take a while and may print a lot of messages containing
+</I>|<i> &quot;warning: unquoted definition of...&quot; which are harmless.
+</I>|<i> 
+</I>|<i> After that, build as usual, with
+</I>|<i> 
+</I>|<i> $ ./configure --with-options
+</I>|<i> $ make
+</I>|<i> (become root)
+</I>|<i> # make install-strip
+</I>|<i> 
+</I>|<i> -- Matthias Andree, 2004-06-18
+</I>
+This is what svn status prints:
+
+D      ABOUT-NLS
+A      Makefile.am
+D      Makefile.in
+A      README.svn
+D      config.guess
+D      config.sub
+M      configure.in
+A      dist-tools/Makefile.am
+A      html2txt.sh
+D      intl/ChangeLog
+D      intl/Makefile.in
+D      intl/VERSION
+D      intl/bindtextdom.c
+D      intl/cat-compat.c
+D      intl/dcgettext.c
+D      intl/dgettext.c
+D      intl/explodename.c
+D      intl/finddomain.c
+D      intl/gettext.c
+D      intl/gettext.h
+D      intl/gettextP.h
+D      intl/hash-string.h
+D      intl/intl-compat.c
+D      intl/l10nflist.c
+D      intl/libgettext.h
+D      intl/linux-msg.sed
+D      intl/loadinfo.h
+D      intl/loadmsgcat.c
+D      intl/localealias.c
+D      intl/po2tbl.sed.in
+D      intl/textdomain.c
+D      intl/xopen-msg.sed
+A      m4
+A      m4/Makefile.am
+D      mkinstalldirs
+D      po/Makefile.in.in
+A      po/Makevars
+M      po/ca.po
+D      po/cat-id-tbl.c
+M      po/cs.po
+M      po/da.po
+M      po/de.po
+M      po/el.po
+M      po/es.po
+D      po/fetchmail.pot
+M      po/fr.po
+M      po/gl.po
+M      po/ja.po
+M      po/pl.po
+M      po/pt_BR.po
+M      po/sk.po
+D      po/stamp-cat-id
+M      po/tr.po
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000018.html">[fetchmail-devel] why one person hates fetchmail
+</A></li>
+	<LI>Next message: <A HREF="000021.html">[fetchmail-devel] automake migration
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

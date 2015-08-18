@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] Re: fetchmail segfault on 'empty' mail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20fetchmail%20segfault%20on%20%27empty%27%20mail&In-Reply-To=%3C20051208121849.GA8855%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000579.html">
+   <LINK REL="Next"  HREF="000586.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] Re: fetchmail segfault on 'empty' mail</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20fetchmail%20segfault%20on%20%27empty%27%20mail&In-Reply-To=%3C20051208121849.GA8855%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] Re: fetchmail segfault on 'empty' mail">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Thu Dec  8 13:18:49 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000579.html">[fetchmail-devel] Re: fetchmail segfault on 'empty' mail
+</A></li>
+        <LI>Next message: <A HREF="000586.html">[fetchmail-devel] [PATCH] Re: fetchmail segfault on 'empty' mail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#585">[ date ]</a>
+              <a href="thread.html#585">[ thread ]</a>
+              <a href="subject.html#585">[ subject ]</a>
+              <a href="author.html#585">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+Quoting from Daniel Drake's mail on Wed, Dec 07, 2005:
+&gt;<i> I don't have any more of these mails right now, so this is fairly 
+</I>&gt;<i> fabricated, but more or less accurate.
+</I>&gt;<i> 
+</I>&gt;<i> Before:
+</I>&gt;<i> 
+</I>&gt;<i> fetchmail: 6.2.5.2 querying aap.businessserve.co.uk (protocol POP3) at Wed, 
+</I>&gt;<i> 07 Dec 2005 13:20:02 +0000 (GMT): poll started
+</I>&gt;<i> fetchmail: POP3&lt; +OK &lt;..&gt;
+</I>&gt;<i> fetchmail: POP3&gt; CAPA
+</I>&gt;<i> fetchmail: POP3&lt; -ERR authorization first
+</I>&gt;<i> fetchmail: authorization first
+</I>&gt;<i> fetchmail: Repoll immediately on xxx
+</I>&gt;<i> fetchmail: POP3&lt; +OK &lt;..&gt;
+</I>&gt;<i> fetchmail: POP3&gt; USER xxx
+</I>&gt;<i> fetchmail: POP3&lt; +OK
+</I>&gt;<i> fetchmail: POP3&gt; PASS *
+</I>&gt;<i> fetchmail: POP3&lt; +OK
+</I>&gt;<i> fetchmail: POP3&gt; STAT
+</I>&gt;<i> fetchmail: POP3&lt; +OK 26 82969
+</I>&gt;<i> fetchmail: POP3&gt; LIST 1
+</I>&gt;<i> fetchmail: POP3&lt; +OK 1 1329
+</I>&gt;<i> fetchmail: POP3&gt; RETR 1
+</I>&gt;<i> fetchmail: POP3&lt; +OK 1329 octets follow.
+</I>&gt;<i> reading message xyz:1 of 26 (1329 octets)
+</I>&gt;<i> Segmentation fault
+</I>
+The problem is specific to multidrop mailbox only where the
+duplicate-message killer cannot handle a headerless mail. The attached
+patch should fix this issue. 
+
+The patch also cleans up the code by calling free() at one point
+only for static variables.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/transact.c
+===================================================================
+--- fetchmail/transact.c	(revision 4523)
++++ fetchmail/transact.c	(working copy)
+@@ -407,16 +407,14 @@
+      * condition the code for sending bouncemail will actually look
+      * at the freed storage and coredump...
+      */
+-    if (msgblk.headers)
+-       free(msgblk.headers);
++    xfree(msgblk.headers);
+     free_str_list(&amp;msgblk.recipients);
+-    if (delivered_to)
+-	free(delivered_to);
++    xfree(delivered_to);
+ 
+     /* initially, no message digest */
+     memset(ctl-&gt;digest, '\0', sizeof(ctl-&gt;digest));
+ 
+-    msgblk.headers = received_for = delivered_to = NULL;
++    received_for = NULL;
+     from_offs = reply_to_offs = resent_from_offs = app_from_offs = 
+ 	sender_offs = resent_sender_offs = env_offs = -1;
+     oldlen = 0;
+@@ -441,8 +439,6 @@
+ 		if ((n = SockRead(sock, buf, sizeof(buf)-1)) == -1) {
+ 		    set_timeout(0);
+ 		    free(line);
+-		    free(msgblk.headers);
+-		    msgblk.headers = NULL;
+ 		    return(PS_SOCKET);
+ 		}
+ 		set_timeout(0);
+@@ -901,11 +897,7 @@
+  process_headers:    
+ 
+     if (retain_mail)
+-    {
+-	free(msgblk.headers);
+-	msgblk.headers = NULL;
+ 	return(PS_RETAINED);
+-    }
+     if (refuse_mail)
+ 	return(PS_REFUSED);
+     /*
+@@ -936,7 +928,7 @@
+      * to break it in a way that blackholed mail.  Better to pass
+      * the occasional duplicate than to do that...
+      */
+-    if (MULTIDROP(ctl))
++    if (MULTIDROP(ctl) &amp;&amp; msgblk.headers)
+     {
+ 	MD5_CTX context;
+ 
+@@ -1046,8 +1038,7 @@
+       ctl-&gt;server.envelope &amp;&amp; !strcasecmp(ctl-&gt;server.envelope, &quot;Delivered-To&quot;))
+    {
+ 	    find_server_names(delivered_to, ctl, &amp;msgblk.recipients);
+-       free(delivered_to);
+-       delivered_to = NULL;
++	    xfree(delivered_to);
+    }
+ 	else if (received_for)
+ 	    /*
+@@ -1109,9 +1100,6 @@
+ 	if (outlevel &gt;= O_DEBUG)
+ 	    report(stdout,
+ 		   GT_(&quot;forwarding and deletion suppressed due to DNS errors\n&quot;));
+-	free(msgblk.headers);
+-	msgblk.headers = NULL;
+-	free_str_list(&amp;msgblk.recipients);
+ 	return(PS_TRANSIENT);
+     }
+     else
+@@ -1119,12 +1107,7 @@
+ 	/* set up stuffline() so we can deliver the message body through it */ 
+ 	if ((n = open_sink(ctl, &amp;msgblk,
+ 			   &amp;good_addresses, &amp;bad_addresses)) != PS_SUCCESS)
+-	{
+-	    free(msgblk.headers);
+-	    msgblk.headers = NULL;
+-	    free_str_list(&amp;msgblk.recipients);
+ 	    return(n);
+-	}
+     }
+ 
+     n = 0;
+@@ -1222,9 +1205,6 @@
+     {
+ 	report(stdout, GT_(&quot;writing RFC822 msgblk.headers\n&quot;));
+ 	release_sink(ctl);
+-	free(msgblk.headers);
+-	msgblk.headers = NULL;
+-	free_str_list(&amp;msgblk.recipients);
+ 	return(PS_IOERR);
+     }
+     else if ((run.poll_interval == 0 || nodetach) &amp;&amp; outlevel &gt;= O_VERBOSE &amp;&amp; !is_a_file(1) &amp;&amp; !run.use_syslog)
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000579.html">[fetchmail-devel] Re: fetchmail segfault on 'empty' mail
+</A></li>
+	<LI>Next message: <A HREF="000586.html">[fetchmail-devel] [PATCH] Re: fetchmail segfault on 'empty' mail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#585">[ date ]</a>
+              <a href="thread.html#585">[ thread ]</a>
+              <a href="subject.html#585">[ subject ]</a>
+              <a href="author.html#585">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

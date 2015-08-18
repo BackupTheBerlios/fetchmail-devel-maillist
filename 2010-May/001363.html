@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] save_str problems.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C4BE7C445.6060004%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001362.html">
+   <LINK REL="Next"  HREF="001352.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] save_str problems.</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C4BE7C445.6060004%40gmx.de%3E"
+       TITLE="[fetchmail-devel] save_str problems.">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon May 10 10:31:01 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001362.html">[fetchmail-devel] save_str problems.
+</A></li>
+        <LI>Next message: <A HREF="001352.html">[fetchmail-devel] New Vietnamese PO file for 'fetchmail' (version	6.3.17-pre1)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1363">[ date ]</a>
+              <a href="thread.html#1363">[ thread ]</a>
+              <a href="subject.html#1363">[ subject ]</a>
+              <a href="author.html#1363">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 09.05.2010 23:02, schrieb Rainer Weikusat:
+&gt;<i> Rainer Weikusat &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rweikusat at mssgmbh.com</A>&gt; writes:
+</I>&gt;&gt;<i> Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> [...]
+</I>&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> it also pretended that someone had already fixed the complexity of
+</I>&gt;&gt;&gt;<i> the UID handling (which hasn't happened to the best of my knowledge;
+</I>&gt;&gt;&gt;<i> I have started hacking a bit on it, but not sure if I'll make it, or
+</I>&gt;&gt;&gt;<i> drop it and leave it for a later release using C++, if it turns out
+</I>&gt;&gt;&gt;<i> it's too much of a hassle to do in C).
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I am done with my last 'firebrigade' assignment which means that I
+</I>&gt;&gt;<i> will now continue to work on the UID support for imap
+</I>&gt;<i> 
+</I>&gt;<i> I'm now the 'proud owner' of a fetchmail variant which works (mostly)
+</I>&gt;<i> like a proper 'disconnected imap client'. The number of POP3 accounts
+</I>&gt;<i> registered with the product I am using fetchmail for (except pulling
+</I>&gt;<i> my mail of my employer's mailserver) has grown to 99 and can be
+</I>&gt;<i> expected to increase further.
+</I>
+Sounds good, although I'm not quite sure if you're working on two distinct
+issues here (DIMAP and POP3 improvements).
+
+&gt;<i> Because of this, I'm determined to get
+</I>&gt;<i> rid of the present UID management code 'soon' (probably, during the
+</I>&gt;<i> next couple of 'Sunday shifts'). I've been a content fetchmail user
+</I>&gt;<i> ever since I first got 'internet' in 1999 and I would happily direct
+</I>&gt;<i> some useful work into it because of this. OTOH, my experience with OSS
+</I>&gt;<i> projects so far is a) one gets ignored, b) all kinds of ml lurkers
+</I>&gt;<i> start to enage in wild flaming and c) after the need has arisen, the
+</I>&gt;<i> powers-that-be grudingly implement the missing features themselves,
+</I>&gt;<i> just to ensure that only the worthy ones get any 'due credit', and this
+</I>&gt;<i> means some amount of additional work for me (of which I already have
+</I>&gt;<i> plenty). So, is there a chance for such a change to be accepted?
+</I>
+Hi Rainer,
+
+yes, I think there is, the only substantial concern I have is that of copyright
+and licensing.
+
+There will be proper credit to the copyright holder in the NEWS and/or THANKS
+files, and if the author is distinct from the copyright owner, this could read
+&quot;(C) Copyright 2010 ACME Software Writing, written by Corey Coder&quot;, or similar.
+ As long as I don't need to include your marketing brochure or slogan, but just
+company name and place, that's fine.
+
+
+Given this will likely be a nontrivial contribution according to our German
+Urheberrechtsgesetz, and it apparently touches interests of your employer, we need:
+
+- to make sure that your employer either waives his copyright and allows you to
+claim it, or your employer is willing to contribute under a compatible license
+(GPL &quot;v2 or later&quot; preferred). I am not trained in law and justice sciences, but
+my take of German copyright law is that even if you're doing things in the spare
+time that are closely related to your employment, your employer can still claim
+the so-called Urheberschaft.
+
+- state whether coverage under the Affero GNU GPL v3 would be OK, because I plan
+to let future versions use that license unless the price to be paid (in ripping
+out features where no such licensing is possible) would be too high, in that
+case I'd try to use GNU GPL v3 in the long run.
+
+
+
+With respect to the concerns you've raised,
+
+(a) we're already talking, but I've not taken your past patch because of
+technical concerns (as discussed earlier),
+
+(b) is not something that has happened in the past few years on the fetchmail
+list, and I trust Rob MacGregor as list operator to politely, but also
+distinctly tell people not to go into such unfruitful discussions (or
+bikeshedding); and he has my full backing for that,
+
+(c) is a concern if we cannot reach an agreement on the licenses.  I feel no
+need to adorn myself with somebody else's plumes, continued maintenance for half
+a decade, fixing more than 200 bugs, speaks for itself.
+
+
+I'd be grateful if we could make such DIMAP and scalable POP3 possible, and I
+thank you for letting me know, because I have plans to attack POP3/UIDL
+scalability myself soon -- I could devote my time in other ways if I know your
+work covers that and reduces complexity to O(n log n) worst-case.
+
+Please let me know your decision, or if there are major delays to be expected
+because your bosses haven't got time to decide the licensing soonish.
+
+Looking forward to your reply.
+
+Best regards
+Matthias
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001362.html">[fetchmail-devel] save_str problems.
+</A></li>
+	<LI>Next message: <A HREF="001352.html">[fetchmail-devel] New Vietnamese PO file for 'fetchmail' (version	6.3.17-pre1)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1363">[ date ]</a>
+              <a href="thread.html#1363">[ thread ]</a>
+              <a href="subject.html#1363">[ subject ]</a>
+              <a href="author.html#1363">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

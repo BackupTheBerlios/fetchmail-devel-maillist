@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Add feature: add header to messages?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20feature%3A%20add%20header%20to%20messages%3F&In-Reply-To=%3C4ECC19AA.3020909%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001535.html">
+   <LINK REL="Next"  HREF="001532.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Add feature: add header to messages?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20feature%3A%20add%20header%20to%20messages%3F&In-Reply-To=%3C4ECC19AA.3020909%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Add feature: add header to messages?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Nov 22 22:52:42 CET 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001535.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+        <LI>Next message: <A HREF="001532.html">[fetchmail-devel] [PATCH] fetchmail workaround for a bug in	Zimbra
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1536">[ date ]</a>
+              <a href="thread.html#1536">[ thread ]</a>
+              <a href="subject.html#1536">[ subject ]</a>
+              <a href="author.html#1536">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 22.11.2011 03:42, schrieb Jonathan Kamens:
+
+&gt;&gt;<i> Yes, you're wrong - luckily ;-) The MDA setting is a user-specific
+</I>&gt;&gt;<i> setting, so you can generate a modified rcfile that uses a distinct mda
+</I>&gt;&gt;<i> script (or arguments) for each user.  Now, that's for the easy case
+</I>&gt;&gt;<i> where you have one destination address per upstream account.  It won't
+</I>&gt;&gt;<i> work with --mda on the command line though.
+</I>
+&gt;<i> The problem with this approach, if I am understanding what you are
+</I>&gt;<i> saying correctly, is that we have multiple remote mailboxes /being
+</I>&gt;<i> delivered to the same local user account./ If the MDA setting were
+</I>&gt;<i> specific to the remote account being queried that would work fine, but
+</I>&gt;<i> if it's specific to the local account, it's problematic.
+</I>
+Well, &quot;user&quot; is as opposed to &quot;server&quot;, and was referring to fetchmail
+rcfile syntax.  What I actually mean is that it's specific to the
+upstream server's user, or account.
+
+You should be able to go about something like (untested fragment!):
+
+#------------------------------------------
+# one server with two accounts to be polled
+poll someserver.example.org proto pop3 uidl
+user john pass 123 is joe.sixpack mda &quot;/my/fancy/script john&quot; ssl
+user jack pass 456 is joe.sixpack here mda &quot;/my/fancy/script jack&quot; ssl
+#...
+
+poll otherimaptoaster.example proto imap
+user joe pass &quot;really@ strange!password&quot; is joe.sixpack here
+mda &quot;/my/fancy/script <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">joe at other</A>&quot;
+#------------------------------------------
+
+Would that work for you?  All three accounts from two servers map to the
+same local user, but have a distinct mda option, so I hope this meets
+your needs.
+
+&gt;<i> P.S. I apologize for the misleading Subject line I used to start this
+</I>&gt;<i> thread. When I started writing my message to the list, I was thinking in
+</I>&gt;<i> terms of modifying fetchmail to allow arbitrary headers to be added to
+</I>&gt;<i> messages before delivery, but my thinking evolved as I wrote the message
+</I>&gt;<i> and I obviously ended up proposing something different, but I forgot to
+</I>&gt;<i> go back and update the Subject. I'm not going to change the Subject line
+</I>&gt;<i> now, though, because that would just confuse everybody's threading. :-)
+</I>
+Would it really?  I rely on In-Reply-To: and References: headers for
+threading...
+
+But generally I'm open to provide filtering through an external command
+should the need arise, possibly combined with decisions as to the
+transient/permanent error or deliver or drop-silently.  I'm not sure
+that it needs to be more specific like that because there are tools like
+maildrop's reformail that can modify message headers.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001535.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+	<LI>Next message: <A HREF="001532.html">[fetchmail-devel] [PATCH] fetchmail workaround for a bug in	Zimbra
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1536">[ date ]</a>
+              <a href="thread.html#1536">[ thread ]</a>
+              <a href="subject.html#1536">[ subject ]</a>
+              <a href="author.html#1536">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

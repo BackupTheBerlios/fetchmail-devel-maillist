@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: mail delivery via smtp broken
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20mail%20delivery%20via%20smtp%20broken&In-Reply-To=%3Cm3wtjgu7sl.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000506.html">
+   <LINK REL="Next"  HREF="000508.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: mail delivery via smtp broken</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20mail%20delivery%20via%20smtp%20broken&In-Reply-To=%3Cm3wtjgu7sl.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: mail delivery via smtp broken">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Nov 10 11:16:42 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000506.html">[fetchmail-devel] Re: mail delivery via smtp broken
+</A></li>
+        <LI>Next message: <A HREF="000508.html">[fetchmail-devel] Re: mail delivery via smtp broken
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#507">[ date ]</a>
+              <a href="thread.html#507">[ thread ]</a>
+              <a href="subject.html#507">[ subject ]</a>
+              <a href="author.html#507">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;<i> Quoting from Matthias Andree's mail on Thu, Nov 10, 2005 at 02:31:57AM +0100:
+</I>&gt;&gt;<i> &gt;&gt; This patch should fix this broken behaviour.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; Thanks, applied for upcoming -rc8.
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Actually we need to set fetchmailhost when Kerberos is used, to match
+</I>&gt;&gt;<i> documentation somewhat, so I'll use this:
+</I>&gt;<i>
+</I>&gt;<i> The setting of fetchmailhost is correct.
+</I>&gt;<i>
+</I>&gt;&gt;<i> +		save_str(&amp;ctl-&gt;smtphunt, use_kerberos ? fetchmailhost : &quot;localhost&quot;, FALSE);
+</I>&gt;<i>
+</I>&gt;<i> I believe this is still incorrect. Your patch would imply that if
+</I>&gt;<i> using Kerberos authentication, the local SMTP server should listen on
+</I>&gt;<i> the external interface, exposing the system to SMTP attacks. A secure
+</I>&gt;<i> desktop machine will have the local SMTP server listening on the
+</I>&gt;<i> loopback interface (i.e. on localhost) only.
+</I>
+&gt;<i> ODMR / ETRN / Kerberos authentication are all mailserver side options.
+</I>&gt;<i> They do not imply that the local SMTP server should listen on the
+</I>&gt;<i> desktop machine's external interface.
+</I>
+Right. So we'll have -rc9 without this &quot;fetchmailhost for smtphost&quot;
+behavior and another documentation update.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000506.html">[fetchmail-devel] Re: mail delivery via smtp broken
+</A></li>
+	<LI>Next message: <A HREF="000508.html">[fetchmail-devel] Re: mail delivery via smtp broken
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#507">[ date ]</a>
+              <a href="thread.html#507">[ thread ]</a>
+              <a href="subject.html#507">[ subject ]</a>
+              <a href="author.html#507">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

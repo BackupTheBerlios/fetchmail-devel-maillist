@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2314257%5D%20Incorrect%20parsing%20of%20fetchmailrc&In-Reply-To=%3C201004101532.o3AFWGI6006271%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001322.html">
+   <LINK REL="Next"  HREF="001324.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2314257%5D%20Incorrect%20parsing%20of%20fetchmailrc&In-Reply-To=%3C201004101532.o3AFWGI6006271%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc">admin at berlios.de
+       </A><BR>
+    <I>Sat Apr 10 17:32:16 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001322.html">[fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc
+</A></li>
+        <LI>Next message: <A HREF="001324.html">[fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1323">[ date ]</a>
+              <a href="thread.html#1323">[ thread ]</a>
+              <a href="subject.html#1323">[ subject ]</a>
+              <a href="author.html#1323">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #14257, was updated on 2008-Jul-23 19:07
+Here is a current snapshot of the bug.
+
+Project: fetchmail
+Category: None
+Status: Closed
+Resolution: Fixed
+Bug Group: None
+Priority: 5
+Submitted by: juanvaqueroponc
+Assigned to : m-a
+Summary: Incorrect parsing of fetchmailrc
+
+Details: The username in question is being parsed as 'sername &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">aaaaaaaaaaaaa at aaaaaaaaaaaaa</A>'
+
+It is quite difficult to trigger this bug.
+If I change some lines the bug does not trigger.
+I have got to the attached file that triggers the bug, but
+if I remove the last line the same bug seems not to trigger.
+
+
+Follow-Ups:
+
+Date: 2010-Apr-10 17:32
+By: m-a
+
+Comment:
+Turns out that this bug was a regression I'd introduced in March 2005 when trying to fix memory leaks - but I fixed them the wrong way.
+
+I've committed michael's change as <A HREF="http://gitorious.org/fetchmail/fetchmail/commit/1c6fb40e79a1344c35dcc69b292f9b6913cd4e95">http://gitorious.org/fetchmail/fetchmail/commit/1c6fb40e79a1344c35dcc69b292f9b6913cd4e95</A> - the fix is to appear in a (not-so-distant) future fetchmail 6.3.17 release.
+
+Could I ask you a favour and propose that you either mail patches to the fetchmail-devel@ mailing list or upload them using BerliOS's patch tracker? Much easier to merge them for me that way.
+
+I can also merge from a private branch of yours in Gitorious if you like.
+-------------------------------------------------------
+
+Date: 2010-Apr-10 16:47
+By: m-a
+
+Comment:
+Michael, that's just awesome - thanks for the pointer to the bug!
+
+The bug is that the .sval union member must contain a copy from the string. The lexer may have to read ahead, and this can then cause yytext() to change. It's somewhat documented, so I think it's not masking a deeper issue.
+
+I wonder if transferring the string in an xstrdup() like manner would be better here. I guess I'm signed up to validating all sval uses. :-)
+
+-------------------------------------------------------
+
+Date: 2010-Apr-10 03:02
+By: bob5972
+
+Comment:
+I don't know if this is the right way to fix this, but it works.  The contents of yytext are changing between when the lexer returns yylval.sval and when the parser reads it.  I don't know why that would be happening, so this might be masking a deeper issue.  It may need to be tested further, but it does fix the problem.
+
+This is extremely finicky though.  A clearer test case that triggers it is here <A HREF="http://www.ucf.ics.uci.edu/~bob5972/fetchmailrc.bug">http://www.ucf.ics.uci.edu/~bob5972/fetchmailrc.bug</A> (It's basically his test case with the names labeled something other than aaaa).
+
+
+&gt;<i>From 46a52eac0c1705339642bbe5c277e6bac11235ad Mon Sep 17 00:00:00 2001
+</I>From: Michael Banack &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">bob5972 at gmail.com</A>&gt;
+Date: Fri, 9 Apr 2010 17:56:05 -0700
+Subject: [PATCH] Changed the lexer to copy string values out of yytext.
+
+Fixes bug #14257.
+---
+ rcfile_l.l |   54 +++++++++++++++++++++++++++++++++++++++++-------------
+ 1 files changed, 41 insertions(+), 13 deletions(-)
+
+diff --git a/rcfile_l.l b/rcfile_l.l
+index 8dcd8af..384f8df 100644
+--- a/rcfile_l.l
++++ b/rcfile_l.l
+@@ -34,18 +34,36 @@ int prc_lineno = 1;
+ %%
+ 
+ \&quot;[^\&quot;]*\&quot;	{
+-			yytext[yyleng-1] = '\0';
+-			escapes(yytext+1, yytext);
+-			yyleng = strlen(yytext);
+-			yylval.sval = yytext;
++			static char *in = NULL;
++			static size_t ins = 0;
++			
++			if ((size_t)yyleng + 1 &gt; ins) {
++			    ins = yyleng + 1;
++			    in = (char *)xrealloc(in, ins);
++			}
++			memcpy(in, yytext, yyleng);
++			
++			in[yyleng-1] = '\0';
++			escapes(in+1, in);
++			yyleng = strlen(in);
++			yylval.sval = in;
+                         SETSTATE(0);
+ 			return STRING;
+ 		}
+ \'[^\']*\'	{
+-			yytext[yyleng-1] = '\0';
+-			escapes(yytext+1, yytext);
+-			yyleng = strlen(yytext);
+-			yylval.sval = yytext;
++			static char *in = NULL;
++			static size_t ins = 0;
++			
++			if ((size_t)yyleng + 1 &gt; ins) {
++			    ins = yyleng + 1;
++			    in = (char *)xrealloc(in, ins);
++			}
++			memcpy(in, yytext, yyleng);
++			
++			in[yyleng-1] = '\0';
++			escapes(in+1, in);
++			yyleng = strlen(in);
++			yylval.sval = in;
+                         SETSTATE(0);
+ 			return STRING;
+ 		}
+@@ -53,8 +71,8 @@ int prc_lineno = 1;
+ &quot;*&quot;		{ BEGIN(0); return WILDCARD; }
+ 
+ &lt;NAME&gt;[^=;:, \t\r\n]+	{
+-			static char *in;
+-			static size_t ins;
++			static char *in = NULL;
++			static size_t ins = 0;
+ 
+ 			if ((size_t)yyleng + 1 &gt; ins) {
+ 			    ins = yyleng + 1;
+@@ -222,9 +240,19 @@ options		{/* EMPTY */}
+ -?[0-9]+	{ yylval.number = atoi(yytext); return NUMBER; }
+ 
+ [^=;:, \t\r\n]+	{
+-			escapes(yytext, yytext);
+-			yyleng = strlen(yytext);
+-			yylval.sval = yytext;
++			static char *in = NULL;
++			static size_t ins = 0;
++
++			if ((size_t)yyleng + 1 &gt; ins) {
++			    ins = yyleng + 1;
++			    in = (char *)xrealloc(in, ins);
++			}
++			memcpy(in, yytext, yyleng);
++			in[yyleng] = '\0';
++			
++			escapes(in, in);
++			yyleng = strlen(in);
++			yylval.sval = in;
+ 			return STRING;
+ 		}
+ 
+-- 
+1.7.0.4
+
+
+-------------------------------------------------------
+
+Date: 2009-Apr-23 15:09
+By: m-a
+
+Comment:
+Is there any improvement when compiling things with a recent version of flex?
+
+It's just stabbing into the dark, but perhaps it helps.
+-------------------------------------------------------
+
+Date: 2008-Jul-23 19:11
+By: juanvaqueroponc
+
+Comment:
+begin-base64 600 fetchmailrc.gz
+H4sIAAAAAAACA+2dzW7aQBDH73mKFagoOezuoeohVin0UqmHqnkDtE2IiuQE
+hEl767MXDLb3Y5xgs3ic5E+kgI1hfp6dr501cDe/N0/pJhMPd0YMVuvl7YNZ
+pELeiw/fBuJ+vrn9bdL0YrVMU2Hsm1gt1xtxff1JbF+0Wd4uU3Hz8+ajeMrm
+60fzMBcD490GYmWy7O9yfVc9NxBZlopsvhGLxz+LbPErnYvhTlBSSrsY+sJf
+kNhIjtoKCE+OFPb9x9ebtsLCk3j2jdu/64vaoW+BQEoarad2Cop9GseIoYz4
+NNsN7Sm32BME1YqrlbY3YiNG5Y6p817ek3ucw7bK/0v7yMMBJtq5NFKehdCx
+5EoNjrYUA4kiGOztzjVzsBMGbViC7U1Gkkiy2+k/sAVV4+Iqqg83Nt5SzO5f
+onVAq6lDPBW7xyQ8IUkV1ndZvfjK0TULDpfpM0ZFLlVznCiDXHWGuNHixOsq
+lnDndsdleMhVt9B5ZEq8uopk37HOiPBRnIbsnF0Rip0RJRCzRTCaJKs3SLuW
+twcpeMJSlLS3OlcWm67iDVQz189vCUeh5VdMecFke7DREQahgTb2xnmWqW99
+eKjcQsUzeh7DayrascGO1U5k6FhKaO8Bu4d6N2sYRa+jGignoLJ9s3TN4OmJ
+MePt3Wi/Z+y1wmIGmaYKrp+VdRvkC8XK87CcYHc9xIk+UKe5ZZRcFE8nRUNC
+VUGDlS+Ghk5q0SSW3Kmp6+MQh7EWyHzCldUu5ig9Q/uO4mQtABR3WhB+ASL4
+UpM1FspN8tpP/Jq5nVb1ZP0KijdSK6uAk8FiluIe2pgJ7TiIYdhHV3Q6U92n
+2/PnrO5CmiD6Xt4sy3owctOm87IyNSbMpXLP/JqToJqCacHc1aQL5Ggtm9aT
+1bhZnLOQ63vnkLVuDvxCk20JhoUvN791nWi9qojUkKUgtmgmw6jh4OXcQzfG
+iX6EXv4coOkm3KEDl3feeOpwFaoq5JRMM906e+tDHiWmwbUzLeniBkWdZzLW
+aGj+YF3RVNY6O7SK+dZn/W6RoCtlxumt33/XB0NwW4GWjv/5R8r9rPQcFt/y
+jBRl4LoycR3UGNM+NBuO9VTZk8qoTBkyjHrq4IO5C+ZrrqNy9XXsbuZ7VPcL
+8tbFAMwjXp/XJC+hIlfoLHb2CRmRxibGWMuE9S8pVhNfPrAHU5ECqIgJMxNz
+EJrktMQPQ9N4QfOkxmM5ZgzrjNY1B4b8uMbxgjvo+rW4zGzqhX37qhL+pS4C
+EAhAAAIQ6MAVTsSgneIK1QQ6AQIQgACE5xGG/YjXVWMR44IcBgQgAOFdIPQs
+TiJzwEiBgMoKwwKEN40wnhSrX9JMtn/VxxFn1qL2ZCw+O/sJ7i8YOoQ2DAsQ
+gAAXBcJRCFVWDVCQTuGrGBYgOAiIF4gXGBYgAAEIQEDGeHv9x32HcWzdOc1H
+lD2vxIJQBAEBCIgZr1onwvB+1TFMFwhwYOgECEA4Z4JzklyxHw6EuIZhAQIQ
+4KJAgHFiWIAABCAAAQhAAMI7/YYCt3mC7ysAAhCAAAQgAAGtCAwLhgUIQAAC
+EJAxMCxAAAIQgAAEIODDOrATIAABLgrDaI1Q/MZisfgoSjAeJvoXrg+U5I+T
+7+61dXDn37lkSq0J+hdCmfysl1DWUrdxGG2g/0PjdzVZoAAA
+====
+
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14257&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14257&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001322.html">[fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc
+</A></li>
+	<LI>Next message: <A HREF="001324.html">[fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1323">[ date ]</a>
+              <a href="thread.html#1323">[ thread ]</a>
+              <a href="subject.html#1323">[ subject ]</a>
+              <a href="author.html#1323">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

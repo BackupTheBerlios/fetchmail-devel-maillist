@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] how to make fetchmail not to check	the mail with seen flag of my gmail?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20how%20to%20make%20fetchmail%20not%20to%20check%0A%09the%20mail%20with%20seen%20flag%20of%20my%20gmail%3F&In-Reply-To=%3C922520.89749.qm%40web95710.mail.in.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001487.html">
+   <LINK REL="Next"  HREF="001491.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] how to make fetchmail not to check	the mail with seen flag of my gmail?</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20how%20to%20make%20fetchmail%20not%20to%20check%0A%09the%20mail%20with%20seen%20flag%20of%20my%20gmail%3F&In-Reply-To=%3C922520.89749.qm%40web95710.mail.in.yahoo.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] how to make fetchmail not to check	the mail with seen flag of my gmail?">sunilshetye at rocketmail.com
+       </A><BR>
+    <I>Thu May  5 11:21:46 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001487.html">[fetchmail-devel] fetchmail fix coordination and future planning
+</A></li>
+        <LI>Next message: <A HREF="001491.html">[fetchmail-devel] Gitorious branch reshuffling
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1490">[ date ]</a>
+              <a href="thread.html#1490">[ thread ]</a>
+              <a href="subject.html#1490">[ subject ]</a>
+              <a href="author.html#1490">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+----- Original Message -----
+
+&gt;<i> I think the real issue is not related to IMAP at all. What Yunfan Jiang may be 
+</I>&gt;<i> trying to say is that when fetchmail -v runs without syslog, there are too many 
+</I>&gt;<i> skipping messages without any real protocol level activity. Note that this is 
+</I>&gt;<i> true for both IMAP and POP3. This is also true for fetchmail -v -v.
+</I>&gt;<i> 
+</I>&gt;<i> Say, there are 20,000 mails with just one new mail. When a user runs 
+</I>&gt;<i> &quot;fetchmail -v --nosyslog&quot; or &quot;fetchmail -v -v&quot;, the user 
+</I>&gt;<i> sees some protocol level activity at the start. This could be &quot;SEARCH 
+</I>&gt;<i> UNSEEN&quot; for IMAP or &quot;UIDL&quot; for POP3. From that activity, it 
+</I>&gt;<i> becomes clear that there is just one new mail.
+</I>&gt;<i> 
+</I>&gt;<i> What follows this activity is a series of &quot;skipping message n&quot; lines 
+</I>&gt;<i> from 1 to 19,999. These lines do not make any sense if all the user is trying to 
+</I>&gt;<i> do is to look at the protocol level logs for the 20,000th mail. In fact, if the 
+</I>&gt;<i> output is to the terminal, these 19,999 lines without any real IMAP/POP3 
+</I>&gt;<i> activity can lead to a slow scrolling. There is also the risk of hitting the 
+</I>&gt;<i> timeout at the mailserver since no real activity has occurred on the mailserver 
+</I>&gt;<i> end while those 19,999 lines are getting printed.
+</I>&gt;<i> 
+</I>&gt;<i> For IMAP, the logs could look like:
+</I>&gt;<i> 
+</I>&gt;<i> IMAP&gt; A0010 SEARCH UNSEEN
+</I>&gt;<i> IMAP&lt; * SEARCH 20000
+</I>&gt;<i> IMAP&lt; A0010 OK SEARCH completed
+</I>&gt;<i> skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">... at ...</A>:1 (not flushed)
+</I>&gt;<i> skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">... at ...</A>:2 (not flushed)
+</I>&gt;<i> skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">... at ...</A>:3 (not flushed)
+</I>&gt;<i> ...
+</I>&gt;<i> skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">... at ...</A>:19997 (not flushed)
+</I>&gt;<i> skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">... at ...</A>:19998 (not flushed)
+</I>&gt;<i> skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">... at ...</A>:19999 (not flushed)
+</I>&gt;<i> IMAP&gt; A0011 FETCH 20000 RFC822.SIZE
+</I>&gt;<i> 
+</I>&gt;<i> The real solution would be to remove all the &quot;skipping message n (not 
+</I>&gt;<i> flushed)&quot; messages if they are not related to any protocol activity as they 
+</I>&gt;<i> do not add any real value. The patch attached should do the trick. Please check 
+</I>&gt;<i> and evaluate. Note that I have not tested for POP3 with UIDL as yet.
+</I>
+
+I am sending the patch to the devel list to check if the patch is getting removed here.
+
+Sorry for the unnecessary traffic.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: 0001-Do-not-print-skipping-message-for-old-messages-even-.patch
+Type: application/octet-stream
+Size: 2549 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20110505/70017a5f/attachment.obj">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20110505/70017a5f/attachment.obj</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001487.html">[fetchmail-devel] fetchmail fix coordination and future planning
+</A></li>
+	<LI>Next message: <A HREF="001491.html">[fetchmail-devel] Gitorious branch reshuffling
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1490">[ date ]</a>
+              <a href="thread.html#1490">[ thread ]</a>
+              <a href="subject.html#1490">[ subject ]</a>
+              <a href="author.html#1490">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail and mapi
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi&In-Reply-To=%3C20090609112750.GB10491%40fedora7.2kgames.t2.corp%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001087.html">
+   <LINK REL="Next"  HREF="001090.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail and mapi</H1>
+    <B>mojmir svoboda</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi&In-Reply-To=%3C20090609112750.GB10491%40fedora7.2kgames.t2.corp%3E"
+       TITLE="[fetchmail-devel] fetchmail and mapi">mojmir.svoboda at 2kczech.com
+       </A><BR>
+    <I>Tue Jun  9 13:27:50 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001087.html">[fetchmail-devel] New Russian PO file for 'fetchmail' (version	6.3.10-pre1)
+</A></li>
+        <LI>Next message: <A HREF="001090.html">[fetchmail-devel] fetchmail and mapi
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1088">[ date ]</a>
+              <a href="thread.html#1088">[ thread ]</a>
+              <a href="subject.html#1088">[ subject ]</a>
+              <a href="author.html#1088">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>hello dear developpers,
+
+first i'd like to appologize if there is anything wrong with this email.
+
+i was using classic fetchmail | procmail | mutt | ssmtp toolchain until
+the evil begun to spread from the mordor realm. yes, this company
+switched to mordor's exchange and mapi protocol so i found that there
+is BRANCH_MAPI already in the repository.
+i've compiled, installed and configured this branch, but i have few
+notes and questions:
+
+1. when it will be merged to trunk?
+
+2. is there any work in progress? do you accept patches?
+
+3. the branch seems not to compile without touching OpenMsg and GetGAL
+because session argument is missing
+
+4. the branch contains few buffer overflows in openchange-tools.c
+i can supply more info, if you want.
+
+5. fetchmail -k works successfully, but fetchmail -K does not.
+i have to find more yet.
+
+6. mordor's exchange server seems to append this funny ^M to each line
+in the body. is it the job of fetchmail to remove this, or some procmail
+tool for example (OT: do you know how to code the rule, please?)
+
+7. (perhaps OT) i wonder how to send back an email via mapi, but i guess
+this is not really a job of fetchmail.
+
+many thanks for your attention,
+mojmir
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001087.html">[fetchmail-devel] New Russian PO file for 'fetchmail' (version	6.3.10-pre1)
+</A></li>
+	<LI>Next message: <A HREF="001090.html">[fetchmail-devel] fetchmail and mapi
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1088">[ date ]</a>
+              <a href="thread.html#1088">[ thread ]</a>
+              <a href="subject.html#1088">[ subject ]</a>
+              <a href="author.html#1088">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

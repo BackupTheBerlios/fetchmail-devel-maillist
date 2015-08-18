@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Assorted minor bugs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3C20041108122242.GA1394%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000178.html">
+   <LINK REL="Next"  HREF="000183.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Assorted minor bugs</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3C20041108122242.GA1394%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] Assorted minor bugs">B.Candler at pobox.com
+       </A><BR>
+    <I>Mon Nov  8 13:22:42 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000178.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+        <LI>Next message: <A HREF="000183.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#179">[ date ]</a>
+              <a href="thread.html#179">[ thread ]</a>
+              <a href="subject.html#179">[ subject ]</a>
+              <a href="author.html#179">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> May I ask you to come up with a small patch that fixes _all_ violations
+</I>&gt;<i> of the trust model in a first round, so that we _unconditionally_ print
+</I>&gt;<i> all warnings, self-signed certificates, common name mismatches and so
+</I>&gt;<i> on. These _are_ important warnings, if they are shown only in verbose
+</I>&gt;<i> mode, that is a serious bug.
+</I>
+OK, that turns out to be pretty straightforward.
+
+Note that when sslcertck is not set, our verify callback always returns 1
+(OK) even if it given 0 (verify error). That's necessary to stop the SSL
+connection being dropped, but it can result in the callback being called
+multiple times, and and the same SSL error being displayed more than once.
+For example, before fixing this, with a self-signed certificate I got:
+
+fetchmail: Server certificate verification error: self signed certificate
+fetchmail: Server certificate verification error: self signed certificate
+
+I've fixed this by not displaying the same error message twice in
+succession. I've also used the _depth0ck variable to make sure that the
+once-off checking of CN and fingerprint really is done only once.
+
+fetchmail -v still displays additional information from the certificate, as
+it did before, but all errors should now be displayed even without -v.
+
+Regards,
+
+Brian.
+-------------- next part --------------
+--- fetchmail-6.2.6.orig/socket.c	Wed Oct 20 10:03:33 2004
++++ fetchmail-6.2.6/socket.c	Mon Nov  8 12:19:06 2004
+@@ -742,6 +742,7 @@
+ static	char *_check_digest;
+ static 	char *_server_label;
+ static	int _depth0ck;
++static	int _prev_err;
+ 
+ SSL *SSLGetContext( int sock )
+ {
+@@ -755,6 +756,9 @@
+ }
+ 
+ 
++/* ok_return (preverify_ok) is 1 if this stage of certificate verification
++   passed, or 0 if it failed. This callback lets us display informative
++   errors, and perform additional validation (e.g. CN matches) */
+ static int SSL_verify_callback( int ok_return, X509_STORE_CTX *ctx, int strict )
+ {
+ 	char buf[257];
+@@ -773,7 +777,7 @@
+ 	subj = X509_get_subject_name(x509_cert);
+ 	issuer = X509_get_issuer_name(x509_cert);
+ 
+-	if (depth == 0) {
++	if (depth == 0 &amp;&amp; !_depth0ck) {
+ 		_depth0ck = 1;
+ 		
+ 		if (outlevel == O_VERBOSE) {
+@@ -817,9 +821,9 @@
+ 					if (ok_return &amp;&amp; strict)
+ 						return (0);
+ 				}
+-			} else if (ok_return &amp;&amp; strict) {
++			} else if (ok_return) {
+ 				report(stderr, GT_(&quot;Server name not set, could not verify certificate!\n&quot;));
+-				return (0);
++				if (strict) return (0);
+ 			}
+ 		} else {
+ 			if (outlevel == O_VERBOSE)
+@@ -871,14 +875,15 @@
+ 		}
+ 	}
+ 
+-	if (err != X509_V_OK &amp;&amp; (strict || outlevel == O_VERBOSE)) {
+-		report(strict ? stderr : stdout, GT_(&quot;Warning: server certificate verification: %s\n&quot;), X509_verify_cert_error_string(err));
++	if (err != X509_V_OK &amp;&amp; err != _prev_err) {
++        	_prev_err = err;
++		report(stderr, GT_(&quot;Server certificate verification error: %s\n&quot;), X509_verify_cert_error_string(err));
+ 		/* We gave the error code, but maybe we can add some more details for debugging */
+ 		switch (err) {
+ 		case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+ 			X509_NAME_oneline(issuer, buf, sizeof(buf));
+ 			buf[sizeof(buf) - 1] = '\0';
+-			report(stdout, GT_(&quot;unknown issuer (first %d characters): %s\n&quot;), sizeof(buf), buf);
++			report(stderr, GT_(&quot;unknown issuer (first %d characters): %s\n&quot;), sizeof(buf)-1, buf);
+ 			break;
+ 		}
+ 	}
+@@ -983,6 +988,7 @@
+ 	_check_fp = 1;
+ 	_check_digest = fingerprint;
+ 	_depth0ck = 0;
++	_prev_err = -1;
+ 
+ 	if( mycert || mykey ) {
+ 
+@@ -1006,15 +1012,17 @@
+ 	}
+ 
+ 	/* Paranoia: was the callback not called as we expected? */
+-	if ((fingerprint != NULL || certck) &amp;&amp; !_depth0ck) {
++	if (!_depth0ck) {
+ 		report(stderr, GT_(&quot;Certificate/fingerprint verification was somehow skipped!\n&quot;));
+-		
+-		if( NULL != SSLGetContext( sock ) ) {
+-			/* Clean up the SSL stack */
+-			SSL_free( _ssl_context[sock] );
+-			_ssl_context[sock] = NULL;
++
++		if (fingerprint != NULL || certck) {
++			if( NULL != SSLGetContext( sock ) ) {
++				/* Clean up the SSL stack */
++				SSL_free( _ssl_context[sock] );
++				_ssl_context[sock] = NULL;
++			}
++			return(-1);
+ 		}
+-		return(-1);
+ 	}
+ 
+ 	return(0);
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000178.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+	<LI>Next message: <A HREF="000183.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#179">[ date ]</a>
+              <a href="thread.html#179">[ thread ]</a>
+              <a href="subject.html#179">[ subject ]</a>
+              <a href="author.html#179">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] save_str problems.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C20100430090144.GA19804%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001342.html">
+   <LINK REL="Next"  HREF="001338.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] save_str problems.</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C20100430090144.GA19804%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] save_str problems.">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Fri Apr 30 11:01:44 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001342.html">[fetchmail-devel] save_str problems.
+</A></li>
+        <LI>Next message: <A HREF="001338.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1344">[ date ]</a>
+              <a href="thread.html#1344">[ thread ]</a>
+              <a href="subject.html#1344">[ subject ]</a>
+              <a href="author.html#1344">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+&gt;<i> &gt;which has the nice bonus property that it doesn't have the conditional
+</I>&gt;<i> &gt;which goes one way during the first iteration and the other way during
+</I>&gt;<i> &gt;all that follow inside the loop (the idea isn't mine, I originally
+</I>&gt;<i> &gt;learnt about it because of some years-old USENET posting of a guy
+</I>&gt;<i> &gt;whose name I've unfortunately forgotten). I am also rather concerned
+</I>&gt;<i> &gt;about use of bandwidth than speed. Presently, I am dealing with 76
+</I>&gt;<i> &gt;POP3 accounts and about a meg of stored UIDs I'd need to download
+</I>&gt;<i> &gt;every five minutes in order to determine that presently, nothing needs
+</I>&gt;<i> &gt;to be downloaded (this refers to fastuidl in general, assuming I
+</I>&gt;<i> &gt;understood the principle correctly without really analyzing the code).
+</I>&gt;<i> 
+</I>&gt;<i> Makes sense, although I'm wondering if it really makes that much of
+</I>&gt;<i> a difference for fastuidl.
+</I>&gt;<i> fastuidl appears to be opportunistically harvesting message numbers,
+</I>&gt;<i> I wonder if that's of any use.
+</I>&gt;<i> I think Sunil wrote that fastUIDL code, I'm Cc:ing him.
+</I>
+The whole idea of the fastuidl code (and the unrelated fetchsizelimit
+code) is to get the first mail fast. Previously, fetchmail would get
+all the UIDs and sizes right at the start of the transaction.
+
+POP3&gt; STAT
+POP3&lt; +OK 10000 ...
+POP3&gt; UIDL
+(gets 10000 uids)
+(10000 is the first unseen)
+POP3&gt; LIST
+(gets 10000 sizes)
+
+With fastuidl and the delayed size information, the fetching of the
+first mail is faster.
+
+POP3&gt; STAT
+POP3&lt; +OK 10000 ...
+POP3&gt; UIDL 5000
+POP3&gt; UIDL 7500
+...
+POP3&gt; UIDL 10000
+(10000 is the first unseen)
+POP3&gt; LIST 10000
+
+These changes were done after observing that fetchmail had trouble
+downloading even one mail over a slow connection, was effectively
+going into an infinite loop, and was causing the associated wastage in
+bandwidth.
+
+Matthias, you have said that the regular uidl code is faster than the
+fastuidl code for 10000 uids. Do you mean 10000 uids in the .fetchids
+file or 10000 uids (i.e. 10000 mails) on the server?
+
+The fastuidl code is expected to be faster if there are very few new
+mails on the server and fetchmail is running with the keep option on.
+As in the above case, there are 10000 mails, but only one new mail.
+
+Please also compare how fast the *first* new mail is delivered with
+and without fastuidl.
+
+Of course, to stop the use of fastuidl, you may add 'fastuidl 0' to
+the fetchmailrc file.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001342.html">[fetchmail-devel] save_str problems.
+</A></li>
+	<LI>Next message: <A HREF="001338.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1344">[ date ]</a>
+              <a href="thread.html#1344">[ thread ]</a>
+              <a href="subject.html#1344">[ subject ]</a>
+              <a href="author.html#1344">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] compiling fetchmail + mapi on a debian wheezy
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20compiling%20fetchmail%20%2B%20mapi%20on%20a%20debian%20wheezy&In-Reply-To=%3C4EDF6801-002E9DB7%40uncensored.citadel.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001538.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] compiling fetchmail + mapi on a debian wheezy</H1>
+    <B>Wilfried Goesgens</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20compiling%20fetchmail%20%2B%20mapi%20on%20a%20debian%20wheezy&In-Reply-To=%3C4EDF6801-002E9DB7%40uncensored.citadel.org%3E"
+       TITLE="[fetchmail-devel] compiling fetchmail + mapi on a debian wheezy">dothebart at citadel.org
+       </A><BR>
+    <I>Wed Dec  7 14:20:01 CET 2011</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001538.html">[fetchmail-devel] [Bug #18447] SMTP&lt; 530 Authentication required
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1537">[ date ]</a>
+              <a href="thread.html#1537">[ thread ]</a>
+              <a href="subject.html#1537">[ subject ]</a>
+              <a href="author.html#1537">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hy everyone;  
+
+i've just tried to compile the mapi support in fetchmail.  
+
+I therefore compiled all those samba4-pre + libmapi stuff from SID on my
+wheezy workstation.  
+
+it barfs with  
+
+mapi.c:1572:3: error: too few arguments to function &#8216;GetProps&#8217;
+all over the place; see the attached compile output for the full log.  
+
+&#160;  
+
+these are (most of) the compiled and installed packages:  
+
+ii&#160; libmapi-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Development files
+for the MAPI client library
+ii&#160; libmapi0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Client library for
+the MAPI protocol
+ii&#160; libmapiadmin-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Development files
+for the MAPI administration client library
+ii&#160; libmapiadmin0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Administration
+client library for the MAPI (Exchange/Outlook) protocol
+ii&#160; libmapipp-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Development files
+for the C++ MAPI client library
+ii&#160; libmapipp0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Library files for
+the C++ MAPI client library
+ii&#160; libmapiproxy-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Development files
+for the MAPI proxy library
+ii&#160; libmapiproxy0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Proxy library for
+the MAPI (Exchange/Outlook) protocol
+ii&#160; libmapistore-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Storage library for
+MAPI objects - development files
+ii&#160; libmapistore0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+1:0.11-2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Storage library for
+MAPI objects
+ii&#160; libsamba-credentials-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba Credentials management -
+development files
+ii&#160; libsamba-credentials0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba Credentials management
+library
+ii&#160; libsamba-hostconfig-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba host configuration library
+- development files
+ii&#160; libsamba-hostconfig0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba host configuration library
+ii&#160; libsamba-policy-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba policy management -
+development files
+ii&#160; libsamba-policy0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba policy management
+ii&#160; libsamba-util-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba utility function library -
+development files
+ii&#160; libsamba-util0&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba utility function library
+ii&#160; python-samba&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Python bindings for Samba
+ii&#160; samba-common&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+2:3.5.11~dfsg-4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; common files used by both
+the Samba server and client
+ii&#160; samba-common-bin&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+2:3.5.11~dfsg-4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; common files used by both
+the Samba server and client
+ii&#160; samba-dsdb-modules&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba Directory Services Database
+ii&#160; samba4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; SMB/CIFS file, NT domain and
+active directory server (version 4)
+ii&#160; samba4-common-bin&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Samba 4 common files used by both
+the server and the client
+ii&#160; samba4-dev&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; tools for extending Samba
+ii&#160; samba4-testsuite&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+4.0.0~alpha17.dfsg2-1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; test suite from Samba 4  
+
+whats wrong? is it to old? or to new? ;-)  
+
+&#160;  
+
+cheers,  
+
+Wilfried Goesgens
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20111207/0b134be5/attachment.html">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20111207/0b134be5/attachment.html</A>&gt;
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: compilelog
+Type: application/octet-stream
+Size: 8974 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20111207/0b134be5/attachment.obj">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20111207/0b134be5/attachment.obj</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001538.html">[fetchmail-devel] [Bug #18447] SMTP&lt; 530 Authentication required
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1537">[ date ]</a>
+              <a href="thread.html#1537">[ thread ]</a>
+              <a href="subject.html#1537">[ subject ]</a>
+              <a href="author.html#1537">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

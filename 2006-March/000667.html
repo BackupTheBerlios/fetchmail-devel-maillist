@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060301080516.GA1283%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000666.html">
+   <LINK REL="Next"  HREF="000668.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060301080516.GA1283%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Mar  1 09:05:16 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000666.html">[fetchmail-devel] [PATCH] wrong option named in manual
+</A></li>
+        <LI>Next message: <A HREF="000668.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#667">[ date ]</a>
+              <a href="thread.html#667">[ thread ]</a>
+              <a href="subject.html#667">[ subject ]</a>
+              <a href="author.html#667">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Casper Gripenberg's mail on Tue, Feb 28, 2006:
+&gt;<i> Ok. Here's what happens with your patch:
+</I>&gt;<i> 
+</I>&gt;<i> fetchmail: IMAP&gt; A0014 NOOP
+</I>&gt;<i> fetchmail: IMAP&lt; A0014 OK NOOP completed
+</I>&gt;<i> fetchmail: IMAP&gt; A0015 NOOP
+</I>&gt;<i> fetchmail: IMAP&lt; * 1 EXISTS
+</I>&gt;<i> fetchmail: IMAP&lt; * 1 RECENT
+</I>&gt;<i> fetchmail: IMAP&lt; A0015 OK NOOP completed
+</I>&gt;<i> fetchmail: 1 message waiting after re-poll
+</I>&gt;<i> fetchmail: IMAP&gt; A0016 SEARCH UNSEEN NOT DELETED
+</I>&gt;<i> fetchmail: IMAP&lt; * SEARCH 1
+</I>&gt;<i> fetchmail: 1 is unseen
+</I>&gt;<i> ...
+</I>&gt;<i> 
+</I>&gt;<i> To me it looks like you are deliberately sleeping instead
+</I>&gt;<i> of &quot;NOOP&quot;:ing. To get the EXISTS message to appear after
+</I>&gt;<i> the NOOP, right? In that sense I like my fix better, because
+</I>&gt;<i> it returns the mails immidiately. Your fix introduces an 
+</I>&gt;<i> unnecessary delay(?), but in the debug output it does
+</I>&gt;<i> now looks like everything is working like it should. 
+</I>
+Well, I am still &quot;NOOP&quot;ing. There is a problem in the current code.
+What is happening is that gen_transact() is being followed by
+imap_ok(). Internally, gen_transact() calls gen_recv() which calls
+imap_ok(). So, imap_ok() is being called twice! The second call to
+imap_ok() is incorrect as there is actually no &quot;tag&quot; to compare. So,
+replacing imap_ok() by sleep() is the right thing to do.
+
+As far as the delay part goes, even with IMAP servers supporting IDLE,
+a delay of one minute is expected as IMAP servers checkpoint the
+folder every one minute or so. Of course, it will actually depend on
+the IMAP server configuration and implementation, but the point is
+that a small delay is acceptable. Here, the maximum delay will be 28
+seconds, which should be acceptable.
+
+Could you log to syslog and send the output (with your patch)? I want
+to see the time aspect of this. In particular, I want to see if there
+is a delay between the &quot;NOOP&quot; response and the &quot;EXISTS&quot; response. If
+there is a delay, then your average delay will actually be 14 seconds.
+
+The problem with your patch is that it forces recentcount to be equal
+to count. You have a simple setup where all mails are always
+downloaded and deleted from the server. In this scenario, the number
+before EXISTS and RECENT will always be equal. However, there are
+people who have a setup where some seen mails are there on the
+mailserver and fetchmail is running with &quot;no fetchall&quot;. So, forcing
+recentcount to count is not correct.
+
+Note that your server is sending the &quot;EXISTS&quot; response asynchronously,
+but fetchmail requires the &quot;RECENT&quot; response to come out of the idle
+loop. Your server is anyway sending &quot;RECENT&quot; only as a reply to the
+next &quot;NOOP&quot; command. So, as far as fetchmail is concerned, there is no
+delay anyway.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000666.html">[fetchmail-devel] [PATCH] wrong option named in manual
+</A></li>
+	<LI>Next message: <A HREF="000668.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#667">[ date ]</a>
+              <a href="thread.html#667">[ thread ]</a>
+              <a href="subject.html#667">[ subject ]</a>
+              <a href="author.html#667">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

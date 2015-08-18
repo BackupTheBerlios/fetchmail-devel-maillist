@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Fetchmail bounce message
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Fetchmail%20bounce%20message&In-Reply-To=%3Cm3hdfenn4p.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000292.html">
+   <LINK REL="Next"  HREF="000317.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Fetchmail bounce message</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Fetchmail%20bounce%20message&In-Reply-To=%3Cm3hdfenn4p.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Fetchmail bounce message">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sat Jul  2 01:05:10 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000292.html">[fetchmail-devel] Fetchmail bounce message
+</A></li>
+        <LI>Next message: <A HREF="000317.html">[fetchmail-devel] Fetchmail bounce message
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#296">[ date ]</a>
+              <a href="thread.html#296">[ thread ]</a>
+              <a href="subject.html#296">[ subject ]</a>
+              <a href="author.html#296">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Nico Golde &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nico at ngolde.de</A>&gt; writes:
+
+&gt;<i> this is the newest bug in the debian bts:
+</I>&gt;<i> When the local SMTP daemon rejects a message, Fetchmail generates a 
+</I>&gt;<i> bounce messages with a non-null reverse-path, in violation of RFCs. In 
+</I>&gt;<i> addition, the username it uses (FETCHMAIL-DAEMON) does not exist, so any 
+</I>&gt;<i> responses will themselves bounce. This is likely to generate mail
+</I>&gt;<i> loops.
+</I>
+I believe Holger Mauermann's patch fixes most of these issues, from NEWS:
+
+* Holger Mauermann's bounce patch, to use a NULL envelope from, not
+  write a Return-Path header (both to meet RFC-2821), changed From,
+  added Subject header, rewording the human readable part. (Matthias Andree)
+
+&gt;<i> In addition to generating a bounce, the original mail is forwarded to 
+</I>&gt;<i> postmaster, as can be seen on the last couple of lines above. My 
+</I>&gt;<i> understanding of the man page is that either a bounce should be 
+</I>&gt;<i> generated *or* it should be forwarded to the postmaster address, but not 
+</I>&gt;<i> both.
+</I>
+We'd need to check if the SVN version still forwards the message to the
+postmaster.
+
+Perhaps time to roll 6.3.0-beta1 so that people can check if their
+favorite bugs persist?
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000292.html">[fetchmail-devel] Fetchmail bounce message
+</A></li>
+	<LI>Next message: <A HREF="000317.html">[fetchmail-devel] Fetchmail bounce message
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#296">[ date ]</a>
+              <a href="thread.html#296">[ thread ]</a>
+              <a href="subject.html#296">[ subject ]</a>
+              <a href="author.html#296">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

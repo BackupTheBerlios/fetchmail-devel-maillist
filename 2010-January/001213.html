@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20IMAP%20bug%20-%20causes%20some%20mails%20to%20not%0A%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3C4B4F0F5D.6050109%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001212.html">
+   <LINK REL="Next"  HREF="001214.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20IMAP%20bug%20-%20causes%20some%20mails%20to%20not%0A%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3C4B4F0F5D.6050109%40gmx.de%3E"
+       TITLE="[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Jan 14 13:34:37 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001212.html">[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+        <LI>Next message: <A HREF="001214.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1213">[ date ]</a>
+              <a href="thread.html#1213">[ thread ]</a>
+              <a href="subject.html#1213">[ subject ]</a>
+              <a href="author.html#1213">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 14.01.2010 11:45, schrieb Sunil Shetye:
+&gt;<i> [switching to fetchmail-devel]
+</I>&gt;<i> 
+</I>&gt;<i> Hi Matthias,
+</I>&gt;<i> 
+</I>&gt;<i> Quoting from Sunil Shetye's mail on Wed, Jan 13, 2010:
+</I>&gt;&gt;<i> I agree that many servers do not send it. Also, fetchmail can and should handle
+</I>&gt;&gt;<i> the counts better. However, in my opinion, the fix from dovecot side should be
+</I>&gt;&gt;<i> trivial. Whereas, the fix from fetchmail side will be non-trivial as a major
+</I>&gt;&gt;<i> rewrite of the imap driver will be required.
+</I>&gt;<i> 
+</I>&gt;<i> I was thinking of rewriting the imap driver so that all imap server
+</I>&gt;<i> responses are routed via the imap_ok() function. This is so that all
+</I>&gt;<i> the unexpected 'EXISTS', 'EXPUNGE' responses get trapped properly.
+</I>&gt;<i> This is how it will work:
+</I>&gt;<i> 
+</I>&gt;<i> Any imap command will go through this kind of loop:
+</I>&gt;<i> 
+</I>&gt;<i> ===============================================================================
+</I>&gt;<i> #define PS_UNTAGGED 30 /* untagged response on imap command (internal use) */
+</I>&gt;<i> 
+</I>&gt;<i> ok = gen_send(sock, &quot;SEARCH UNSEEN&quot;);
+</I>&gt;<i> while ((ok = imap_ok(sock, buf)) == PS_UNTAGGED)
+</I>&gt;<i> {
+</I>&gt;<i> 
+</I>&gt;<i>     /* if we have reached here, we have got an untagged response not parsable by imap_ok(). */
+</I>&gt;<i> 
+</I>&gt;<i>     if ((cp = strstr(buf, &quot;* SEARCH&quot;)))
+</I>&gt;<i>     {
+</I>&gt;<i> 	/* parse the response */
+</I>&gt;<i>     }
+</I>
+Perhaps a separate imap_untagged_parse() function would be more suitable here,
+and possibly called from inside imap_ok()? See below.
+
+&gt;<i> 
+</I>&gt;<i>     /* go back to get the remaining response */
+</I>&gt;<i> }
+</I>&gt;<i> if (ok != 0)
+</I>&gt;<i> {
+</I>&gt;<i>     report(stderr, GT_(&quot;search for unseen messages failed\n&quot;));
+</I>&gt;<i>     return(ok);
+</I>&gt;<i> }
+</I>&gt;<i> ===============================================================================
+</I>&gt;<i> 
+</I>&gt;<i> In essence, gen_recv() at many places in imap.c will get replaced by
+</I>&gt;<i> imap_ok().
+</I>&gt;<i> 
+</I>&gt;<i> Are all the above changes okay? Should I start with the changes in
+</I>&gt;<i> imap_getrange() only? imap_getpartialsizes() can be the next function
+</I>&gt;<i> if this works out.
+</I>
+Yes, the changes you propose are not only OK, but also desirable and
+appreciated. (And as bug fix also fit for 6.3.14.)
+
+The only thing I'm wondering about is PS_UNTAGGED: is it okay to have imap_ok()
+return PS_UNTAGGED? It sort of breaks the assumption that imap_ok() fetches the
+server's final verdict on the requested previous operation -- and that
+propagates to all uses of gen_transact(), by reference.  Reason: imap_ok() is -
+in spite of the &quot;static&quot; attribute - externally callable through the &quot;struct
+method imap&quot;, namely if other code calls method-&gt;parse_response when method is
+imap -- for instance, driver.c and transact.c call imap_ok: (from cscope)
+
+  File        Function     Line
+0 fetchmail.h &lt;global&gt;      218 int (*parse_response)(int , char *);
+1 driver.c    do_session   1154 err =
+                                (ctl-&gt;server.base_protocol-&gt;parse_response)
+                                (mailserver_socket, buf);
+2 transact.c  gen_transact 1599 ok = (protocol-&gt;parse_response)(sock, buf);
+
+
+Which raises another question: does it make sense to have caller-specific
+parsers for untagged replies? Perhaps those functions that need them - for
+instance for * SEARCH, should call some new imap_ok_with_untagged() function
+instead, and the normal imap_ok handles all untagged implicitly (we can rename
+imap_ok, and uses dummy functions that just pass in an additional argument
+whether or not returning PS_UNTAGGED is requested).
+
+I think (unless I'm mistaken) we need to deal with asynchronous (non-requested)
+untagged messages anyways, so perhaps all of the untagged logic needs to be in
+imap_ok, but I'm not sure about that.  Since I haven't looked at the imap.c code
+lately, please only consider this brainstorming or &quot;thinking aloud&quot; and not a
+plea or request to do things in a certain way.  Design it the way you think fits
+the needs best.
+
+Thanks for participating in the solution of this issue!
+
+Best regards
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001212.html">[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+	<LI>Next message: <A HREF="001214.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1213">[ date ]</a>
+              <a href="thread.html#1213">[ thread ]</a>
+              <a href="subject.html#1213">[ subject ]</a>
+              <a href="author.html#1213">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

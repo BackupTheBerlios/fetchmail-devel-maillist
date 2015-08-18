@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] automake migration
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20automake%20migration&In-Reply-To=%3Cm3llikedw5.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000021.html">
+   <LINK REL="Next"  HREF="000026.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] automake migration</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20automake%20migration&In-Reply-To=%3Cm3llikedw5.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] automake migration">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Fri Jun 18 23:48:26 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000021.html">[fetchmail-devel] automake migration
+</A></li>
+        <LI>Next message: <A HREF="000026.html">[fetchmail-devel] automake migration
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#24">[ date ]</a>
+              <a href="thread.html#24">[ thread ]</a>
+              <a href="subject.html#24">[ subject ]</a>
+              <a href="author.html#24">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; writes:
+
+&gt;&gt;<i> A bug the commit would also fix is the generation of text from HTML,
+</I>&gt;&gt;<i> which can currently create empty files if lynx isn't installed.
+</I>&gt;<i>
+</I>&gt;<i> I was actually wondering about moving that generation out of the makefile 
+</I>&gt;<i> and into the makerelease script.  Not sure though.  That was mainly 
+</I>&gt;<i> prompted by the conversion of the man page to HTML, which requires some 
+</I>&gt;<i> infrastructure that we're not only not distributing, but isn't all that 
+</I>&gt;<i> common.  (Mainly the manServer.pl script I added to the dist-tools 
+</I>&gt;<i> directory.  Note that I don't intend for dist-tools to be included in the 
+</I>&gt;<i> release, and I hope to move a bunch of Eric's release scripts into there.) 
+</I>&gt;<i> I figured that if that conversion doesn't work with the distributed 
+</I>&gt;<i> tarball, it's worth thinking about the same situation with the rest of the 
+</I>&gt;<i> HTML generation.
+</I>
+I had to add this to get &quot;make distcheck&quot; working. In the long run, it
+might be worthwhile converting the documentation to DocBook XML where
+appropriate, I believe ESR's doclifter can help with that, which will
+directly open PDF, man and HTML output formats.
+
+&gt;&gt;<i> Rob, does this get your OK?
+</I>&gt;<i>
+</I>&gt;<i> The general idea sounds good, especially the fact that you've tested on 
+</I>&gt;<i> multiple platforms.  The number of files touched is a bit scary, and I 
+</I>&gt;<i> have minor reservations about some fringes of the process, but I think we 
+</I>&gt;<i> can work those out later.
+</I>
+Most of the stuff is auto-generated and will be copied into the build
+directory by autopoint, some will be copied by automake --add (this is
+all automatic by running autoreconf -i)
+
+&gt;<i> Unfortunately I'm going on an 8-day camping trip in a couple days and don't 
+</I>&gt;<i> have time to look closely at this before I go.  So I'll just suggest that 
+</I>&gt;<i> you go ahead and commit it, but try to commit in coherent chunks if 
+</I>&gt;<i> possible.
+</I>
+I fear the whole stuff is fairly atomic in the sense that I've only
+tested with the full change set applied, not in separate. configure.in
+and Makefile.am in particular track the po/ intl/... changes, and using
+automake/aclocal only enables us to use the m4/ subdirectory which takes
+the aclocal.m4 maintenance entirely off our shoulders.
+
+&gt;<i> That is, see if you can separate the automake stuff, the HTML
+</I>&gt;<i> generation, and the gettext stuff.  I understand if that's not really 
+</I>&gt;<i> possible though.
+</I>
+automake and gettext is coupled, and HTML generation is a minor change,
+effectively, the separate lines have been consolidated in a shell script.
+
+&gt;<i> Meanwhile, be sure to test actually running the result.  (Argh, I still 
+</I>&gt;<i> have to figure out how to deal with the torturetest server list, with its 
+</I>&gt;<i> unpublishable passwords.)
+</I>
+Will do.
+
+&gt;<i> It might be good to create a &quot;bootstrap&quot; script that removes that cache 
+</I>&gt;<i> directory and does the autoreconf.  And then change the makerelease script 
+</I>&gt;<i> to call that instead of &quot;aclocal &amp;&amp; autoconf&quot;.
+</I>
+I don't like custom bootstrap scripts much.
+I have yet to see one that is better than &quot;autoreconf&quot; - and
+autom4te.cache will only need to be removed after a system upgrade, but
+not on a fresh checkout, so most people will get away without rm -rf.
+
+&gt;&gt;<i> A      dist-tools/Makefile.am
+</I>&gt;<i>
+</I>&gt;<i> I wouldn't think we'd need a makefile there.
+</I>
+For the time being we'll need one if you want &quot;make distcheck&quot; to work,
+which I'd recommend as it greatly simplifies testing if the generated
+tarball is self-contained. We can still remove the stuff later if we
+have a good solution before the release.
+
+&gt;&gt;<i> D      intl/ChangeLog
+</I>&gt;&gt;<i> D      intl/Makefile.in
+</I>&gt;&gt;<i> D      intl/VERSION
+</I>&gt;&gt;<i> D      intl/bindtextdom.c
+</I>&gt;<i> .... and so on
+</I>&gt;<i>
+</I>&gt;<i> Where's this intl functionality now?
+</I>
+autopoint will create the intl/ directory and populate it if you have
+gettext 0.13.0 or newer installed - this is the &quot;generated files&quot;
+category (copied files actually) - just try the tarball and you'll see.
+
+No jinx here, good magic. :)
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000021.html">[fetchmail-devel] automake migration
+</A></li>
+	<LI>Next message: <A HREF="000026.html">[fetchmail-devel] automake migration
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#24">[ date ]</a>
+              <a href="thread.html#24">[ thread ]</a>
+              <a href="subject.html#24">[ subject ]</a>
+              <a href="author.html#24">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: why one person hates fetchmail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20why%20one%20person%20hates%20fetchmail&In-Reply-To=%3C200406171633.52710.rfunk%40funknet.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000016.html">
+   <LINK REL="Next"  HREF="000018.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: why one person hates fetchmail</H1>
+    <B>Rob Funk</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20why%20one%20person%20hates%20fetchmail&In-Reply-To=%3C200406171633.52710.rfunk%40funknet.net%3E"
+       TITLE="[fetchmail-devel] Re: why one person hates fetchmail">rfunk at funknet.net
+       </A><BR>
+    <I>Thu Jun 17 22:33:52 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000016.html">[fetchmail-devel] why one person hates fetchmail
+</A></li>
+        <LI>Next message: <A HREF="000018.html">[fetchmail-devel] why one person hates fetchmail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Perry Hutchison wrote:
+&gt;<i> &gt; and the only way I can make a poll of account 2 is by editing the
+</I>&gt;<i> &gt; config file before polling.
+</I>&gt;<i>
+</I>&gt;<i> I thought the cure for that sort of thing was to run two (or more)
+</I>&gt;<i> instances of fetchmail, each with a different setting of FETCHMAILHOME.
+</I>
+You must admit, though, that that's a bit of an ugly hack.
+
+&gt;<i> &gt; The config language is a nightmare, and pretty illogical (e.g.
+</I>&gt;<i> &gt; settings which I think should be settable globally and inherited
+</I>&gt;<i> &gt; by all accounts, like 'ssl' for example, aren't; and working out
+</I>&gt;<i> &gt; which settings apply to hosts and which to users has had me
+</I>&gt;<i> &gt; digging in the source code more than once).
+</I>&gt;<i>
+</I>&gt;<i> I haven't been reduced to digging in the source, but have had some
+</I>&gt;<i> trial and error finding out whether certain settings are &quot;host&quot; or
+</I>&gt;<i> &quot;user&quot;.  This is largely a matter of incomplete documentation :(
+</I>
+Yeah, one big thing that we need to do is fix the documentation to separate 
+the categories of settings.
+
+Ideally I'd love to figure out a way to fix the config language to make 
+this more explicit, but that has a lot of problems.  Fixing the docs would 
+go a long way.
+
+&gt;<i> &gt; To be fair to fetchmail, in the olden days it *did* offer direct
+</I>&gt;<i> &gt; to mailbox delivery, and it was ESR's decision that the design
+</I>&gt;<i> &gt; would be made much cleaner by having delivery to a local SMTP
+</I>&gt;<i> &gt; daemon instead. Then slowly, things crept back in like delivery
+</I>&gt;<i> &gt; via a pipe to procmail, delivery by invoking an MTA command-line
+</I>&gt;<i> &gt; directly, delivery by LMTP... but things I *actually* want, like
+</I>&gt;<i> &gt; delivery to a Maildir, aren't there.
+</I>
+You could have procmail deliver to a maildir.
+
+&gt;<i> As long as we have the ability to hand off to a specified agent,
+</I>&gt;<i> I would think it preferable -- at least, more modular -- to use a
+</I>&gt;<i> different external agent for each type of local mail store, rather
+</I>&gt;<i> than to try to amalgamate the lot of them into fetchmail.  You can
+</I>&gt;<i> have fetchmail invoke the same local delivery program that sendmail
+</I>&gt;<i> would use to write to a maildir.
+</I>
+True.  On the other hand....
+ESR would hate the idea, but I actually think that maildir is a decent 
+candidate for inclusion because it doesn't have the locking headaches that 
+other formats have.
+
+Of course, I was the one who successfully fought to get mda support put 
+back into fetchmail after ESR removed it way back when.
+-- 
+==============================|   &quot;A microscope locked in on one point
+ Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; |Never sees what kind of room that it's in&quot;
+ <A HREF="http://www.funknet.net/rfunk">http://www.funknet.net/rfunk</A> |    -- Chris Mars, &quot;Stuck in Rewind&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000016.html">[fetchmail-devel] why one person hates fetchmail
+</A></li>
+	<LI>Next message: <A HREF="000018.html">[fetchmail-devel] why one person hates fetchmail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,589 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Some PATRICIA numbers
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3C87hbm37nhh.fsf%40fever.mssgmbh.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001371.html">
+   <LINK REL="Next"  HREF="001373.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Some PATRICIA numbers</H1>
+    <B>Rainer Weikusat</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3C87hbm37nhh.fsf%40fever.mssgmbh.com%3E"
+       TITLE="[fetchmail-devel] Some PATRICIA numbers">rweikusat at mssgmbh.com
+       </A><BR>
+    <I>Wed May 19 20:30:50 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001371.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+        <LI>Next message: <A HREF="001373.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1372">[ date ]</a>
+              <a href="thread.html#1372">[ thread ]</a>
+              <a href="subject.html#1372">[ subject ]</a>
+              <a href="author.html#1372">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+
+[...]
+
+&gt;<i> please do (show an advance/preview version) - if you don't want to
+</I>&gt;<i> expose  it to the list yet for whatever reason, but want my comments,
+</I>&gt;<i> feel free to  send personal mail.
+</I>
+I'll happily listen to anyone who has something more constructive to
+say about this than &quot;I hate it!&quot;. This is my last 'standalone test
+program'. It can be compiled and used to do testing/ measurement of
+the trie-code based on reading 'unique message IDs' from stdin which
+must point to 'something seekable'. The interface is known to be
+incomplete and the halfway integrated version contains everything in
+here and whatever was additionally needed in order to use this as
+'backend' for the code in uid.c. My present approach to doing lookups
+based on 'message numbers' is very simplistic --- just an array going
+from 0 .. &lt;highest message number&gt;. There's a potential scalability
+issue in there: Realloc with a constant increment is O(n^2) when the
+memory area needs to be copied. If the pop3.c code works as I believe
+it does (inserts message numbers in increasing order), I will likely
+change this to additionally store the offset of the first element in
+the array to keep this shorter for the case when a large mailbox
+contains a few new messages at the end. I will also change the
+realloc-calculation to something more sensible (usually, this means
+doubling the allocated area every time it needs to grow.
+
+Any feedback on the implementation would be very welcome.
+
+-------------     uidl_db.h -------------------
+/*
+  uidl db
+
+  Copyright (c) 2010 MAD Partners, Ltd.
+
+  This file is being published according to the terms of the
+  GPLv2 license contained in the 6.3.17 release of fetchmail.
+
+*/
+#ifndef fetchmail_uidl_db_h
+#define fetchmail_uidl_db_h
+
+/*  includes */
+#include &lt;stddef.h&gt;
+
+/*  types */
+struct uidl_record {
+    char *id;
+    unsigned id_len;
+    
+    unsigned num, status, pos;
+
+    struct uidl_record *next;
+};
+
+struct pat_node;
+
+struct uidl_db 
+{
+    struct pat_node *pat_root;
+    
+    struct uidl_record **records;
+    unsigned records_max, records_next;
+    
+    struct uidl_record **num_ndx;
+    unsigned num_ndx_max;
+};
+
+/*  routines */
+void init_uidl_db(struct uidl_db *db);
+
+struct uidl_record *insert_uidl(struct uidl_db *db,
+				char const *id, unsigned status);
+
+struct uidl_record *insert_uidl_noindex(struct uidl_db *db,
+					char const *id,
+					unsigned status);
+
+void set_uidl_num(struct uidl_db *db, struct uidl_record *rec,
+		  unsigned num);
+
+struct uidl_record *find_uidl_by_id(struct uidl_db *db, char const *id);
+
+static inline struct uidl_record *
+find_uidl_by_num(struct uidl_db *db, unsigned num)
+{
+    return num &lt; db-&gt;num_ndx_max ? db-&gt;num_ndx[num] : NULL;
+}
+    
+static inline struct uidl_record *
+find_uidl_by_pos(struct uidl_db *db, unsigned pos)
+{
+    return pos &lt; db-&gt;records_next ? db-&gt;records[pos] : NULL;
+}
+
+static inline struct uidl_record *
+first_uidl_in_db(struct uidl_db *db, char const *id)
+{
+    return find_uidl_by_id(db, id);
+}
+    
+struct uidl_record *last_uidl_in_db(struct uidl_db *db, char const *id);
+
+#endif
+---------------------------------------
+
+------------------- uidl_db.c -----------------
+/*
+  uidl db
+
+  Copyright (c) 2010 MAD Partners, Ltd.
+
+  This file is being published according to the terms of the
+  GPLv2 license contained in the 6.3.17 release of fetchmail.
+*/
+
+/*  includes */
+#include &lt;stdlib.h&gt;			
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+#include &quot;uidl_db.h&quot;
+
+/*  constants */
+enum {
+    MIN_RECORDS =	16
+};
+
+/*  types */
+struct pat_node {
+    struct pat_node *ptrs_[3];
+    unsigned bit_ndx, bit_mask;
+
+    struct uidl_record *rec;
+};
+
+/*
+  The idea behind this is that the 'left' pointer is at -1 and
+  the 'right' pointer at 1. This implies that dealing with 'symmetric
+  cases' for left and right pointers isn't necessary. There's always
+  just 'this pointer' (offset n) and 'the other pointer' (offset -n).
+*/
+#define ptrs(p) ((p)-&gt;ptrs_ + 1)
+
+/*  routines */
+void *xmalloc(size_t len)
+{
+    return malloc(len);
+}
+
+void *xrealloc(void *p, size_t new_size)
+{
+    return realloc(p, new_size);
+}
+
+static inline unsigned bit_ofs(unsigned bit_ndx)
+{
+    return bit_ndx &gt;&gt; 3;
+}
+
+static inline unsigned bit_mask(unsigned bit_ndx)
+{
+    return 1 &lt;&lt; (bit_ndx &amp; 7);
+}
+
+void init_uidl_db(struct uidl_db *db)
+{
+    db-&gt;pat_root = NULL;
+    
+    db-&gt;records = xmalloc(MIN_RECORDS * sizeof(*db-&gt;records));
+    db-&gt;records_max = MIN_RECORDS;
+    db-&gt;records_next = 0;
+
+    db-&gt;num_ndx = NULL;
+    db-&gt;num_ndx_max = 0;
+};
+
+static struct pat_node *walk_down(struct uidl_db *db, struct uidl_record *rec,
+				  struct pat_node ***edgep, struct pat_node **parentp)
+{
+    struct pat_node *cur, **edge;
+    unsigned bit_ndx, v;
+    int ofs;
+
+    cur = db-&gt;pat_root;
+    ofs = -1;
+    do {
+	bit_ndx = cur-&gt;bit_ndx;
+
+	if (bit_ofs(bit_ndx) != ofs) {
+	    ofs = bit_ofs(bit_ndx);
+	    v = ofs &lt; rec-&gt;id_len ? rec-&gt;id[ofs] : 0;
+	}
+	
+	edge = ptrs(cur) + (v &amp; cur-&gt;bit_mask ? 1 : -1);
+    } while ((cur = *edge) &amp;&amp; cur-&gt;bit_ndx &gt; bit_ndx);
+
+    *parentp = (void *)((char *)edge - (v &amp; bit_mask(bit_ndx) ?
+					offsetof(struct pat_node, ptrs_[2])
+					: offsetof(struct pat_node, ptrs_[0])));
+    *edgep = edge;
+    return cur;
+}
+
+static inline unsigned first_set_bit_in_char(unsigned v)
+{
+    return ffs(v) - 1;
+}
+
+static int find_first_diff_bit(struct uidl_record const *r0,
+			       struct uidl_record const *r1)
+{
+    struct uidl_record const *long_id;
+    unsigned ofs, max;
+    unsigned char v;
+
+    max = r0-&gt;id_len;
+    if (max &gt; r1-&gt;id_len) {
+	max = r1-&gt;id_len;
+	long_id = r0;
+    } else
+	long_id = r1;
+	
+    ofs = 0;
+    do
+	v = r0-&gt;id[ofs] ^ r1-&gt;id[ofs];
+    while (!v &amp;&amp; ++ofs &lt; max);
+
+    if (!v) {
+	if (r0-&gt;id_len == r1-&gt;id_len) return -1;
+	v = long_id-&gt;id[ofs];
+    }
+
+    return first_set_bit_in_char(v) + ofs * 8;
+}
+
+static inline int record_id_equal(struct uidl_record const *r0,
+				  struct uidl_record const *r1)
+{
+    return
+	r0-&gt;id_len == r1-&gt;id_len
+	&amp;&amp; memcmp(r0-&gt;id, r1-&gt;id, r0-&gt;id_len) == 0;
+}
+
+static struct uidl_record *append_to_list(struct uidl_record **recp,
+					  struct uidl_record *rec)
+{
+    while (*recp) recp = &amp;(*recp)-&gt;next;
+    *recp = rec;
+    
+    rec-&gt;next = NULL;
+    return rec;
+}
+
+static struct pat_node *get_pat_node(struct uidl_record *rec)
+{
+    struct pat_node *np;
+
+    np = xmalloc(sizeof(*np));
+    np-&gt;rec = rec;
+    rec-&gt;next = NULL;
+    return np;
+}
+
+static struct pat_node *get_standalone_node(struct uidl_record *rec)
+{
+    struct pat_node *np;
+
+    np = get_pat_node(rec);
+    np-&gt;bit_ndx = first_set_bit_in_char(*rec-&gt;id);
+    np-&gt;bit_mask = bit_mask(np-&gt;bit_ndx);
+    return np;
+}
+
+static inline unsigned bit_set(unsigned bit_ndx, struct uidl_record const *rec)
+{
+    unsigned ofs;
+
+    ofs = bit_ofs(bit_ndx);
+    if (ofs &gt;= rec-&gt;id_len) return 0;
+    return rec-&gt;id[ofs] &amp; bit_mask(bit_ndx);
+}
+
+static inline struct pat_node *walk_up(unsigned diff_ndx, struct pat_node **parent)
+{
+    struct pat_node *p, *np;
+
+    np = *parent;
+    
+    while ((p = *ptrs(np)) &amp;&amp; p-&gt;bit_ndx &gt; diff_ndx)
+	np = p;
+
+    *parent = p;
+    return np;
+}
+
+static struct uidl_record *pat_insert(struct uidl_db *db,
+				      struct uidl_record *rec)
+{
+    struct pat_node *np, *closest, *parent, **edge;
+    int me, bit_ndx;
+
+    if (!db-&gt;pat_root) {
+	np = get_standalone_node(rec);
+	ptrs(np)[-1] = *ptrs(np) = NULL;
+	ptrs(np)[1] = np;
+	
+	db-&gt;pat_root = np;
+	return rec;
+    }
+
+    closest = walk_down(db, rec, &amp;edge, &amp;parent);
+
+    if (closest) {
+	bit_ndx = find_first_diff_bit(closest-&gt;rec, rec);
+	if (bit_ndx &lt; 0)
+	    return append_to_list(&amp;closest-&gt;rec-&gt;next, rec);
+
+	np = get_pat_node(rec);
+	np-&gt;bit_ndx = bit_ndx;
+	np-&gt;bit_mask = bit_mask(bit_ndx);
+    } else
+	np = get_standalone_node(rec);
+
+    if (parent-&gt;bit_ndx &gt; np-&gt;bit_ndx) {
+	closest = walk_up(np-&gt;bit_ndx, &amp;parent);
+
+	if (!parent) edge = &amp;db-&gt;pat_root;
+	else edge = ptrs(parent)[-1] == closest ?
+		 ptrs(parent) - 1 : ptrs(parent) + 1;
+	*ptrs(closest) = np;
+    }
+    
+    *edge = np;
+    *ptrs(np) = parent;
+
+    me = bit_set(np-&gt;bit_ndx, rec) ? 1 : -1;
+    ptrs(np)[me] = np;
+    ptrs(np)[-me] = closest;
+
+    return rec;
+}
+
+static struct uidl_record *get_uidl_record(char const *id, unsigned status)
+{
+    struct uidl_record *rec;
+    unsigned id_len;
+
+    rec = xmalloc(sizeof(*rec));
+
+    id_len = strlen(id);
+    rec-&gt;id = memcpy(xmalloc(id_len + 1), id, id_len + 1);
+    rec-&gt;id_len = id_len;
+    rec-&gt;status = status;
+    rec-&gt;num = 0;
+
+    return rec;
+}
+
+static struct uidl_record *insert_into_records(struct uidl_db *db,
+					       struct uidl_record *rec)
+{
+    unsigned next, want;
+
+    next = db-&gt;records_next;
+    
+    if (next == db-&gt;records_max) {
+	want = db-&gt;records_max *= 2;
+	db-&gt;records = xrealloc(db-&gt;records, want * sizeof(rec));
+    }
+
+    rec-&gt;pos = next;
+    db-&gt;records[next] = rec;
+    db-&gt;records_next = next + 1;
+
+    return rec;
+}
+
+struct uidl_record *insert_uidl(struct uidl_db *db,
+				char const *id, unsigned status)
+{
+    struct uidl_record *rec;
+
+    rec = insert_uidl_noindex(db, id, status);
+    return pat_insert(db, rec);
+}
+
+struct uidl_record *insert_uidl_noindex(struct uidl_db *db,
+					char const *id, unsigned status)
+{
+    struct uidl_record *rec;
+
+    
+    rec = get_uidl_record(id, status);
+    return insert_into_records(db, rec);
+}
+
+void set_uidl_num(struct uidl_db *db, struct uidl_record *rec,
+		  unsigned num)
+{
+    unsigned want, have;
+
+    have = db-&gt;num_ndx_max;
+    if (num &gt;= have) {
+	want = num + MIN_RECORDS;
+	db-&gt;num_ndx = xrealloc(db-&gt;num_ndx, want * sizeof(*db-&gt;num_ndx));
+	db-&gt;num_ndx_max = want;
+
+	do db-&gt;num_ndx[--want] = NULL; while (want &gt; have);
+    }
+
+    db-&gt;num_ndx[num] = rec;
+    rec-&gt;num = num;
+}
+
+struct uidl_record *find_uidl_by_id(struct uidl_db *db, char const *id)
+{
+    static unsigned step_sum, searches;
+    struct pat_node *np;
+    struct uidl_record *rec;
+    unsigned v, bit_ndx, len;
+    int ofs;
+    
+    len = strlen(id);
+    
+    np = db-&gt;pat_root;
+    if (np) {
+	ofs = -1;
+	do {
+	    bit_ndx = np-&gt;bit_ndx;
+
+	    if (bit_ofs(bit_ndx) != ofs) {
+		ofs = bit_ofs(bit_ndx);
+		v = ofs &lt; len ? id[ofs] : 0;
+	    }
+
+	    np = ptrs(np)[v &amp; np-&gt;bit_mask ? 1 : -1];
+	} while (np &amp;&amp; np-&gt;bit_ndx &gt; bit_ndx);
+
+	if (!np) return NULL;
+
+	rec = np-&gt;rec;
+	return rec-&gt;id_len == len &amp;&amp; memcmp(id, rec-&gt;id, len) == 0 ?
+	    rec : NULL;
+    }
+
+#if 0
+    report(stderr, GT_(&quot;id search in unindexed db\n&quot;));
+#endif
+
+    ofs = db-&gt;records_next;
+    while (ofs) {
+	rec = db-&gt;records[--ofs];
+	if (rec-&gt;id_len == len &amp;&amp; memcmp(rec-&gt;id, id, len) == 0)
+	    return rec;
+    }
+
+    return 0;
+}
+
+struct uidl_record *last_uidl_in_db(struct uidl_db *db, char const *id)
+{
+    struct uidl_record *rec;
+
+    rec = find_uidl_by_id(db, id);
+    if (!rec) return NULL;
+
+    while (rec-&gt;next) rec = rec-&gt;next;
+    return rec;
+}
+
+static void free_uidl_list(struct uidl_record *rec)
+{
+    if (rec-&gt;next) free_uidl_list(rec-&gt;next);
+
+    free(rec-&gt;id);
+    free(rec);
+}
+
+static void free_pat_trie(struct pat_node *np)
+{
+    struct pat_node *child;
+
+    child = ptrs(np)[-1];
+    if (child &amp;&amp; child-&gt;bit_ndx &gt; np-&gt;bit_ndx) free_pat_trie(child);
+
+    child = ptrs(np)[1];
+    if (child-&gt;bit_ndx &gt; np-&gt;bit_ndx) free_pat_trie(child);
+
+    free_uidl_list(np-&gt;rec);
+    free(np);
+}
+
+void free_uidl_db(struct uidl_db *db)
+{
+    struct uidl_record *rec;
+    unsigned ndx;
+    
+    if (db-&gt;pat_root) free_pat_trie(db-&gt;pat_root);
+
+    free(db-&gt;records);
+    free(db-&gt;num_ndx);
+}
+
+/*  test code */
+int main(void)
+{
+    struct uidl_db db;
+    struct uidl_record *rec;
+    unsigned n;
+    char buf[80];
+    
+    init_uidl_db(&amp;db);
+    while (gets(buf)) insert_uidl(&amp;db, buf, 0);
+
+    n = 1000;
+    while (n--) {
+	fseek(stdin, 0, 0);
+	while (gets(buf)) {
+	    rec = find_uidl_by_id(&amp;db, buf);
+	    if (!rec || strcmp(rec-&gt;id, buf) != 0)
+		fprintf(stderr, &quot;not found\n&quot;);
+	}
+    }
+    
+    return 0;
+}
+---------------------------------------------
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001371.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+	<LI>Next message: <A HREF="001373.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1372">[ date ]</a>
+              <a href="thread.html#1372">[ thread ]</a>
+              <a href="subject.html#1372">[ subject ]</a>
+              <a href="author.html#1372">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

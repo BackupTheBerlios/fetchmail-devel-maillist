@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] save_str problems.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C20100503121707.GA13712%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001353.html">
+   <LINK REL="Next"  HREF="001355.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] save_str problems.</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C20100503121707.GA13712%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] save_str problems.">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Mon May  3 14:17:07 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001353.html">[fetchmail-devel] save_str problems.
+</A></li>
+        <LI>Next message: <A HREF="001355.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1354">[ date ]</a>
+              <a href="thread.html#1354">[ thread ]</a>
+              <a href="subject.html#1354">[ subject ]</a>
+              <a href="author.html#1354">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Rainer Weikusat's mail on Mon, May 03, 2010:
+&gt;<i> &gt; Matthias, you have said that the regular uidl code is faster than the
+</I>&gt;<i> &gt; fastuidl code for 10000 uids. Do you mean while processing 10000 uids
+</I>&gt;<i> &gt; on the fetchmail side or while getting 10000 uids from the server?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The fastuidl code downloads less UIDs from the server and hence has to
+</I>&gt;<i> &gt; compare less UIDs to check for new mail. If there are very few new
+</I>&gt;<i> &gt; mails, then the fastuidl code is expected to save a lot on the string
+</I>&gt;<i> &gt; comparisons.
+</I>&gt;<i> 
+</I>&gt;<i> It is conceivable that the string comparisons take less wallclock
+</I>&gt;<i> time than repeatedly asking a server for an UID and waiting for the
+</I>&gt;<i> replies does. IMHO, this is still a bad tradeoff because 'e-mail
+</I>&gt;<i> download' is a background batch job and even on a single-user
+</I>&gt;<i> workstation, minizing e-mail download time at the expense of directing
+</I>&gt;<i> more resources away from the interactive jobs the user interacts with
+</I>&gt;<i> doesn't really make sense except if one is using a uplink whose cost
+</I>&gt;<i> is proportional to the time spent 'online'.
+</I>
+As Matthias has already said, the better solution is to use the
+appropriate data structures like trees or hashes or vectors in order
+to cut down both searches and modifications. Once done, regular uidl
+and fastuidl will not eat up resources. Note that fastuidl is not the
+source of this problem.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001353.html">[fetchmail-devel] save_str problems.
+</A></li>
+	<LI>Next message: <A HREF="001355.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1354">[ date ]</a>
+              <a href="thread.html#1354">[ thread ]</a>
+              <a href="subject.html#1354">[ subject ]</a>
+              <a href="author.html#1354">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

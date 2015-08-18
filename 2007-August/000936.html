@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Downloading remote server certificate for a	TLS session?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Downloading%20remote%20server%20certificate%20for%20a%0A%09TLS%20session%3F&In-Reply-To=%3C43ea8d070708221400k3eb57b8bx3dd563bb710a6018%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000935.html">
+   <LINK REL="Next"  HREF="000938.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Downloading remote server certificate for a	TLS session?</H1>
+    <B>Rob MacGregor</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Downloading%20remote%20server%20certificate%20for%20a%0A%09TLS%20session%3F&In-Reply-To=%3C43ea8d070708221400k3eb57b8bx3dd563bb710a6018%40mail.gmail.com%3E"
+       TITLE="[fetchmail-devel] Downloading remote server certificate for a	TLS session?">rob.macgregor at gmail.com
+       </A><BR>
+    <I>Wed Aug 22 23:00:49 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000935.html">[fetchmail-devel] Downloading remote server certificate for a TLS	session?
+</A></li>
+        <LI>Next message: <A HREF="000938.html">[fetchmail-devel] Downloading remote server certificate for a TLS session?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#936">[ date ]</a>
+              <a href="thread.html#936">[ thread ]</a>
+              <a href="subject.html#936">[ subject ]</a>
+              <a href="author.html#936">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 8/22/07, Jakob Hirsch &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">jh at plonk.de</A>&gt; wrote:
+&gt;<i>
+</I>&gt;<i> You are probably looking for
+</I>&gt;<i> openssl s_client -connect your.server:pop3s
+</I>&gt;<i> (or ...:pop3 -starttls pop3)
+</I>
+I just tried &quot;openssl s_client -connect my.mail.server:pop3 -starttls
+pop3&quot; and all I get is:
+
+connect: Connection refused
+connect:errno=61
+
+But it's a TLS capable server.  Running the relevant command against
+the pop3s service works fine.
+
+&gt;<i> starttls works only with pop3 and smtp, though (and the smtp support is
+</I>&gt;<i> lousy...).
+</I>
+The recent thread was about an IMAP server that supported TLS, but
+there was no IMAPS support, and my own test suggests that the s_client
+protocol support is, well, poor.  If we're going to encourage the use
+of SSL/TLS (which we do by the fact that fetchmail will use TLS if
+it's available) then we need to make it easy for people to import
+certificates.
+
+-- 
+                 Please keep list traffic on the list.
+
+Rob MacGregor
+      Whoever fights monsters should see to it that in the process he
+        doesn't become a monster.                  Friedrich Nietzsche
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000935.html">[fetchmail-devel] Downloading remote server certificate for a TLS	session?
+</A></li>
+	<LI>Next message: <A HREF="000938.html">[fetchmail-devel] Downloading remote server certificate for a TLS session?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#936">[ date ]</a>
+              <a href="thread.html#936">[ thread ]</a>
+              <a href="subject.html#936">[ subject ]</a>
+              <a href="author.html#936">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

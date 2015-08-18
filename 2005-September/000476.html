@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [rdenis-debian-bts1 at simphalempin.com: [pkg-fetchmail-maint] Bug#329975: fetchmail: IPv6 support]
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Brdenis-debian-bts1%40simphalempin.com%3A%20%5Bpkg-fetchmail-maint%5D%20Bug%23329975%3A%20fetchmail%3A%20IPv6%20support%5D&In-Reply-To=%3C20050926093919.GA28928%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000474.html">
+   <LINK REL="Next"  HREF="000472.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [rdenis-debian-bts1 at simphalempin.com: [pkg-fetchmail-maint] Bug#329975: fetchmail: IPv6 support]</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Brdenis-debian-bts1%40simphalempin.com%3A%20%5Bpkg-fetchmail-maint%5D%20Bug%23329975%3A%20fetchmail%3A%20IPv6%20support%5D&In-Reply-To=%3C20050926093919.GA28928%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [rdenis-debian-bts1 at simphalempin.com: [pkg-fetchmail-maint] Bug#329975: fetchmail: IPv6 support]">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Sep 26 11:39:19 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000474.html">[fetchmail-devel] [rdenis-debian-bts1 at simphalempin.com: [pkg-fetchmail-maint] Bug#329975: fetchmail: IPv6 support]
+</A></li>
+        <LI>Next message: <A HREF="000472.html">[fetchmail-devel] fetchmail 6.2.9-rc5 available (hopefully last before 6.3.0)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#476">[ date ]</a>
+              <a href="thread.html#476">[ thread ]</a>
+              <a href="subject.html#476">[ subject ]</a>
+              <a href="author.html#476">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Nico Golde wrote:
+
+&gt;<i> * Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; [2005-09-26 10:22]:
+</I>&gt;<i> &gt; Nico Golde &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nico at ngolde.de</A>&gt; writes:
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; &gt; tags 329975 + upstream
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; I think 6.2.9-rc5 can be uploaded to Debian's unstable distribution, so
+</I>&gt;<i> &gt; it gets more testing - after the upload please have R&#233;mi retry with
+</I>&gt;<i> &gt; -rc5, if that works, another &quot;fixed-upstream&quot; tag might be in order.
+</I>&gt;<i> 
+</I>&gt;<i> I will prepare an upload next week.
+</I>
+I'm not sure how long I'll delay a 6.3.0 release.
+
+Perhaps I'll release 6.3.0 this week (given positive feedback and a few
+translations), perhaps I'll release it in four weeks (if new issues
+surface).
+
+&gt;<i> Is there something import I have to keep track on with the new package?
+</I>
+Check the NEWS file, the important stuff is up front.
+
+--enable-inet6 has no effect any more, --enable-netsec (and the
+corresponding lines) are gone. Note that the set of translations shipped
+with fetchmails has changed - see po/LINGUAS for the current set.
+
+fetchmail now uses automake, and requires system gettext as build and
+run-time prerequisite (--with-included-gettext doesn't work, the intl/
+directory isn't shipped). There's a new html file for the documentation,
+esrs-design-notes.html
+
+Otherwise, nothing I remember off-hand without checking.
+
+&gt;<i> &gt; Does Debian compile 6.2.5 with --enable-inet6? If not, that might be the
+</I>&gt;<i> &gt; problem.
+</I>&gt;<i> 
+</I>&gt;<i> fneq (,$(findstring IPV6,$(DEB_FETCHMAIL_BUILD_OPTIONS)))
+</I>&gt;<i>         FETCHCONFOPT += --enable-inet6
+</I>&gt;<i> endif
+</I>&gt;<i> ifneq (,$(findstring IPV6SEC,$(DEB_FETCHMAIL_BUILD_OPTIONS)))
+</I>&gt;<i>         FETCHCONFOPT += --enable-inet6 --enable-netsec
+</I>&gt;<i> endif
+</I>
+I don't know sufficient context to judge whether this is the problem or
+isn't.
+
+I'm not going to touch 6.2.5 anyways unless someone offers a support
+contract with reasonable payment or evidence of a security problem that
+isn't configuration-borne or the environment's fault (kernel bug or
+such).
+
+Kind regards,
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000474.html">[fetchmail-devel] [rdenis-debian-bts1 at simphalempin.com: [pkg-fetchmail-maint] Bug#329975: fetchmail: IPv6 support]
+</A></li>
+	<LI>Next message: <A HREF="000472.html">[fetchmail-devel] fetchmail 6.2.9-rc5 available (hopefully last before 6.3.0)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#476">[ date ]</a>
+              <a href="thread.html#476">[ thread ]</a>
+              <a href="subject.html#476">[ subject ]</a>
+              <a href="author.html#476">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

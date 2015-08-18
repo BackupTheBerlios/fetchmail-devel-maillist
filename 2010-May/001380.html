@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] An actual patch
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20An%20actual%20patch&In-Reply-To=%3Cop.vdaddjle1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001379.html">
+   <LINK REL="Next"  HREF="001378.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] An actual patch</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20An%20actual%20patch&In-Reply-To=%3Cop.vdaddjle1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] An actual patch">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed May 26 02:09:09 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001379.html">[fetchmail-devel] An actual patch
+</A></li>
+        <LI>Next message: <A HREF="001378.html">[fetchmail-devel] An actual patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1380">[ date ]</a>
+              <a href="thread.html#1380">[ thread ]</a>
+              <a href="subject.html#1380">[ subject ]</a>
+              <a href="author.html#1380">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 25.05.2010, 22:28 Uhr, schrieb Rainer Weikusat:
+
+&gt;<i> &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;<i>
+</I>&gt;<i> [...]
+</I>&gt;<i>
+</I>&gt;&gt;<i> For reasons beyond me, --fastuidl 5 does not currently appear to work.
+</I>&gt;&gt;<i> Fetchmail pulls the whole UID list.
+</I>&gt;&gt;<i> Haven't checked yet if that's an artifact of your code.
+</I>&gt;<i>
+</I>&gt;<i> Hmm ... 'works for me' (in daemon mode).
+</I>
+Euh yes. I forgot some of the gory details and re-read the manpage.
+--fastuidl apparently works as advertised also with your patch. (I was  
+wondering why the heck it would/should have been broken.)
+
+&gt;<i> Done. The modified code is meanwhile pulling mail for our customers
+</I>&gt;<i> and so far, it seems that the relative amount of (processing) time
+</I>&gt;<i> spent on dealing with POP3 UIDs has dropped from about 93.5% to about
+</I>&gt;<i> 35%. Provided the oprofile daemon doesn't crash overnight (appears to
+</I>&gt;<i> be a hobby of it), I should have some (extrapolated) absolute numbers
+</I>&gt;<i> tomorrow before noon. I will also reformat my section headings to
+</I>&gt;<i> remove the consecutive asterisks and I would like to again dump the
+</I>&gt;<i> documentation comments for the trivial subroutines[*] but apart from
+</I>&gt;<i> that, I don't believe that there will be further non-trivial changes.
+</I>
+OK. 35% still seems much, but OTOH if you're pulling few messages and  
+keeping many that might be in order. Let's see what oprofile samples and  
+tune later.
+
+&gt;<i> 	[*] I've encountered too many cases of code which was moved to
+</I>&gt;<i> 	a different place and modified somewhat in order to accomplish
+</I>&gt;<i> 	a somewhat different function, but - of course - leaving all
+</I>&gt;<i> 	the original comments intact to put any trust in comments.
+</I>
+Ugh.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001379.html">[fetchmail-devel] An actual patch
+</A></li>
+	<LI>Next message: <A HREF="001378.html">[fetchmail-devel] An actual patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1380">[ date ]</a>
+              <a href="thread.html#1380">[ thread ]</a>
+              <a href="subject.html#1380">[ subject ]</a>
+              <a href="author.html#1380">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

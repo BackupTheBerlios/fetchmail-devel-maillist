@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #7223] Name resolution does not work in 6.3.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%237223%5D%20Name%20resolution%20does%20not%20work%20in%206.3.4&In-Reply-To=%3C200604212312.k3LNCLuN008044%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000722.html">
+   <LINK REL="Next"  HREF="000723.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #7223] Name resolution does not work in 6.3.4</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%237223%5D%20Name%20resolution%20does%20not%20work%20in%206.3.4&In-Reply-To=%3C200604212312.k3LNCLuN008044%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #7223] Name resolution does not work in 6.3.4">admin at berlios.de
+       </A><BR>
+    <I>Sat Apr 22 01:12:21 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000722.html">[fetchmail-devel] Contents of file `fetchmail-6.3.4-rc1.ja.po'
+</A></li>
+        <LI>Next message: <A HREF="000723.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#725">[ date ]</a>
+              <a href="thread.html#725">[ thread ]</a>
+              <a href="subject.html#725">[ subject ]</a>
+              <a href="author.html#725">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #7223, was updated on 2006-Apr-21 18:12
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: andyt
+Assigned to : none
+Summary: Name resolution does not work in 6.3.4
+
+Details: I have just compiled fetchmail-6.3.4, to replace an existing 6.2.5.  New fetchmail fails to resolve IP address of the IMAP server I am polling.  Replacing server name with IP address in ~/.fetchmailrc restores functionality.  So does defining the name in /etc/hosts.
+Full log from `fetchmail -v -v' is:
+-----------------------
+fetchmail: 6.3.4 querying mail.ual.com. (protocol IMAP) at Fri Apr 21 17:53:59 2006: poll completed
+fetchmail: Query status=2 (SOCKET)
+fetchmail: Deleting fetchids file.
+fetchmail: normal termination, status 2
+fetchmail: Deleting fetchids file.
+-----------------------
+
+I also have the output of strace command (strace -o debug.out ./fetchmail -v) which I can send.
+
+Just to prove the point, I tried to compile fetchmail-2.5.5, and it does not have this problem.  I could not find any versions in between.
+
+System description:
+Slackware-10.0
+
+# uname -a
+Linux andyt 2.6.14.2 #1 PREEMPT Mon Nov 21 12:24:46 CST 2005 i686 unknown unknown GNU/Linux
+
+# gcc -v
+Reading specs from /usr/lib/gcc-lib/i486-slackware-linux/3.3.4/specs
+Configured with: ../gcc-3.3.4/configure --prefix=/usr --enable-shared --enable-threads=posix --enable-__cxa_atexit --disable-checking --with-gnu-ld --verbose --target=i486-slackware-linux --host=i486-slackware-linux
+Thread model: posix
+gcc version 3.3.4
+
+# ./fetchmail -V
+This is fetchmail release 6.3.4+SSL+NLS.
+
+Copyright (C) 2002, 2003 Eric S. Raymond
+Copyright (C) 2004 Matthias Andree, Eric S. Raymond, Rob F. Funk, Graham Wilson
+Copyright (C) 2005-2006 Matthias Andree, Sunil Shetye
+Fetchmail comes with ABSOLUTELY NO WARRANTY. This is free software, and you
+are welcome to redistribute it under certain conditions. For details,
+please see the file COPYING in the source or documentation directory.
+
+Fallback MDA: (none)
+Linux andyt 2.6.14.2 #1 PREEMPT Mon Nov 21 12:24:46 CST 2005 i686 unknown unknown GNU/Linux
+Taking options from command line and /home/andyt/.fetchmailrc
+Logfile is /home/andyt/.fetchmail.log
+Idfile is /home/andyt/.fetchids
+Fetchmail will show progress dots even in logfiles.
+Fetchmail will forward misaddressed multidrop messages to andyt.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">andy.tsouladze at united.com</A>@mail.ual.com.:
+  True name of server is mail.ual.com..
+  Protocol is IMAP.
+  All available authentication methods will be tried.
+  Server nonresponse timeout is 30 seconds.
+  Default mailbox selected.
+  All messages will be retrieved (--all on).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Oversized messages will not be flushed before message retrieval (--limitflush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 3 out of 4 polls (--fastuidl 4).
+  Messages will be SMTP-forwarded to: localhost (default)
+  Single-drop mode: 1 local name recognized.
+  No UIDs saved from this host.
+
+Thanks,
+
+Andy
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=7223&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=7223&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000722.html">[fetchmail-devel] Contents of file `fetchmail-6.3.4-rc1.ja.po'
+</A></li>
+	<LI>Next message: <A HREF="000723.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#725">[ date ]</a>
+              <a href="thread.html#725">[ thread ]</a>
+              <a href="subject.html#725">[ subject ]</a>
+              <a href="author.html#725">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

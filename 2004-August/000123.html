@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] BUG: RFC violations by translated mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20BUG%3A%20RFC%20violations%20by%20translated%20mails&In-Reply-To=%3Cm3k6vw1hzz.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000122.html">
+   <LINK REL="Next"  HREF="000124.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] BUG: RFC violations by translated mails</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20BUG%3A%20RFC%20violations%20by%20translated%20mails&In-Reply-To=%3Cm3k6vw1hzz.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] BUG: RFC violations by translated mails">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Wed Aug 18 19:19:28 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000122.html">[fetchmail-devel] web page &amp; 6.2.5 release
+</A></li>
+        <LI>Next message: <A HREF="000124.html">[fetchmail-devel] Re: BUG: RFC violations by translated mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#123">[ date ]</a>
+              <a href="thread.html#123">[ thread ]</a>
+              <a href="subject.html#123">[ subject ]</a>
+              <a href="author.html#123">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+in certain circumstances, fetchmail will send a mail to the user. This
+might be, for instance, the warning that an oversized message has been
+left on the server, or that fetchmail had been unable to log in (at
+least in daemon mode).
+
+The problem is that some translations, for instance the German
+translation, contains national characters, which are emitted to the mail
+(Subject and other) verbatim, and it is real fun because the character
+set used depends on the locale, IOW, it may depend on whether I start
+fetchmail from mlterm or from xterm...
+
+This gets really interesting if SpamAssassin is in use. Now watch this,
+particularly the X-Amavis-Alert and X-Spam-Status headers: (in case you
+wonder, it is de_DE.UTF-8, default on German installations of SuSE Linux
+9.1, I've changed org to ork to avoid spam):
+
+|<i> Return-Path: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-daemon at m2a2.dyndns.ork</A>&gt;
+</I>|<i> Date: Wed, 18 Aug 2004 12:58:03 +0200 (CEST)
+</I>|<i> Subject: Fetchmail-Warnung: &#252;bergro&#223;e Nachrichten
+</I>|<i> Message-Id: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">20040818105803.C3C8DCC94F at merlin.emma.line.org</A>&gt;
+</I>|<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-daemon at m2a2.dyndns.ork</A>
+</I>|<i> To: undisclosed-recipients: ;
+</I>|<i> X-Virus-Scanned: by amavisd-new at m2a2.dyndns.ork
+</I>|<i> X-Amavis-Alert: BAD HEADER Non-encoded 8-bit data (char C3 hex) in message header 'Subject'
+</I>|<i>   Subject: Fetchmail-Warnung: \303\274bergro\303\237e Nach...
+</I>|<i>                               ^
+</I>|<i> X-Spam-Status: Yes, hits=7.6 tagged_above=0.0 required=6.0
+</I>|<i>  tests=MSGID_FROM_MTA_SHORT, NO_REAL_NAME, SUBJ_ILLEGAL_CHARS
+</I>|<i> X-Spam-Level: *******
+</I>|<i> X-Spam-Flag: YES
+</I>|<i> 
+</I>|<i> Die folgenden &#252;bergro&#223;en Nachrichten verbleiben auf dem Mail-Server pop3.web.de:
+</I>|<i> 	1 msg 87025 Oktetts lang von fetchmail ausgelassen.
+</I>|<i> 
+</I>|<i> --
+</I>|<i> 				Der Fetchmail-D&#228;mon
+</I>
+Evidently, a default SpamAssassin 2.6X installation considers this
+oversize warning spam. Oops!
+
+There are several solutions to attack this:
+
+#1 request transliteration from translators.  This won't work for
+   languages that don't use a Latin character set but, for instance,
+   Cyrillic, Greek or Thai to name just three. It works for some
+   characters, those I know:
+
+   &#228;=ae, &#246;=oe, &#252;=ue, &#223;=ss (sz in special cases when the preceding vowel
+   is long and ss would be ambiguous), &#230;=ae, &#229;=aa, &#248;=oe, &#339;=oe, &#231;=c
+
+#2 request that national characters be pre-encoded as RFC-2047 (for the
+   Subject) or as quoted-printable for the body. Major hassle for the
+   translators.
+
+#3 let fetchmail do proper MIME encoding of Subject and body.
+
+I'd think #3 is the best but most complex option. 
+
+What do you think?
+
+-- 
+Matthias Andree
+
+NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000122.html">[fetchmail-devel] web page &amp; 6.2.5 release
+</A></li>
+	<LI>Next message: <A HREF="000124.html">[fetchmail-devel] Re: BUG: RFC violations by translated mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#123">[ date ]</a>
+              <a href="thread.html#123">[ thread ]</a>
+              <a href="subject.html#123">[ subject ]</a>
+              <a href="author.html#123">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

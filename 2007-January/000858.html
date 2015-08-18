@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #10133] fetchmail-6.3.6 SSL/TLS negotation	fails on some servers
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2310133%5D%20fetchmail-6.3.6%20SSL/TLS%20negotation%0A%09fails%20on%20some%20servers&In-Reply-To=%3C200701271040.l0RAekSa020451%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000862.html">
+   <LINK REL="Next"  HREF="000859.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #10133] fetchmail-6.3.6 SSL/TLS negotation	fails on some servers</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2310133%5D%20fetchmail-6.3.6%20SSL/TLS%20negotation%0A%09fails%20on%20some%20servers&In-Reply-To=%3C200701271040.l0RAekSa020451%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #10133] fetchmail-6.3.6 SSL/TLS negotation	fails on some servers">admin at berlios.de
+       </A><BR>
+    <I>Sat Jan 27 11:40:46 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000862.html">[fetchmail-devel] [PATCH] Fix KPOP
+</A></li>
+        <LI>Next message: <A HREF="000859.html">[fetchmail-devel] [Patch #1859] PWMD support
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#858">[ date ]</a>
+              <a href="thread.html#858">[ thread ]</a>
+              <a href="subject.html#858">[ subject ]</a>
+              <a href="author.html#858">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #10133, was updated on 2007-Jan-27 11:40
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: ticho
+Assigned to : none
+Summary: fetchmail-6.3.6 SSL/TLS negotation fails on some servers
+
+Details: Hello,
+I'm pushing upstream a bug that was reported in Gentoo Bugzilla as bug #163782.
+
+Here is output from fetchmail 6.3.4 and 6.3.6. Note that 6.3.4 works nicely with TLS1.
+
+# fetchmail -v --check -N -f /etc/fetchmailrc 
+fetchmail: WARNING: Running as root is discouraged.
+fetchmail: 6.3.6 querying gye.satnet.net (protocol POP3) at Thu Jan 25 12:23:05
+2007: poll started
+Trying to connect to XXX.XXX.XXX.XXX/110...connected.
+fetchmail: POP3&lt; +OK Hello there.
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; +OK Here's what I can do:
+fetchmail: POP3&lt; STLS
+fetchmail: POP3&lt; TOP
+fetchmail: POP3&lt; USER
+fetchmail: POP3&lt; LOGIN-DELAY 10
+fetchmail: POP3&lt; PIPELINING
+fetchmail: POP3&lt; UIDL
+fetchmail: POP3&lt; IMPLEMENTATION Courier Mail Server
+fetchmail: POP3&lt; .
+fetchmail: POP3&gt; STLS
+fetchmail: POP3&lt; +OK Begin SSL/TLS negotiation now.
+fetchmail: gye.satnet.net: opportunistic upgrade to TLS failed, trying to
+continue.
+fetchmail: POP3&gt; USER &lt;username&gt;
+fetchmail: Unknown login or authentication error on &lt;username&gt;@gye.satnet.net
+fetchmail: socket error while fetching from &lt;username&gt;@gye.satnet.net
+
+If I force no SSL, it works fine, though. Note that if I use version 6.3.4, I
+have no problems using SSL mode:
+
+# fetchmail -v --check -N -f /etc/fetchmailrc 
+fetchmail: WARNING: Running as root is discouraged.
+fetchmail: 6.3.4 querying gye.satnet.net (protocol POP3) at Thu Jan 25 12:32:05
+2007: poll started
+fetchmail: POP3&lt; +OK Hello there.
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; +OK Here's what I can do:
+fetchmail: POP3&lt; STLS
+fetchmail: POP3&lt; TOP
+fetchmail: POP3&lt; USER
+fetchmail: POP3&lt; LOGIN-DELAY 10
+fetchmail: POP3&lt; PIPELINING
+fetchmail: POP3&lt; UIDL
+fetchmail: POP3&lt; IMPLEMENTATION Courier Mail Server
+fetchmail: POP3&lt; .
+fetchmail: POP3&gt; STLS
+fetchmail: POP3&lt; +OK Begin SSL/TLS negotiation now.
+fetchmail: Repoll immediately on &lt;username&gt;@gye.satnet.net
+fetchmail: POP3&lt; +OK Hello there.
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; +OK Here's what I can do:
+fetchmail: POP3&lt; STLS
+fetchmail: POP3&lt; TOP
+fetchmail: POP3&lt; USER
+fetchmail: POP3&lt; LOGIN-DELAY 10
+fetchmail: POP3&lt; PIPELINING
+fetchmail: POP3&lt; UIDL
+fetchmail: POP3&lt; IMPLEMENTATION Courier Mail Server
+fetchmail: POP3&lt; .
+fetchmail: POP3&gt; USER &lt;username&gt;
+fetchmail: POP3&lt; +OK Password required.
+fetchmail: POP3&gt; PASS *
+fetchmail: POP3&lt; +OK logged in.
+fetchmail: POP3&gt; STAT
+fetchmail: POP3&lt; +OK 0 0
+fetchmail: No mail for &lt;username&gt; at gye.satnet.net
+fetchmail: POP3&gt; QUIT
+
+I was able to reproduce this myself with different error message from the server:
+
+fetchmail: 6.3.6 querying gye.satnet.net (protocol POP3) at So 27. janu&#225;r 2007, 11:40:13 CET: poll started
+Trying to connect to 200.63.192.22/110...connected.
+fetchmail: POP3&lt; +OK Hello there.
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; +OK Here's what I can do:
+fetchmail: POP3&lt; STLS
+fetchmail: POP3&lt; TOP
+fetchmail: POP3&lt; USER
+fetchmail: POP3&lt; LOGIN-DELAY 10
+fetchmail: POP3&lt; PIPELINING
+fetchmail: POP3&lt; UIDL
+fetchmail: POP3&lt; IMPLEMENTATION Courier Mail Server
+fetchmail: POP3&lt; .
+fetchmail: POP3&gt; STLS
+fetchmail: POP3&lt; +OK Begin SSL/TLS negotiation now.
+fetchmail: gye.satnet.net: upgrade to TLS failed.
+fetchmail: Unknown login or authentication error on <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">ticho at gye.satnet.net</A>
+fetchmail: socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">ticho at gye.satnet.net</A>
+fetchmail: 6.3.6 querying gye.satnet.net (protocol POP3) at So 27. janu&#225;r 2007, 11:40:14 CET: poll completed
+fetchmail: Query status=2 (SOCKET)
+fetchmail: normal termination, status 2
+
+The .fetchmailrc I used for this test was:
+
+poll gye.satnet.net
+	proto pop3
+	user ticho
+	pass &quot;asd&quot;
+	is ticho
+	sslproto TLS1
+	fetchall
+	keep
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10133&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10133&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000862.html">[fetchmail-devel] [PATCH] Fix KPOP
+</A></li>
+	<LI>Next message: <A HREF="000859.html">[fetchmail-devel] [Patch #1859] PWMD support
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#858">[ date ]</a>
+              <a href="thread.html#858">[ thread ]</a>
+              <a href="subject.html#858">[ subject ]</a>
+              <a href="author.html#858">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

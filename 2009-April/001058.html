@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Drop privileges
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Drop%20privileges&In-Reply-To=%3C20090428120714.GA4158%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001056.html">
+   <LINK REL="Next"  HREF="001059.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Drop privileges</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Drop%20privileges&In-Reply-To=%3C20090428120714.GA4158%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Drop privileges">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Tue Apr 28 14:07:14 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001056.html">[fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg
+</A></li>
+        <LI>Next message: <A HREF="001059.html">[fetchmail-devel] Drop privileges
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1058">[ date ]</a>
+              <a href="thread.html#1058">[ thread ]</a>
+              <a href="subject.html#1058">[ subject ]</a>
+              <a href="author.html#1058">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Thomas Jarosch,
+
+Quoting from Thomas Jarosch's mail on Fri, Mar 27, 2009:
+&gt;<i> attached is a patch which allows fetchmail to drop root privileges
+</I>&gt;<i> and run inside a chroot. The idea is to read the config file as root (as it 
+</I>&gt;<i> contains passwords) and setup the logging. The root privileges get dropped 
+</I>&gt;<i> after initialization.
+</I>&gt;<i> 
+</I>&gt;<i> All new features are optional. This will leave a stale lockfile after
+</I>&gt;<i> the fetchmail run (not enough privileges to write to /var/run or even
+</I>&gt;<i> not accessible inside the chroot), fetchmail perfectly
+</I>&gt;<i> handles that on the next invocation.
+</I>&gt;<i> 
+</I>&gt;<i> Upstream integration or feedback is welcome :-)
+</I>&gt;<i> The patch is against fetchmail 6.3.9.
+</I>
+Here are some thoughts on the options in your patch.
+
+
+The run_chroot option:
+
+The patch does not handle files which are being opened after chroot.
+Any file opened after the chroot will be in the wrong location. For
+example, in this invocation with your patch:
+
+# fetchmail --run_chroot /home/user --logfile /home/user/fetchmail.logs \
+    --idfile /home/user/.fetchids --bsmtp /home/user/bsmtp.file \
+    --preconnect '/home/user/preconnect.py script-arguments'
+
+the logfile is being opened before the chroot, the bsmtp file is being
+opened after the chroot (i.e. /home/user/home/user/bsmtp.file), and
+the idfile is being opened before the chroot for reading *and* after
+the chroot for writing! The preconnect script is running in the
+chroot.
+
+Your patch will work correctly only if fetchmail does not open any
+file or run any script after the chroot.
+
+Also, ensuring that the preconnect script runs properly in the chroot
+will be next to impossible.
+
+
+The run_user and run_group options:
+
+fetchmail is essentially a user-level daemon program. Unlike a system
+daemon, it does not require special privileges to read the
+configuration files and it does not bind to a reserved port. So, it is
+far simpler to start fetchmail with a command like:
+
+# su user -c fetchmail
+
+rather than
+
+# fetchmail --run_user user
+
+Is it really useful to have passwords in a root-owned file? Does it
+add to security? In case you really want that, you may run fetchmail
+in this fashion as root:
+
+# su user -c fetchmail -f - &lt; /etc/fetchmailrc
+
+The added advantage is that the lockfile is the correct place.
+
+Another problem will be that if /etc/fetchmailrc is modified after
+fetchmail is invoked with the --run_user option, it will detect the
+file modification and exit because the file cannot be read again due
+to dropping of privileges. Try this:
+
+# fetchmail --run_user user --daemon 1800
+[ wait for one poll to complete ]
+# touch /etc/fetchmailrc
+# fetchmail
+
+This will not happen with the invocation with redirection!
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001056.html">[fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg
+</A></li>
+	<LI>Next message: <A HREF="001059.html">[fetchmail-devel] Drop privileges
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1058">[ date ]</a>
+              <a href="thread.html#1058">[ thread ]</a>
+              <a href="subject.html#1058">[ subject ]</a>
+              <a href="author.html#1058">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

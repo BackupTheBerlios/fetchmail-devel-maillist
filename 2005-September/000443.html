@@ -1,0 +1,456 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] Re: deleting oversized messages
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3C20050908131532.GA13196%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000442.html">
+   <LINK REL="Next"  HREF="000448.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] Re: deleting oversized messages</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3C20050908131532.GA13196%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] Re: deleting oversized messages">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Thu Sep  8 15:15:32 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000442.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+        <LI>Next message: <A HREF="000448.html">[fetchmail-devel] [PATCH] Re: deleting oversized messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#443">[ date ]</a>
+              <a href="thread.html#443">[ thread ]</a>
+              <a href="subject.html#443">[ subject ]</a>
+              <a href="author.html#443">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Matthias,
+
+Quoting from Matthias Andree's mail on Thu, Sep 01, 2005 at 10:24:57AM +0200:
+&gt;<i> Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;<i> &gt; I had created a patch which adds another option to fetchmail. The old
+</I>&gt;<i> &gt; patch (against 6.2.4) along with some discussion can be found at:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;<A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2003-October/008017.html">http://lists.ccil.org/pipermail/fetchmail-friends/2003-October/008017.html</A>&gt;.
+</I>&gt;<i> 
+</I>&gt;<i> I had a very quick glance at this patch - I have two minor nits to pick:
+</I>
+Ok, I have created a simplified patch. Please accept this for 6.3.0.
+Essentially, 'limitflush' is now a boolean option. So, one has to just
+use --limitflush instead of --flush.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/conf.c
+===================================================================
+--- fetchmail/conf.c	(revision 4284)
++++ fetchmail/conf.c	(working copy)
+@@ -338,6 +338,7 @@
+ 	booldump(&quot;fetchall&quot;, ctl-&gt;fetchall);
+ 	booldump(&quot;keep&quot;, ctl-&gt;keep);
+ 	booldump(&quot;flush&quot;, ctl-&gt;flush);
++	booldump(&quot;limitflush&quot;, ctl-&gt;limitflush);
+ 	booldump(&quot;rewrite&quot;, ctl-&gt;rewrite);
+ 	booldump(&quot;stripcr&quot;, ctl-&gt;stripcr); 
+ 	booldump(&quot;forcecr&quot;, ctl-&gt;forcecr);
+Index: fetchmail/fetchmailconf.py
+===================================================================
+--- fetchmail/fetchmailconf.py	(revision 4284)
++++ fetchmail/fetchmailconf.py	(working copy)
+@@ -235,6 +235,7 @@
+ 	self.antispam = &quot;&quot;	# Listener's spam-block code
+ 	self.keep = FALSE	# Keep messages
+ 	self.flush = FALSE	# Flush messages
++	self.limitflush = FALSE	# Flush oversized messages
+ 	self.fetchall = FALSE	# Fetch old messages
+ 	self.rewrite = TRUE	# Rewrite message headers
+ 	self.forcecr = FALSE	# Force LF -&gt; CR/LF
+@@ -274,6 +275,7 @@
+ 	    ('antispam',    'String'),
+ 	    ('keep',	'Boolean'),
+ 	    ('flush',	    'Boolean'),
++	    ('limitflush',  'Boolean'),
+ 	    ('fetchall',    'Boolean'),
+ 	    ('rewrite',     'Boolean'),
+ 	    ('forcecr',     'Boolean'),
+@@ -310,6 +312,7 @@
+ 	    res = res + &quot; here&quot;
+ 	if (self.keep != UserDefaults.keep
+ 		or self.flush != UserDefaults.flush
++		or self.limitflush != UserDefaults.limitflush
+ 		or self.fetchall != UserDefaults.fetchall
+ 		or self.rewrite != UserDefaults.rewrite
+ 		or self.forcecr != UserDefaults.forcecr
+@@ -324,6 +327,8 @@
+ 	    res = res + flag2str(self.keep, 'keep')
+ 	if self.flush != UserDefaults.flush:
+ 	    res = res + flag2str(self.flush, 'flush')
++	if self.limitflush != UserDefaults.limitflush:
++	    res = res + flag2str(self.limitflush, 'limitflush')
+ 	if self.fetchall != UserDefaults.fetchall:
+ 	    res = res + flag2str(self.fetchall, 'fetchall')
+ 	if self.rewrite != UserDefaults.rewrite:
+@@ -1684,6 +1689,8 @@
+ 	if mode != 'novice':
+ 	    Checkbutton(optwin, text=&quot;Flush seen messages before retrieval&quot;,
+ 		    variable=self.flush).pack(side=TOP, anchor=W)
++	    Checkbutton(optwin, text=&quot;Flush oversized messages before retrieval&quot;,
++		    variable=self.limitflush).pack(side=TOP, anchor=W)
+ 	    Checkbutton(optwin, text=&quot;Rewrite To/Cc/Bcc messages to enable reply&quot;,
+ 		    variable=self.rewrite).pack(side=TOP, anchor=W)
+ 	    Checkbutton(optwin, text=&quot;Force CR/LF at end of each line&quot;,
+Index: fetchmail/fetchmail.man
+===================================================================
+--- fetchmail/fetchmail.man	(revision 4284)
++++ fetchmail/fetchmail.man	(working copy)
+@@ -205,6 +205,12 @@
+ never delivered to you.  What you probably want is the default
+ setting: if you don't specify '-k', then fetchmail will automatically
+ delete messages after successful delivery.
++.TP
++.B \-\-limitflush
++POP3/IMAP only.  Delete oversized messages from the
++mailserver before retrieving new messages. The size limit should be
++separately sepecified with the --limit option.  This option does not
++work with ETRN or ODMR.
+ .SS Protocol and Query Options
+ .TP
+ .B \-p &lt;proto&gt; | \-\-protocol &lt;proto&gt;
+@@ -496,11 +502,10 @@
+ marked seen. An explicit --limit of 0 overrides any limits set in your
+ run control file. This option is intended for those needing to
+ strictly control fetch time due to expensive and variable phone rates.
+-Combined with --flush, it can be used to delete oversized messages
+-waiting on a server UNLESS in daemon mode.  In daemon mode, oversize
+-notifications are mailed to the calling user (see the --warnings
+-option) and the messages remain on the server.
+-This option does not work with ETRN or ODMR.
++Combined with --limitflush, it can be used to delete oversized
++messages waiting on a server.  In daemon mode, oversize notifications
++are mailed to the calling user (see the --warnings option). This
++option does not work with ETRN or ODMR.
+ .TP
+ .B \-w &lt;interval&gt; | \-\-warnings &lt;interval&gt;
+ (Keyword: warnings)
+@@ -1487,6 +1492,9 @@
+ flush   	-F	\&amp;	T{
+ Flush all seen messages before querying
+ T}
++limitflush   	\&amp;	\&amp;	T{
++Flush all oversized messages before querying
++T}
+ fetchall	-a	\&amp;	T{
+ Fetch all messages whether seen or not
+ T}
+Index: fetchmail/fetchmail.c
+===================================================================
+--- fetchmail/fetchmail.c	(revision 4284)
++++ fetchmail/fetchmail.c	(working copy)
+@@ -871,6 +871,7 @@
+ 
+     FLAG_MERGE(keep);
+     FLAG_MERGE(flush);
++    FLAG_MERGE(limitflush);
+     FLAG_MERGE(fetchall);
+     FLAG_MERGE(rewrite);
+     FLAG_MERGE(forcecr);
+@@ -1100,6 +1101,7 @@
+ 	    DEFAULT(ctl-&gt;keep, FALSE);
+ 	    DEFAULT(ctl-&gt;fetchall, FALSE);
+ 	    DEFAULT(ctl-&gt;flush, FALSE);
++	    DEFAULT(ctl-&gt;limitflush, FALSE);
+ 	    DEFAULT(ctl-&gt;rewrite, TRUE);
+ 	    DEFAULT(ctl-&gt;stripcr, (ctl-&gt;mda != (char *)NULL)); 
+ 	    DEFAULT(ctl-&gt;forcecr, FALSE);
+@@ -1600,6 +1602,9 @@
+ 	    printf(ctl-&gt;flush
+ 		   ? GT_(&quot;  Old messages will be flushed before message retrieval (--flush on).\n&quot;)
+ 		   : GT_(&quot;  Old messages will not be flushed before message retrieval (--flush off).\n&quot;));
++	    printf(ctl-&gt;limitflush
++		   ? GT_(&quot;  Oversized messages will be flushed before message retrieval (--limitflush on).\n&quot;)
++		   : GT_(&quot;  Oversized messages will not be flushed before message retrieval (--limitflush off).\n&quot;));
+ 	    printf(ctl-&gt;rewrite
+ 		   ? GT_(&quot;  Rewrite of server-local addresses is enabled (--norewrite off).\n&quot;)
+ 		   : GT_(&quot;  Rewrite of server-local addresses is disabled (--norewrite on).\n&quot;));
+@@ -1623,7 +1628,8 @@
+ 		   : GT_(&quot;  Nonempty Status lines will be kept (dropstatus off)\n&quot;));
+ 	    printf(ctl-&gt;dropdelivered
+ 		   ? GT_(&quot;  Delivered-To lines will be discarded (dropdelivered on)\n&quot;)
+-		   : GT_(&quot;  Delivered-To lines will be kept (dropdelivered off)\n&quot;));	    if (NUM_NONZERO(ctl-&gt;limit))
++		   : GT_(&quot;  Delivered-To lines will be kept (dropdelivered off)\n&quot;));
++	    if (NUM_NONZERO(ctl-&gt;limit))
+ 	    {
+ 		if (NUM_NONZERO(ctl-&gt;limit))
+ 		    printf(GT_(&quot;  Message size limit is %d octets (--limit %d).\n&quot;), 
+Index: fetchmail/fetchmail.h
+===================================================================
+--- fetchmail/fetchmail.h	(revision 4284)
++++ fetchmail/fetchmail.h	(working copy)
+@@ -298,6 +298,7 @@
+     flag keep;			/* if TRUE, leave messages undeleted */
+     flag fetchall;		/* if TRUE, fetch all (not just unseen) */
+     flag flush;			/* if TRUE, delete messages already seen */
++    flag limitflush;		/* if TRUE, delete oversized mails */
+     flag rewrite;		/* if TRUE, canonicalize recipient addresses */
+     flag stripcr;		/* if TRUE, strip CRs in text */
+     flag forcecr;		/* if TRUE, force CRs before LFs in text */
+Index: fetchmail/rcfile_y.y
+===================================================================
+--- fetchmail/rcfile_y.y	(revision 4284)
++++ fetchmail/rcfile_y.y	(working copy)
+@@ -73,7 +73,7 @@
+ %token &lt;proto&gt; PROTO AUTHTYPE
+ %token &lt;sval&gt;  STRING
+ %token &lt;number&gt; NUMBER
+-%token NO KEEP FLUSH FETCHALL REWRITE FORCECR STRIPCR PASS8BITS 
++%token NO KEEP FLUSH LIMITFLUSH FETCHALL REWRITE FORCECR STRIPCR PASS8BITS 
+ %token DROPSTATUS DROPDELIVERED
+ %token DNS SERVICE PORT UIDL INTERVAL MIMEDECODE IDLE CHECKALIAS 
+ %token SSL SSLKEY SSLCERT SSLPROTO SSLCERTCK SSLCERTPATH SSLFINGERPRINT
+@@ -308,6 +308,7 @@
+ 
+ 		| KEEP			{current.keep        = FLAG_TRUE;}
+ 		| FLUSH			{current.flush       = FLAG_TRUE;}
++		| LIMITFLUSH		{current.limitflush  = FLAG_TRUE;}
+ 		| FETCHALL		{current.fetchall    = FLAG_TRUE;}
+ 		| REWRITE		{current.rewrite     = FLAG_TRUE;}
+ 		| FORCECR		{current.forcecr     = FLAG_TRUE;}
+@@ -334,6 +335,7 @@
+ 
+ 		| NO KEEP		{current.keep        = FLAG_FALSE;}
+ 		| NO FLUSH		{current.flush       = FLAG_FALSE;}
++		| NO LIMITFLUSH		{current.limitflush  = FLAG_FALSE;}
+ 		| NO FETCHALL		{current.fetchall    = FLAG_FALSE;}
+ 		| NO REWRITE		{current.rewrite     = FLAG_FALSE;}
+ 		| NO FORCECR		{current.forcecr     = FLAG_FALSE;}
+Index: fetchmail/driver.c
+===================================================================
+--- fetchmail/driver.c	(revision 4284)
++++ fetchmail/driver.c	(working copy)
+@@ -336,9 +336,14 @@
+     stuff_warning(iana_charset, ctl,
+ 	   GT_(&quot;Subject: Fetchmail oversized-messages warning&quot;));
+     stuff_warning(NULL, ctl, &quot;%s&quot;, &quot;&quot;);
+-    stuff_warning(NULL, ctl,
+-	    GT_(&quot;The following oversized messages remain on the mail server %s:&quot;),
+-	    ctl-&gt;server.pollname);
++    if (ctl-&gt;limitflush)
++	stuff_warning(NULL, ctl,
++		GT_(&quot;The following oversized messages were deleted on the mail server %s:&quot;),
++		ctl-&gt;server.pollname);
++    else
++	stuff_warning(NULL, ctl,
++		GT_(&quot;The following oversized messages remain on the mail server %s:&quot;),
++		ctl-&gt;server.pollname);
+ 
+     stuff_warning(NULL, ctl, &quot;%s&quot;, &quot;&quot;);
+ 
+@@ -354,9 +359,14 @@
+ 	{
+ 	    nbr = current-&gt;val.status.mark;
+ 	    size = atoi(current-&gt;id);
+-	    stuff_warning(NULL, ctl,
+-		    GT_(&quot;  %d msg %d octets long skipped by fetchmail.&quot;),
+-		    nbr, size);
++	    if (ctl-&gt;limitflush)
++		stuff_warning(NULL, ctl,
++			GT_(&quot;  %d msg %d octets long deleted by fetchmail.&quot;),
++			nbr, size);
++	    else
++		stuff_warning(NULL, ctl,
++			GT_(&quot;  %d msg %d octets long skipped by fetchmail.&quot;),
++			nbr, size);
+ 	}
+ 	current-&gt;val.status.num++;
+ 	current-&gt;val.status.mark = 0;
+@@ -395,16 +405,9 @@
+     cnt = current ? current-&gt;val.status.num : 0;
+ 
+     /* if entry exists, increment the count */
+-    if (current &amp;&amp; str_in_list(&amp;current, sizestr, FALSE))
++    if (current &amp;&amp; (tmp = str_in_list(&amp;current, sizestr, FALSE)))
+     {
+-	for ( ; current; current = current-&gt;next)
+-	{
+-	    if (strcmp(current-&gt;id, sizestr) == 0)
+-	    {
+-		current-&gt;val.status.mark++;
+-		break;
+-	    }
+-	}
++	tmp-&gt;val.status.mark++;
+     }
+     /* otherwise, create a new entry */
+     /* initialise with current poll count */
+@@ -540,12 +543,10 @@
+ 
+ 	if (msgcode &lt; 0)
+ 	{
+-	    if ((msgcode == MSGLEN_TOOLARGE) &amp;&amp; !check_only)
++	    if (msgcode == MSGLEN_TOOLARGE)
+ 	    {
+ 		mark_oversized(ctl, num, msgsize);
+-		/* we do not want to delete oversized messages in daemon
+-		 * mode, but allow deletions in single-pass mode. */
+-		if (run.poll_interval)
++		if (!ctl-&gt;limitflush)
+ 		    suppress_delete = TRUE;
+ 	    }
+ 	    if (outlevel &gt; O_SILENT)
+@@ -775,7 +776,8 @@
+ 	else if (ctl-&gt;server.base_protocol-&gt;delete
+ 		 &amp;&amp; !suppress_delete
+ 		 &amp;&amp; ((msgcode &gt;= 0 &amp;&amp; !ctl-&gt;keep)
+-		     || ((msgcode == MSGLEN_OLD || msgcode == MSGLEN_TOOLARGE) &amp;&amp; ctl-&gt;flush)))
++		     || (msgcode == MSGLEN_OLD &amp;&amp; ctl-&gt;flush)
++		     || (msgcode == MSGLEN_TOOLARGE &amp;&amp; ctl-&gt;limitflush)))
+ 	{
+ 	    (*deletions)++;
+ 	    if (outlevel &gt; O_SILENT) 
+@@ -1566,7 +1568,8 @@
+ 	    return(PS_SYNTAX);
+ 	}
+     }
+-    if (!proto-&gt;getsizes &amp;&amp; NUM_SPECIFIED(ctl-&gt;limit))
++    if (!(proto-&gt;getsizes || proto-&gt;getpartialsizes)
++	    &amp;&amp; NUM_SPECIFIED(ctl-&gt;limit))
+     {
+ 	report(stderr,
+ 		GT_(&quot;Option --limit is not supported with %s\n&quot;),
+Index: fetchmail/fetchmail-FAQ.html
+===================================================================
+--- fetchmail/fetchmail-FAQ.html	(revision 4284)
++++ fetchmail/fetchmail-FAQ.html	(working copy)
+@@ -229,7 +229,9 @@
+ &lt;a href=&quot;#O11&quot;&gt;O11. I keep getting messages that say &quot;Repoll
+ immediately&quot; in my logs.&lt;/a&gt;&lt;br/&gt;
+ &lt;a href=&quot;#O12&quot;&gt;O12. Fetchmail no longer expunges mail on a 451 SMTP response.&lt;/a&gt;&lt;br/&gt;
+-&lt;a href=&quot;#O13&quot;&gt;O13. I want timestamp information in my fetchmail logs.&lt;/a&gt;
++&lt;a href=&quot;#O13&quot;&gt;O13. I want timestamp information in my fetchmail logs.&lt;/a&gt;&lt;br/&gt;
++&lt;a href=&quot;#O14&quot;&gt;O14. Fetchmail no longer deletes oversized mails with
++--flush.&lt;/a&gt;&lt;br/&gt;
+ 
+ &lt;h1&gt;Answers:&lt;/h1&gt;
+ 
+@@ -3569,6 +3571,24 @@
+ does something like &quot;date &gt;&gt; $HOME/Procmail/fetchmail.log&quot;.&lt;/p&gt;
+ 
+ &lt;hr/&gt;
++&lt;h2&gt;&lt;a name=&quot;O14&quot;&gt;O14. Fetchmail no longer deletes oversized mails with
++--flush.&lt;/a&gt;&lt;/h2&gt;
++
++&lt;p&gt;Use &lt;code&gt;--limitflush&lt;/code&gt; to delete oversized mails along with
++the &lt;code&gt;--limit&lt;/code&gt; option. If you are already having
++&lt;code&gt;flush&lt;/code&gt; in your rcfile to delete oversized mails,
++&lt;em&gt;replace&lt;/em&gt; it with &lt;code&gt;limitflush&lt;/code&gt; to avoid losing mails
++unintentionally.&lt;/p&gt;
++
++&lt;p&gt;The &lt;code&gt;--flush&lt;/code&gt; option is primarily designed to delete
++mails which have been read/downloaded but not deleted yet. This option
++cannot be overloaded to delete oversized mails as it cannot be guessed
++whether the user wants to delete only read/downloaded mails or only
++oversized mails or both when a user specifies both
++&lt;code&gt;--limit&lt;/code&gt; and &lt;code&gt;--flush&lt;/code&gt;. Hence, a separate
++&lt;code&gt;--limitflush&lt;/code&gt; has been added to resolve the ambiguity.&lt;/p&gt;
++
++&lt;hr/&gt;
+ &lt;table width=&quot;100%&quot; cellpadding=&quot;0&quot; summary=&quot;Canned page footer&quot;&gt;
+ &lt;tr&gt;
+ &lt;td width=&quot;30%&quot;&gt;Back to &lt;a href=&quot;index.html&quot;&gt;Fetchmail Home
+Index: fetchmail/rcfile_l.l
+===================================================================
+--- fetchmail/rcfile_l.l	(revision 4284)
++++ fetchmail/rcfile_l.l	(working copy)
+@@ -147,6 +147,7 @@
+ noenvelope	|
+ nokeep		|
+ noflush		|
++nolimitflush	|
+ nofetchall	|
+ norewrite	|
+ noforcecr	|
+@@ -165,6 +166,7 @@
+ 
+ keep		{ return KEEP; }
+ flush		{ return FLUSH; }
++limitflush	{ return LIMITFLUSH; }
+ fetchall	{ return FETCHALL; }
+ rewrite		{ return REWRITE; }
+ forcecr		{ return FORCECR; }
+Index: fetchmail/options.c
+===================================================================
+--- fetchmail/options.c	(revision 4284)
++++ fetchmail/options.c	(working copy)
+@@ -88,6 +88,10 @@
+ #define LA_FETCHSIZELIMIT	61
+ #define LA_FASTUIDL	62
+ 
++/* don't use 63-122: they could clash with short options */
++
++#define LA_LIMITFLUSH	128
++
+ /* options still left: CDgGhHjJoORwWxXYz */
+ static const char *shortoptions = 
+ 	&quot;?Vcsvd:NqL:f:i:p:UP:A:t:E:Q:u:akKFnl:r:S:Z:b:B:e:m:T:I:M:yw:D:&quot;;
+@@ -128,6 +132,7 @@
+   {&quot;nokeep&quot;,	no_argument,	   (int *) 0, LA_NOKEEP      },
+   {&quot;keep&quot;,	no_argument,       (int *) 0, LA_KEEP        },
+   {&quot;flush&quot;,	no_argument,	   (int *) 0, LA_FLUSH       },
++  {&quot;limitflush&quot;,	no_argument, (int *) 0, LA_LIMITFLUSH       },
+   {&quot;norewrite&quot;,	no_argument,	   (int *) 0, LA_NOREWRITE   },
+   {&quot;limit&quot;,	required_argument, (int *) 0, LA_LIMIT       },
+   {&quot;warnings&quot;,	required_argument, (int *) 0, LA_WARNINGS    },
+@@ -453,6 +458,9 @@
+ 	case LA_FLUSH:
+ 	    ctl-&gt;flush = FLAG_TRUE;
+ 	    break;
++	case LA_LIMITFLUSH:
++	    ctl-&gt;limitflush = FLAG_TRUE;
++	    break;
+ 	case 'n':
+ 	case LA_NOREWRITE:
+ 	    ctl-&gt;rewrite = FLAG_FALSE;
+@@ -683,6 +691,7 @@
+ 	P(GT_(&quot;  -K, --nokeep      delete new messages after retrieval\n&quot;));
+ 	P(GT_(&quot;  -k, --keep        save new messages after retrieval\n&quot;));
+ 	P(GT_(&quot;  -F, --flush       delete old messages from server\n&quot;));
++	P(GT_(&quot;      --limitflush  delete oversized messages\n&quot;));
+ 	P(GT_(&quot;  -n, --norewrite   don't rewrite header addresses\n&quot;));
+ 	P(GT_(&quot;  -l, --limit       don't fetch messages over given size\n&quot;));
+ 	P(GT_(&quot;  -w, --warnings    interval between warning mail notification\n&quot;));
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000442.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+	<LI>Next message: <A HREF="000448.html">[fetchmail-devel] [PATCH] Re: deleting oversized messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#443">[ date ]</a>
+              <a href="thread.html#443">[ thread ]</a>
+              <a href="subject.html#443">[ subject ]</a>
+              <a href="author.html#443">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

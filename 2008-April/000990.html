@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Fetchmail IMAP with FETCH x RFC822
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Fetchmail%20IMAP%20with%20FETCH%20x%20RFC822&In-Reply-To=%3C20080424083230.GA11830%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000989.html">
+   <LINK REL="Next"  HREF="000991.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Fetchmail IMAP with FETCH x RFC822</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Fetchmail%20IMAP%20with%20FETCH%20x%20RFC822&In-Reply-To=%3C20080424083230.GA11830%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Fetchmail IMAP with FETCH x RFC822">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Apr 24 10:32:30 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000989.html">[fetchmail-devel] Fetchmail IMAP with FETCH x RFC822
+</A></li>
+        <LI>Next message: <A HREF="000991.html">[fetchmail-devel] Fetchmail IMAP with FETCH x RFC822
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#990">[ date ]</a>
+              <a href="thread.html#990">[ thread ]</a>
+              <a href="subject.html#990">[ subject ]</a>
+              <a href="author.html#990">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Thu, 24 Apr 2008, Matthias Andree wrote:
+
+&gt;<i> Georges-Etienne Legendre &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">legege at legege.com</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;<i> &gt; When fetchmail fetch a message, it does this in 2 steps:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; 1) . FETCH x RFC822.HEADER
+</I>&gt;<i> &gt; 2) . FETCH x BODY.PEEK[TEXT]
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; However, there is a problem with the Gmail IMAP implementation. Gmail IMAP doesn't return a valid header if there is an encoded field in the header.
+</I>&gt;<i> &gt; Instead, we have to use to get the whole mail in only one fetch: 
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; 1) . FETCH x RFC822
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The problem is documented here:
+</I>&gt;<i> &gt; <A HREF="http://groups.google.com/group/Gmail-Help-POP-and-IMAP-en/browse_thread/thread/06b49fde4a8dde08/d283b040984e4054">http://groups.google.com/group/Gmail-Help-POP-and-IMAP-en/browse_thread/thread/06b49fde4a8dde08/d283b040984e4054</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Is there a way to tell to fetchmail to use the second approach?
+</I>&gt;<i> 
+</I>&gt;<i> Sorry, fetchmail cannot do this at the moment.
+</I>&gt;<i> 
+</I>&gt;<i> Is there a way to tell Google not to violate the protocol?  Standards
+</I>&gt;<i> are there for a purpose... please ask Google support to fix the server
+</I>&gt;<i> software.
+</I>
+After reviewing the situation, I've decided to amend to the FAQ:
+&lt;<A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#I9">http://www.fetchmail.info/fetchmail-FAQ.html#I9</A>&gt;
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000989.html">[fetchmail-devel] Fetchmail IMAP with FETCH x RFC822
+</A></li>
+	<LI>Next message: <A HREF="000991.html">[fetchmail-devel] Fetchmail IMAP with FETCH x RFC822
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#990">[ date ]</a>
+              <a href="thread.html#990">[ thread ]</a>
+              <a href="subject.html#990">[ subject ]</a>
+              <a href="author.html#990">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

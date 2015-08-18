@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Incorrect header line and lost mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3C20060317125807.GA12414%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000704.html">
+   <LINK REL="Next"  HREF="000680.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Incorrect header line and lost mails</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3C20060317125807.GA12414%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: Incorrect header line and lost mails">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Fri Mar 17 13:58:07 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000704.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000680.html">[fetchmail-devel] Re: [fetchmail-users] Re: RETR with UIDL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#705">[ date ]</a>
+              <a href="thread.html#705">[ thread ]</a>
+              <a href="subject.html#705">[ subject ]</a>
+              <a href="author.html#705">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Fri, Mar 17, 2006:
+&gt;<i> &gt; fetchmail, by default, uses first IMAP and then POP3 (protocol auto).
+</I>&gt;<i> 
+</I>&gt;<i> Should we deprecate this &quot;protocol&quot; in fetchmail proper so we can
+</I>&gt;<i> remove it in 6.4.0?  I have a strong itch to do just that.
+</I>&gt;<i> 
+</I>&gt;<i> Somebody got any objections?
+</I>
+What should be the new default protocol be then, imap or pop3?
+
+Yes, protocol auto should be removed as it is confusing.
+
+&gt;<i> &gt; - If your mailserver is delivering to multiple folders, choose IMAP.
+</I>&gt;<i> &gt;   
+</I>&gt;<i> &gt; - If you want to download all mails and not leave a copy on the
+</I>&gt;<i> &gt; server, choose IMAP.
+</I>&gt;<i> 
+</I>&gt;<i> In --all --nokeep setups, POP3 is usually simpler - any particular
+</I>&gt;<i> reason why you suggest IMAP here?
+</I>
+If the connection to the mailserver breaks for any reason, mails get
+downloaded again in POP3. The only POP3 setup which downloads mails
+exactly once and deletes the downloaded mails is:
+
+poll mailserver
+    protocol pop3
+    uidl         # required for unique download
+    no fetchall  # required for unique download
+    no keep
+    flush        # to directly delete mails downloaded before the previous socket error
+
+Unfortunately, this setup is not documented in the FAQ anywhere. I was
+hoping to cover it in the proposed FAQ section:
+
+    C#. Ok, I choose POP3. What next?
+
+Due to the overhead of &quot;uidl&quot;, I would prefer suggesting imap here.
+
+&gt;<i> &gt; - If you intend to keep mails on the server, check if your server
+</I>&gt;<i> &gt;   supports UIDL. If it does, choose POP3 and enable the &quot;uidl&quot; option.
+</I>&gt;<i> &gt;   With POP3 and UIDL, it is even possible to access the mailbox
+</I>&gt;<i> &gt;   through multiple e-mail clients without affecting fetchmail.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; - If you intend to keep mails on the server, but your server does not
+</I>&gt;<i> &gt;   support UIDL, choose IMAP. However, you should not access the
+</I>&gt;<i> 
+</I>&gt;<i> Make that &quot;MUST NOT&quot; access...
+</I>
+Ok.
+
+&gt;<i> &gt;   mailbox through other e-mail clients as fetchmail will not be
+</I>&gt;<i> &gt;   able to download all new mails.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; - If you are having a slow connection to the mailserver and/or expect
+</I>&gt;<i> &gt;   frequent socket errors from the mailserver, choose IMAP and do not
+</I>&gt;<i> &gt;   leave a copy on the mailserver.
+</I>&gt;<i> 
+</I>&gt;<i> This, too, is something POP3+UIDL should handle.
+</I>
+On a slow connection, I feel that the download and delete setup works
+the best. Yes, POP3+UIDL can definitely handle it, but I think that
+IMAP can do it in the minimum amount of traffic. However, I think the
+wording of my point is wrong. Here is how it should be:
+
+==========================================================================
+- If you are having a slow connection to the mailserver and/or expect
+  frequent socket errors from the mailserver, you should consider not
+  leaving a copy on the mailserver. This is because leaving a copy on
+  the mailserver adds a small but significant amount of traffic from
+  the mailserver in every poll.
+
+  If you still prefer leaving a copy on the mailserver, choose POP3
+  with the &quot;uidl&quot; option. If you prefer not to leave a copy on the
+  mailserver, choose IMAP.
+==========================================================================
+
+&gt;<i> &gt;&gt; My basic idea is: say we have u UIDLs stored, and the server has m
+</I>&gt;<i> &gt;&gt; messages. Then, send &quot;UIDL&quot; u+1 &quot;UIDL&quot; u+2 ... &quot;UIDL&quot; m pipelined
+</I>&gt;<i> &gt;&gt; (non-blocking) (or, on future RANGE capable POP3 servers, &quot;UIDL&quot; u+1 &quot;-&quot;
+</I>&gt;<i> &gt;&gt; m), and if ANY seen message is in that range, do slow UIDL. No binary
+</I>&gt;<i> &gt;&gt; search with many round trips. Of course, this needs to track deletions
+</I>&gt;<i> &gt;&gt; properly and if another client client deletes messages, needs to back
+</I>&gt;<i> &gt;&gt; down and fetch the whole list. Perhaps sanity checking the last known
+</I>&gt;<i> &gt;&gt; UIDL helps detecting third-party deletions on the assumption that the
+</I>&gt;<i> &gt;&gt; likelyhood of the server recycling a UID is low.
+</I>
+This sanity checking part is indeed correct.
+
+Pipelining will, of course, require a lot of work. Also, getting the
+full UIDL list might actually turn out to be a lot faster than
+pipelining if there are many new mails.
+
+I still have reservations about fetching the whole UIDL list
+immediately after detecting the mismatch. If it is postponed to the
+next poll, it should be ok.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000704.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000680.html">[fetchmail-devel] Re: [fetchmail-users] Re: RETR with UIDL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#705">[ date ]</a>
+              <a href="thread.html#705">[ thread ]</a>
+              <a href="subject.html#705">[ subject ]</a>
+              <a href="author.html#705">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: deleting oversized messages
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3Cm3irxl2o12.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000441.html">
+   <LINK REL="Next"  HREF="000443.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: deleting oversized messages</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3Cm3irxl2o12.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: deleting oversized messages">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Sep  1 10:24:57 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000441.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+        <LI>Next message: <A HREF="000443.html">[fetchmail-devel] [PATCH] Re: deleting oversized messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#442">[ date ]</a>
+              <a href="thread.html#442">[ thread ]</a>
+              <a href="subject.html#442">[ subject ]</a>
+              <a href="author.html#442">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;<i> I had created a patch which adds another option to fetchmail. The old
+</I>&gt;<i> patch (against 6.2.4) along with some discussion can be found at:
+</I>&gt;<i>
+</I>&gt;<i> &lt;<A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2003-October/008017.html">http://lists.ccil.org/pipermail/fetchmail-friends/2003-October/008017.html</A>&gt;.
+</I>
+I had a very quick glance at this patch - I have two minor nits to pick:
+
+1. overloading the sign as a flag is plain ugly. A size is a size and as
+   such should be an unsigned type. If we need to track state, we'll add
+   fields (perhaps a bitfield if we're concerned about memory
+   consumption).
+
+2. There are several places where this check, in prose an &quot;if limitflush
+   caused deletion of this message&quot; flag, is coded. The check &quot;if
+   limitflush is effective and the message is too large&quot; had better be
+   put in a macro or function so that the whole logic about this
+   function is in one central place.
+
+   I've recently wasted some time finding out the gory &quot;#if
+   (defined(__linux__) &amp;&amp; !defined(INET6_ENABLE)) || defined(FreeBSD)&quot;
+   or similar, and variants thereof, that pertained to the
+   monitor/interface options. Not all places used the same check, so
+   there were inconsistencies, and about half a dozen files would have
+   to change should someone, for instance, provide --interface support
+   for NetBSD or Solaris. I'm still not too happy with the way it is
+   now, at least it's only in fetchmail.h and interface.c.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000441.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+	<LI>Next message: <A HREF="000443.html">[fetchmail-devel] [PATCH] Re: deleting oversized messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#442">[ date ]</a>
+              <a href="thread.html#442">[ thread ]</a>
+              <a href="subject.html#442">[ subject ]</a>
+              <a href="author.html#442">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

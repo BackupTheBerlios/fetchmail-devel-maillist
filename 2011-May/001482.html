@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail fix coordination and future	planning (was: [PATCH] imap: introduce imapsearchmax parameter)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20fix%20coordination%20and%20future%0A%09planning%20%28was%3A%20%5BPATCH%5D%20imap%3A%20introduce%20imapsearchmax%20parameter%29&In-Reply-To=%3C260690.55088.qm%40web95710.mail.in.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001481.html">
+   <LINK REL="Next"  HREF="001483.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail fix coordination and future	planning (was: [PATCH] imap: introduce imapsearchmax parameter)</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20fix%20coordination%20and%20future%0A%09planning%20%28was%3A%20%5BPATCH%5D%20imap%3A%20introduce%20imapsearchmax%20parameter%29&In-Reply-To=%3C260690.55088.qm%40web95710.mail.in.yahoo.com%3E"
+       TITLE="[fetchmail-devel] fetchmail fix coordination and future	planning (was: [PATCH] imap: introduce imapsearchmax parameter)">sunilshetye at rocketmail.com
+       </A><BR>
+    <I>Tue May  3 20:25:17 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001481.html">[fetchmail-devel] fetchmail fix coordination and future planning (was: [PATCH] imap: introduce imapsearchmax parameter)
+</A></li>
+        <LI>Next message: <A HREF="001483.html">[fetchmail-devel] fetchmail fix coordination and future	planning
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1482">[ date ]</a>
+              <a href="thread.html#1482">[ thread ]</a>
+              <a href="subject.html#1482">[ subject ]</a>
+              <a href="author.html#1482">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Matthias,
+
+
+
+----- Original Message -----
+&gt;<i> As so the second (with _split and caching), I wonder if it's the right
+</I>&gt;<i> approach. It looks a bit as though we're curing the symptoms instead of
+</I>&gt;<i> the cause.&#160; The cause is a buffer too small to handle the response, and
+</I>&gt;<i> the cure would be to make the buffer dynamic and possibly resize it if
+</I>&gt;<i> we don't get a \r?\n in it.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> A dynamic buffer could also save us the strcpy(argbuf, buf) copy which,
+</I>&gt;<i> IMO, is quite wasteful.
+</I>
+I had given a thought for implementing dynamic buffers. However, some issues came to my mind:
+
+- What if the buffer required is very long? For example, an extreme response like:
+
+IMAP&lt; * SEARCH 1 2 3 4 5 6 ... 999995 999996 999997 99998 99999 100000
+
+will require a dynamic buffer of size 575k. Is it okay to allocate such a huge buffer?
+
+- Who will free the buffer? Obviously, it will have to be statically allocated in order to free it later.
+
+- How long will it remain? Is it safe to free it immediately on the next call?
+
+In short, without a proper memory manager, it may not be safe to just allocate a dynamic buffer of such a huge size.
+
+
+Note that the strcpy(argbuf, buf) can still be avoided by directly passing argbuf (if available) to gen_recv().
+
+
+Also, note that that patch is a bug fix. The current method range search for UNSEEN mails is too slow for huge mailboxes. So, a fix for this issue is required for 6.3.X.
+
+
+&gt;<i> What I propose is to have three branches, details below the list:
+</I>&gt;<i> 
+</I>&gt;<i> - one for 6.3.X (new name to be devised), for a final release and
+</I>&gt;<i> possibly later critical/security fixes
+</I>&gt;<i> 
+</I>&gt;<i> - one for a new 6.4.X or 7.X.X branch (master) where such fixes as the
+</I>&gt;<i> IMAP search ranges can be made
+</I>
+I think, it is necessary to fix the range search issue in 6.3.X itself as fetchmail is now unusable with IMAP when the mailbox is huge and keep is on.
+
+-- 
+Sunil Shetye.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001481.html">[fetchmail-devel] fetchmail fix coordination and future planning (was: [PATCH] imap: introduce imapsearchmax parameter)
+</A></li>
+	<LI>Next message: <A HREF="001483.html">[fetchmail-devel] fetchmail fix coordination and future	planning
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1482">[ date ]</a>
+              <a href="thread.html#1482">[ thread ]</a>
+              <a href="subject.html#1482">[ subject ]</a>
+              <a href="author.html#1482">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

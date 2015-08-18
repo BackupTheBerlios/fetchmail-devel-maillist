@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] timeout not working for TLS
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20timeout%20not%20working%20for%20TLS&In-Reply-To=%3C4DB987A3.502%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001474.html">
+   <LINK REL="Next"  HREF="001478.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] timeout not working for TLS</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20timeout%20not%20working%20for%20TLS&In-Reply-To=%3C4DB987A3.502%40gmx.de%3E"
+       TITLE="[fetchmail-devel] timeout not working for TLS">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Apr 28 17:28:35 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001474.html">[fetchmail-devel] timeout not working for TLS
+</A></li>
+        <LI>Next message: <A HREF="001478.html">[fetchmail-devel] imap: introduce imapsearchmax parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1475">[ date ]</a>
+              <a href="thread.html#1475">[ thread ]</a>
+              <a href="subject.html#1475">[ subject ]</a>
+              <a href="author.html#1475">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 28.04.2011 17:06, schrieb Thomas Jarosch:
+&gt;<i> On Thursday, 28. April 2011 14:42:21 Matthias Andree wrote:
+</I>&gt;&gt;<i> $ sudo socat -dddD - tcp4-listen:110,reuseaddr
+</I>&gt;&gt;<i> 1. paste +OK\n as greeting
+</I>&gt;&gt;<i> 2. paste +OK\nSTLS\n.\n as response to STLS, then wait
+</I>&gt;<i> 
+</I>&gt;<i> Ok, I found the difference. If I wait at the same point as you do,
+</I>&gt;<i> the timeout is triggered. Please at step 3.:
+</I>&gt;<i> 
+</I>&gt;<i> 3. paste &quot;+OK do it\n&quot; and then wait
+</I>
+Got it, I can reproduce the problem.
+
+&gt;<i> Some SSL garbage will appear in socat but that's fine.
+</I>&gt;<i> The strace output looks like this:
+</I>&gt;<i> 
+</I>&gt;<i> write(3, &quot;STLS\r\n&quot;, 6)                 = 6 &lt;0.000078&gt;
+</I>&gt;<i> setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={90, 0}}, NULL) = 0 &lt;0.000014&gt;
+</I>&gt;<i> recv(3, &quot;+OK do it\n&quot;, 512, MSG_PEEK)   = 10 &lt;3.055521&gt;
+</I>&gt;<i> read(3, &quot;+OK do it\n&quot;, 10)              = 10 &lt;0.000015&gt;
+</I>&gt;<i> setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={0, 0}}, NULL) = 0 &lt;0.000012&gt;
+</I>
+ouch.
+
+&gt;<i> ...
+</I>&gt;<i> 
+</I>&gt;<i> -&gt; The timeout get's disabled again. Any idea why?
+</I>
+I've analyzed it.  The trace in the Git master branch is:
+
+(gdb) bt
+#0  set_timeout (timeleft=0) at ../driver.c:100
+#1  0x00000000004111a6 in gen_recv (sock=5, buf=0x7fffffff76d0 &quot;+OK go\n&quot;,
+    size=513) at ../transact.c:1575
+#2  0x00000000004208c1 in pop3_ok (sock=0, argbuf=0x7fffffff7930 &quot;STLS&quot;)
+    at ../pop3.c:116
+#3  0x0000000000410e56 in gen_transact (sock=5, fmt=0x42a0a2 &quot;STLS&quot;)
+    at ../transact.c:1632
+#4  0x0000000000420ee4 in pop3_getauth (sock=5, ctl=0x4516d0,
+    greeting=0x7fffffff9c30 &quot;&quot;) at ../pop3.c:451
+
+IOW, I had overlooked that gen_recv resets the timeout. We extract the
+STLS response, which resets the timeout, thus the subsequent SSLOpen
+isn't under some timeout.
+
+Sorry for the incomplete fix in 6.3.18, and thanks for the report.  Now
+I need to make sure I catch all similar bugs before releasing the next
+version, and I need to update and re-issue the corresponding CVE (or a
+new one, need to check with the gurus) and security announcement.
+
+The fix needs a thorough analysis of the code.  Note that I've already
+queued patches to ditch SSLv2 support, I need to reconsider that, or
+making that an option so that distributors can go ahead and update their
+6.3.ancient version to 6.3.20 without major incompatibilities.
+
+I'll get back to this.
+
+Thanks again -- I do appreciate bug reports that are easy to reproduce :-)
+
+Best regards
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001474.html">[fetchmail-devel] timeout not working for TLS
+</A></li>
+	<LI>Next message: <A HREF="001478.html">[fetchmail-devel] imap: introduce imapsearchmax parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1475">[ date ]</a>
+              <a href="thread.html#1475">[ thread ]</a>
+              <a href="subject.html#1475">[ subject ]</a>
+              <a href="author.html#1475">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] PATCH: Clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS	without SSL_CTX_clear_options()
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20PATCH%3A%20Clear%20SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS%0A%09without%20SSL_CTX_clear_options%28%29&In-Reply-To=%3C1346685880.75544.YahooMailNeo%40web162405.mail.bf1.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001558.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] PATCH: Clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS	without SSL_CTX_clear_options()</H1>
+    <B>Earl Chew</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20PATCH%3A%20Clear%20SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS%0A%09without%20SSL_CTX_clear_options%28%29&In-Reply-To=%3C1346685880.75544.YahooMailNeo%40web162405.mail.bf1.yahoo.com%3E"
+       TITLE="[fetchmail-devel] PATCH: Clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS	without SSL_CTX_clear_options()">earl_chew at yahoo.com
+       </A><BR>
+    <I>Mon Sep  3 17:24:40 CEST 2012</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001558.html">[fetchmail-devel] PATCH: Clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1557">[ date ]</a>
+              <a href="thread.html#1557">[ thread ]</a>
+              <a href="subject.html#1557">[ subject ]</a>
+              <a href="author.html#1557">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+
+A patch to clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS was added recently:
+
+&#160; <A HREF="http://gitorious.org/fetchmail/fetchmail/commit/48809c5b9f6c9081f4031fa938dd63b060c18a4b?format=patch">http://gitorious.org/fetchmail/fetchmail/commit/48809c5b9f6c9081f4031fa938dd63b060c18a4b?format=patch</A>
+
+Older implementations of OpenSSL do not support SSL_CTX_clear_options().
+
+
+
+This patch reworks the previous change to avoid the use of SL_CTX_clear_options()
+and instead clears the corresponding bit in SSL_OP_ALL before calling
+SSL_CTX_set_options().
+
+
+
+--- socket.c.orig&#160;&#160;&#160;&#160;&#160;&#160; 2012-08-13 13:02:41.000000000 -0700
++++ socket.c&#160;&#160;&#160; 2012-09-03 08:11:49.000000000 -0700
+@@ -844,6 +844,7 @@
+&#160;{
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; struct stat randstat;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; int i;
++&#160;&#160;&#160;&#160;&#160;&#160;&#160; long sslopts = SSL_OP_ALL;
+
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; SSL_load_error_strings();
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; SSL_library_init();
+@@ -899,14 +900,14 @@
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return(-1);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; }
+
+-&#160;&#160;&#160;&#160;&#160;&#160; SSL_CTX_set_options(_ctx[sock], SSL_OP_ALL);
+-
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; {
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; char *tmp = getenv(&quot;FETCHMAIL_DISABLE_CBC_IV_COUNTERMEASURE&quot;);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; if (tmp == NULL || *tmp == '\0' || strspn(tmp, &quot; \t&quot;) == strlen(tmp))
+-&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; SSL_CTX_clear_options(_ctx[sock], SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
++&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; sslopts &amp;= ~ SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; }
+
++&#160;&#160;&#160;&#160;&#160;&#160; SSL_CTX_set_options(_ctx[sock], sslopts);
++
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; if (certck) {
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; SSL_CTX_set_verify(_ctx[sock], SSL_VERIFY_PEER, SSL_ck_verify_callback);
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; } else {
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001558.html">[fetchmail-devel] PATCH: Clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1557">[ date ]</a>
+              <a href="thread.html#1557">[ thread ]</a>
+              <a href="subject.html#1557">[ subject ]</a>
+              <a href="author.html#1557">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

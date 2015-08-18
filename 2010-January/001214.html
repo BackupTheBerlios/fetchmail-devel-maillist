@@ -1,0 +1,526 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH-3%5D%20Re%3A%20fetchmail%20IMAP%20bug%20-%20causes%20some%0A%20mails%20to%20not%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3C20100118083205.GA23829%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001213.html">
+   <LINK REL="Next"  HREF="001215.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH-3%5D%20Re%3A%20fetchmail%20IMAP%20bug%20-%20causes%20some%0A%20mails%20to%20not%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3C20100118083205.GA23829%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Mon Jan 18 09:32:05 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001213.html">[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+        <LI>Next message: <A HREF="001215.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1214">[ date ]</a>
+              <a href="thread.html#1214">[ thread ]</a>
+              <a href="subject.html#1214">[ subject ]</a>
+              <a href="author.html#1214">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Thu, Jan 14, 2010:
+&gt;<i> Perhaps a separate imap_untagged_parse() function would be more suitable here,
+</I>&gt;<i> and possibly called from inside imap_ok()? See below.
+</I>
+Ok, I have made a separate imap_untagged_response() to parse the
+untagged response. Other key changes:
+
+- use  stage == STAGE_GETAUTH &amp;&amp; !strncmp(buf, &quot;* CAPABILITY&quot;, 12)
+  - instead of  strstr(buf, &quot; CAPABILITY&quot;)
+
+- use  stage == STAGE_GETAUTH &amp;&amp; !strncmp(buf, &quot;* PREAUTH&quot;, 9)
+  - instead of  strstr(buf, &quot; PREAUTH&quot;)
+
+- use  stage == STAGE_GETRANGE &amp;&amp; !check_only &amp;&amp; strstr(buf, &quot;[READ-ONLY]&quot;)
+  - instead of  !check_only &amp;&amp; strstr(buf, &quot;[READ-ONLY]&quot;)
+
+- log  &quot;* BYE&quot;  message
+
+
+These changes should save a lot of string comparisons during runtime.
+
+&gt;<i> Which raises another question: does it make sense to have caller-specific
+</I>&gt;<i> parsers for untagged replies? Perhaps those functions that need them - for
+</I>&gt;<i> instance for * SEARCH, should call some new imap_ok_with_untagged() function
+</I>&gt;<i> instead, and the normal imap_ok handles all untagged implicitly (we can rename
+</I>&gt;<i> imap_ok, and uses dummy functions that just pass in an additional argument
+</I>&gt;<i> whether or not returning PS_UNTAGGED is requested).
+</I>
+In order to address this, I have made one more intermediate function
+imap_response(). Caller-specific parsers will call imap_response() in
+a loop and others will continue calling imap_ok().
+
+On reading the RFCs, it looks like the [READ-ONLY] flag is actually
+part of a tagged response. Should the [READ-ONLY] check be moved to
+imap_response()?
+
+Functions cleaned up:
+
+imap_getrange()
+imap_getpartialsizes()
+imap_trail()
+
+&gt;<i> I think (unless I'm mistaken) we need to deal with asynchronous (non-requested)
+</I>&gt;<i> untagged messages anyways, so perhaps all of the untagged logic needs to be in
+</I>&gt;<i> imap_ok, but I'm not sure about that.  Since I haven't looked at the imap.c code
+</I>&gt;<i> lately, please only consider this brainstorming or &quot;thinking aloud&quot; and not a
+</I>&gt;<i> plea or request to do things in a certain way.  Design it the way you think fits
+</I>&gt;<i> the needs best.
+</I>
+Please check if this patch addresses all the issues raised.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+diff -Naur fetchmail-6.3.13.orig/fetchmail.h fetchmail-6.3.13/fetchmail.h
+--- fetchmail-6.3.13.orig/fetchmail.h	2009-08-05 21:42:47.000000000 +0530
++++ fetchmail-6.3.13/fetchmail.h	2010-01-13 17:25:37.000000000 +0530
+@@ -145,6 +145,7 @@
+ #define		PS_RETAINED	26	/* message retained (internal use) */
+ #define		PS_REPOLL	28	/* repoll immediately with changed parameters (internal use) */
+ #define		PS_IDLETIMEOUT	29	/* timeout on imap IDLE (internal use) */
++#define		PS_UNTAGGED	30	/* untagged response on imap command (internal use) */
+ 
+ /* output noise level */
+ #define         O_SILENT	0	/* mute, max squelch, etc. */
+diff -Naur fetchmail-6.3.13.orig/imap.c fetchmail-6.3.13/imap.c
+--- fetchmail-6.3.13.orig/imap.c	2009-06-30 14:29:07.000000000 +0530
++++ fetchmail-6.3.13/imap.c	2010-01-18 13:56:16.000000000 +0530
+@@ -49,7 +49,122 @@
+ static int saved_timeout = 0, idle_timeout = 0;
+ static time_t idle_start_time = 0;
+ 
+-static int imap_ok(int sock, char *argbuf)
++static int imap_untagged_response(int sock, const char *buf)
++/* interpret untagged status responses */
++{
++    /* For each individual check, use a BLANK before the word to avoid
++     * confusion with the \Recent flag or similar */
++    if (stage == STAGE_GETAUTH
++	    &amp;&amp; !strncmp(buf, &quot;* CAPABILITY&quot;, 12))
++    {
++	strlcpy(capabilities, buf + 12, sizeof(capabilities));
++    }
++    else if (stage == STAGE_GETAUTH
++	    &amp;&amp; !strncmp(buf, &quot;* PREAUTH&quot;, 9))
++    {
++	preauth = TRUE;
++    }
++    else if (stage != STAGE_LOGOUT
++	    &amp;&amp; !strncmp(buf, &quot;* BYE&quot;, 5))
++    {
++	/* log the unexpected bye from server as we expect the
++	 * connection to be cut-off after this */
++	if (outlevel &gt; O_SILENT)
++	    report(stderr, GT_(&quot;bye from imap server: %s&quot;), buf + 5);
++    }
++    else if (strstr(buf, &quot; EXISTS&quot;))
++    {
++	count = atoi(buf+2);
++	/*
++	 * Don't trust the message count passed by the server.
++	 * Without this check, it might be possible to do a
++	 * DNS-spoofing attack that would pass back a ridiculous 
++	 * count, and allocate a malloc area that would overlap
++	 * a portion of the stack.
++	 */
++	if ((unsigned)count &gt; INT_MAX/sizeof(int))
++	{
++	    report(stderr, GT_(&quot;bogus message count!&quot;));
++	    return(PS_PROTOCOL);
++	}
++	if ((recentcount = count - oldcount) &lt; 0)
++	    recentcount = 0;
++
++	/*
++	 * Nasty kluge to handle RFC2177 IDLE.  If we know we're idling
++	 * we can't wait for the tag matching the IDLE; we have to tell the
++	 * server the IDLE is finished by shipping back a DONE when we
++	 * see an EXISTS.  Only after that will a tagged response be
++	 * shipped.  The idling flag also gets cleared on a timeout.
++	 */
++	if (stage == STAGE_IDLE)
++	{
++	    /* If IDLE isn't supported, we were only sending NOOPs anyway. */
++	    if (has_idle)
++	    {
++		/* we do our own write and report here to disable tagging */
++		SockWrite(sock, &quot;DONE\r\n&quot;, 6);
++		if (outlevel &gt;= O_MONITOR)
++		    report(stdout, &quot;IMAP&gt; DONE\n&quot;);
++	    }
++
++	    mytimeout = saved_timeout;
++	    stage = STAGE_GETRANGE;
++	}
++    }
++    /* we now compute recentcount as a difference between
++     * new and old EXISTS, hence disable RECENT check */
++# if 0
++    else if (strstr(buf, &quot; RECENT&quot;))
++    {
++	recentcount = atoi(buf+2);
++    }
++# endif
++    else if (strstr(buf, &quot; EXPUNGE&quot;))
++    {
++	/* the response &quot;* 10 EXPUNGE&quot; means that the currently
++	 * tenth (i.e. only one) message has been deleted */
++	if (atoi(buf+2) &gt; 0)
++	{
++	    if (count &gt; 0)
++		count--;
++	    if (oldcount &gt; 0)
++		oldcount--;
++	    /* We do expect an EXISTS response immediately
++	     * after this, so this updation of recentcount is
++	     * just a precaution! */
++	    if ((recentcount = count - oldcount) &lt; 0)
++		recentcount = 0;
++	    actual_deletions++;
++	}
++    }
++    /*
++     * The server may decide to make the mailbox read-only, 
++     * which causes fetchmail to go into a endless loop
++     * fetching the same message over and over again. 
++     * 
++     * However, for check_only, we use EXAMINE which will
++     * mark the mailbox read-only as per the RFC.
++     * 
++     * This checks for the condition and aborts if 
++     * the mailbox is read-only. 
++     *
++     * See RFC 2060 section 6.3.1 (SELECT).
++     * See RFC 2060 section 6.3.2 (EXAMINE).
++     */ 
++    else if (stage == STAGE_GETRANGE
++	    &amp;&amp; !check_only &amp;&amp; strstr(buf, &quot;[READ-ONLY]&quot;))
++    {
++	return(PS_LOCKBUSY);
++    }
++    else
++    {
++	return(PS_UNTAGGED);
++    }
++    return(PS_SUCCESS);
++}
++
++static int imap_response(int sock, char *argbuf)
+ /* parse command response */
+ {
+     char buf[MSGBUFSIZE+1];
+@@ -66,103 +181,23 @@
+ 	    if (islower((unsigned char)*cp))
+ 		*cp = toupper((unsigned char)*cp);
+ 
+-	/* interpret untagged status responses
+-	 * First check if we really have an untagged response, starting
+-	 * with &quot;*&quot; SPACE. Then, for each individual check, use a BLANK
+-	 * before the word to avoid confusion with the \Recent flag or
+-	 * similar */
++	/* untagged responses start with &quot;* &quot; */
+ 	if (buf[0] == '*' &amp;&amp; buf[1] == ' ') {
+-	    if (strstr(buf, &quot; CAPABILITY&quot;)) {
+-		strlcpy(capabilities, buf + 12, sizeof(capabilities));
+-	    }
+-	    else if (strstr(buf, &quot; EXISTS&quot;))
++	    ok = imap_untagged_response(sock, buf);
++	    if (ok == PS_UNTAGGED)
+ 	    {
+-		count = atoi(buf+2);
+-		/*
+-		 * Don't trust the message count passed by the server.
+-		 * Without this check, it might be possible to do a
+-		 * DNS-spoofing attack that would pass back a ridiculous 
+-		 * count, and allocate a malloc area that would overlap
+-		 * a portion of the stack.
+-		 */
+-		if ((unsigned)count &gt; INT_MAX/sizeof(int))
++		if (argbuf &amp;&amp; stage != STAGE_IDLE &amp;&amp; tag[0] != '\0')
+ 		{
+-		    report(stderr, GT_(&quot;bogus message count!&quot;));
+-		    return(PS_PROTOCOL);
+-		}
+-		if ((recentcount = count - oldcount) &lt; 0)
+-		    recentcount = 0;
+-
+-		/*
+-		 * Nasty kluge to handle RFC2177 IDLE.  If we know we're idling
+-		 * we can't wait for the tag matching the IDLE; we have to tell the
+-		 * server the IDLE is finished by shipping back a DONE when we
+-		 * see an EXISTS.  Only after that will a tagged response be
+-		 * shipped.  The idling flag also gets cleared on a timeout.
+-		 */
+-		if (stage == STAGE_IDLE)
+-		{
+-		    /* If IDLE isn't supported, we were only sending NOOPs anyway. */
+-		    if (has_idle)
+-		    {
+-			/* we do our own write and report here to disable tagging */
+-			SockWrite(sock, &quot;DONE\r\n&quot;, 6);
+-			if (outlevel &gt;= O_MONITOR)
+-			    report(stdout, &quot;IMAP&gt; DONE\n&quot;);
+-		    }
+-
+-		    mytimeout = saved_timeout;
+-		    stage = STAGE_FETCH;
+-		}
+-	    }
+-	    /* we now compute recentcount as a difference between
+-	     * new and old EXISTS, hence disable RECENT check */
+-# if 0
+-	    else if (strstr(buf, &quot; RECENT&quot;))
+-	    {
+-		recentcount = atoi(buf+2);
+-	    }
+-# endif
+-	    else if (strstr(buf, &quot; EXPUNGE&quot;))
+-	    {
+-		/* the response &quot;* 10 EXPUNGE&quot; means that the currently
+-		 * tenth (i.e. only one) message has been deleted */
+-		if (atoi(buf+2) &gt; 0)
+-		{
+-		    if (count &gt; 0)
+-			count--;
+-		    if (oldcount &gt; 0)
+-			oldcount--;
+-		    /* We do expect an EXISTS response immediately
+-		     * after this, so this updation of recentcount is
+-		     * just a precaution! */
+-		    if (recentcount &gt; 0)
+-			recentcount--;
+-		    actual_deletions++;
++		    /* if there is an unmatched response, pass it back to
++		     * the calling function for further analysis. The
++		     * calling function should call imap_response() again
++		     * to read the remaining response */
++		    strcpy(argbuf, buf);
++		    return(ok);
+ 		}
+ 	    }
+-	    else if (strstr(buf, &quot; PREAUTH&quot;))
+-	    {
+-		preauth = TRUE;
+-	    }
+-		/*
+-		 * The server may decide to make the mailbox read-only, 
+-		 * which causes fetchmail to go into a endless loop
+-		 * fetching the same message over and over again. 
+-		 * 
+-		 * However, for check_only, we use EXAMINE which will
+-		 * mark the mailbox read-only as per the RFC.
+-		 * 
+-		 * This checks for the condition and aborts if 
+-		 * the mailbox is read-only. 
+-		 *
+-		 * See RFC 2060 section 6.3.1 (SELECT).
+-		 * See RFC 2060 section 6.3.2 (EXAMINE).
+-		 */ 
+-	    else if (!check_only &amp;&amp; strstr(buf, &quot;[READ-ONLY]&quot;))
+-	    {
+-		return(PS_LOCKBUSY);
+-	    }
++	    else if (ok != PS_SUCCESS)
++		return(ok);
+ 	}
+ 
+ 	if (stage == STAGE_IDLE)
+@@ -204,6 +239,8 @@
+ 	{
+ 	    if (stage == STAGE_GETAUTH) 
+ 		return(PS_AUTHFAIL);	/* RFC2060, 6.2.2 */
++	    else if (stage == STAGE_GETSIZES)
++		return(PS_SUCCESS);	/* see comments in imap_getpartialsizes() */
+ 	    else
+ 		return(PS_ERROR);
+ 	}
+@@ -212,6 +249,16 @@
+     }
+ }
+ 
++static int imap_ok(int sock, char *argbuf)
++/* parse command response */
++{
++    int ok;
++
++    while ((ok = imap_response(sock, argbuf)) == PS_UNTAGGED)
++	; /* wait for the tagged response */
++    return(ok);
++}
++
+ #ifdef NTLM_ENABLE
+ #include &quot;ntlm.h&quot;
+ 
+@@ -713,7 +760,7 @@
+ 		report(stdout, &quot;IMAP&gt; DONE\n&quot;);
+ 	    /* reset stage and timeout here: we are not idling any more */
+ 	    mytimeout = saved_timeout;
+-	    stage = STAGE_FETCH;
++	    stage = STAGE_GETRANGE;
+ 	    /* get OK IDLE message */
+ 	    ok = imap_ok(sock, NULL);
+ 	}
+@@ -746,7 +793,7 @@
+     /* restore normal timeout value */
+     set_timeout(0);
+     mytimeout = saved_timeout;
+-    stage = STAGE_FETCH;
++    stage = STAGE_GETRANGE;
+ 
+     return(ok);
+ }
+@@ -864,14 +911,9 @@
+ 
+ 	/* don't count deleted messages, in case user enabled keep last time */
+ 	gen_send(sock, &quot;SEARCH UNSEEN NOT DELETED&quot;);
+-	do {
+-	    ok = gen_recv(sock, buf, sizeof(buf));
+-	    if (ok != 0)
+-	    {
+-		report(stderr, GT_(&quot;search for unseen messages failed\n&quot;));
+-		return(PS_PROTOCOL);
+-	    }
+-	    else if ((cp = strstr(buf, &quot;* SEARCH&quot;)))
++	while ((ok = imap_response(sock, buf)) == PS_UNTAGGED)
++	{
++	    if ((cp = strstr(buf, &quot;* SEARCH&quot;)))
+ 	    {
+ 		char	*ep;
+ 
+@@ -904,8 +946,12 @@
+ 		    }
+ 		}
+ 	    }
+-	} while
+-	    (tag[0] != '\0' &amp;&amp; strncmp(buf, tag, strlen(tag)));
++	}
++	if (ok != 0)
++	{
++	    report(stderr, GT_(&quot;search for unseen messages failed\n&quot;));
++	    return(ok);
++	}
+ 
+ 	if (outlevel &gt;= O_DEBUG &amp;&amp; unseen &gt; 0)
+ 	    report(stdout, GT_(&quot;%u is first unseen\n&quot;), startcount);
+@@ -923,6 +969,7 @@
+ /* capture the sizes of messages #first-#last */
+ {
+     char buf [MSGBUFSIZE+1];
++    int ok;
+ 
+     /*
+      * Some servers (as in, PMDF5.1-9.1 under OpenVMS 6.1)
+@@ -954,7 +1001,7 @@
+      *	* 1 FETCH (BODY (&quot;TEXT&quot; &quot;PLAIN&quot; (&quot;CHARSET&quot; &quot;US-ASCII&quot;) NIL NIL &quot;7BIT&quot; 35 3))
+      *	A006 OK FETCH completed.
+      *
+-     * To get around this, we terminate the read loop on a NO and count
++     * To get around this, we treat the final NO as success and count
+      * on the fact that the sizes array has been preinitialized with a
+      * known-bad size value.
+      */
+@@ -969,23 +1016,12 @@
+ 	gen_send(sock, &quot;FETCH %d:%d RFC822.SIZE&quot;, first, last);
+     else /* no unseen messages! */
+ 	return(PS_SUCCESS);
+-    for (;;)
++    while ((ok = imap_response(sock, buf)) == PS_UNTAGGED)
+     {
+ 	unsigned int size;
+-	int ok, num;
+-	char *cp;
++	int num;
+ 
+-	if ((ok = gen_recv(sock, buf, sizeof(buf))))
+-	    return(ok);
+-	/* we want response matching to be case-insensitive */
+-	for (cp = buf; *cp; cp++)
+-	    *cp = toupper((unsigned char)*cp);
+-	/* an untagged NO means that a message was not readable */
+-	if (strstr(buf, &quot;* NO&quot;))
+-	    ;
+-	else if (strstr(buf, &quot;OK&quot;) || strstr(buf, &quot;NO&quot;))
+-	    break;
+-	else if (sscanf(buf, &quot;* %d FETCH (RFC822.SIZE %u)&quot;, &amp;num, &amp;size) == 2
++	if (sscanf(buf, &quot;* %d FETCH (RFC822.SIZE %u)&quot;, &amp;num, &amp;size) == 2
+ 	/* some servers (like mail.internode.on.net bld-mail04) return UID information here
+ 	 *
+ 	 * IMAP&gt; A0005 FETCH 1 RFC822.SIZE
+@@ -1002,8 +1038,7 @@
+ 			GT_(&quot;Warning: ignoring bogus data for message sizes returned by the server.\n&quot;));
+ 	}
+     }
+-
+-    return(PS_SUCCESS);
++    return(ok);
+ }
+ 
+ static int imap_getsizes(int sock, int count, int *sizes)
+@@ -1194,24 +1229,9 @@
+     /* number -= expunged; */
+ 
+     (void)ctl;
+-    for (;;)
+-    {
+-	char buf[MSGBUFSIZE+1], *t;
+-	int ok;
+-
+-	if ((ok = gen_recv(sock, buf, sizeof(buf))))
+-	    return(ok);
+-
+-	/* UW IMAP returns &quot;OK FETCH&quot;, Cyrus returns &quot;OK Completed&quot; */
+-	if (strncmp(buf, tag, strlen(tag)) == 0) {
+-	    t = buf + strlen(tag);
+-	    t += strspn(t, &quot; \t&quot;);
+-	    if (strncmp(t, &quot;OK&quot;, 2) == 0)
+-		break;
+-	}
+-    }
++    (void)tag;
+ 
+-    return(PS_SUCCESS);
++    return imap_ok(sock, NULL);
+ }
+ 
+ static int imap_delete(int sock, struct query *ctl, int number)
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001213.html">[fetchmail-devel] fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+	<LI>Next message: <A HREF="001215.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1214">[ date ]</a>
+              <a href="thread.html#1214">[ thread ]</a>
+              <a href="subject.html#1214">[ subject ]</a>
+              <a href="author.html#1214">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

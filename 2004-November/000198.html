@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: r4000 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r4000%20-%20trunk&In-Reply-To=%3Cm3lld6yeo3.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000192.html">
+   <LINK REL="Next"  HREF="000207.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: r4000 - trunk</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r4000%20-%20trunk&In-Reply-To=%3Cm3lld6yeo3.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: r4000 - trunk">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Fri Nov 12 21:51:08 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000192.html">[fetchmail-devel] Re: r4000 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000207.html">[fetchmail-devel] running make dist changes po/*.po files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#198">[ date ]</a>
+              <a href="thread.html#198">[ thread ]</a>
+              <a href="subject.html#198">[ subject ]</a>
+              <a href="author.html#198">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">graham at mknod.org</A>&gt; writes:
+
+&gt;&gt;<i>      if (getuid() == ROOT_UID) {
+</I>&gt;&gt;<i>  	lockfile = (char *)xmalloc(
+</I>&gt;&gt;<i>  		sizeof(PID_DIR) + sizeof(FETCHMAIL_PIDFILE) + 1);
+</I>&gt;&gt;<i> -	sprintf(lockfile, &quot;%s/%s&quot;, PID_DIR, FETCHMAIL_PIDFILE);
+</I>&gt;&gt;<i> +	strcpy(lockfile, PID_DIR);
+</I>&gt;&gt;<i> +	strcat(lockfile, &quot;/&quot;);
+</I>&gt;&gt;<i> +	strcat(lockfile, FETCHMAIL_PIDFILE);
+</I>&gt;&gt;<i>      } else {
+</I>&gt;&gt;<i>  	lockfile = (char *)xmalloc(strlen(fmhome)+sizeof(FETCHMAIL_PIDFILE)+2);
+</I>&gt;&gt;<i>  	strcpy(lockfile, fmhome);
+</I>&gt;<i>
+</I>&gt;<i> Why did you switch to strcat (which doesn't check bounds) instead of
+</I>&gt;<i> snprintf? I would think we should just change that sprintf call to
+</I>&gt;<i> snprintf.
+</I>
+Consistency in these particular if...else branches.
+
+The memory has been allocated anew so we know everything fits.
+
+&gt;&gt;<i> Modified: trunk/unmime.c
+</I>&gt;&gt;<i> ===================================================================
+</I>&gt;&gt;<i> --- trunk/unmime.c	2004-11-10 20:14:18 UTC (rev 3999)
+</I>&gt;&gt;<i> +++ trunk/unmime.c	2004-11-10 20:38:06 UTC (rev 4000)
+</I>&gt;&gt;<i> @@ -669,9 +669,9 @@
+</I>&gt;&gt;<i>    char fnam[100];
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i>    pid = getpid();
+</I>&gt;&gt;<i> -  sprintf(fnam, &quot;/tmp/i_unmime.%x&quot;, pid);
+</I>&gt;&gt;<i> +  sprintf(fnam, &quot;/tmp/i_unmime.%lx&quot;, (long)pid);
+</I>&gt;&gt;<i>    fd_orig = fopen(fnam, &quot;w&quot;);
+</I>&gt;&gt;<i> -  sprintf(fnam, &quot;/tmp/o_unmime.%x&quot;, pid);
+</I>&gt;&gt;<i> +  sprintf(fnam, &quot;/tmp/o_unmime.%lx&quot;, (long)pid);
+</I>&gt;&gt;<i>    fd_conv = fopen(fnam, &quot;w&quot;);
+</I>&gt;&gt;<i>  #endif
+</I>&gt;<i>
+</I>&gt;<i> These should be changed to snprintf as well I assume?
+</I>
+The buffer holds 100 bytes, we'll stuff at most 31 on 64bit machines or
+47 on 128bit machines - and it's only used when the macro STANDALONE is
+defined, but not for the module compiled into fetchmail.
+
+We can change the stuff just for completeness though.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000192.html">[fetchmail-devel] Re: r4000 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000207.html">[fetchmail-devel] running make dist changes po/*.po files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#198">[ date ]</a>
+              <a href="thread.html#198">[ thread ]</a>
+              <a href="subject.html#198">[ subject ]</a>
+              <a href="author.html#198">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

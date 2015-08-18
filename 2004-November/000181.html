@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Log timestamp patch
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Log%20timestamp%20patch&In-Reply-To=%3C20041109070131.A20099%40leffe.jacada.savage.mn.us%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000184.html">
+   <LINK REL="Next"  HREF="000182.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Log timestamp patch</H1>
+    <B>Paul Keusemann</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Log%20timestamp%20patch&In-Reply-To=%3C20041109070131.A20099%40leffe.jacada.savage.mn.us%3E"
+       TITLE="[fetchmail-devel] Log timestamp patch">pkeusem at hotpop.com
+       </A><BR>
+    <I>Tue Nov  9 14:01:31 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000184.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+        <LI>Next message: <A HREF="000182.html">[fetchmail-devel] Re: Log timestamp patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#181">[ date ]</a>
+              <a href="thread.html#181">[ thread ]</a>
+              <a href="subject.html#181">[ subject ]</a>
+              <a href="author.html#181">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Here's a patch to add configurable log timestamping.  I found this
+very helpful in debugging problems with the IDLE feature a while
+back.
+
+This patch is against fetchmail 6.2.5.
+-- 
+Paul Keusemann
+Senior Continuation Engineer
+Jacada, Inc.
+4266 Joppa Court
+Savage, MN 55378
+952-882-6396
+www.jacada.com
+-------------- next part --------------
+diff -u fetchmail-6.2.5.orig/acconfig.h fetchmail-6.2.5/acconfig.h
+--- fetchmail-6.2.5.orig/acconfig.h	Wed Jul 16 20:03:20 2003
++++ fetchmail-6.2.5/acconfig.h	Tue Nov  9 06:04:08 2004
+@@ -116,6 +116,9 @@
+ /* Define if you want network security support compiled in */
+ #undef NET_SECURITY
+ 
++/* Define if you want log timestamps compiled in */
++#undef ENABLE_LOG_TIMESTAMPS
++
+ /* Define if you want GSSAPI authentication */
+ #undef GSSAPI
+ 
+diff -u fetchmail-6.2.5.orig/config.h.in fetchmail-6.2.5/config.h.in
+--- fetchmail-6.2.5.orig/config.h.in	Wed Jul 16 20:03:21 2003
++++ fetchmail-6.2.5/config.h.in	Tue Nov  9 06:04:08 2004
+@@ -117,6 +117,9 @@
+ /* Define if you want network security support compiled in */
+ #undef NET_SECURITY
+ 
++/* Define if you want log timestamps compiled in */
++#undef ENABLE_LOG_TIMESTAMPS
++
+ /* Define if you want GSSAPI authentication */
+ #undef GSSAPI
+ 
+diff -u fetchmail-6.2.5.orig/configure.in fetchmail-6.2.5/configure.in
+--- fetchmail-6.2.5.orig/configure.in	Fri Oct 10 03:36:57 2003
++++ fetchmail-6.2.5/configure.in	Tue Nov  9 06:04:08 2004
+@@ -381,6 +381,13 @@
+ 	[with_inet6=no])
+ test &quot;$with_inet6&quot; = &quot;yes&quot; &amp;&amp; AC_DEFINE(INET6_ENABLE)
+ 
++###	use option --enable-log-timestamps to compile in log timestamping
++AC_ARG_ENABLE(log_timestamps,
++	[  --enable-log-timestamps  compile in log timestamping],
++	[with_log_timestamps=$enableval],
++	[with_log_timestamps=no])
++test &quot;$with_log_timestamps&quot; = &quot;yes&quot; &amp;&amp; AC_DEFINE(ENABLE_LOG_TIMESTAMPS)
++
+ AC_CHECK_FUNCS(inner_connect)
+ 
+ AC_ARG_ENABLE(netsec,
+diff -u fetchmail-6.2.5.orig/report.c fetchmail-6.2.5/report.c
+--- fetchmail-6.2.5.orig/report.c	Wed Jul 16 20:03:20 2003
++++ fetchmail-6.2.5/report.c	Tue Nov  9 06:04:08 2004
+@@ -16,6 +16,9 @@
+ #include &lt;stdio.h&gt;
+ #include &lt;errno.h&gt;
+ #include &lt;string.h&gt;
++#if STDC_HEADERS || _LIBC
++# include &lt;time.h&gt;
++#endif
+ #if defined(HAVE_SYSLOG)
+ #include &lt;syslog.h&gt;
+ #endif
+@@ -38,6 +41,26 @@
+ #define MALLOC(n)	xmalloc(n)	
+ #define REALLOC(n,s)	xrealloc(n,s)	
+ 
++
++char *
++TimeStamp(void)
++{
++ 
++    time_t clock;
++    struct tm *tmp;
++    static char current_time[30];
++
++    /*  Get the current local time.  */
++    time(&amp;clock);
++    tmp = localtime(&amp;clock);
++
++    /* Use strftime instead of the tm struct for Year 2000 compliance. */
++    strftime(current_time, sizeof(current_time), &quot;%m/%d/%Y-%H:%M:%S&quot;, tmp);
++
++    return(current_time);
++
++}
++
+ /* If NULL, report will flush stderr, then print on stderr the program
+    name, a colon and a space.  Otherwise, report will call this
+    function without parameters instead.  */
+@@ -151,7 +174,11 @@
+ 		fputc( '\n', errfp );
+ 		++message;
+ 	    }
++#ifndef  ENABLE_LOG_TIMESTAMPS
+ 	    fprintf (errfp, &quot;%s: &quot;, program_name);
++#else
++            fprintf (errfp, &quot;%s %s: &quot;, TimeStamp(), program_name);
++#endif
+ 	}
+ 
+ #ifdef VA_START
+@@ -455,7 +482,11 @@
+ 	    fputc( '\n', errfp );
+ 	    ++message;
+ 	}
++#ifndef ENABLE_LOG_TIMESTAMPS
+ 	fprintf (errfp, &quot;%s:&quot;, program_name);
++#else
++        fprintf (errfp, &quot;%s %s:&quot;, program_name, TimeStamp());
++#endif
+     }
+ 
+     if (file_name != NULL)
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000184.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+	<LI>Next message: <A HREF="000182.html">[fetchmail-devel] Re: Log timestamp patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#181">[ date ]</a>
+              <a href="thread.html#181">[ thread ]</a>
+              <a href="subject.html#181">[ subject ]</a>
+              <a href="author.html#181">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: quick overview of branching and tagging in SVN
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20quick%20overview%20of%20branching%20and%20tagging%20in%20SVN&In-Reply-To=%3C20041112225614.GB22103%40quux.local%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000196.html">
+   <LINK REL="Next"  HREF="000191.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: quick overview of branching and tagging in SVN</H1>
+    <B>Graham Wilson</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20quick%20overview%20of%20branching%20and%20tagging%20in%20SVN&In-Reply-To=%3C20041112225614.GB22103%40quux.local%3E"
+       TITLE="[fetchmail-devel] Re: quick overview of branching and tagging in SVN">graham at mknod.org
+       </A><BR>
+    <I>Fri Nov 12 23:56:14 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000196.html">[fetchmail-devel] quick overview of branching and tagging in SVN
+</A></li>
+        <LI>Next message: <A HREF="000191.html">[fetchmail-devel] Re: r4000 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Fri, Nov 12, 2004 at 09:44:59PM +0100, Matthias Andree wrote:
+&gt;<i> Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">graham at mknod.org</A>&gt; writes:
+</I>&gt;<i> &gt;   $ cd /path/to/my/wc
+</I>&gt;<i> &gt;   $ svn switch <A HREF="https://decoy.wox.org/svn/fetchmail/branches/debian">https://decoy.wox.org/svn/fetchmail/branches/debian</A>
+</I>&gt;<i> 
+</I>&gt;<i> I presume that is ...fetchmail/trunk
+</I>
+Yes.
+
+&gt;<i> &gt; Tagging is done the same way as branching, except you copy to the tags
+</I>&gt;<i> &gt; directory, not the branhes directory, and you never checkin anything on
+</I>&gt;<i> &gt; a tag.
+</I>&gt;<i> 
+</I>&gt;<i> Are these &quot;check in only on branches&quot; enforced or is that just a
+</I>&gt;<i> convention? For this reminds me of what the svnbook recommended on the
+</I>&gt;<i> handling of vendor branches - and I see nothing but different names.
+</I>
+No, it is only by convention.
+
+&gt;<i> &gt; To see what would be merged before doing the merge operation:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;   $ svn diff <A HREF="https://decoy.wox.org/svn/fetchmail/trunk">https://decoy.wox.org/svn/fetchmail/trunk</A> \
+</I>&gt;<i> &gt;              <A HREF="https://decoy.wox.org/svn/fetchmail/branches/debian">https://decoy.wox.org/svn/fetchmail/branches/debian</A>
+</I>&gt;<i> 
+</I>&gt;<i> Helluvalottotype :)
+</I>
+Since I access all of my projects on my server, I set the SVN
+environment variable and do the following:
+
+  $ echo $SVN
+  <A HREF="https://decoy.wox.org/svn">https://decoy.wox.org/svn</A>
+  $ svn diff $SVN/fetchmail/trunk $SVN/fetchmail/branches/debian
+
+-- 
+gram
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000196.html">[fetchmail-devel] quick overview of branching and tagging in SVN
+</A></li>
+	<LI>Next message: <A HREF="000191.html">[fetchmail-devel] Re: r4000 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

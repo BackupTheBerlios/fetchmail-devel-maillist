@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [patch][RFC] proper kill management of the	MDA	process
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%5BRFC%5D%20proper%20kill%20management%20of%20the%0A%09MDA%09process&In-Reply-To=%3C5814559.2178591331330538053.JavaMail.defaultUser%40defaultHost%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001136.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [patch][RFC] proper kill management of the	MDA	process</H1>
+    <B>Fabio Rossi</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%5BRFC%5D%20proper%20kill%20management%20of%20the%0A%09MDA%09process&In-Reply-To=%3C5814559.2178591331330538053.JavaMail.defaultUser%40defaultHost%3E"
+       TITLE="[fetchmail-devel] [patch][RFC] proper kill management of the	MDA	process">rossi.f at inwind.it
+       </A><BR>
+    <I>Fri Mar  9 23:02:18 CET 2012</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001136.html">No subject
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1546">[ date ]</a>
+              <a href="thread.html#1546">[ thread ]</a>
+              <a href="subject.html#1546">[ subject ]</a>
+              <a href="author.html#1546">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i>In the past there was a discussion with subject &quot;the message fetch should be 
+</I>&gt;<i>completed before quitting&quot; on the fetchmail-user mailing list. It was clear 
+</I>the 
+&gt;<i>possibility of delivering incomplete mail messages when fetchmail is 
+</I>&gt;<i>interrupted during a mail dispatching process. The issue doesn't lead to a 
+</I>loss 
+&gt;<i>of mail but produces some garbage in the maildir/mailbox (corrupted 
+</I>duplicated 
+&gt;<i>messages).
+</I>&gt;<i>
+</I>&gt;<i>The problem is related to the use of the popen() function which doesn't 
+</I>&gt;<i>provide the PID number of the MDA process. In this way is not possible to 
+</I>track 
+&gt;<i>properly the MDA process, i.e. to kill it in response to a quit command 
+</I>issued 
+&gt;<i>to fetchmail. Using the killpg() in response to the SIGINT (or SIGTERM) 
+</I>signal 
+&gt;<i>doesn't help because it kills the parent process before killing the child 
+</I>&gt;<i>process.
+</I>&gt;<i>
+</I>&gt;<i>Here is attached a first proposal to solve the issue, it seems to work on my 
+</I>&gt;<i>system. As I don't know the fetchmail code I'm pretty sure there are some 
+</I>&gt;<i>mistakes. First of all I don't understand the reason in the original 
+</I>&gt;<i>release_sink() function there is no check of the return from popen(). For 
+</I>this 
+&gt;<i>reason I kept the same behavior with the new implementation. I also modified 
+</I>&gt;<i>the SIGCHLD handler to reuse the waiting procedure for the forked MDA 
+</I>process.
+
+Has anyone tried the patch? Is the implementation correct? As it solves a 
+problem with the current fetchmail release I think it's a starting point to fix 
+the above described problem.
+
+Fabio
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001136.html">No subject
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1546">[ date ]</a>
+              <a href="thread.html#1546">[ thread ]</a>
+              <a href="subject.html#1546">[ subject ]</a>
+              <a href="author.html#1546">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] 24h comparison of old and new UID handling code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%2024h%20comparison%20of%20old%20and%20new%20UID%20handling%20code&In-Reply-To=%3C87pr0glv7x.fsf%40fever.mssgmbh.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001378.html">
+   <LINK REL="Next"  HREF="001382.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] 24h comparison of old and new UID handling code</H1>
+    <B>Rainer Weikusat</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%2024h%20comparison%20of%20old%20and%20new%20UID%20handling%20code&In-Reply-To=%3C87pr0glv7x.fsf%40fever.mssgmbh.com%3E"
+       TITLE="[fetchmail-devel] 24h comparison of old and new UID handling code">rweikusat at mssgmbh.com
+       </A><BR>
+    <I>Fri May 28 02:34:58 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001378.html">[fetchmail-devel] An actual patch
+</A></li>
+        <LI>Next message: <A HREF="001382.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1381">[ date ]</a>
+              <a href="thread.html#1381">[ thread ]</a>
+              <a href="subject.html#1381">[ subject ]</a>
+              <a href="author.html#1381">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>The numbers contained in this mail come from two 24h 'observations' of
+the old and new UID handling code done via oprofile. They are based on
+querying 119 POP3 accounts. Some statistics about the .fetchids files
+(everything in lines):
+
+	total:		35004
+        max:		8019
+        min:		1
+        
+        average:	294.15
+        median:		46
+        std. dev:	823.87
+
+Grouped by size with increments of 16:
+
+	0		36      (30.2%)
+	16		18      (15.1%)
+	32		7       (5.8%)
+	48		5       (4.2%)
+	64		3       (2.5%)
+	80		2       (1.6%)
+	96		4       (3.3%)
+	128		4       (3.3%)
+	144		1       (0.8%)
+	160		2       (1.6%)
+	176		5       (4.2%)
+	192		2       (1.6%)
+	208		1       (0.8%)
+	240		1       (0.8%)
+	256		4       (3.3%)
+	288		3       (2.5%)
+	304		1       (0.8%)
+	320		1       (0.8%)
+	384		1       (0.8%)
+	480		1       (0.8%)
+	512		2       (1.6%)
+	544		1       (0.8%)
+	560		1       (0.8%)
+	720		1       (0.8%)
+	736		1       (0.8%)
+	912		1       (0.8%)
+	976		1       (0.8%)
+	1104	        1       (0.8%)
+	1200	        1       (0.8%)
+	1264	        1       (0.8%)
+	1344		2       (1.6%)
+	1408		1       (0.8%)
+	1744		1       (0.8%)
+	2000		1       (0.8%)
+	2064		1       (0.8%)
+
+This is data about the presently existing files. All actual numbers
+were 'somewhat smaller' for the 'new code' run and 'even more smaller'
+for the old one.
+
+UID handling is still the dominant operation (processor-time wise)
+performed by fetchmail. The relative amount of time is down from
+93.46% to 34.36%. During the measurement interval, 1,540,732 event
+samples were collected for the old code and 63,092 for the new
+code: The trie/ array-based UID db has used about 4.09% of the CPU
+time the list-based one did use.
+
+By function, list based (at least 0.1%):
+
+	929507   56.3856  fetchmail.dimap          id_find
+	585333   35.5074  fetchmail.dimap          str_in_list
+	25892     1.5707  fetchmail.dimap          save_str [w/ tail pointers]
+	15089     0.9153  fetchmail.dimap          yylex
+	10827     0.6568  fetchmail.dimap          do_session
+	10265     0.6227  fetchmail.dimap          initialize_saved_lists
+	5908      0.3584  fetchmail.dimap          yyparse
+	4941      0.2997  fetchmail.dimap          SockRead
+	3557      0.2158  fetchmail.dimap          strlcpy
+	3094      0.1877  fetchmail.dimap          gen_recv
+	2976      0.1805  fetchmail.dimap          main
+	2838      0.1722  fetchmail.dimap          pop3_getrange
+	2783      0.1688  fetchmail.dimap          optmerge
+	2642      0.1603  fetchmail.dimap          stuffline
+	2614      0.1586  fetchmail.dimap          write_saved_lists
+	2519      0.1528  fetchmail.dimap          imap_response
+	2167      0.1315  fetchmail.dimap          set_timeout
+	2162      0.1312  fetchmail.dimap          imap_is_old
+	2072      0.1257  fetchmail.dimap          xstrdup
+	1791      0.1086  fetchmail.dimap          xmalloc
+
+By function, trie/ array:
+
+	36916    20.1071  fetchmail.uid-db         uid_db_insert
+	26176    14.2573  fetchmail.uid-db         find_uid_by_id
+	16937     9.2251  fetchmail.uid-db         yylex
+	10700     5.8280  fetchmail.uid-db         initialize_saved_lists
+	10248     5.5818  fetchmail.uid-db         do_session
+	6041      3.2904  fetchmail.uid-db         yyparse
+	4994      2.7201  fetchmail.uid-db         SockRead
+	3728      2.0305  fetchmail.uid-db         stuffline
+	3620      1.9717  fetchmail.uid-db         strlcpy
+	3507      1.9102  fetchmail.uid-db         free_uid_db
+	3212      1.7495  fetchmail.uid-db         main
+	3174      1.7288  fetchmail.uid-db         gen_recv
+	2791      1.5202  fetchmail.uid-db         optmerge
+	2728      1.4859  fetchmail.uid-db         imap_response
+	2641      1.4385  fetchmail.uid-db         set_timeout
+	2428      1.3225  fetchmail.uid-db         xmalloc
+	2356      1.2832  fetchmail.uid-db         imap_is_old
+	2271      1.2369  fetchmail.uid-db         write_uid_db_record
+	1901      1.0354  fetchmail.uid-db         pop3_getrange
+	1803      0.9820  fetchmail.uid-db         T.169
+	1786      0.9728  fetchmail.uid-db         parsecmdline
+	1532      0.8344  fetchmail.uid-db         traverse_uid_db
+	1413      0.7696  fetchmail.uid-db         count_seen_deleted
+	1182      0.6438  fetchmail.uid-db         free_uid_list
+	1112      0.6057  fetchmail.uid-db         envquery
+	1112      0.6057  fetchmail.uid-db         pop3_is_old
+	1098      0.5980  fetchmail.uid-db         mark_as_expunged_if
+	936       0.5098  fetchmail.uid-db         _fini
+	892       0.4858  fetchmail.uid-db         imap_getrange
+	880       0.4793  fetchmail.uid-db         gen_transact
+	812       0.4423  fetchmail.uid-db         readbody
+	774       0.4216  fetchmail.uid-db         SSL_verify_callback
+	747       0.4069  fetchmail.uid-db         SockOpen
+	736       0.4009  fetchmail.uid-db         readheaders
+	735       0.4003  fetchmail.uid-db         parse_resp_code
+	687       0.3742  fetchmail.uid-db         set_signal_handler
+	680       0.3704  fetchmail.uid-db         pop3_ok
+	673       0.3666  fetchmail.uid-db         prependdir
+	597       0.3252  fetchmail.uid-db         SSLOpen
+	577       0.3143  fetchmail.uid-db         xstrdup
+	575       0.3132  fetchmail.uid-db         SockWrite
+	512       0.2789  fetchmail.uid-db         write_saved_lists
+	499       0.2718  fetchmail.uid-db         query_host
+	494       0.2691  fetchmail.uid-db         in_drop_domain
+	481       0.2620  fetchmail.uid-db         prc_parse_file
+	471       0.2565  fetchmail.uid-db         do_protocol
+	463       0.2522  fetchmail.uid-db         pop3_getauth
+	400       0.2179  fetchmail.uid-db         pmg_stuffline
+	371       0.2021  fetchmail.uid-db         parse_netrc
+	368       0.2004  fetchmail.uid-db         imap_getauth
+	338       0.1841  fetchmail.uid-db         MD5Update
+	314       0.1710  fetchmail.uid-db         free_netrc
+	311       0.1694  fetchmail.uid-db         init_uid_db
+	296       0.1612  fetchmail.uid-db         yyensure_buffer_stack
+	292       0.1590  fetchmail.uid-db         copy_str_list
+	291       0.1585  fetchmail.uid-db         fm_getaddrinfo
+	291       0.1585  fetchmail.uid-db         host_fqdn
+	283       0.1541  fetchmail.uid-db         imap_ok
+	278       0.1514  fetchmail.uid-db         capa_probe
+	270       0.1471  fetchmail.uid-db         reply_hack
+	264       0.1438  fetchmail.uid-db         __libc_csu_init
+	256       0.1394  fetchmail.uid-db         _start
+	242       0.1318  fetchmail.uid-db         report_init
+	240       0.1307  fetchmail.uid-db         interface_approve
+	233       0.1269  fetchmail.uid-db         T.136
+	232       0.1264  fetchmail.uid-db         yy_flush_buffer
+	223       0.1215  fetchmail.uid-db         list_merge
+	211       0.1149  fetchmail.uid-db         save_str
+	209       0.1138  fetchmail.uid-db         T.140
+	196       0.1068  fetchmail.uid-db         terminate_poll
+	192       0.1046  fetchmail.uid-db         interface_init
+
+I hope to be able to produce something like a final patch at some time
+late evening tomorrow.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001378.html">[fetchmail-devel] An actual patch
+</A></li>
+	<LI>Next message: <A HREF="001382.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1381">[ date ]</a>
+              <a href="thread.html#1381">[ thread ]</a>
+              <a href="subject.html#1381">[ subject ]</a>
+              <a href="author.html#1381">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

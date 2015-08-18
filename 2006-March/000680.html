@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: [fetchmail-users] Re: RETR with UIDL
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail-users%5D%20Re%3A%20RETR%20with%20UIDL&In-Reply-To=%3C440C5B54.2010309%40plonk.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000705.html">
+   <LINK REL="Next"  HREF="000681.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: [fetchmail-users] Re: RETR with UIDL</H1>
+    <B>Jakob Hirsch</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail-users%5D%20Re%3A%20RETR%20with%20UIDL&In-Reply-To=%3C440C5B54.2010309%40plonk.de%3E"
+       TITLE="[fetchmail-devel] Re: [fetchmail-users] Re: RETR with UIDL">jh at plonk.de
+       </A><BR>
+    <I>Mon Mar  6 16:55:00 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000705.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000681.html">[fetchmail-devel] Re: [fetchmail-users] Re: RETR with UIDL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#680">[ date ]</a>
+              <a href="thread.html#680">[ thread ]</a>
+              <a href="subject.html#680">[ subject ]</a>
+              <a href="author.html#680">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+
+&gt;<i> UIDL is a pretty standard MUA (used by major MUAs) mechanism for &quot;keep
+</I>&gt;<i> messages on server&quot; setups, and it's very likely I'll make UIDL default
+</I>&gt;<i> in future versions.
+</I>
+Sure, even OE supports it. But still, the default operation of all
+client I know is &quot;download and delete&quot;, so UIDL is not used. The major
+use of fetchmail is being some kind of MUA &quot;proxy&quot; (not in technical
+sense), so it should (by default) behave like a (default) MUA.
+
+&gt;<i> I hope we can also add the often-requested &quot;delete after N days&quot; that
+</I>&gt;<i> ESR refused (probably because he was scared of the implications with the
+</I>&gt;<i> long-winding UID code), but I'm not sure if time permits that for 6.4.X.
+</I>
+Yet another MUA feature. :)
+
+How are you going to do this? Adding a third column to the fetchids file?
+
+&gt;&gt;<i> available on the server). The magic fetchmail does is nice and works in
+</I>&gt;&gt;<i> most cases, but final control should be left to the user.
+</I>&gt;<i> 
+</I>&gt;<i> The user should not need to care about protocol details before he runs
+</I>
+He should not, but often enough he has to. I prefer to have full control
+instead of having to work around some program's magic. But I understand
+that my view is surely not the same as some usual user's. I hope it's
+possible to satisfy both user groups.
+
+&gt;<i> Server-side tracking is a constant source of troubles with respect to
+</I>&gt;<i> interrupted connections, software faults, aborts, reboots, any other
+</I>&gt;<i> things, and relying on POP3 server state beyond UIDL just doesn't work
+</I>&gt;<i> well, so everything will be switched to client-side tracking.
+</I>
+Not that I care much about that, but server-vs-client side tracking is
+not only an implementional difference, but also a functional one, so I'd
+be reluctant to rip out SST. Some broken servers should not be a reason
+to abandon a feature.
+
+&gt;<i> (insecure, removed with RFC-1460 in 1993), &quot;LAST&quot; (removed with RFC-1725
+</I>
+Usually I agree to get rid of old stuff, most of the time they are
+kludges with incosistent behaviour and are replaced by a superior
+mechanism. But that's not true for LAST, which has no 100% (in POP3).
+And it's still supported by modern servers like Dovecot.
+
+&gt;<i> talking RFC-1939 (POP3)/1734 (AUTH)/2449 (TLS)/2222 (SASL).
+</I>
+But things like ntlm/msn authentication and pop3s/imaps are still supported?
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000705.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000681.html">[fetchmail-devel] Re: [fetchmail-users] Re: RETR with UIDL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#680">[ date ]</a>
+              <a href="thread.html#680">[ thread ]</a>
+              <a href="subject.html#680">[ subject ]</a>
+              <a href="author.html#680">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

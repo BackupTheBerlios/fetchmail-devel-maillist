@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Code quality - signedness
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Code%20quality%20-%20signedness&In-Reply-To=%3Cm3y8lybwpi.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000075.html">
+   <LINK REL="Next"  HREF="000077.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Code quality - signedness</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Code%20quality%20-%20signedness&In-Reply-To=%3Cm3y8lybwpi.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Code quality - signedness">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Mon Jul  5 12:00:09 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000075.html">[fetchmail-devel] Re: Can this stuff be removed?
+</A></li>
+        <LI>Next message: <A HREF="000077.html">[fetchmail-devel] NTLM/POP3 authentication
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#76">[ date ]</a>
+              <a href="thread.html#76">[ thread ]</a>
+              <a href="subject.html#76">[ subject ]</a>
+              <a href="author.html#76">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Dear fellow fetchmail interested,
+
+I have recently compiled fetchmail with a decent set of warnings enabled
+(i. e. -pedantic -W -Wextra and some more on gcc 3.3 or 3.4 or icc 8.0)
+and I am _flooded_ by complaints about signedness mismatch. It is a bit
+unfortunate this has been handled so laxly in the past, and this will
+need to be fixed before a next release we can seriously recommend. It is
+a task that will take a longer time because we'll effectively need to
+align the types throughout the file with respect to signedness. Getting
+the interfaces and data structures cleaned up would be the first step
+and would require more eyeballs than just mine, and the second step
+would then to cast the interface changes into .h files. After that, the
+implementation cleanup would begin as a third step. It is a long-winded
+effort, and tools I've come across in the past that can help us are:
+
+- GCC with lots of warnings enabled, the more, the better.
+
+Particularly useful to find ctype.h madness: GCC on Solaris 8, where in
+32- or 64-bit mode (I don't recall as I usually test both) the ctype.h
+is[]* functions are implemented as arrays, and GCC will complain if a
+vanilla char is used as argument in is*() which leads to bogus results
+on 8-bit data.
+
+- ICC (Intel C++) 8.0. It's free for personal use, but a registration
+  with Intel is required.
+
+- Splint. It is probably a tad too early even with -weak to start with
+  Splint.
+
+Opinions solicited.
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000075.html">[fetchmail-devel] Re: Can this stuff be removed?
+</A></li>
+	<LI>Next message: <A HREF="000077.html">[fetchmail-devel] NTLM/POP3 authentication
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#76">[ date ]</a>
+              <a href="thread.html#76">[ thread ]</a>
+              <a href="subject.html#76">[ subject ]</a>
+              <a href="author.html#76">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

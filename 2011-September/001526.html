@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] flaw concerning fetchmail 6.3.21 error message
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20flaw%20concerning%20fetchmail%206.3.21%20error%20message&In-Reply-To=%3C20110929190113.GB3005%40curry%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001527.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] flaw concerning fetchmail 6.3.21 error message</H1>
+    <B>Oskar Schirmer</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20flaw%20concerning%20fetchmail%206.3.21%20error%20message&In-Reply-To=%3C20110929190113.GB3005%40curry%3E"
+       TITLE="[fetchmail-devel] flaw concerning fetchmail 6.3.21 error message">oskar at scara.com
+       </A><BR>
+    <I>Thu Sep 29 21:01:13 CEST 2011</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001527.html">[fetchmail-devel] flaw concerning fetchmail 6.3.21 error message
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1526">[ date ]</a>
+              <a href="thread.html#1526">[ thread ]</a>
+              <a href="subject.html#1526">[ subject ]</a>
+              <a href="author.html#1526">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Use Case:
+  fetching mail from a server using pop3s, port 995,
+  with option &quot;ssl&quot; given, but no sslproto explicitely
+  selected.
+  Operating System: Linux, Slackware 12.2.
+  Compiler: gcc 4.2.4
+  Pop3 Server: qmail
+  Fetchmail versions tested: 6.3.8 and 6.3.21
+
+Problem:
+  on each invocation, fetchmail states the following
+  error message, which is superfluous:
+
+Invalid SSL protocol '' specified, using default (SSLv23).
+
+  [note: when giving some &quot;sslproto xy&quot;, this message is
+   given twice, with an empty protocol name on the second line]
+
+Reason for Symptom:
+  socket.c checks given protocol names to be one of &quot;ssl2&quot;, &quot;ssl3&quot;, etc,
+  but fails to check against empty string &quot;&quot;. As it checks against
+  NULL string, though, the reason for the bug may be confusion in
+  &quot;no protocol given&quot; value policy internal to fetchmail sources
+  (i.e. empty string vs. null string). A better solution than the
+  one given here might resolve this policy issue, instead.
+
+Solution:
+  To have the bogus error message go away, check against empty string
+  additionally, patch as follows:
+
+
+
+diff -ur fetchmail-6.3.21/socket.c fetchmail-6.3.21-patch/socket.c
+--- fetchmail-6.3.21/socket.c	2011-08-21 15:34:58.000000000 +0200
++++ fetchmail-6.3.21-patch/socket.c	2011-09-29 10:34:33.777407663 +0200
+@@ -881,6 +881,8 @@
+ 			_ctx[sock] = SSL_CTX_new(TLSv1_client_method());
+ 		} else if (!strcasecmp(&quot;ssl23&quot;,myproto)) {
+ 			myproto = NULL;
++		} else if (!strcmp(&quot;&quot;,myproto)) {
++			myproto = NULL;
+ 		} else {
+ 			fprintf(stderr,GT_(&quot;Invalid SSL protocol '%s' specified, using default (SSLv23).\n&quot;), myproto);
+ 			myproto = NULL;
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001527.html">[fetchmail-devel] flaw concerning fetchmail 6.3.21 error message
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1526">[ date ]</a>
+              <a href="thread.html#1526">[ thread ]</a>
+              <a href="subject.html#1526">[ subject ]</a>
+              <a href="author.html#1526">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

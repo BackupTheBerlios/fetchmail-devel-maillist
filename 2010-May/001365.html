@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] save_str problems.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C20100511223425.GD14632%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001364.html">
+   <LINK REL="Next"  HREF="001366.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] save_str problems.</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C20100511223425.GD14632%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] save_str problems.">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed May 12 00:34:25 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001364.html">[fetchmail-devel] save_str problems.
+</A></li>
+        <LI>Next message: <A HREF="001366.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1365">[ date ]</a>
+              <a href="thread.html#1365">[ thread ]</a>
+              <a href="subject.html#1365">[ subject ]</a>
+              <a href="author.html#1365">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rainer Weikusat schrieb am 2010-05-11:
+
+&gt;<i> I apologize for the misdirected mail ... 'wrong button'
+</I>
+No big deal.
+
+&gt;<i> &gt; Sounds good, although I'm not quite sure if you're working on two distinct
+</I>&gt;<i> &gt; issues here (DIMAP and POP3 improvements).
+</I>&gt;<i> 
+</I>&gt;<i> I do. IMAP UIDs are defined to be strictly monotonically increasing
+</I>&gt;<i> unsigned 32 bit numbers (eventual wrap-around to be signalled via
+</I>&gt;<i> UIDVAILDITY change) and for the application I need this for, it is ok
+</I>&gt;<i> to not apply 'policy changes' (such as a changed size limit)
+</I>&gt;<i> retroactively. This means that I basically just record the highest
+</I>&gt;<i> 'seen' UID + 1 and then do a SEARCH UID &lt;recorded&gt;:&lt;UIDNEXT&gt; to get
+</I>&gt;<i> information about yet 'unseen' mails. 
+</I>
+A changed size limit only hurts if it means that more mail would be
+downloaded than before, and in that case, you can as well invalidate
+UIDVALIDITY (at the cost of re-fetching everything).
+
+OTOH the POP3 UID stuff could then be reused to do an exhaustive search,
+and we will finally be able to fetch from read-only mailboxes either way
+in --keep configurations.
+
+&gt;<i> &gt; I have plans to attack POP3/UIDL scalability myself soon -- I could
+</I>&gt;<i> &gt; devote my time in other ways if I know your work covers that and
+</I>&gt;<i> &gt; reduces complexity to O(n log n) worst-case.
+</I>&gt;<i> 
+</I>&gt;<i> I actually started to write some code for this. So far, I was planning
+</I>&gt;<i> to use two vectors to be able to access records either by position or
+</I>&gt;<i> by 'associated fetch number' and to do ID searches based on a PATRICIA
+</I>&gt;<i> trie (reasonably easy to implement and I've already done a few in the
+</I>&gt;<i> past). This would imply that searching for a string of n characters
+</I>&gt;<i> would, at worst, need n * 8 single bit tests[*] (and a final complete
+</I>&gt;<i> comparison). Based on my present oprofile numbers[**] (based on 101
+</I>&gt;<i> .fetchids files with an average length of ~303 lines), the time spent
+</I>&gt;<i> with loading the file data is IMHO not large enough to warrant using a
+</I>&gt;<i> disk-based database (and this would be complicated because of the need
+</I>&gt;<i> to be able to find 'UIDL records' based on three different critetria).
+</I>
+Hadn't thought of Patricia tries, actually a decent idea (yet possibly
+what a C++ STL map type might do under the hood if the key is suitable).
+
+I wonder how we handle the case if two messages (i. e. different message
+number) that share the same UIDL (this happens on some sites if the recipient
+is listed more than once, or is being Cc:d mailing list mail, and if the
+POP3 server uses a hash of few header items to construct the UIDL).
+  Such appearance in a mailbox happens in the wild and should not be treated
+an error that would abort the fetch. getmail used to fail in such
+situations, we don't want to follow it down that route...
+
+At any rate, this looks quite reasonable overall, so I'll keep my hands
+off that code for the next days to not step on your toes. I'm looking
+forward to it. Good speed!
+
+Thanks &amp; best regards
+Matthias
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 198 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20100512/b44bdeab/attachment.pgp">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20100512/b44bdeab/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001364.html">[fetchmail-devel] save_str problems.
+</A></li>
+	<LI>Next message: <A HREF="001366.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1365">[ date ]</a>
+              <a href="thread.html#1365">[ thread ]</a>
+              <a href="subject.html#1365">[ subject ]</a>
+              <a href="author.html#1365">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [patch] Drop privileges
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%20Drop%20privileges&In-Reply-To=%3C200903271714.02949.thomas.jarosch%40intra2net.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [patch] Drop privileges</H1>
+    <B>Thomas Jarosch</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%20Drop%20privileges&In-Reply-To=%3C200903271714.02949.thomas.jarosch%40intra2net.com%3E"
+       TITLE="[fetchmail-devel] [patch] Drop privileges">thomas.jarosch at intra2net.com
+       </A><BR>
+    <I>Fri Mar 27 17:14:02 CET 2009</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1051">[ date ]</a>
+              <a href="thread.html#1051">[ thread ]</a>
+              <a href="subject.html#1051">[ subject ]</a>
+              <a href="author.html#1051">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello together,
+
+attached is a patch which allows fetchmail to drop root privileges
+and run inside a chroot. The idea is to read the config file as root (as it 
+contains passwords) and setup the logging. The root privileges get dropped 
+after initialization.
+
+All new features are optional. This will leave a stale lockfile after
+the fetchmail run (not enough privileges to write to /var/run or even
+not accessible inside the chroot), fetchmail perfectly
+handles that on the next invocation.
+
+Upstream integration or feedback is welcome :-)
+The patch is against fetchmail 6.3.9.
+
+Have a nice weekend,
+Thomas
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: fetchmail-6.3.9-drop-privs.patch
+Type: text/x-patch
+Size: 9013 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20090327/dabf6b0c/attachment.bin">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20090327/dabf6b0c/attachment.bin</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1051">[ date ]</a>
+              <a href="thread.html#1051">[ thread ]</a>
+              <a href="subject.html#1051">[ subject ]</a>
+              <a href="author.html#1051">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

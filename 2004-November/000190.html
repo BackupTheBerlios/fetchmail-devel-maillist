@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] quick overview of branching and tagging in SVN [was: Re: r3948 - trunk]
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20quick%20overview%20of%20branching%20and%20tagging%20in%20SVN%20%5Bwas%3A%20Re%3A%20r3948%20-%20trunk%5D&In-Reply-To=%3C20041112181237.GB20041%40quux.local%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000187.html">
+   <LINK REL="Next"  HREF="000193.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] quick overview of branching and tagging in SVN [was: Re: r3948 - trunk]</H1>
+    <B>Graham Wilson</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20quick%20overview%20of%20branching%20and%20tagging%20in%20SVN%20%5Bwas%3A%20Re%3A%20r3948%20-%20trunk%5D&In-Reply-To=%3C20041112181237.GB20041%40quux.local%3E"
+       TITLE="[fetchmail-devel] quick overview of branching and tagging in SVN [was: Re: r3948 - trunk]">graham at mknod.org
+       </A><BR>
+    <I>Fri Nov 12 19:12:37 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000187.html">[fetchmail-devel] Re: r3993 - in vendor: . sourceforge sourceforge/trio sourceforge/trio/current sourceforge/trio/current/doc sourceforge/trio/current/html
+</A></li>
+        <LI>Next message: <A HREF="000193.html">[fetchmail-devel] quick overview of branching and tagging in SVN [was: Re: r3948 - trunk]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#190">[ date ]</a>
+              <a href="thread.html#190">[ thread ]</a>
+              <a href="subject.html#190">[ subject ]</a>
+              <a href="author.html#190">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Sun, Oct 24, 2004 at 01:38:34PM +0200, Matthias Andree wrote:
+&gt;<i> OK, I will figure how to branch and merge in Subversion and to that next
+</I>&gt;<i> time for &quot;sweeping&quot; changes that aren't self-contained in a single
+</I>&gt;<i> patch-set. It's only that I am not particularly fond of branches as most
+</I>&gt;<i> of my development efforts are still CVS-based, and CVS's branch handling
+</I>&gt;<i> is known to be inferior to SVN.
+</I>
+Branching and tagging is done by the same operation in Subversion. For
+example, if I wanted to create Debian branch for fetchmail, I could do
+the following (this doesn't modify your working copy):
+
+  $ scp <A HREF="https://decoy.wox.org/svn/fetchmail/trunk">https://decoy.wox.org/svn/fetchmail/trunk</A> \
+        <A HREF="https://decoy.wox.org/svn/fetchmail/branches/debian">https://decoy.wox.org/svn/fetchmail/branches/debian</A> \
+        -m &quot;Create a Debian branch of fetchmail.&quot;
+
+You can then switch your working copy of fetchmail to the Debian branch
+by doing the following:
+
+  $ cd /path/to/my/wc
+  $ svn switch <A HREF="https://decoy.wox.org/svn/fetchmail/branches/debian">https://decoy.wox.org/svn/fetchmail/branches/debian</A>
+
+Switching back to the trunk is just as easy:
+
+  $ cd /path/to/my/wc
+  $ svn switch <A HREF="https://decoy.wox.org/svn/fetchmail/branches/debian">https://decoy.wox.org/svn/fetchmail/branches/debian</A>
+
+To see what branch your working on current, use the info subcommand in
+the toplevel of your of your working copy:
+
+  $ pwd
+  /path/to/my/wc
+  $ svn info
+  Path: .
+  URL: <A HREF="https://decoy.wox.org/svn/fetchmail/trunk">https://decoy.wox.org/svn/fetchmail/trunk</A>
+  Repository UUID: 6bd12b38-53dc-0310-98db-d94f1ca4f90c
+  Revision: 4001
+  Node Kind: directory
+  Schedule: normal
+  Last Changed Author: m-a
+  Last Changed Rev: 4001
+  Last Changed Date: 2004-11-10 16:57:00 -0600 (Wed, 10 Nov 2004)
+  Properties Last Updated: 2004-08-08 03:22:17 -0500 (Sun, 08 Aug 2004)
+
+You can make checkins on a branch the same way you would on the trunk,
+as long as the info subcommand shows the branch, not the trunk.
+
+Tagging is done the same way as branching, except you copy to the tags
+directory, not the branhes directory, and you never checkin anything on
+a tag.
+
+The other important operation besides branching is merging. To merge the
+changes from the branch (make sure you are on the trunk, and not a
+branch):
+
+  $ cd /path/to/my/wc
+  $ svn merge <A HREF="https://decoy.wox.org/svn/fetchmail/trunk">https://decoy.wox.org/svn/fetchmail/trunk</A> \
+              <A HREF="https://decoy.wox.org/svn/fetchmail/branches/debian">https://decoy.wox.org/svn/fetchmail/branches/debian</A>
+
+(Note that this wouldn't make sense for the Debian branch, but this is
+just an example.)
+
+Check the output for any lines that start with C, which means that there
+was a conflict in the merge. Open the file, and search for the conflict
+markers, and resolve the conflict. Then do:
+
+  $ svn resolved conflict.c
+
+Then you have to checkin the merged changes the same way you would
+normally checkin changes.
+
+To see what would be merged before doing the merge operation:
+
+  $ svn diff <A HREF="https://decoy.wox.org/svn/fetchmail/trunk">https://decoy.wox.org/svn/fetchmail/trunk</A> \
+             <A HREF="https://decoy.wox.org/svn/fetchmail/branches/debian">https://decoy.wox.org/svn/fetchmail/branches/debian</A>
+
+The diff and merge subcommands are pretty similar, except the diff
+subcommand outputs the differences, while the merge subcommands applies
+them to your working copy.
+
+I'd be happy to answer any questions anyone has (assuming I can, of
+course :).
+
+-- 
+gram
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000187.html">[fetchmail-devel] Re: r3993 - in vendor: . sourceforge sourceforge/trio sourceforge/trio/current sourceforge/trio/current/doc sourceforge/trio/current/html
+</A></li>
+	<LI>Next message: <A HREF="000193.html">[fetchmail-devel] quick overview of branching and tagging in SVN [was: Re: r3948 - trunk]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#190">[ date ]</a>
+              <a href="thread.html#190">[ thread ]</a>
+              <a href="subject.html#190">[ subject ]</a>
+              <a href="author.html#190">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

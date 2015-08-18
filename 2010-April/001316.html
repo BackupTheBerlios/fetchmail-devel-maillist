@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #17067] Typo in man page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2317067%5D%20Typo%20in%20man%20page&In-Reply-To=%3C201004082006.o38K681G004180%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001315.html">
+   <LINK REL="Next"  HREF="001317.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #17067] Typo in man page</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2317067%5D%20Typo%20in%20man%20page&In-Reply-To=%3C201004082006.o38K681G004180%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #17067] Typo in man page">admin at berlios.de
+       </A><BR>
+    <I>Thu Apr  8 22:06:08 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001315.html">[fetchmail-devel] New Japanese PO file for 'fetchmail' (version	6.3.16)
+</A></li>
+        <LI>Next message: <A HREF="001317.html">[fetchmail-devel] [Bug #17067] Typo in man page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1316">[ date ]</a>
+              <a href="thread.html#1316">[ thread ]</a>
+              <a href="subject.html#1316">[ subject ]</a>
+              <a href="author.html#1316">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #17067, was updated on 2010-Apr-08 13:06
+Here is a current snapshot of the bug.
+
+Project: fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: bob5972
+Assigned to : none
+Summary: Typo in man page
+
+Details: I noticed that the man page for fetchmail says &quot;spambounce&quot; where it should say &quot;softbounce.&quot;  Here's a git patch.
+
+
+&gt;<i>From 6c2a077398458ec8585aac5398f545e30b9573d4 Mon Sep 17 00:00:00 2001
+</I>From: Michael Banack &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">bob5972 at gmail.com</A>&gt;
+Date: Thu, 8 Apr 2010 12:57:12 -0700
+Subject: [PATCH] Fixed typo in the man page
+
+---
+ fetchmail.man |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/fetchmail.man b/fetchmail.man
+index 9b1b41f..a2cc038 100644
+--- a/fetchmail.man
++++ b/fetchmail.man
+@@ -1666,7 +1666,7 @@ set no softbounce	\&amp;	\&amp;	T{
+ Delete permanently undeliverable mail. It is recommended to use this
+ option if the configuration has been thoroughly tested.
+ T}
+-set    spambounce	\&amp;	\&amp;	T{
++set    softbounce	\&amp;	\&amp;	T{
+ Keep permanently undeliverable mail as though a temporary error had
+ occurred (default).
+ T}
+-- 
+1.7.0.4
+
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=17067&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=17067&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001315.html">[fetchmail-devel] New Japanese PO file for 'fetchmail' (version	6.3.16)
+</A></li>
+	<LI>Next message: <A HREF="001317.html">[fetchmail-devel] [Bug #17067] Typo in man page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1316">[ date ]</a>
+              <a href="thread.html#1316">[ thread ]</a>
+              <a href="subject.html#1316">[ subject ]</a>
+              <a href="author.html#1316">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Incorrect header line and lost mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3C20060308080937.GA1275%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000686.html">
+   <LINK REL="Next"  HREF="000688.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Incorrect header line and lost mails</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3C20060308080937.GA1275%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: Incorrect header line and lost mails">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Mar  8 09:09:37 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000686.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000688.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#687">[ date ]</a>
+              <a href="thread.html#687">[ thread ]</a>
+              <a href="subject.html#687">[ subject ]</a>
+              <a href="author.html#687">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Tue, Mar 07, 2006:
+&gt;<i> what should we do WRT fastuidl?  We seem to need sanity checks to disable
+</I>&gt;<i> the fastuidl search for servers such as Fr?d?ric's.
+</I>
+One option is to change the default to a lower value from the current
+value of 10. The lowest practical value is 2, which will use linear
+search in alternate polls.
+
+A default of 4 should be alright. It will use linear search in the
+first poll, followed by binary search in the next three polls,
+followed by linear search in the next poll, and so on.
+
+Other solutions are also possible. For example, keeping a map of UID
+and message number in memory (with corrections for mails deleted after
+logout). Then, when there is a mismatch in the message number expected
+and the message number received from the remote server for any one
+mail, a linear search should be forced in the next(*) poll. This would
+be equivalent to setting fastuidl to 2 if this mismatch happens in
+every poll.
+
+Note that Frederic has claimed that messages with low UID never get
+downloaded. This is only partially correct. In his case, messages with
+low UID never get downloaded whenever a binary search is performed.
+However, a linear search is performed once in every ten polls
+(starting with the first poll) and these messages which were missed
+out earlier will get downloaded in this poll with linear search.
+
+-- 
+Sunil Shetye.
+
+(*) There is a reason why a linear search should not be forced in this
+poll after detecting the mismatch. The same reason applies as to why
+fastuidl cannot be disabled for servers such as that of Frederic.
+
+The fastuidl and the fetchsizelimit options have been developed
+keeping in mind a large mailbox with thousands of mails being polled
+over a slow dialup line which is prone to frequent disconnection.
+fetchmail used to previously download all UIDs and all mail sizes
+right at the start of the poll. Thus, the amount of data transferred
+even before the start of the download of the first mail used to be
+huge. For example, if there are 2000 mails in the folder, the data
+transferred would be around 110kb (assuming a UID size of 40b) for
+POP3. Assuming that an average mail size is 5kb, this would mean that
+data equivalent to 22 mails have been downloaded even before
+downloading the first mail.
+
+The fetchsizelimit option delays the downloading of the mail sizes.
+The fastuidl option delays the downloading of UIDs when doing binary
+search. Thus, the first (new) mail is downloaded pretty fast.
+
+Forcing linear search on this poll after detecting the mismatch will
+effectively disable fastuidl if this mismatch is detected on every
+poll.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000686.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000688.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#687">[ date ]</a>
+              <a href="thread.html#687">[ thread ]</a>
+              <a href="subject.html#687">[ subject ]</a>
+              <a href="author.html#687">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

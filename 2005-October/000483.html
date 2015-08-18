@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] uninitialized variables in daemon mode
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20uninitialized%20variables%20in%20daemon%20mode&In-Reply-To=%3C20051003074335.GA8135%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000482.html">
+   <LINK REL="Next"  HREF="000485.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] uninitialized variables in daemon mode</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20uninitialized%20variables%20in%20daemon%20mode&In-Reply-To=%3C20051003074335.GA8135%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] uninitialized variables in daemon mode">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Mon Oct  3 09:43:35 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000482.html">[fetchmail-devel] Contents of file `fetchmail-6.2.9-rc5.pl.po'
+</A></li>
+        <LI>Next message: <A HREF="000485.html">[fetchmail-devel] [PATCH] uninitialized variables in daemon mode
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#483">[ date ]</a>
+              <a href="thread.html#483">[ thread ]</a>
+              <a href="subject.html#483">[ subject ]</a>
+              <a href="author.html#483">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+fetchmail has too many global variables which are not being
+initialized properly. This affects the daemon mode as variables which
+are modified for a particular mailbox/poll never get reset back to the
+original value, thus affecting all the mailboxes/polls from that point
+on.
+
+This patch attempts to sort and fix a few of these variables. This
+patch also removes unused variables and moves variables which are
+unnecessarily static global.
+
+The idea of this problem came from the fix to the original problem
+reported in:
+
+&lt;<A HREF="http://lists.berlios.de/pipermail/fetchmail-users/2005-September/000059.html">http://lists.berlios.de/pipermail/fetchmail-users/2005-September/000059.html</A>&gt;.
+
+I suspect that there could be a few more variables of this kind. If
+possible, an audit of all global variables should be done.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/transact.c
+===================================================================
+--- fetchmail/transact.c	(revision 4358)
++++ fetchmail/transact.c	(working copy)
+@@ -37,17 +37,23 @@
+ #include &quot;socket.h&quot;
+ #include &quot;fetchmail.h&quot;
+ 
+-int mytimeout;		/* value of nonreponse timeout */
+-int suppress_tags;	/* emit tags? */
+-char shroud[PASSWORDLEN*2+3];	/* string to shroud in debug output */
+-struct msgblk msgblk;
++/* global variables: please reinitialize them explicitly for proper
++ * working in daemon mode */
+ 
++/* session variables initialized in init_transact() */
++int suppress_tags = FALSE;	/* emit tags? */
+ char tag[TAGLEN];
+ static int tagnum;
+ #define GENSYM	(sprintf(tag, &quot;A%04d&quot;, ++tagnum % TAGMOD), tag)
++static struct method *protocol;
++char shroud[PASSWORDLEN*2+3];	/* string to shroud in debug output */
+ 
++/* session variables initialized in do_session() */
++int mytimeout;		/* value of nonreponse timeout */
++
++/* mail variables initialized in readheaders() */
++struct msgblk msgblk;
+ static int accept_count, reject_count;
+-static struct method *protocol;
+ 
+ static void map_name(const char *name, struct query *ctl, struct idlist **xmit_names)
+ /* add given name to xmit_names if it matches declared localnames */
+@@ -1391,9 +1397,11 @@
+ void init_transact(const struct method *proto)
+ /* initialize state for the send and receive functions */
+ {
++    suppress_tags = FALSE;
+     tagnum = 0;
+     tag[0] = '\0';	/* nuke any tag hanging out from previous query */
+     protocol = (struct method *)proto;
++    shroud[0] = '\0';
+ }
+ 
+ static void enshroud(char *buf)
+Index: fetchmail/pop3.c
+===================================================================
+--- fetchmail/pop3.c	(revision 4358)
++++ fetchmail/pop3.c	(working copy)
+@@ -26,38 +26,41 @@
+ #include &lt;opie.h&gt;
+ #endif /* OPIE_ENABLE */
+ 
+-static int last;
+-#ifdef SDPS_ENABLE
+-char *sdps_envfrom;
+-char *sdps_envto;
+-#endif /* SDPS_ENABLE */
++/* global variables: please reinitialize them explicitly for proper
++ * working in daemon mode */
+ 
++/* TODO: session variables to be initialized before server greeting */
+ #ifdef OPIE_ENABLE
+ static char lastok[POPBUFSIZE+1];
+ #endif /* OPIE_ENABLE */
+ 
+-/* these variables are shared between the CAPA probe and the authenticator */
++/* session variables initialized in capa_probe() or pop3_getauth() */
+ #if defined(GSSAPI)
+-    flag has_gssapi = FALSE;
++flag has_gssapi = FALSE;
+ #endif /* defined(GSSAPI) */
+ #if defined(KERBEROS_V4) || defined(KERBEROS_V5)
+-    flag has_kerberos = FALSE;
++flag has_kerberos = FALSE;
+ #endif /* defined(KERBEROS_V4) || defined(KERBEROS_V5) */
+-    static flag has_cram = FALSE;
++static flag has_cram = FALSE;
+ #ifdef OPIE_ENABLE
+-    flag has_otp = FALSE;
++flag has_otp = FALSE;
+ #endif /* OPIE_ENABLE */
+ #ifdef SSL_ENABLE
+-    static flag has_ssl = FALSE;
++static flag has_ssl = FALSE;
+ #endif /* SSL_ENABLE */
+ 
++/* mailbox variables initialized in pop3_getrange() */
++static int last;
++
++/* mail variables initialized in pop3_fetch() */
++#ifdef SDPS_ENABLE
++char *sdps_envfrom;
++char *sdps_envto;
++#endif /* SDPS_ENABLE */
++
+ #ifdef NTLM_ENABLE
+ #include &quot;ntlm.h&quot;
+ 
+-static tSmbNtlmAuthRequest   request;		   
+-static tSmbNtlmAuthChallenge challenge;
+-static tSmbNtlmAuthResponse  response;
+-
+ /*
+  * NTLM support by Grant Edwards.
+  *
+@@ -72,6 +75,10 @@
+ static int do_pop3_ntlm(int sock, struct query *ctl,
+ 	int msn_instead /** if true, send AUTH MSN, else send AUTH NTLM */)
+ {
++    tSmbNtlmAuthRequest request;
++    tSmbNtlmAuthChallenge challenge;
++    tSmbNtlmAuthResponse response;
++
+     char msgbuf[2048];
+     int result,len;
+   
+Index: fetchmail/checkalias.c
+===================================================================
+--- fetchmail/checkalias.c	(revision 4358)
++++ fetchmail/checkalias.c	(working copy)
+@@ -30,7 +30,7 @@
+ 
+ static int getaddresses(struct addrinfo **result, const char *name)
+ {
+-    struct addrinfo hints, *res;
++    struct addrinfo hints;
+ 
+     memset(&amp;hints, 0, sizeof(hints));
+     hints.ai_socktype=SOCK_STREAM;
+@@ -57,8 +57,6 @@
+  */
+ {
+     int rc = FALSE;
+-    struct hostent *hp;
+-    char **p;
+ 
+     struct addrinfo *res1 = NULL, *res2 = NULL, *ii, *ij;
+ 
+Index: fetchmail/env.c
+===================================================================
+--- fetchmail/env.c	(revision 4358)
++++ fetchmail/env.c	(working copy)
+@@ -149,7 +149,7 @@
+     if (strchr(tmpbuf, '.') == NULL)
+     {
+ 	/* if we got a basename (as we do in Linux) make a FQDN of it */
+-	struct addrinfo hints, *res, *res0;
++	struct addrinfo hints, *res;
+ 	int e;
+ 
+ 	memset(&amp;hints, 0, sizeof hints);
+Index: fetchmail/imap.c
+===================================================================
+--- fetchmail/imap.c	(revision 4358)
++++ fetchmail/imap.c	(working copy)
+@@ -24,15 +24,30 @@
+ #define IMAP4		0	/* IMAP4 rev 0, RFC1730 */
+ #define IMAP4rev1	1	/* IMAP4 rev 1, RFC2060 */
+ 
++/* global variables: please reinitialize them explicitly for proper
++ * working in daemon mode */
++
++/* TODO: session variables to be initialized before server greeting */
++static int preauth = FALSE;
++
++/* session variables initialized in capa_probe() or imap_getauth() */
++static char capabilities[MSGBUFSIZE+1];
++static int imap_version = IMAP4;
++static flag do_idle = FALSE, has_idle = FALSE;
++static int expunge_period = 1;
++
++/* mailbox variables initialized in imap_getrange() */
+ static int count = 0, recentcount = 0, unseen = 0, deletions = 0;
+-static int recentcount_ok = 0;
+ static unsigned int startcount = 1;
+-static int expunged, expunge_period, saved_timeout = 0;
+-static int imap_version, preauth;
+-static flag do_idle, has_idle;
+-static char capabilities[MSGBUFSIZE+1];
++static int expunged = 0;
+ static unsigned int *unseen_messages;
+ 
++/* for &quot;IMAP&gt; EXPUNGE&quot; */
++static int recentcount_ok = 0;
++
++/* for &quot;IMAP&gt; IDLE&quot; */
++static int saved_timeout = 0;
++
+ static int imap_ok(int sock, char *argbuf)
+ /* parse command response */
+ {
+@@ -168,10 +183,6 @@
+ #ifdef NTLM_ENABLE
+ #include &quot;ntlm.h&quot;
+ 
+-static tSmbNtlmAuthRequest   request;
+-static tSmbNtlmAuthChallenge challenge;
+-static tSmbNtlmAuthResponse  response;
+-
+ /*
+  * NTLM support by Grant Edwards.
+  *
+@@ -185,6 +196,10 @@
+ 
+ static int do_imap_ntlm(int sock, struct query *ctl)
+ {
++    tSmbNtlmAuthRequest request;
++    tSmbNtlmAuthChallenge challenge;
++    tSmbNtlmAuthResponse response;
++
+     char msgbuf[2048];
+     int result,len;
+ 
+@@ -300,13 +315,13 @@
+      * Handle idling.  We depend on coming through here on startup
+      * and after each timeout (including timeouts during idles).
+      */
++    do_idle = ctl-&gt;idle;
+     if (ctl-&gt;idle)
+     {
+-	do_idle = TRUE;
+ 	if (strstr(capabilities, &quot;IDLE&quot;))
+-	{
+ 	    has_idle = TRUE;
+-	}
++	else
++	    has_idle = FALSE;
+ 	if (outlevel &gt;= O_VERBOSE)
+ 	    report(stdout, GT_(&quot;will idle after poll\n&quot;));
+     }
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000482.html">[fetchmail-devel] Contents of file `fetchmail-6.2.9-rc5.pl.po'
+</A></li>
+	<LI>Next message: <A HREF="000485.html">[fetchmail-devel] [PATCH] uninitialized variables in daemon mode
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#483">[ date ]</a>
+              <a href="thread.html#483">[ thread ]</a>
+              <a href="subject.html#483">[ subject ]</a>
+              <a href="author.html#483">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

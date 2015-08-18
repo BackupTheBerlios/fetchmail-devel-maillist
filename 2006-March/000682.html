@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060307062520.GA1282%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000673.html">
+   <LINK REL="Next"  HREF="000670.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060307062520.GA1282%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Tue Mar  7 07:25:20 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000673.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+        <LI>Next message: <A HREF="000670.html">[fetchmail-devel] [PATCH] handle imap EXPUNGE better
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#682">[ date ]</a>
+              <a href="thread.html#682">[ thread ]</a>
+              <a href="subject.html#682">[ subject ]</a>
+              <a href="author.html#682">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Casper Gripenberg's mail on Thu, Mar 02, 2006:
+&gt;<i> &gt; I have finally analysed the patch by Brendan Lynch and found that it
+</I>&gt;<i> &gt; has correctly identified the source of the problem. So, please junk my
+</I>&gt;<i> &gt; previous patch and try this one. Again, log to syslog to get the time
+</I>&gt;<i> &gt; aspect correct.
+</I>&gt;<i> 
+</I>&gt;<i> Looks like it's working better now. No delays this time. Cool :)
+</I>&gt;<i> Here's the output:
+</I>&gt;<i> 
+</I>&gt;<i> 19:03:44 : IMAP&gt; A0012 NOOP 
+</I>&gt;<i> 19:03:44 : IMAP&lt; A0012 OK NOOP completed 
+</I>&gt;<i> 19:03:53 : IMAP&lt; * 1 EXISTS 
+</I>&gt;<i> 19:03:53 : IMAP&gt; A0013 NOOP 
+</I>&gt;<i> 19:03:53 : IMAP&lt; * 1 RECENT 
+</I>&gt;<i> 19:03:53 : IMAP&lt; A0013 OK NOOP completed 
+</I>&gt;<i> 19:03:53 : 1 message waiting after re-poll 
+</I>
+Cool. There has been no response from Brendan regarding the new patch.
+However, I believe that it should work correctly.
+
+Matthias, could you consider this patch for 6.3.3? This patch fixes
+the following issues:
+
+- Clear the tag when waiting for asynchronous response from IMAP
+  server. Based on original patch by Brendan Lynch.
+
+- Set the stage and timeout to different values only when waiting for
+  asynchronous response. This is either after sending &quot;IDLE&quot; or after
+  not sending any command.
+
+- Restore stage and timeout after sending &quot;DONE&quot; in &quot;IDLE&quot; mode while
+  waiting for &quot;OK IDLE completed&quot;. Also, use default stage and timeout
+  when transacting &quot;NOOP&quot;.
+
+- After getting &quot;EXISTS&quot; while waiting for asynchronous response, send
+  a &quot;NOOP&quot; immediately to get an updated &quot;RECENT&quot; response too.
+
+- Have only one return statement in imap_idle(). Tracing the function
+  is now easier.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail-6.3/imap.c
+===================================================================
+--- fetchmail-6.3/imap.c	(revision 4705)
++++ fetchmail-6.3/imap.c	(working copy)
+@@ -621,7 +621,6 @@
+ {
+     int ok;
+ 
+-    stage = STAGE_IDLE;
+     saved_timeout = mytimeout;
+ 
+     if (has_idle) {
+@@ -629,6 +628,7 @@
+ 	 * at least every 28 minutes:
+ 	 * (the server may have an inactivity timeout) */
+ 	mytimeout = 1680; /* 28 min */
++	stage = STAGE_IDLE;
+ 	/* enter IDLE mode */
+ 	ok = gen_transact(sock, &quot;IDLE&quot;);
+ 
+@@ -637,37 +637,43 @@
+ 	    SockWrite(sock, &quot;DONE\r\n&quot;, 6);
+ 	    if (outlevel &gt;= O_MONITOR)
+ 		report(stdout, &quot;IMAP&gt; DONE\n&quot;);
+-	} else
+-	    /* not idle timeout */
+-	    return ok;
++	    /* reset stage and timeout here: we are not idling any more */
++	    mytimeout = saved_timeout;
++	    stage = STAGE_FETCH;
++	    /* get OK IDLE message */
++	    ok = imap_ok(sock, NULL);
++	}
+     } else {  /* no idle support, fake it */
+-	/* when faking an idle, we can't assume the server will
+-	 * send us the new messages out of the blue (RFC2060);
+-	 * this timeout is potentially the delay before we notice
+-	 * new mail (can be small since NOOP checking is cheap) */
+-	mytimeout = 28;
++	/* Note: stage and timeout have not been changed here as NOOP
++	 * does not idle */
+ 	ok = gen_transact(sock, &quot;NOOP&quot;);
+-	/* if there's an error (not likely) or we just found mail (stage 
+-	 * has changed, timeout has also been restored), we're done */
+-	if (ok != 0 || stage != STAGE_IDLE)
+-	    return(ok);
+ 
+-	/* wait (briefly) for an unsolicited status update */
+-	ok = imap_ok(sock, NULL);
+-	/* again, this is new mail or an error */
+-	if (ok != PS_IDLETIMEOUT)
+-	    return(ok);
++	/* no error, but no new mail either */
++	if (ok == PS_SUCCESS &amp;&amp; recentcount == 0)
++	{
++	    /* There are some servers who do send new mail
++	     * notification out of the blue. This is in compliance
++	     * with RFC 2060 section 5.3. Wait for that with a low
++	     * timeout */
++	    mytimeout = 28;
++	    stage = STAGE_IDLE;
++	    /* We are waiting for notification; no tag needed */
++	    tag[0] = '\0';
++	    /* wait (briefly) for an unsolicited status update */
++	    ok = imap_ok(sock, NULL);
++	    if (ok == PS_IDLETIMEOUT) {
++		/* no notification came; ok */
++		ok = PS_SUCCESS;
++	    }
++	}
+     }
+ 
+     /* restore normal timeout value */
++    set_timeout(0);
+     mytimeout = saved_timeout;
+     stage = STAGE_FETCH;
+ 
+-    /* get OK IDLE message */
+-    if (has_idle)
+-        return imap_ok(sock, NULL);
+-
+-    return PS_SUCCESS;
++    return(ok);
+ }
+ 
+ static int imap_getrange(int sock, 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000673.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+	<LI>Next message: <A HREF="000670.html">[fetchmail-devel] [PATCH] handle imap EXPUNGE better
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#682">[ date ]</a>
+              <a href="thread.html#682">[ thread ]</a>
+              <a href="subject.html#682">[ subject ]</a>
+              <a href="author.html#682">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

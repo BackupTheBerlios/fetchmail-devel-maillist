@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] imap search improvements
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20imap%20search%20improvements&In-Reply-To=%3C4B672AE7.8070508%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001221.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] imap search improvements</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20imap%20search%20improvements&In-Reply-To=%3C4B672AE7.8070508%40gmx.de%3E"
+       TITLE="[fetchmail-devel] imap search improvements">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Feb  1 20:26:31 CET 2010</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001221.html">[fetchmail-devel] [PATCH] Re: imap search improvements
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1220">[ date ]</a>
+              <a href="thread.html#1220">[ thread ]</a>
+              <a href="subject.html#1220">[ subject ]</a>
+              <a href="author.html#1220">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 28.01.2010 10:04, schrieb Sunil Shetye:
+
+&gt;<i> I am thinking of making some improvements to imap search in fetchmail.
+</I>&gt;<i> Please check which of these improvements are acceptable for fetchmail
+</I>&gt;<i> 6.3 series.
+</I>
+Dear Sunil,
+
+great!  All proposed changes are acceptable, with comments below, and I
+definitely trust your code.  All past contributions that passed through my hands
+were of excellent quality, so thanks a bunch!
+
+&gt;<i> ============================================================================================
+</I>&gt;<i> 1. In r3838, the &quot;SEARCH UNSEEN&quot; was changed to &quot;SEARCH UNSEEN NOT
+</I>&gt;<i> DELETED&quot;. Some imap servers do not support such a complex search
+</I>&gt;<i> phrase. I could find only one reference for that:
+</I>&gt;<i> 
+</I>&gt;<i> <A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2004-June/008897.html">http://lists.ccil.org/pipermail/fetchmail-friends/2004-June/008897.html</A>
+</I>&gt;<i> 
+</I>&gt;<i> I propose that that change should be undone.
+</I>&gt;<i> 
+</I>&gt;<i> Note that &quot;SEARCH UNSEEN NOT DELETED&quot; gives different result from
+</I>&gt;<i> &quot;SEARCH UNSEEN&quot; only when
+</I>&gt;<i> 
+</I>&gt;<i> - another e-mail client has marked some mails for deletion without
+</I>&gt;<i>   seeing,
+</I>&gt;<i> - that e-mail client has not expunged the deleted mails, and
+</I>&gt;<i> - fetchmail is keeping mails (so that fetchmail also has not expunged
+</I>&gt;<i>   the deleted mails).
+</I>&gt;<i> 
+</I>&gt;<i> The comment in the code reads:
+</I>&gt;<i> 
+</I>&gt;<i> /* don't count deleted messages, in case user enabled keep last time */
+</I>&gt;<i> 
+</I>&gt;<i> This comment is incorrect. This is because fetchmail always marks the
+</I>&gt;<i> mail as \Seen irrespective of whether fetchmail deletes it or keeps
+</I>&gt;<i> it. So, that mail will not show up in the next &quot;SEARCH UNSEEN&quot;.
+</I>
+Fixing comments is appreciated and always acceptable for supported versions.
+
+The issue reported 5 years ago refers to a regression on IMAP2 servers, and a
+regression fix is also always acceptable (though 6.2.X remains unsupported by
+me, I'm not releasing another 6.2.X - the fix will go into 6.3.X then).
+
+In the implementation of the fix, could you switch by protocol version to use
+the &quot;... NOT DELETED&quot; form for newer servers (IMAP4r1, not sure if IMAP4 also
+supports it), and the older &quot;SEARCH UNSEEN&quot; only in IMAP2?  That would give us
+the best of both approaches -- or perhaps we could just fall back to SEARCH
+UNSEEN if SEARCH UNSEEN NOT DELETED fails?
+
+&gt;<i> ============================================================================================
+</I>&gt;<i> 2. Some servers do not support &quot;SEARCH&quot; at all. Here are some
+</I>&gt;<i> references for that:
+</I>&gt;<i> 
+</I>&gt;<i> <A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2004-May/008675.html">http://lists.ccil.org/pipermail/fetchmail-friends/2004-May/008675.html</A>
+</I>&gt;<i> <A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2005-January/009351.html">http://lists.ccil.org/pipermail/fetchmail-friends/2005-January/009351.html</A>
+</I>&gt;<i> 
+</I>&gt;<i> In this case, as a fallback, fetchmail should use something like:
+</I>&gt;<i> 
+</I>&gt;<i> FETCH 1:1000 FLAGS
+</I>&gt;<i> 
+</I>&gt;<i> and process all mails without \Seen as unseen.
+</I>
+Much appreciated. OK since it extends fetchmail's audience.
+
+&gt;<i> ============================================================================================
+</I>&gt;<i> 3. The reply to &quot;SEARCH UNSEEN&quot; overflows fetchmail buffer when there
+</I>&gt;<i> are more than 1860 unseen mails. fetchmail should do a range search:
+</I>&gt;<i> 
+</I>&gt;<i> SEARCH 1:1000 UNSEEN
+</I>&gt;<i> SEARCH 1001:2000 UNSEEN
+</I>&gt;<i> ...
+</I>
+Desirable bug fix.
+
+Hope that helps.
+
+Looking forward to your patches!
+
+Best regards
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001221.html">[fetchmail-devel] [PATCH] Re: imap search improvements
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1220">[ date ]</a>
+              <a href="thread.html#1220">[ thread ]</a>
+              <a href="subject.html#1220">[ subject ]</a>
+              <a href="author.html#1220">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

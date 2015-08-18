@@ -1,0 +1,768 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Some PATRICIA numbers
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3Cop.vcyxbaef1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001372.html">
+   <LINK REL="Next"  HREF="001374.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Some PATRICIA numbers</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3Cop.vcyxbaef1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Some PATRICIA numbers">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed May 19 21:48:36 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001372.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+        <LI>Next message: <A HREF="001374.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1373">[ date ]</a>
+              <a href="thread.html#1373">[ thread ]</a>
+              <a href="subject.html#1373">[ subject ]</a>
+              <a href="author.html#1373">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 19.05.2010, 20:30 Uhr, schrieb Rainer Weikusat:
+
+&gt;<i> &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;<i>
+</I>&gt;<i> [...]
+</I>&gt;<i>
+</I>&gt;&gt;<i> please do (show an advance/preview version) - if you don't want to
+</I>&gt;&gt;<i> expose  it to the list yet for whatever reason, but want my comments,
+</I>&gt;&gt;<i> feel free to  send personal mail.
+</I>&gt;<i>
+</I>&gt;<i> I'll happily listen to anyone who has something more constructive to
+</I>&gt;<i> say about this than &quot;I hate it!&quot;. This is my last 'standalone test
+</I>&gt;<i> program'. It can be compiled and used to do testing/ measurement of
+</I>&gt;<i> the trie-code based on reading 'unique message IDs' from stdin which
+</I>&gt;<i> must point to 'something seekable'. The interface is known to be
+</I>&gt;<i> incomplete and the halfway integrated version contains everything in
+</I>&gt;<i> here and whatever was additionally needed in order to use this as
+</I>&gt;<i> 'backend' for the code in uid.c. My present approach to doing lookups
+</I>&gt;<i> based on 'message numbers' is very simplistic --- just an array going
+</I>&gt;<i> from 0 .. &lt;highest message number&gt;. There's a potential scalability
+</I>&gt;<i> issue in there: Realloc with a constant increment is O(n^2) when the
+</I>&gt;<i> memory area needs to be copied. If the pop3.c code works as I believe
+</I>&gt;<i> it does (inserts message numbers in increasing order), I will likely
+</I>
+Hi Rainer,
+
+thanks a lot!
+
+Regarding what you're writing:  We know the message count in advance,  
+because we query it (through STAT, in pop3_getrange()), so we have a good  
+guess of how many messages there are, and we need very few realloc(). Look  
+for *countp (a pointer passed by the caller) to get the message count.
+
+Message numbers are also ephemeral (i. e. not saved to disk), in case that  
+helps.
+
+&gt;<i> change this to additionally store the offset of the first element in
+</I>&gt;<i> the array to keep this shorter for the case when a large mailbox
+</I>&gt;<i> contains a few new messages at the end. I will also change the
+</I>&gt;<i> realloc-calculation to something more sensible (usually, this means
+</I>&gt;<i> doubling the allocated area every time it needs to grow.
+</I>&gt;<i>
+</I>&gt;<i> Any feedback on the implementation would be very welcome.
+</I>
+Looks quite alright at first glance. As a general remark, I wonder if it  
+would be worthwhile splitting the PATRICIA core code from the fetchmail  
+interfacing code.
+
+gets(DEST) is a no-go for me - please use fgets(DEST, sizeof(DEST),  
+stdin), even if it's just in test code.
+I've often wasted time debugging such test code because it wasn't half as  
+robust as the non-test code.
+
+Could I also ask that you spell out implicit &quot;int&quot; types, i. e. change  
+unsigned to unsigned int? Implicit int is obsolecscent usage. It is valid  
+C89, but causes C99 and C++ compiler complaints. Please spell out  
+&quot;unsigned int&quot;, or use uintfast_t or something like that.  I wonder if  
+using a typedef for the integers in the .h file would be useful.
+
+To give a feeling for compiler verbosity, I'm including compiler  
+diagnostics from three compilers below, omitting warnings for unused  
+variables, and more comments inline.
+
+=======================================================================================
+GCC 4.4:
+=======================================================================================
+
+$ gcc -O -Wc++-compat -std=c99 -Wall -Wextra -pedantic \
+       -o uidl_db uidl_db.c  -Wno-unused -Dinline=__inline__
+# -Dinline for -std=c89 :-)
+uidl_db.c: In function &#8216;init_uidl_db&#8217;:
+uidl_db.c:63: warning: request for implicit conversion from &#8216;void *&#8217; to  
+&#8216;struct uidl_record **&#8217; not permitted in C++
+uidl_db.c: At top level:
+uidl_db.c:69: warning: ISO C does not allow extra &#8216;;&#8217; outside of a function
+uidl_db.c: In function &#8216;walk_down&#8217;:
+uidl_db.c:83: warning: comparison between signed and unsigned integer  
+expressions
+uidl_db.c:85: warning: comparison between signed and unsigned integer  
+expressions
+uidl_db.c:93: warning: request for implicit conversion from &#8216;void *&#8217; to  
+&#8216;struct pat_node *&#8217; not permitted in C++
+uidl_db.c: In function &#8216;first_set_bit_in_char&#8217;:
+uidl_db.c:100: warning: implicit declaration of function &#8216;ffs&#8217;
+uidl_db.c: In function &#8216;get_pat_node&#8217;:
+uidl_db.c:152: warning: request for implicit conversion from &#8216;void *&#8217; to  
+&#8216;struct pat_node *&#8217; not permitted in C++
+uidl_db.c: In function &#8216;get_uidl_record&#8217;:
+uidl_db.c:242: warning: request for implicit conversion from &#8216;void *&#8217; to  
+&#8216;struct uidl_record *&#8217; not permitted in C++
+uidl_db.c:245: warning: request for implicit conversion from &#8216;void *&#8217; to  
+&#8216;char *&#8217; not permitted in C++
+uidl_db.c: In function &#8216;insert_into_records&#8217;:
+uidl_db.c:262: warning: request for implicit conversion from &#8216;void *&#8217; to  
+&#8216;struct uidl_record **&#8217; not permitted in C++
+uidl_db.c: In function &#8216;set_uidl_num&#8217;:
+uidl_db.c:299: warning: request for implicit conversion from &#8216;void *&#8217; to  
+&#8216;struct uidl_record **&#8217; not permitted in C++
+uidl_db.c: In function &#8216;find_uidl_by_id&#8217;:
+uidl_db.c:325: warning: comparison between signed and unsigned integer  
+expressions
+uidl_db.c:327: warning: comparison between signed and unsigned integer  
+expressions
+uidl_db.c:314: warning: &#8216;v&#8217; may be used uninitialized in this function
+/tmp/cc6WZFTd.o: In function `main':
+uidl_db.c:(.text+0x602): warning: the `gets' function is dangerous and  
+should not be used.
+
+I'm not so concerned about the extra ; or the implicit conversions, but I  
+am concerned about the signedness mismatches.
+
+The ffs declaration is harmless and fixed with &quot;#include &lt;strings.h&gt;&quot;.
+
+=======================================================================================
+Intel C++ 11.1:
+=======================================================================================
+
+$ icc -O -w2 -Wdeprecated -Wall -Wcheck -Wp64 -diag-disable 177,1418  
+-std=c99 -o uidl_db uidl_db.c
+uidl_db.c(69): remark #424: extra &quot;;&quot; ignored
+   };
+    ^
+
+uidl_db.c(92): warning #1684: conversion from pointer to same-sized  
+integral type (potential portability problem)
+   					offsetof(struct pat_node, ptrs_[2])
+   					^
+
+uidl_db.c(93): warning #1684: conversion from pointer to same-sized  
+integral type (potential portability problem)
+   					: offsetof(struct pat_node, ptrs_[0])));
+   					  ^
+
+uidl_db.c(100): warning #266: function &quot;ffs&quot; declared implicitly
+       return ffs(v) - 1;
+              ^
+
+uidl_db.c(119): remark #2259: non-pointer conversion from &quot;int&quot; to  
+&quot;unsigned char&quot; may lose significant bits
+   	v = r0-&gt;id[ofs] ^ r1-&gt;id[ofs];
+   	  ^
+
+uidl_db.c(244): warning #2259: non-pointer conversion from  
+&quot;size_t={unsigned long}&quot; to &quot;unsigned int&quot; may lose significant bits
+       id_len = strlen(id);
+              ^
+
+uidl_db.c(317): warning #2259: non-pointer conversion from  
+&quot;size_t={unsigned long}&quot; to &quot;unsigned int&quot; may lose significant bits
+       len = strlen(id);
+           ^
+
+/tmp/iccQw73Ea.o: In function `main':
+uidl_db.c:(.text+0x6d): warning: the `gets' function is dangerous and  
+should not be used.
+
+
+=======================================================================================
+And finally clang 2.7:
+=======================================================================================
+
+$ clang -pedantic -Wall -O3 -std=c99 -o uidl_db uidl_db.c
+uidl_db.c:69:2: warning: extra ';' outside of a function
+};
+  ^
+uidl_db.c:92:6: warning: using extended field designator is an extension  
+[-pedantic]
+                                         offsetof(struct pat_node, ptrs_[2])
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from uidl_db.c:11:
+In file included from /usr/include/stdlib.h:33:
+/usr/local/lib/clang/2.0/include/stddef.h:48:24: note: instantiated from:
+#define offsetof(t, d) __builtin_offsetof(t, d)
+                        ^
+uidl_db.c:93:8: warning: using extended field designator is an extension  
+[-pedantic]
+                                         : offsetof(struct pat_node,  
+ptrs_[0])));
+                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from uidl_db.c:11:
+In file included from /usr/include/stdlib.h:33:
+/usr/local/lib/clang/2.0/include/stddef.h:48:24: note: instantiated from:
+#define offsetof(t, d) __builtin_offsetof(t, d)
+                        ^
+uidl_db.c:100:12: warning: implicit declaration of function 'ffs' is  
+invalid in C99 [-Wimplicit-function-declaration]
+     return ffs(v) - 1;
+            ^
+...
+/tmp/cc-GdRjxd.o: In function `main':
+uidl_db.c:(.text+0x779): warning: the `gets' function is dangerous and  
+should not be used.
+
+
+
+=======================================================================================
+Further comments inlined below.
+=======================================================================================
+
+(sorry for the awkward quoting, that's an Opera M2 issue -- if someone has  
+an &quot;automatic mailing list folder/virtual folder generation tool&quot; add-on  
+that behaves similar to Opera so that I don't need to do the 100 lists  
+manually, I'd be grateful and switch soonish.)
+
+&gt;<i> -------------     uidl_db.h -------------------
+</I>&gt;<i> /*
+</I>&gt;<i>   uidl db
+</I>&gt;<i>
+</I>&gt;<i>   Copyright (c) 2010 MAD Partners, Ltd.
+</I>&gt;<i>
+</I>&gt;<i>   This file is being published according to the terms of the
+</I>&gt;<i>   GPLv2 license contained in the 6.3.17 release of fetchmail.
+</I>&gt;<i>
+</I>&gt;<i> */
+</I>&gt;<i> #ifndef fetchmail_uidl_db_h
+</I>&gt;<i> #define fetchmail_uidl_db_h
+</I>&gt;<i>
+</I>&gt;<i> /*  includes */
+</I>&gt;<i> #include &lt;stddef.h&gt;
+</I>&gt;<i>
+</I>&gt;<i> /*  types */
+</I>&gt;<i> struct uidl_record {
+</I>&gt;<i>     char *id;
+</I>&gt;<i>     unsigned id_len;
+</I>&gt;<i>    unsigned num, status, pos;
+</I>&gt;<i>
+</I>&gt;<i>     struct uidl_record *next;
+</I>&gt;<i> };
+</I>&gt;<i>
+</I>&gt;<i> struct pat_node;
+</I>&gt;<i>
+</I>&gt;<i> struct uidl_db
+</I>&gt;<i> {
+</I>&gt;<i>     struct pat_node *pat_root;
+</I>&gt;<i>    struct uidl_record **records;
+</I>&gt;<i>     unsigned records_max, records_next;
+</I>
+What's the difference between _max and _next?  Should probably be  
+documented in the .h file later, although it seems quite clear from the  
+init_uid_db() function.
+
+&gt;<i>    struct uidl_record **num_ndx;
+</I>&gt;<i>     unsigned num_ndx_max;
+</I>&gt;<i> };
+</I>&gt;<i>
+</I>&gt;<i> /*  routines */
+</I>&gt;<i> void init_uidl_db(struct uidl_db *db);
+</I>
+I wonder if it would be good to start all functions with uidl_*  
+consistently, for namespace purity.
+
+&gt;<i>
+</I>&gt;<i> struct uidl_record *insert_uidl(struct uidl_db *db,
+</I>&gt;<i> 				char const *id, unsigned status);
+</I>&gt;<i>
+</I>&gt;<i> struct uidl_record *insert_uidl_noindex(struct uidl_db *db,
+</I>&gt;<i> 					char const *id,
+</I>&gt;<i> 					unsigned status);
+</I>&gt;<i>
+</I>&gt;<i> void set_uidl_num(struct uidl_db *db, struct uidl_record *rec,
+</I>&gt;<i> 		  unsigned num);
+</I>&gt;<i>
+</I>&gt;<i> struct uidl_record *find_uidl_by_id(struct uidl_db *db, char const *id);
+</I>&gt;<i>
+</I>&gt;<i> static inline struct uidl_record *
+</I>&gt;<i> find_uidl_by_num(struct uidl_db *db, unsigned num)
+</I>&gt;<i> {
+</I>&gt;<i>     return num &lt; db-&gt;num_ndx_max ? db-&gt;num_ndx[num] : NULL;
+</I>&gt;<i> }
+</I>&gt;<i> static inline struct uidl_record *
+</I>&gt;<i> find_uidl_by_pos(struct uidl_db *db, unsigned pos)
+</I>&gt;<i> {
+</I>&gt;<i>     return pos &lt; db-&gt;records_next ? db-&gt;records[pos] : NULL;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static inline struct uidl_record *
+</I>&gt;<i> first_uidl_in_db(struct uidl_db *db, char const *id)
+</I>&gt;<i> {
+</I>&gt;<i>     return find_uidl_by_id(db, id);
+</I>&gt;<i> }
+</I>&gt;<i> struct uidl_record *last_uidl_in_db(struct uidl_db *db, char const *id);
+</I>&gt;<i>
+</I>&gt;<i> #endif
+</I>&gt;<i> ---------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> ------------------- uidl_db.c -----------------
+</I>&gt;<i> /*
+</I>&gt;<i>   uidl db
+</I>&gt;<i>
+</I>&gt;<i>   Copyright (c) 2010 MAD Partners, Ltd.
+</I>&gt;<i>
+</I>&gt;<i>   This file is being published according to the terms of the
+</I>&gt;<i>   GPLv2 license contained in the 6.3.17 release of fetchmail.
+</I>&gt;<i> */
+</I>&gt;<i>
+</I>&gt;<i> /*  includes */
+</I>&gt;<i> #include &lt;stdlib.h&gt;			
+</I>&gt;<i> #include &lt;stdio.h&gt;
+</I>&gt;<i> #include &lt;string.h&gt;
+</I>
+Please add, for ffs:
+
+#include &lt;strings.h&gt;
+
+&gt;<i> #include &quot;uidl_db.h&quot;
+</I>&gt;<i>
+</I>&gt;<i> /*  constants */
+</I>&gt;<i> enum {
+</I>&gt;<i>     MIN_RECORDS =	16
+</I>&gt;<i> };
+</I>&gt;<i>
+</I>&gt;<i> /*  types */
+</I>&gt;<i> struct pat_node {
+</I>&gt;<i>     struct pat_node *ptrs_[3];
+</I>&gt;<i>     unsigned bit_ndx, bit_mask;
+</I>&gt;<i>
+</I>&gt;<i>     struct uidl_record *rec;
+</I>&gt;<i> };
+</I>&gt;<i>
+</I>&gt;<i> /*
+</I>&gt;<i>   The idea behind this is that the 'left' pointer is at -1 and
+</I>&gt;<i>   the 'right' pointer at 1. This implies that dealing with 'symmetric
+</I>&gt;<i>   cases' for left and right pointers isn't necessary. There's always
+</I>&gt;<i>   just 'this pointer' (offset n) and 'the other pointer' (offset -n).
+</I>&gt;<i> */
+</I>&gt;<i> #define ptrs(p) ((p)-&gt;ptrs_ + 1)
+</I>&gt;<i>
+</I>&gt;<i> /*  routines */
+</I>&gt;<i> void *xmalloc(size_t len)
+</I>&gt;<i> {
+</I>&gt;<i>     return malloc(len);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> void *xrealloc(void *p, size_t new_size)
+</I>&gt;<i> {
+</I>&gt;<i>     return realloc(p, new_size);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static inline unsigned bit_ofs(unsigned bit_ndx)
+</I>&gt;<i> {
+</I>&gt;<i>     return bit_ndx &gt;&gt; 3;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static inline unsigned bit_mask(unsigned bit_ndx)
+</I>&gt;<i> {
+</I>&gt;<i>     return 1 &lt;&lt; (bit_ndx &amp; 7);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> void init_uidl_db(struct uidl_db *db)
+</I>&gt;<i> {
+</I>&gt;<i>     db-&gt;pat_root = NULL;
+</I>&gt;<i>    db-&gt;records = xmalloc(MIN_RECORDS * sizeof(*db-&gt;records));
+</I>&gt;<i>     db-&gt;records_max = MIN_RECORDS;
+</I>&gt;<i>     db-&gt;records_next = 0;
+</I>&gt;<i>
+</I>&gt;<i>     db-&gt;num_ndx = NULL;
+</I>&gt;<i>     db-&gt;num_ndx_max = 0;
+</I>&gt;<i> };
+</I>&gt;<i>
+</I>&gt;<i> static struct pat_node *walk_down(struct uidl_db *db, struct uidl_record  
+</I>&gt;<i> *rec,
+</I>&gt;<i> 				  struct pat_node ***edgep, struct pat_node **parentp)
+</I>&gt;<i> {
+</I>&gt;<i>     struct pat_node *cur, **edge;
+</I>&gt;<i>     unsigned bit_ndx, v;
+</I>&gt;<i>     int ofs;
+</I>&gt;<i>
+</I>&gt;<i>     cur = db-&gt;pat_root;
+</I>&gt;<i>     ofs = -1;
+</I>&gt;<i>     do {
+</I>&gt;<i> 	bit_ndx = cur-&gt;bit_ndx;
+</I>&gt;<i>
+</I>&gt;<i> 	if (bit_ofs(bit_ndx) != ofs) {
+</I>&gt;<i> 	    ofs = bit_ofs(bit_ndx);
+</I>&gt;<i> 	    v = ofs &lt; rec-&gt;id_len ? rec-&gt;id[ofs] : 0;
+</I>&gt;<i> 	}
+</I>&gt;<i> 	
+</I>&gt;<i> 	edge = ptrs(cur) + (v &amp; cur-&gt;bit_mask ? 1 : -1);
+</I>&gt;<i>     } while ((cur = *edge) &amp;&amp; cur-&gt;bit_ndx &gt; bit_ndx);
+</I>&gt;<i>
+</I>&gt;<i>     *parentp = (void *)((char *)edge - (v &amp; bit_mask(bit_ndx) ?
+</I>&gt;<i> 					offsetof(struct pat_node, ptrs_[2])
+</I>&gt;<i> 					: offsetof(struct pat_node, ptrs_[0])));
+</I>&gt;<i>     *edgep = edge;
+</I>&gt;<i>     return cur;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static inline unsigned first_set_bit_in_char(unsigned v)
+</I>&gt;<i> {
+</I>&gt;<i>     return ffs(v) - 1;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static int find_first_diff_bit(struct uidl_record const *r0,
+</I>&gt;<i> 			       struct uidl_record const *r1)
+</I>&gt;<i> {
+</I>&gt;<i>     struct uidl_record const *long_id;
+</I>&gt;<i>     unsigned ofs, max;
+</I>&gt;<i>     unsigned char v;
+</I>&gt;<i>
+</I>&gt;<i>     max = r0-&gt;id_len;
+</I>&gt;<i>     if (max &gt; r1-&gt;id_len) {
+</I>&gt;<i> 	max = r1-&gt;id_len;
+</I>&gt;<i> 	long_id = r0;
+</I>&gt;<i>     } else
+</I>&gt;<i> 	long_id = r1;
+</I>&gt;<i> 	
+</I>&gt;<i>     ofs = 0;
+</I>&gt;<i>     do
+</I>&gt;<i> 	v = r0-&gt;id[ofs] ^ r1-&gt;id[ofs];
+</I>&gt;<i>     while (!v &amp;&amp; ++ofs &lt; max);
+</I>&gt;<i>
+</I>&gt;<i>     if (!v) {
+</I>&gt;<i> 	if (r0-&gt;id_len == r1-&gt;id_len) return -1;
+</I>&gt;<i> 	v = long_id-&gt;id[ofs];
+</I>&gt;<i>     }
+</I>&gt;<i>
+</I>&gt;<i>     return first_set_bit_in_char(v) + ofs * 8;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static inline int record_id_equal(struct uidl_record const *r0,
+</I>&gt;<i> 				  struct uidl_record const *r1)
+</I>&gt;<i> {
+</I>&gt;<i>     return
+</I>&gt;<i> 	r0-&gt;id_len == r1-&gt;id_len
+</I>&gt;<i> 	&amp;&amp; memcmp(r0-&gt;id, r1-&gt;id, r0-&gt;id_len) == 0;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static struct uidl_record *append_to_list(struct uidl_record **recp,
+</I>&gt;<i> 					  struct uidl_record *rec)
+</I>&gt;<i> {
+</I>&gt;<i>     while (*recp) recp = &amp;(*recp)-&gt;next;
+</I>&gt;<i>     *recp = rec;
+</I>&gt;<i>    rec-&gt;next = NULL;
+</I>&gt;<i>     return rec;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static struct pat_node *get_pat_node(struct uidl_record *rec)
+</I>&gt;<i> {
+</I>&gt;<i>     struct pat_node *np;
+</I>&gt;<i>
+</I>&gt;<i>     np = xmalloc(sizeof(*np));
+</I>&gt;<i>     np-&gt;rec = rec;
+</I>&gt;<i>     rec-&gt;next = NULL;
+</I>&gt;<i>     return np;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static struct pat_node *get_standalone_node(struct uidl_record *rec)
+</I>&gt;<i> {
+</I>&gt;<i>     struct pat_node *np;
+</I>&gt;<i>
+</I>&gt;<i>     np = get_pat_node(rec);
+</I>&gt;<i>     np-&gt;bit_ndx = first_set_bit_in_char(*rec-&gt;id);
+</I>&gt;<i>     np-&gt;bit_mask = bit_mask(np-&gt;bit_ndx);
+</I>&gt;<i>     return np;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static inline unsigned bit_set(unsigned bit_ndx, struct uidl_record  
+</I>&gt;<i> const *rec)
+</I>&gt;<i> {
+</I>&gt;<i>     unsigned ofs;
+</I>&gt;<i>
+</I>&gt;<i>     ofs = bit_ofs(bit_ndx);
+</I>&gt;<i>     if (ofs &gt;= rec-&gt;id_len) return 0;
+</I>&gt;<i>     return rec-&gt;id[ofs] &amp; bit_mask(bit_ndx);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static inline struct pat_node *walk_up(unsigned diff_ndx, struct  
+</I>&gt;<i> pat_node **parent)
+</I>&gt;<i> {
+</I>&gt;<i>     struct pat_node *p, *np;
+</I>&gt;<i>
+</I>&gt;<i>     np = *parent;
+</I>&gt;<i>    while ((p = *ptrs(np)) &amp;&amp; p-&gt;bit_ndx &gt; diff_ndx)
+</I>&gt;<i> 	np = p;
+</I>&gt;<i>
+</I>&gt;<i>     *parent = p;
+</I>&gt;<i>     return np;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static struct uidl_record *pat_insert(struct uidl_db *db,
+</I>&gt;<i> 				      struct uidl_record *rec)
+</I>&gt;<i> {
+</I>&gt;<i>     struct pat_node *np, *closest, *parent, **edge;
+</I>&gt;<i>     int me, bit_ndx;
+</I>&gt;<i>
+</I>&gt;<i>     if (!db-&gt;pat_root) {
+</I>&gt;<i> 	np = get_standalone_node(rec);
+</I>&gt;<i> 	ptrs(np)[-1] = *ptrs(np) = NULL;
+</I>&gt;<i> 	ptrs(np)[1] = np;
+</I>&gt;<i> 	
+</I>&gt;<i> 	db-&gt;pat_root = np;
+</I>&gt;<i> 	return rec;
+</I>&gt;<i>     }
+</I>&gt;<i>
+</I>&gt;<i>     closest = walk_down(db, rec, &amp;edge, &amp;parent);
+</I>&gt;<i>
+</I>&gt;<i>     if (closest) {
+</I>&gt;<i> 	bit_ndx = find_first_diff_bit(closest-&gt;rec, rec);
+</I>&gt;<i> 	if (bit_ndx &lt; 0)
+</I>&gt;<i> 	    return append_to_list(&amp;closest-&gt;rec-&gt;next, rec);
+</I>&gt;<i>
+</I>&gt;<i> 	np = get_pat_node(rec);
+</I>&gt;<i> 	np-&gt;bit_ndx = bit_ndx;
+</I>&gt;<i> 	np-&gt;bit_mask = bit_mask(bit_ndx);
+</I>&gt;<i>     } else
+</I>&gt;<i> 	np = get_standalone_node(rec);
+</I>&gt;<i>
+</I>&gt;<i>     if (parent-&gt;bit_ndx &gt; np-&gt;bit_ndx) {
+</I>&gt;<i> 	closest = walk_up(np-&gt;bit_ndx, &amp;parent);
+</I>&gt;<i>
+</I>&gt;<i> 	if (!parent) edge = &amp;db-&gt;pat_root;
+</I>&gt;<i> 	else edge = ptrs(parent)[-1] == closest ?
+</I>&gt;<i> 		 ptrs(parent) - 1 : ptrs(parent) + 1;
+</I>&gt;<i> 	*ptrs(closest) = np;
+</I>&gt;<i>     }
+</I>&gt;<i>    *edge = np;
+</I>&gt;<i>     *ptrs(np) = parent;
+</I>&gt;<i>
+</I>&gt;<i>     me = bit_set(np-&gt;bit_ndx, rec) ? 1 : -1;
+</I>&gt;<i>     ptrs(np)[me] = np;
+</I>&gt;<i>     ptrs(np)[-me] = closest;
+</I>&gt;<i>
+</I>&gt;<i>     return rec;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static struct uidl_record *get_uidl_record(char const *id, unsigned  
+</I>&gt;<i> status)
+</I>&gt;<i> {
+</I>&gt;<i>     struct uidl_record *rec;
+</I>&gt;<i>     unsigned id_len;
+</I>&gt;<i>
+</I>&gt;<i>     rec = xmalloc(sizeof(*rec));
+</I>&gt;<i>
+</I>&gt;<i>     id_len = strlen(id);
+</I>&gt;<i>     rec-&gt;id = memcpy(xmalloc(id_len + 1), id, id_len + 1);
+</I>&gt;<i>     rec-&gt;id_len = id_len;
+</I>&gt;<i>     rec-&gt;status = status;
+</I>&gt;<i>     rec-&gt;num = 0;
+</I>&gt;<i>
+</I>&gt;<i>     return rec;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static struct uidl_record *insert_into_records(struct uidl_db *db,
+</I>&gt;<i> 					       struct uidl_record *rec)
+</I>&gt;<i> {
+</I>&gt;<i>     unsigned next, want;
+</I>&gt;<i>
+</I>&gt;<i>     next = db-&gt;records_next;
+</I>&gt;<i>    if (next == db-&gt;records_max) {
+</I>&gt;<i> 	want = db-&gt;records_max *= 2;
+</I>&gt;<i> 	db-&gt;records = xrealloc(db-&gt;records, want * sizeof(rec));
+</I>&gt;<i>     }
+</I>&gt;<i>
+</I>&gt;<i>     rec-&gt;pos = next;
+</I>&gt;<i>     db-&gt;records[next] = rec;
+</I>&gt;<i>     db-&gt;records_next = next + 1;
+</I>&gt;<i>
+</I>&gt;<i>     return rec;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> struct uidl_record *insert_uidl(struct uidl_db *db,
+</I>&gt;<i> 				char const *id, unsigned status)
+</I>&gt;<i> {
+</I>&gt;<i>     struct uidl_record *rec;
+</I>&gt;<i>
+</I>&gt;<i>     rec = insert_uidl_noindex(db, id, status);
+</I>&gt;<i>     return pat_insert(db, rec);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> struct uidl_record *insert_uidl_noindex(struct uidl_db *db,
+</I>&gt;<i> 					char const *id, unsigned status)
+</I>&gt;<i> {
+</I>&gt;<i>     struct uidl_record *rec;
+</I>&gt;<i>
+</I>&gt;<i>    rec = get_uidl_record(id, status);
+</I>&gt;<i>     return insert_into_records(db, rec);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> void set_uidl_num(struct uidl_db *db, struct uidl_record *rec,
+</I>&gt;<i> 		  unsigned num)
+</I>&gt;<i> {
+</I>&gt;<i>     unsigned want, have;
+</I>&gt;<i>
+</I>&gt;<i>     have = db-&gt;num_ndx_max;
+</I>&gt;<i>     if (num &gt;= have) {
+</I>&gt;<i> 	want = num + MIN_RECORDS;
+</I>&gt;<i> 	db-&gt;num_ndx = xrealloc(db-&gt;num_ndx, want * sizeof(*db-&gt;num_ndx));
+</I>&gt;<i> 	db-&gt;num_ndx_max = want;
+</I>&gt;<i>
+</I>&gt;<i> 	do db-&gt;num_ndx[--want] = NULL; while (want &gt; have);
+</I>&gt;<i>     }
+</I>&gt;<i>
+</I>&gt;<i>     db-&gt;num_ndx[num] = rec;
+</I>&gt;<i>     rec-&gt;num = num;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> struct uidl_record *find_uidl_by_id(struct uidl_db *db, char const *id)
+</I>&gt;<i> {
+</I>&gt;<i>     static unsigned step_sum, searches;
+</I>&gt;<i>     struct pat_node *np;
+</I>&gt;<i>     struct uidl_record *rec;
+</I>&gt;<i>     unsigned v, bit_ndx, len;
+</I>&gt;<i>     int ofs;
+</I>&gt;<i>    len = strlen(id);
+</I>&gt;<i>    np = db-&gt;pat_root;
+</I>&gt;<i>     if (np) {
+</I>&gt;<i> 	ofs = -1;
+</I>&gt;<i> 	do {
+</I>&gt;<i> 	    bit_ndx = np-&gt;bit_ndx;
+</I>&gt;<i>
+</I>&gt;<i> 	    if (bit_ofs(bit_ndx) != ofs) {
+</I>&gt;<i> 		ofs = bit_ofs(bit_ndx);
+</I>&gt;<i> 		v = ofs &lt; len ? id[ofs] : 0;
+</I>&gt;<i> 	    }
+</I>&gt;<i>
+</I>&gt;<i> 	    np = ptrs(np)[v &amp; np-&gt;bit_mask ? 1 : -1];
+</I>&gt;<i> 	} while (np &amp;&amp; np-&gt;bit_ndx &gt; bit_ndx);
+</I>&gt;<i>
+</I>&gt;<i> 	if (!np) return NULL;
+</I>&gt;<i>
+</I>&gt;<i> 	rec = np-&gt;rec;
+</I>&gt;<i> 	return rec-&gt;id_len == len &amp;&amp; memcmp(id, rec-&gt;id, len) == 0 ?
+</I>&gt;<i> 	    rec : NULL;
+</I>&gt;<i>     }
+</I>&gt;<i>
+</I>&gt;<i> #if 0
+</I>&gt;<i>     report(stderr, GT_(&quot;id search in unindexed db\n&quot;));
+</I>&gt;<i> #endif
+</I>&gt;<i>
+</I>&gt;<i>     ofs = db-&gt;records_next;
+</I>&gt;<i>     while (ofs) {
+</I>&gt;<i> 	rec = db-&gt;records[--ofs];
+</I>&gt;<i> 	if (rec-&gt;id_len == len &amp;&amp; memcmp(rec-&gt;id, id, len) == 0)
+</I>&gt;<i> 	    return rec;
+</I>&gt;<i>     }
+</I>&gt;<i>
+</I>&gt;<i>     return 0;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> struct uidl_record *last_uidl_in_db(struct uidl_db *db, char const *id)
+</I>&gt;<i> {
+</I>&gt;<i>     struct uidl_record *rec;
+</I>&gt;<i>
+</I>&gt;<i>     rec = find_uidl_by_id(db, id);
+</I>&gt;<i>     if (!rec) return NULL;
+</I>&gt;<i>
+</I>&gt;<i>     while (rec-&gt;next) rec = rec-&gt;next;
+</I>&gt;<i>     return rec;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static void free_uidl_list(struct uidl_record *rec)
+</I>&gt;<i> {
+</I>&gt;<i>     if (rec-&gt;next) free_uidl_list(rec-&gt;next);
+</I>&gt;<i>
+</I>&gt;<i>     free(rec-&gt;id);
+</I>&gt;<i>     free(rec);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> static void free_pat_trie(struct pat_node *np)
+</I>&gt;<i> {
+</I>&gt;<i>     struct pat_node *child;
+</I>&gt;<i>
+</I>&gt;<i>     child = ptrs(np)[-1];
+</I>&gt;<i>     if (child &amp;&amp; child-&gt;bit_ndx &gt; np-&gt;bit_ndx) free_pat_trie(child);
+</I>&gt;<i>
+</I>&gt;<i>     child = ptrs(np)[1];
+</I>&gt;<i>     if (child-&gt;bit_ndx &gt; np-&gt;bit_ndx) free_pat_trie(child);
+</I>&gt;<i>
+</I>&gt;<i>     free_uidl_list(np-&gt;rec);
+</I>&gt;<i>     free(np);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> void free_uidl_db(struct uidl_db *db)
+</I>&gt;<i> {
+</I>&gt;<i>     struct uidl_record *rec;
+</I>&gt;<i>     unsigned ndx;
+</I>&gt;<i>    if (db-&gt;pat_root) free_pat_trie(db-&gt;pat_root);
+</I>&gt;<i>
+</I>&gt;<i>     free(db-&gt;records);
+</I>&gt;<i>     free(db-&gt;num_ndx);
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> /*  test code */
+</I>&gt;<i> int main(void)
+</I>&gt;<i> {
+</I>&gt;<i>     struct uidl_db db;
+</I>&gt;<i>     struct uidl_record *rec;
+</I>&gt;<i>     unsigned n;
+</I>&gt;<i>     char buf[80];
+</I>&gt;<i>    init_uidl_db(&amp;db);
+</I>&gt;<i>     while (gets(buf)) insert_uidl(&amp;db, buf, 0);
+</I>&gt;<i>
+</I>&gt;<i>     n = 1000;
+</I>&gt;<i>     while (n--) {
+</I>&gt;<i> 	fseek(stdin, 0, 0);
+</I>&gt;<i> 	while (gets(buf)) {
+</I>&gt;<i> 	    rec = find_uidl_by_id(&amp;db, buf);
+</I>&gt;<i> 	    if (!rec || strcmp(rec-&gt;id, buf) != 0)
+</I>&gt;<i> 		fprintf(stderr, &quot;not found\n&quot;);
+</I>&gt;<i> 	}
+</I>&gt;<i>     }
+</I>&gt;<i>    return 0;
+</I>&gt;<i> }
+</I>&gt;<i> ---------------------------------------------
+</I>
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001372.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+	<LI>Next message: <A HREF="001374.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1373">[ date ]</a>
+              <a href="thread.html#1373">[ thread ]</a>
+              <a href="subject.html#1373">[ subject ]</a>
+              <a href="author.html#1373">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

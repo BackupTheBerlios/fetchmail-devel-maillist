@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] patch review: 2003-05-22-6.2.2-hirsch-keeptopuidl.diff and 2003-05-24-6.2.2-andree-keeptopuidl.diff
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20patch%20review%3A%202003-05-22-6.2.2-hirsch-keeptopuidl.diff%20and%202003-05-24-6.2.2-andree-keeptopuidl.diff&In-Reply-To=%3Cm31xihoo5i.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000103.html">
+   <LINK REL="Next"  HREF="000110.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] patch review: 2003-05-22-6.2.2-hirsch-keeptopuidl.diff and 2003-05-24-6.2.2-andree-keeptopuidl.diff</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20patch%20review%3A%202003-05-22-6.2.2-hirsch-keeptopuidl.diff%20and%202003-05-24-6.2.2-andree-keeptopuidl.diff&In-Reply-To=%3Cm31xihoo5i.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] patch review: 2003-05-22-6.2.2-hirsch-keeptopuidl.diff and 2003-05-24-6.2.2-andree-keeptopuidl.diff">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Sun Aug  8 13:38:33 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000103.html">[fetchmail-devel] patch review: 2004-05-24-6.2.2-guerrini-pop3x.diff and 2003-05-14-6.2.2-guerrini-pop3x.diff
+</A></li>
+        <LI>Next message: <A HREF="000110.html">[fetchmail-devel] Re: patch review: 2003-05-22-6.2.2-hirsch-keeptopuidl.diff and 2003-05-24-6.2.2-andree-keeptopuidl.diff
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#104">[ date ]</a>
+              <a href="thread.html#104">[ thread ]</a>
+              <a href="subject.html#104">[ subject ]</a>
+              <a href="author.html#104">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Greetings,
+
+here are some thoughts on 
+
+2003-05-22-6.2.2-hirsch-keeptopuidl.diff
+2003-05-24-6.2.2-andree-keeptopuidl.diff
+
+Jakob Hirsch observed that the --keep option defeats the use of TOP. His
+patch no longer applies to the SVN version, here's an updated version of
+his patch:
+
+Index: pop3.c
+===================================================================
+--- pop3.c	(revision 3925)
++++ pop3.c	(working copy)
+@@ -589,7 +589,7 @@
+     sleep(3); /* to be _really_ safe, probably need sleep(5)! */
+ 
+     /* we're peek-capable if use of TOP is enabled */
+-    peek_capable = !(ctl-&gt;fetchall || ctl-&gt;keep);
++    peek_capable = !(ctl-&gt;fetchall || (ctl-&gt;keep &amp;&amp; !ctl-&gt;server.uidl));
+ 
+     /* we're approved */
+     return(PS_SUCCESS);
+@@ -1102,7 +1102,7 @@
+      * The line count passed (99999999) is the maximum value CompuServe will
+      * accept; it's much lower than the natural value 2147483646 (the maximum
+      * twos-complement signed 32-bit integer minus 1) */
+-    if (ctl-&gt;keep || ctl-&gt;fetchall)
++    if (!peek_capable)
+ 	gen_send(sock, &quot;RETR %d&quot;, number);
+     else
+ 	gen_send(sock, &quot;TOP %d 99999999&quot;, number);
+
+
+-- 
+Matthias Andree
+
+NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000103.html">[fetchmail-devel] patch review: 2004-05-24-6.2.2-guerrini-pop3x.diff and 2003-05-14-6.2.2-guerrini-pop3x.diff
+</A></li>
+	<LI>Next message: <A HREF="000110.html">[fetchmail-devel] Re: patch review: 2003-05-22-6.2.2-hirsch-keeptopuidl.diff and 2003-05-24-6.2.2-andree-keeptopuidl.diff
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#104">[ date ]</a>
+              <a href="thread.html#104">[ thread ]</a>
+              <a href="subject.html#104">[ subject ]</a>
+              <a href="author.html#104">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

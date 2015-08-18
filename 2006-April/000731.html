@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Workaround%20for%20unavoidable%20SSL%20CommonName%20mismatch%3F&In-Reply-To=%3C20060425045032.GA7169%40mail.iSKUNK.ORG%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000728.html">
+   <LINK REL="Next"  HREF="000729.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?</H1>
+    <B>Daniel Richard G.</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Workaround%20for%20unavoidable%20SSL%20CommonName%20mismatch%3F&In-Reply-To=%3C20060425045032.GA7169%40mail.iSKUNK.ORG%3E"
+       TITLE="[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?">skunk at iSKUNK.ORG
+       </A><BR>
+    <I>Tue Apr 25 06:50:34 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000728.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+        <LI>Next message: <A HREF="000729.html">[fetchmail-devel] Wish: fetchids via database
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#731">[ date ]</a>
+              <a href="thread.html#731">[ thread ]</a>
+              <a href="subject.html#731">[ subject ]</a>
+              <a href="author.html#731">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Mon, 2006 Apr 24 14:49:19 +0200, Matthias Andree wrote:
+&gt;<i> 
+</I>&gt;<i> I'll ponder this a bit, and see if &quot;aka&quot; or &quot;via&quot; should be overloaded
+</I>&gt;<i> or a new option be introduced. I usually prefer separate options because
+</I>&gt;<i> sooner or later someone will find a use case where overloading a token
+</I>&gt;<i> restricts flexibility again and the initial enthusiasum for saving yet
+</I>&gt;<i> another token turns into frustration because existing documentation,
+</I>&gt;<i> practice and configuration locks the software in to its former way of
+</I>&gt;<i> overloading the token for quite a while.
+</I>
+That sounds suspiciously like wisdom :-)
+
+Maybe something like &quot;sslalternate&quot; (or &quot;sslalt&quot;), given that this would 
+essentially simulate an alternate-name on the server certificate. This 
+could more reasonably become a new field in X509_STORE_CTX, which makes the 
+integration cleaner.
+
+(I can try my hand at a patch, if you like... any pointers/caveats I should 
+know?)
+
+&gt;<i> Currently the expected name is the &quot;via&quot; name if given, otherwise the
+</I>&gt;<i> poll name.
+</I>
+And the proposed new feature/keyword would basically be the reverse of 
+that. Hmm.
+
+&gt;<i> &gt; That's what I'm doing for now, but I still get the &quot;CommonName mismatch&quot; 
+</I>&gt;<i> &gt; warnings. (Twice for every connection, in fact.) I want to get rid of 
+</I>&gt;<i> 
+</I>&gt;<i> Which indicates that you are running a version before 6.3.4. This
+</I>&gt;<i> version fixed this particular issue (well, as long as &quot;sslcertck&quot; isn't
+</I>&gt;<i> enabled, which would deliberately turn the CN mismatch into a fatal
+</I>&gt;<i> socket errors anyways).
+</I>
+Yes indeed... 6.2.5, as shipped with Debian sarge :&gt;
+
+*download* *download* *build* *build*
+
+Okay, I have 6.3.4 now. Strike that second warning....
+
+
+--Daniel
+
+
+-- 
+NAME   = Daniel Richard G.       ##  Remember, skunks       _\|/_  meef?
+EMAIL1 = <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">skunk at iskunk.org</A>        ##  don't smell bad---    (/o|o\) /
+EMAIL2 = <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">skunk at alum.mit.edu</A>      ##  it's the people who   &lt; (^),&gt;
+WWW    = <A HREF="http://www.******.org/">http://www.******.org/</A>  ##  annoy them that do!    /   \
+--
+(****** = site not yet online)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000728.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+	<LI>Next message: <A HREF="000729.html">[fetchmail-devel] Wish: fetchids via database
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#731">[ date ]</a>
+              <a href="thread.html#731">[ thread ]</a>
+              <a href="subject.html#731">[ subject ]</a>
+              <a href="author.html#731">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

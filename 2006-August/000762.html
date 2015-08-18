@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Continuation%20of%20%22Domino%20IMAP%20and%20missing%0A%09Content-Transfer-Encoding%22&In-Reply-To=%3Cm3lkpysx60.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000761.html">
+   <LINK REL="Next"  HREF="000763.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Continuation%20of%20%22Domino%20IMAP%20and%20missing%0A%09Content-Transfer-Encoding%22&In-Reply-To=%3Cm3lkpysx60.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Aug  9 00:03:03 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000761.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+        <LI>Next message: <A HREF="000763.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#762">[ date ]</a>
+              <a href="thread.html#762">[ thread ]</a>
+              <a href="subject.html#762">[ subject ]</a>
+              <a href="author.html#762">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Jason Ostermann &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">josterm at raytheon.com</A>&gt; writes:
+
+&gt;&gt;<i> Heck, can't vendors be bothered to repair the known defects in their
+</I>&gt;&gt;<i> software or at least sponsor workarounds in third-party software they
+</I>&gt;&gt;<i> are breaking?
+</I>&gt;<i>
+</I>&gt;<i> Agreed. Of course, if I had a say (or if any of my fellow 80,000 minions 
+</I>&gt;<i> had a say) we'd not be using Lotus.
+</I>&gt;<i>
+</I>&gt;&gt;<i>   BODY.PEEK[HEADER.FIELDS (MIME-Version Content-Type Content-Transfer-Encoding Content-Disposition)]
+</I>
+&gt;<i> This returned the fields, although only the Content-Transfer-Encoding 
+</I>&gt;<i> was missing from the RFC822 header output.
+</I>
+OK, so we'll have to re-request that header.
+
+&gt;&gt;<i> What does
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i>   FETCH 1 BODYSTRUCTURE
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> give you (replace 1 by the number of a 'broken' message)?
+</I>&gt;<i>
+</I>&gt;<i> * 574 FETCH (BODYSTRUCTURE (&quot;text&quot; &quot;html&quot;  (&quot;charset&quot; &quot;ISO-8859-1&quot;) NIL 
+</I>&gt;<i> NIL &quot;quoted-printable&quot; 1287 22 NIL NIL NIL))
+</I>&gt;<i> I don't know how to parse this output, although the strings presented 
+</I>&gt;<i> are correct. Don't know what the numbers are supposed to reflect.
+</I>
+These are the contents of some headers, see section 7.4.2 in RFC-3501.
+
+&gt;<i> Sadly, I didn't manage to do an imap isolated patch yesterday. To get my 
+</I>&gt;<i> hack to work, I mutilated imap.c to make the getsizes, getpartialsizes 
+</I>&gt;<i> and fetch body NULL and changed fetch_headers to submit FETCH %d 
+</I>&gt;<i> (BODY[]). I also had to change driver.c by adding len-=msgblk.msglen 
+</I>&gt;<i> before the readbody. Otherwise, it'd try to read the whole message size 
+</I>&gt;<i> off of the socket. I was very confused by the last bit, as it seemed 
+</I>&gt;<i> that changing the fetch body to NULL should've induced driver.c to do 
+</I>&gt;<i> the same to handle the POP protocols. I expect I missed something somewhere.
+</I>&gt;<i>
+</I>&gt;<i> Is there a way to identify an imap server? The banner on login only states:
+</I>&gt;<i> * OK IMAP Server Ready Tue, 8 Aug 2006 08:37:04 -0500
+</I>
+Perhaps the reply to a CAPABILITY request can help with identifying the
+server.
+
+What does Lotus respond to such a command?
+
+Another workaround idea: what if we check the received headers from the
+RFC822.HEADERS request if it contains &quot;MIME-Header: 1.0&quot;, and if it
+does, but is missing Content-Transfer-Encoding, request the latter
+explicitly and attach it to the headers if we get one?
+
+Such a workaround would reorder headers, but better that
+than a missing quoted-printable or base64 tag.
+
+What do you think?
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000761.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+	<LI>Next message: <A HREF="000763.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#762">[ date ]</a>
+              <a href="thread.html#762">[ thread ]</a>
+              <a href="subject.html#762">[ subject ]</a>
+              <a href="author.html#762">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

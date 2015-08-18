@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] minor configure problems
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20minor%20configure%20problems&In-Reply-To=%3C20050909132515.GA21711%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000448.html">
+   <LINK REL="Next"  HREF="000445.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] minor configure problems</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20minor%20configure%20problems&In-Reply-To=%3C20050909132515.GA21711%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] minor configure problems">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Fri Sep  9 15:25:15 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000448.html">[fetchmail-devel] [PATCH] Re: deleting oversized messages
+</A></li>
+        <LI>Next message: <A HREF="000445.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#444">[ date ]</a>
+              <a href="thread.html#444">[ thread ]</a>
+              <a href="subject.html#444">[ subject ]</a>
+              <a href="author.html#444">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+When running ./configure --with-hesiod, -I/usr/athena/include gets
+added to CPPFLAGS (as well as to CFLAGS) if hesiod.h is in
+/usr/include.
+
+This patch should fix the minor search problems.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/configure.ac
+===================================================================
+--- fetchmail/configure.ac	(revision 4286)
++++ fetchmail/configure.ac	(working copy)
+@@ -487,7 +487,7 @@
+   if test &quot;$with_kerberos&quot; != &quot;yes&quot; ; then
+      searchdirs=&quot;$with_kerberos&quot;
+   else
+-     searchdirs=&quot;$with_kerberos5 /usr/kerberos /usr/kerberosIV /usr/athena/usr&quot;
++     searchdirs=&quot;$with_kerberos5 /usr/kerberos /usr/kerberosIV /usr/athena /usr&quot;
+   fi
+   with_kerberos=
+   ac_saveLDFLAGS=&quot;$LDFLAGS&quot;
+Index: fetchmail/m4-local/ac_ma_search_package.m4
+===================================================================
+--- fetchmail/m4-local/ac_ma_search_package.m4	(revision 4286)
++++ fetchmail/m4-local/ac_ma_search_package.m4	(working copy)
+@@ -62,17 +62,20 @@
+ 	    $1_libdir=$i/lib
+ 	fi
+ 
++	if ! test -f &quot;${$1_include}/$5&quot; -a -d &quot;${$1_libdir}&quot; ; then
++	    continue
++	fi
++
+ 	OLD_LIBS=$LIBS
+ 	OLD_LDFLAGS=$LDFLAGS
+ 	OLD_CFLAGS=$CFLAGS
+ 	OLD_CPPFLAGS=$CPPFLAGS
+ 
+-	if test &quot;${$1_libdir}&quot; ; then
++	if test -n &quot;${$1_libdir}&quot; -a &quot;${$1_libdir}&quot; != /usr/lib ; then
+ 		LDFLAGS=&quot;$LDFLAGS -L${$1_libdir}&quot;
+ 	fi
+-	if test &quot;${$1_include}&quot; ; then
++	if test -n &quot;${$1_include}&quot; -a &quot;${$1_include}&quot; != /usr/include ; then
+ 		CPPFLAGS=&quot;$CPPFLAGS -I${$1_include}&quot;
+-		CFLAGS=&quot;$CFLAGS -I${$1_include}&quot;
+ 	fi
+ 
+ 	success=no
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000448.html">[fetchmail-devel] [PATCH] Re: deleting oversized messages
+</A></li>
+	<LI>Next message: <A HREF="000445.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#444">[ date ]</a>
+              <a href="thread.html#444">[ thread ]</a>
+              <a href="subject.html#444">[ subject ]</a>
+              <a href="author.html#444">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

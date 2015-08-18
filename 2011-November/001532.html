@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] fetchmail workaround for a bug in	Zimbra
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20fetchmail%20workaround%20for%20a%20bug%20in%0A%09Zimbra&In-Reply-To=%3C4ECAF3F4.20105%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001536.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] fetchmail workaround for a bug in	Zimbra</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20fetchmail%20workaround%20for%20a%20bug%20in%0A%09Zimbra&In-Reply-To=%3C4ECAF3F4.20105%40gmx.de%3E"
+       TITLE="[fetchmail-devel] [PATCH] fetchmail workaround for a bug in	Zimbra">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Nov 22 01:59:32 CET 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001536.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1532">[ date ]</a>
+              <a href="thread.html#1532">[ thread ]</a>
+              <a href="subject.html#1532">[ subject ]</a>
+              <a href="author.html#1532">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 19.11.2011 00:43, schrieb Mikulas Patocka:
+&gt;<i> Hi
+</I>&gt;<i> 
+</I>&gt;<i> Zimbra occasionally returns this response:
+</I>&gt;<i> 
+</I>&gt;<i> fetchmail: IMAP&gt; A0007 FETCH 1 RFC822.HEADER
+</I>&gt;<i> fetchmail: IMAP&lt; * 1 FETCH ()
+</I>&gt;<i> fetchmail: IMAP&lt; A0007 OK FETCH completed
+</I>&gt;<i> 
+</I>&gt;<i> It happens when there is a corrupted message without a header in the 
+</I>&gt;<i> database. (I don't know how this message could be created, I just see it 
+</I>&gt;<i> there).
+</I>&gt;<i> 
+</I>&gt;<i> When fetchmail encounters such resonse, it gives up and disconnects.
+</I>&gt;<i> 
+</I>&gt;<i> The attached patch changes it so that PS_TRANSIENT is returned in this 
+</I>&gt;<i> case and fetchmail continues to fetch following messages correctly.
+</I>&gt;<i> 
+</I>&gt;<i> Mikulas
+</I>&gt;<i> 
+</I>&gt;<i> --- imap.c_	2011-11-18 17:28:35.638698000 -0500
+</I>&gt;<i> +++ imap.c	2011-11-18 18:04:41.745220000 -0500
+</I>&gt;<i> @@ -1166,7 +1166,8 @@
+</I>&gt;<i>  
+</I>&gt;<i>  	/* try to recover for some responses */
+</I>&gt;<i>  	if (!strncmp(buf, &quot;* NO&quot;, 4) ||
+</I>&gt;<i> -		!strncmp(buf, &quot;* BAD&quot;, 5))
+</I>&gt;<i> +		!strncmp(buf, &quot;* BAD&quot;, 5) ||
+</I>&gt;<i> +		strstr(buf, &quot;FETCH ()&quot;))
+</I>&gt;<i>  	{
+</I>&gt;<i>  	    return(PS_TRANSIENT);
+</I>&gt;<i>  	}
+</I>
+Dear Mikulas,
+
+thanks a lot for the contribution.  I have applied the patch, currently
+on the legacy_63 branch (gitorious.org), for inclusion in the next 6.3.X
+release (6.3.22).  I don't currently foresee a release date, as there
+aren't many, or critical, fixes since 6.3.21 yet.  A release might be a
+couple of weeks out.
+
+For 7.X and later versions, I have considered rewriting the IMAP reply
+parser, but chances are that the behaviour is in violation of RFC3501
+and will still need special casing/work arounds.
+
+I'll have to check more places of the RFC than my time currently allows;
+Dovecot for one returns
+
+. FETCH 248 RFC822.HEADER
+* 248 FETCH (RFC822.HEADER {0}
+)
+
+in response to a blank message which seems more useful.
+
+Best regards
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001536.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1532">[ date ]</a>
+              <a href="thread.html#1532">[ thread ]</a>
+              <a href="subject.html#1532">[ subject ]</a>
+              <a href="author.html#1532">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail 6.3.20-pre1 release candidate	should fix STARTTLS hangs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.3.20-pre1%20release%20candidate%0A%09should%20fix%20STARTTLS%20hangs&In-Reply-To=%3C201105241722.41782.thomas.jarosch%40intra2net.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001492.html">
+   <LINK REL="Next"  HREF="001495.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail 6.3.20-pre1 release candidate	should fix STARTTLS hangs</H1>
+    <B>Thomas Jarosch</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.3.20-pre1%20release%20candidate%0A%09should%20fix%20STARTTLS%20hangs&In-Reply-To=%3C201105241722.41782.thomas.jarosch%40intra2net.com%3E"
+       TITLE="[fetchmail-devel] fetchmail 6.3.20-pre1 release candidate	should fix STARTTLS hangs">thomas.jarosch at intra2net.com
+       </A><BR>
+    <I>Tue May 24 17:22:41 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001492.html">[fetchmail-devel] fetchmail 6.3.20-pre1 release candidate should	fix STARTTLS hangs
+</A></li>
+        <LI>Next message: <A HREF="001495.html">[fetchmail-devel] fetchmail 6.3.20-pre1 release candidate	should fix STARTTLS hangs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1494">[ date ]</a>
+              <a href="thread.html#1494">[ thread ]</a>
+              <a href="subject.html#1494">[ subject ]</a>
+              <a href="author.html#1494">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello Matthias,
+
+On Monday, 23. May 2011 21:00:27 Matthias Andree wrote:
+&gt;<i> DOWNLOAD this beta software from:
+</I>&gt;<i> &lt;<A HREF="http://home.pages.de/~mandree/fetchmail/">http://home.pages.de/~mandree/fetchmail/</A>&gt;
+</I>
+Small side note: I had trouble downloading the .tar.bz2 version,
+the tar.xz version downloaded just fine.
+
+&gt;<i> # SECURITY FIXES
+</I>&gt;<i> * Fetchmail's socket timeout handling was incomplete.  Network outages in
+</I>&gt;<i> the wrong phase of a communication, combined with unlucky operating
+</I>&gt;<i> systems and their defaults, could cause fetchmail to hang for extended
+</I>&gt;<i> amounts of time. Freezes for beyond a week were reported by Thomas
+</I>&gt;<i> Jarosch. Fetchmail sets UNIX- and Internet-domain socket send and
+</I>&gt;<i> receive timeouts now. This fixes a hang during STARTTLS negotiation
+</I>&gt;<i> reported by Thomas Jarosch.
+</I>
+The timeout works fine, I've tested every step of the POP3 protocol 
+communication until we triggered the bug the last time.
+
+I think I've seen a kind of unrelated bug: If you let the TLS negotation 
+time out on the &quot;server side&quot;, fetchmail will proceed to send the user name 
+before shutting down: &quot;USER xyz&quot;. Bug in the state machine?
+
+&gt;<i> # CHANGES
+</I>&gt;<i> * fetchmail now supports an environment variable to suppress marking
+</I>
+Out of curiosity, why is this an environment variable
+instead of a configuration option?
+
+Cheers,
+Thomas
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001492.html">[fetchmail-devel] fetchmail 6.3.20-pre1 release candidate should	fix STARTTLS hangs
+</A></li>
+	<LI>Next message: <A HREF="001495.html">[fetchmail-devel] fetchmail 6.3.20-pre1 release candidate	should fix STARTTLS hangs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1494">[ date ]</a>
+              <a href="thread.html#1494">[ thread ]</a>
+              <a href="subject.html#1494">[ subject ]</a>
+              <a href="author.html#1494">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

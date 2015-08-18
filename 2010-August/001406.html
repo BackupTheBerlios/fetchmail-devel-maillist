@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] timeout not working for TLS
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20timeout%20not%20working%20for%20TLS&In-Reply-To=%3Cop.vgxpk4a91e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001407.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] timeout not working for TLS</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20timeout%20not%20working%20for%20TLS&In-Reply-To=%3Cop.vgxpk4a91e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] timeout not working for TLS">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Aug  5 00:18:30 CEST 2010</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001407.html">[fetchmail-devel] Slow handling of large fetchid-list?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1406">[ date ]</a>
+              <a href="thread.html#1406">[ thread ]</a>
+              <a href="subject.html#1406">[ subject ]</a>
+              <a href="author.html#1406">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 28.07.2010, 15:44 Uhr, schrieb Thomas Jarosch:
+
+&gt;<i> On Wednesday, 28. July 2010 15:31:19 Matthias Andree wrote:
+</I>&gt;&gt;<i> &gt; This morning I had a better idea: Enable core dumps and kill the task
+</I>&gt;&gt;<i> &gt; via &quot;kill -11&quot; if it hangs again. Then we'll know for sure where it's
+</I>&gt;&gt;<i> &gt; stuck.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Don't. fetchmail in most modes suppresses writing core files with
+</I>&gt;&gt;<i> setrlimit(), to avoid passwords hitting the disk outside the .netrc or
+</I>&gt;&gt;<i> .fetchmailrc files.
+</I>&gt;<i>
+</I>&gt;<i> I just patched that out :o) Before pushing the &quot;new&quot; version to the
+</I>&gt;<i> productive system, I've verified the coredump gives a useful backtrace.
+</I>&gt;<i>
+</I>&gt;&gt;<i> Instead, if fetchmail hangs, just attach gdb with &quot;gdb
+</I>&gt;&gt;<i> /usr/bin/fetchmail-unstripped 12345&quot;, where fetchmail-unstripped is an
+</I>&gt;&gt;<i> executable compiled with -g or better -ggdb3 option, and installed  
+</I>&gt;&gt;<i> before
+</I>&gt;&gt;<i> the run, without running strip and without adding -s to the install
+</I>&gt;&gt;<i> command line.
+</I>&gt;<i>
+</I>&gt;<i> No gdb on the productive box. I've just installed the unstripped version
+</I>&gt;<i> (took me 30min to discover the -s switch in the compile statement.  
+</I>&gt;<i> Whoops).
+</I>&gt;<i> Now we need to wait a month or so... thanks for your suggestions!
+</I>
+Hi Thomas,
+
+Well... perhaps not.
+
+The attached patch sets the timeout for the getauth() stage (which entails  
+STARTTLS-like negotiation). Please try that too and see if you get timeout  
+reports while fetchmail tries to negotiate TLS. It should.
+
+Thanks for the report and offered help in debugging. Would be good if you  
+could report back in a month or so :-)
+
+Best regards
+
+-- 
+Matthias Andree
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: 0001-Apply-timeout-to-getauth-methods.patch
+Type: application/octet-stream
+Size: 815 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20100805/c123d35a/attachment.obj">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20100805/c123d35a/attachment.obj</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001407.html">[fetchmail-devel] Slow handling of large fetchid-list?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1406">[ date ]</a>
+              <a href="thread.html#1406">[ thread ]</a>
+              <a href="subject.html#1406">[ subject ]</a>
+              <a href="author.html#1406">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

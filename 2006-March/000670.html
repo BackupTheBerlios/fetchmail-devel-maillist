@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] handle imap EXPUNGE better
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20handle%20imap%20EXPUNGE%20better&In-Reply-To=%3Cm31wxmrtyj.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000682.html">
+   <LINK REL="Next"  HREF="000674.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] handle imap EXPUNGE better</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20handle%20imap%20EXPUNGE%20better&In-Reply-To=%3Cm31wxmrtyj.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [PATCH] handle imap EXPUNGE better">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Mar  1 17:49:24 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000682.html">[fetchmail-devel] [PATCH] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+        <LI>Next message: <A HREF="000674.html">[fetchmail-devel] Re: handle imap EXPUNGE better
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#670">[ date ]</a>
+              <a href="thread.html#670">[ thread ]</a>
+              <a href="subject.html#670">[ subject ]</a>
+              <a href="author.html#670">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;<i> A good imap server can handle two email clients accessing the same
+</I>&gt;<i> mailbox and reports the mails deleted by one email client correctly to
+</I>&gt;<i> the other email client.
+</I>&gt;<i>
+</I>&gt;<i> However, fetchmail cannot handle this unexpected deletion of mails.
+</I>&gt;<i> This is because fetchmail caches which mails are new and the size of
+</I>&gt;<i> those new mails. This caching is required to give a better
+</I>&gt;<i> performance, but leads to unexpected results when another email client
+</I>&gt;<i> is writing to the same mailbox:
+</I>&gt;<i>
+</I>&gt;<i> - An old mail could be delivered instead of a recent mail.
+</I>&gt;<i>
+</I>&gt;<i> - fetchmail passes the wrong size to the SMTP server in the MAIL FROM:
+</I>&gt;<i>   command. If the SMTP server has size restrictions, a wrong mail will
+</I>&gt;<i>   get rejected!
+</I>&gt;<i>
+</I>&gt;<i> - &quot;fetchmail -vv&quot; reports that there is a mismatch in the expected and
+</I>&gt;<i>   received message sizes.
+</I>&gt;<i>
+</I>&gt;<i> This patch causes fetchmail to quit the poll if there is a mismatch in
+</I>&gt;<i> the count of mails being deleted.
+</I>
+Well, OK. We'll take this as a safety measure, but I maintain that the
+real solution is to properly cache the mailbox state and update it as
+untagged responses come in.
+
+I've merged the patch onto branches/BRANCH_6-3 for the nonce, and will
+update the trunk from there after the 6.3.3 release.
+
+&gt;<i> This patch also handles servers which do not report RECENT on EXPUNGE
+</I>&gt;<i>in a better way. Now, recentcount is counted down on EXPUNGE of each
+</I>&gt;<i>mail along with count. This way, recentcount need not be reset to zero
+</I>&gt;<i>if the server does not give a new report of RECENT mails.
+</I>&gt;<i>
+</I>&gt;<i> This patch has been tested by running two fetchmails on the same
+</I>&gt;<i> mailbox!
+</I>
+Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;&gt;<i> It would be better to update the cache properly (watching out for
+</I>&gt;&gt;<i> eventual iterator variables that need to be decremented, too) and
+</I>&gt;&gt;<i> continue. From our own cached flags we should be able to deduce if the
+</I>&gt;&gt;<i> expunged message was recent or not. If we don't know and the server
+</I>&gt;&gt;<i> expunged a different mail.
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Now, before you go delve into the code and hack away, take a step back
+</I>&gt;&gt;<i> from the blackboard to see the whole picture: the RECENT flags are just
+</I>&gt;&gt;<i> crap if several clients are accessing the mailbox. What happens to the
+</I>&gt;&gt;<i> RECENT count if we reselect the mailbox? Can we actually use it? Do we
+</I>&gt;&gt;<i> need to check \Seen flags instead, for lack of UID support in IMAP?
+</I>&gt;<i>
+</I>&gt;<i> I plan to implement the recentcount as a difference between EXISTS
+</I>&gt;<i> count at end and beginning of poll. I can work on that only after this
+</I>&gt;<i> patch is accepted. At that time, your point will also get implemented.
+</I>
+Sounds good.
+
+&gt;<i> fetchmail uses the RECENT only to decide
+</I>&gt;<i> a) whether to repoll at the end of mailbox poll
+</I>&gt;<i> b) whether to come out of IDLE (or NOOP look) while waiting for new
+</I>&gt;<i> mail.
+</I>
+&gt;<i> The UID code is not going to help here as this would require getting
+</I>&gt;<i> the full list of UIDs at the end of mailbox poll (and every minute,
+</I>&gt;<i> with &quot;idle&quot;). The RECENT code is much cleaner as imap servers reports
+</I>&gt;<i> the RECENT count consistently and correctly.
+</I>&gt;<i>
+</I>&gt;<i> The RECENT count is not being used to decide which mails are new. It
+</I>&gt;<i> is only being used at the end of the poll or while idling for new
+</I>&gt;<i> mail.
+</I>
+OK.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000682.html">[fetchmail-devel] [PATCH] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+	<LI>Next message: <A HREF="000674.html">[fetchmail-devel] Re: handle imap EXPUNGE better
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#670">[ date ]</a>
+              <a href="thread.html#670">[ thread ]</a>
+              <a href="subject.html#670">[ subject ]</a>
+              <a href="author.html#670">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

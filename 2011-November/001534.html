@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Add feature: add header to messages?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20feature%3A%20add%20header%20to%20messages%3F&In-Reply-To=%3C4ECB0C14.8060205%40kamens.us%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001533.html">
+   <LINK REL="Next"  HREF="001535.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Add feature: add header to messages?</H1>
+    <B>Jonathan Kamens</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20feature%3A%20add%20header%20to%20messages%3F&In-Reply-To=%3C4ECB0C14.8060205%40kamens.us%3E"
+       TITLE="[fetchmail-devel] Add feature: add header to messages?">jik at kamens.us
+       </A><BR>
+    <I>Tue Nov 22 03:42:28 CET 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001533.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+        <LI>Next message: <A HREF="001535.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1534">[ date ]</a>
+              <a href="thread.html#1534">[ thread ]</a>
+              <a href="subject.html#1534">[ subject ]</a>
+              <a href="author.html#1534">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Matthias,
+
+Thanks for the response. Comments and questions below.
+
+On 11/21/2011 08:10 PM, Matthias Andree wrote:
+&gt;&gt;<i> The mailboxes receiving these messages are often BCC'd, which means that
+</I>&gt;&gt;<i> the recipient address doesn't appear in To or CC. Furthermore, the mail
+</I>&gt;&gt;<i> servers we're downloading from unfortunately don't insert
+</I>&gt;&gt;<i> X-Delivered-To, or Received lines showing the recipient address, or
+</I>&gt;&gt;<i> anything like that. In short, there's no way to tell from looking at the
+</I>&gt;&gt;<i> message fed into the MDA what address it was sent to.
+</I>&gt;<i> And configuring a filter on the upstream server isn't possible either?
+</I>&gt;<i> Sounds like a rather limited service to me.
+</I>We cannot ask our users to muck around with the settings on the mail 
+server. They are often technically naive or inexperienced, and we need 
+to be able to make things work within our application without getting 
+anything from them but the mail server's host name, protocol (IMAP or 
+POP3), username, and password.
+
+&gt;&gt;<i> We could hard-code a command-line option for the custom MDA command
+</I>&gt;&gt;<i> identifying the mailbox, but as far as I can tell, that fails if you've
+</I>&gt;&gt;<i> got more than one account in the .fetchmailrc file, because I don't
+</I>&gt;&gt;<i> believe it's possible to specify different MDA settings for different
+</I>&gt;&gt;<i> accounts (am I wrong about that?).
+</I>&gt;<i> Yes, you're wrong - luckily ;-) The MDA setting is a user-specific
+</I>&gt;<i> setting, so you can generate a modified rcfile that uses a distinct mda
+</I>&gt;<i> script (or arguments) for each user.  Now, that's for the easy case
+</I>&gt;<i> where you have one destination address per upstream account.  It won't
+</I>&gt;<i> work with --mda on the command line though.
+</I>The problem with this approach, if I am understanding what you are 
+saying correctly, is that we have multiple remote mailboxes /being 
+delivered to the same local user account./ If the MDA setting were 
+specific to the remote account being queried that would work fine, but 
+if it's specific to the local account, it's problematic.
+
+I suppose we could theoretically create dummy local users for the 
+various remote accounts being polled, and write the RC file to &quot;deliver&quot; 
+each remote account to a separate dummy user, but that seems awfully 
+kludgy. It seems like it would be a lot cleaner to add the identifier + 
+%-escape functionality I proposed. What do you think?
+
+Thanks again,
+
+Jonathan Kamens
+
+P.S. I apologize for the misleading Subject line I used to start this 
+thread. When I started writing my message to the list, I was thinking in 
+terms of modifying fetchmail to allow arbitrary headers to be added to 
+messages before delivery, but my thinking evolved as I wrote the message 
+and I obviously ended up proposing something different, but I forgot to 
+go back and update the Subject. I'm not going to change the Subject line 
+now, though, because that would just confuse everybody's threading. :-)
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20111121/51cc8d95/attachment.html">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20111121/51cc8d95/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001533.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+	<LI>Next message: <A HREF="001535.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1534">[ date ]</a>
+              <a href="thread.html#1534">[ thread ]</a>
+              <a href="subject.html#1534">[ subject ]</a>
+              <a href="author.html#1534">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [BUG] \n missing in -v output
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBUG%5D%20%5Cn%20missing%20in%20-v%20output&In-Reply-To=%3Cop.u8pjacel1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001251.html">
+   <LINK REL="Next"  HREF="001263.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [BUG] \n missing in -v output</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBUG%5D%20%5Cn%20missing%20in%20-v%20output&In-Reply-To=%3Cop.u8pjacel1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [BUG] \n missing in -v output">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Feb 26 00:52:50 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001251.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.15-pre1.it.po'
+</A></li>
+        <LI>Next message: <A HREF="001263.html">[fetchmail-devel] fetchmail 6.3.15-beta2 test release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1262">[ date ]</a>
+              <a href="thread.html#1262">[ thread ]</a>
+              <a href="subject.html#1262">[ subject ]</a>
+              <a href="author.html#1262">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 16.11.2009, 14:07 Uhr, schrieb Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt;:
+
+&gt;<i> Am 13.11.2009, 17:58 Uhr, schrieb Melchior FRANZ
+</I>&gt;<i> &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">melchior.franz at gmail.com</A>&gt;:
+</I>&gt;<i>
+</I>&gt;&gt;<i> Since I updated from openSUSE 11.1 to 11.2, fetchmail's output with one
+</I>&gt;&gt;<i> verbose
+</I>&gt;&gt;<i> level doesn't look right. They use fetchmail 6.3.11, but I checked out
+</I>&gt;&gt;<i> 6.3.13
+</I>&gt;&gt;<i> from your SVN repository and it has the same bug. (HEAD segfaults.)
+</I>&gt;<i>
+</I>&gt;<i> Please send a stack backtrace along with the necessary debug information
+</I>&gt;<i> (note you need to use branches/BRANCH_6-3, not trunk/) as per
+</I>&gt;<i> <A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#G3">http://www.fetchmail.info/fetchmail-FAQ.html#G3</A> - perhaps
+</I>&gt;<i> <A HREF="http://leafnode.sourceforge.net/doc_en/FAQ.html#backtrace">http://leafnode.sourceforge.net/doc_en/FAQ.html#backtrace</A> can also help
+</I>&gt;<i> you with the stack backtrace.
+</I>
+Given I still haven't received this or any other evidence, even after  
+multiple requests, I'll ignore this allegation.
+
+&gt;&gt;<i> Looks like you want the space only if outlevel &gt; O_VERBOSE, not &gt;=.  (?)
+</I>&gt;<i>
+</I>&gt;<i> I'll look into that.
+</I>
+Should be fixed in 6.3.15 or -beta2 (not yet released; fix in git commit  
+76fd18d1).
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001251.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.15-pre1.it.po'
+</A></li>
+	<LI>Next message: <A HREF="001263.html">[fetchmail-devel] fetchmail 6.3.15-beta2 test release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1262">[ date ]</a>
+              <a href="thread.html#1262">[ thread ]</a>
+              <a href="subject.html#1262">[ subject ]</a>
+              <a href="author.html#1262">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1418 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Presently running code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Presently%20running%20code&In-Reply-To=%3C874ohd5gri.fsf%40fever.mssgmbh.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001386.html">
+   <LINK REL="Next"  HREF="001388.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Presently running code</H1>
+    <B>Rainer Weikusat</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Presently%20running%20code&In-Reply-To=%3C874ohd5gri.fsf%40fever.mssgmbh.com%3E"
+       TITLE="[fetchmail-devel] Presently running code">rweikusat at mssgmbh.com
+       </A><BR>
+    <I>Tue Jun  8 23:57:53 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001386.html">[fetchmail-devel] 24h comparison of old and new UID handling code
+</A></li>
+        <LI>Next message: <A HREF="001388.html">[fetchmail-devel] Presently running code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1387">[ date ]</a>
+              <a href="thread.html#1387">[ thread ]</a>
+              <a href="subject.html#1387">[ subject ]</a>
+              <a href="author.html#1387">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>The file included below is a diff of the 'running' uid_db code against
+the 6.3.17 fetchmail tree. I hope that it is ok in this form, because
+I'm still in extreme 'now, we just need to deliver'-mode ...
+
+-----------
+--- fetchmail/Makefile.am	7 May 2010 13:49:15 -0000	1.1.1.6
++++ fetchmail/Makefile.am	25 May 2010 17:28:29 -0000	1.1.1.6.2.3
+@@ -38,7 +38,7 @@
+ 			smbencrypt.h smbdes.c smbencrypt.c smbmd4.c smbutil.c \
+ 			libesmtp/gethostbyname.h libesmtp/gethostbyname.c \
+ 			smbtypes.h fm_getaddrinfo.c tls.c rfc822valid.c \
+-			xmalloc.h sdump.h sdump.c
++			xmalloc.h sdump.h sdump.c uid_db.h uid_db.c
+ libfm_a_LIBADD=		$(EXTRAOBJ)
+ libfm_a_DEPENDENCIES=	$(EXTRAOBJ)
+ LDADD	=		libfm.a @LIBINTL@ $(LIBOBJS)
+--- fetchmail/fetchmail.c	7 May 2010 13:49:14 -0000	1.1.1.4
++++ fetchmail/fetchmail.c	24 May 2010 16:02:10 -0000	1.1.1.4.2.3
+@@ -1537,6 +1537,14 @@
+     return(st);
+ }
+ 
++static int print_id_of(struct uid_db_record *rec, void *unused)
++{
++    (void)unused;
++    
++    printf(&quot;\t%s\n&quot;, rec-&gt;id);
++    return 0;
++}
++
+ static void dump_params (struct runctl *runp,
+ 			 struct query *querylist, flag implicit)
+ /* display query parameters in English */
+@@ -1938,20 +1946,14 @@
+ 
+ 	if (ctl-&gt;server.protocol &gt; P_POP2 &amp;&amp; MAILBOX_PROTOCOL(ctl))
+ 	{
+-	    if (!ctl-&gt;oldsaved)
++	    int count;
++	    
++	    if (!(count = uid_db_n_records(&amp;ctl-&gt;oldsaved)))
+ 		printf(GT_(&quot;  No UIDs saved from this host.\n&quot;));
+ 	    else
+ 	    {
+-		struct idlist *idp;
+-		int count = 0;
+-
+-		for (idp = ctl-&gt;oldsaved; idp; idp = idp-&gt;next)
+-		    ++count;
+-
+ 		printf(GT_(&quot;  %d UIDs saved.\n&quot;), count);
+-		if (outlevel &gt;= O_VERBOSE)
+-		    for (idp = ctl-&gt;oldsaved; idp; idp = idp-&gt;next)
+-			printf(&quot;\t%s\n&quot;, idp-&gt;id);
++		traverse_uid_db(&amp;ctl-&gt;oldsaved, print_id_of, NULL);
+ 	    }
+ 	}
+ 
+--- fetchmail/fetchmail.h	7 May 2010 13:49:13 -0000	1.1.1.4
++++ fetchmail/fetchmail.h	24 May 2010 16:02:10 -0000	1.1.1.4.2.3
+@@ -39,6 +39,8 @@
+ #  include &quot;trio/trio.h&quot;
+ #endif
+ 
++#include &quot;uid_db.h&quot;
++
+ /* We need this for strstr */
+ #if !defined(HAVE_STRSTR) &amp;&amp; !defined(strstr)
+ char *strstr(const char *, const char *);
+@@ -387,8 +389,7 @@
+     int smtp_socket;		/* socket descriptor for SMTP connection */
+     unsigned int uid;		/* UID of user to deliver to */
+     struct idlist *skipped;	/* messages skipped on the mail server */
+-    struct idlist *oldsaved, *newsaved;
+-    struct idlist **oldsavedend;
++    struct uid_db oldsaved, newsaved;
+     char lastdigest[DIGESTLEN];	/* last MD5 hash seen on this connection */
+     char *folder;		/* folder currently being polled */
+ 
+--- fetchmail/pop3.c	7 May 2010 13:49:19 -0000	1.1.1.4
++++ fetchmail/pop3.c	24 May 2010 16:02:10 -0000	1.1.1.4.2.6
+@@ -21,6 +21,7 @@
+ #include  &quot;fetchmail.h&quot;
+ #include  &quot;socket.h&quot;
+ #include  &quot;i18n.h&quot;
++#include  &quot;uid_db.h&quot;
+ 
+ #ifdef OPIE_ENABLE
+ #ifdef __cplusplus
+@@ -845,20 +846,20 @@
+     last_nr = count + 1;
+     while (first_nr &lt; last_nr - 1)
+     {
+-	struct idlist	*newl;
++	struct uid_db_record *rec;
+ 
+ 	try_nr = (first_nr + last_nr) / 2;
+ 	if ((ok = pop3_getuidl(sock, try_nr, id, sizeof(id))) != 0)
+ 	    return ok;
+-	if ((newl = str_in_list(&amp;ctl-&gt;oldsaved, id, FALSE)))
++	if ((rec = find_uid_by_id(&amp;ctl-&gt;oldsaved, id)))
+ 	{
+-	    flag mark = newl-&gt;val.status.mark;
++	    flag mark = rec-&gt;status;
+ 	    if (mark == UID_DELETED || mark == UID_EXPUNGED)
+ 	    {
+ 		if (outlevel &gt;= O_VERBOSE)
+ 		    report(stderr, GT_(&quot;id=%s (num=%u) was deleted, but is still present!\n&quot;), id, try_nr);
+ 		/* just mark it as seen now! */
+-		newl-&gt;val.status.mark = mark = UID_SEEN;
++		rec-&gt;status = mark = UID_SEEN;
+ 	    }
+ 
+ 	    /* narrow the search region! */
+@@ -872,7 +873,7 @@
+ 		first_nr = try_nr;
+ 
+ 	    /* save the number */
+-	    newl-&gt;val.status.num = try_nr;
++	    set_uid_db_num(&amp;ctl-&gt;oldsaved, rec, try_nr);
+ 	}
+ 	else
+ 	{
+@@ -881,8 +882,8 @@
+ 	    last_nr = try_nr;
+ 
+ 	    /* save it */
+-	    newl = save_str(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
+-	    newl-&gt;val.status.num = try_nr;
++	    rec = uid_db_insert(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
++	    set_uid_db_num(&amp;ctl-&gt;oldsaved, rec, try_nr);
+ 	}
+     }
+     if (outlevel &gt;= O_DEBUG &amp;&amp; last_nr &lt;= count)
+@@ -910,34 +911,38 @@
+      *    of messages to get.
+      *  + Otherwise run a binary search to determine the last known message
+      */
++    struct uid_db_record *rec;
+     int ok, nolinear = 0;
+-    int first_nr, list_len, try_id, try_nr, add_id;
++    int first_nr, n_recs, try_id, try_nr, add_id;
+     int num;
+     char id [IDLEN+1];
+ 
+     if ((ok = pop3_gettopid(sock, 1, id, sizeof(id))) != 0)
+ 	return ok;
+ 
+-    if( ( first_nr = str_nr_in_list(&amp;ctl-&gt;oldsaved, id) ) == -1 ) {
++    rec = first_uid_in_db(&amp;ctl-&gt;oldsaved, id);
++    if (!rec) {
+ 	/* the first message is unknown -&gt; all messages are new */
+ 	*newp = *countp;	
+ 	return 0;
+     }
+-
++    first_nr = rec-&gt;pos;
++    
+     /* check where we expect the latest known message */
+-    list_len = count_list( &amp;ctl-&gt;oldsaved );
+-    try_id = list_len  - first_nr; /* -1 + 1 */
++    n_recs = uid_db_n_records(&amp;ctl-&gt;oldsaved);
++    try_id = n_recs  - first_nr; /* -1 + 1 */
+     if( try_id &gt; 1 ) {
+ 	if( try_id &lt;= *countp ) {
+ 	    if ((ok = pop3_gettopid(sock, try_id, id, sizeof(id))) != 0)
+ 		return ok;
+-    
+-	    try_nr = str_nr_last_in_list(&amp;ctl-&gt;oldsaved, id);
++
++	    rec = last_uid_in_db(&amp;ctl-&gt;oldsaved, id);
++	    try_nr = rec ? rec-&gt;pos : -1;
+ 	} else {
+ 	    try_id = *countp+1;
+ 	    try_nr = -1;
+ 	}
+-	if( try_nr != list_len -1 ) {
++	if( try_nr != n_recs -1 ) {
+ 	    /* some messages inbetween have been deleted... */
+ 	    if( try_nr == -1 ) {
+ 		nolinear = 1;
+@@ -955,7 +960,9 @@
+ 		    
+ 		    if ((ok = pop3_gettopid(sock, try_id, id, sizeof(id))) != 0)
+ 			return ok;
+-		    try_nr = str_nr_in_list(&amp;ctl-&gt;oldsaved, id);
++
++		    rec = find_uid_by_id(&amp;ctl-&gt;oldsaved, id);
++		    try_nr = rec ? rec-&gt;pos : -1;
+ 		}
+ 		if( try_nr == -1 ) {
+ 		    try_id--;
+@@ -968,17 +975,16 @@
+ 	} 
+     }
+     /* the first try_id messages are known -&gt; copy them to the newsaved list */
+-    for( num = first_nr; num &lt; list_len; num++ )
++    for( num = first_nr; num &lt; n_recs; num++ )
+     {
+-	struct idlist	*newl = save_str(&amp;ctl-&gt;newsaved, 
+-				str_from_nr_list(&amp;ctl-&gt;oldsaved, num),
+-				UID_UNSEEN);
+-	newl-&gt;val.status.num = num - first_nr + 1;
++	rec = find_uid_by_pos(&amp;ctl-&gt;oldsaved, num);
++	
++	rec = uid_db_insert(&amp;ctl-&gt;newsaved, rec-&gt;id, rec-&gt;status);
++	set_uid_db_num(&amp;ctl-&gt;newsaved, rec, num - first_nr + 1);
+     }
+ 
+     if( nolinear ) {
+-	free_str_list(&amp;ctl-&gt;oldsaved);
+-	ctl-&gt;oldsaved = 0;
++	clear_uid_db(&amp;ctl-&gt;oldsaved);
+ 	last = try_id;
+     }
+ 
+@@ -997,7 +1003,7 @@
+ 
+     (void)folder;
+     /* Ensure that the new list is properly empty */
+-    ctl-&gt;newsaved = (struct idlist *)NULL;
++    clear_uid_db(&amp;ctl-&gt;newsaved);
+ 
+ #ifdef MBOX
+     /* Alain Knaff suggests this, but it's not RFC standard */
+@@ -1032,6 +1038,9 @@
+ 	int fastuidl;
+ 	char id [IDLEN+1];
+ 
++	set_uid_db_num_pos_0(&amp;ctl-&gt;oldsaved, *countp);
++	set_uid_db_num_pos_0(&amp;ctl-&gt;newsaved, *countp);
++
+ 	/* should we do fast uidl this time? */
+ 	fastuidl = ctl-&gt;fastuidl;
+ 	if (*countp &gt; 7 &amp;&amp;		/* linear search is better if there are few mails! */
+@@ -1091,14 +1100,13 @@
+ 
+ 		    if (parseuid(buf, &amp;unum, id, sizeof(id)) == PS_SUCCESS)
+ 		    {
+-			struct idlist	*old, *newl;
++			struct uid_db_record	*old_rec, *new_rec;
+ 
+-			newl = save_str(&amp;ctl-&gt;newsaved, id, UID_UNSEEN);
+-			newl-&gt;val.status.num = unum;
++			new_rec = uid_db_insert(&amp;ctl-&gt;newsaved, id, UID_UNSEEN);
+ 
+-			if ((old = str_in_list(&amp;ctl-&gt;oldsaved, id, FALSE)))
++			if ((old_rec = find_uid_by_id(&amp;ctl-&gt;oldsaved, id)))
+ 			{
+-			    flag mark = old-&gt;val.status.mark;
++			    flag mark = old_rec-&gt;status;
+ 			    if (mark == UID_DELETED || mark == UID_EXPUNGED)
+ 			    {
+ 				/* XXX FIXME: switch 3 occurrences from
+@@ -1108,9 +1116,9 @@
+ 				if (outlevel &gt;= O_VERBOSE)
+ 				    report(stderr, GT_(&quot;id=%s (num=%d) was deleted, but is still present!\n&quot;), id, (int)unum);
+ 				/* just mark it as seen now! */
+-				old-&gt;val.status.mark = mark = UID_SEEN;
++				old_rec-&gt;status = mark = UID_SEEN;
+ 			    }
+-			    newl-&gt;val.status.mark = mark;
++			    new_rec-&gt;status = mark;
+ 			    if (mark == UID_UNSEEN)
+ 			    {
+ 				(*newp)++;
+@@ -1127,10 +1135,14 @@
+ 			     * swap the lists (say, due to socket error),
+ 			     * the same mail will not be downloaded again.
+ 			     */
+-			    old = save_str(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
++			    old_rec = uid_db_insert(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
++			    
+ 			}
+ 			/* save the number */
+-			old-&gt;val.status.num = unum;
++			if (new_rec-&gt;status == UID_UNSEEN || !ctl-&gt;keep) {
++			    set_uid_db_num(&amp;ctl-&gt;oldsaved, old_rec, unum);
++			    set_uid_db_num(&amp;ctl-&gt;newsaved, new_rec, unum);
++			}
+ 		    } else
+ 			return PS_ERROR;
+ 		} /* multi-line loop for UIDL reply */
+@@ -1199,8 +1211,9 @@
+ static int pop3_is_old(int sock, struct query *ctl, int num)
+ /* is the given message old? */
+ {
+-    struct idlist *newl;
+-    if (!ctl-&gt;oldsaved)
++    struct uid_db_record *rec;
++    
++    if (!uid_db_n_records(&amp;ctl-&gt;oldsaved))
+ 	return (num &lt;= last);
+     else if (dofastuidl)
+     {
+@@ -1211,30 +1224,31 @@
+ 
+ 	/* in fast uidl, we manipulate the old list only! */
+ 
+-	if ((newl = id_find(&amp;ctl-&gt;oldsaved, num)))
++	if ((rec = find_uid_by_num(&amp;ctl-&gt;oldsaved, num)))
+ 	{
+ 	    /* we already have the id! */
+-	    return(newl-&gt;val.status.mark != UID_UNSEEN);
++	    return(rec-&gt;status != UID_UNSEEN);
+ 	}
+ 
+ 	/* get the uidl first! */
+ 	if (pop3_getuidl(sock, num, id, sizeof(id)) != PS_SUCCESS)
+ 	    return(TRUE);
+ 
+-	if ((newl = str_in_list(&amp;ctl-&gt;oldsaved, id, FALSE))) {
++	if ((rec = find_uid_by_id(&amp;ctl-&gt;oldsaved, id))) {
+ 	    /* we already have the id! */
+-	    newl-&gt;val.status.num = num;
+-	    return(newl-&gt;val.status.mark != UID_UNSEEN);
++	    set_uid_db_num(&amp;ctl-&gt;oldsaved, rec, num);
++	    return(rec-&gt;status != UID_UNSEEN);
+ 	}
+ 
+ 	/* save it */
+-	newl = save_str(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
+-	newl-&gt;val.status.num = num;
++	rec = uid_db_insert(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
++	set_uid_db_num(&amp;ctl-&gt;oldsaved, rec, num);
++	
+ 	return(FALSE);
++    } else {
++	rec = find_uid_by_num(&amp;ctl-&gt;newsaved, num);
++	return !rec || rec-&gt;status != UID_UNSEEN;
+     }
+-    else
+-        return ((newl = id_find(&amp;ctl-&gt;newsaved, num)) != NULL &amp;&amp;
+-	    newl-&gt;val.status.mark != UID_UNSEEN);
+ }
+ 
+ #ifdef UNUSED
+@@ -1353,28 +1367,31 @@
+ static void mark_uid_seen(struct query *ctl, int number)
+ /* Tell the UID code we've seen this. */
+ {
+-    struct idlist	*sdp;
++    struct uid_db_record *rec;
+ 
+-    if ((sdp = id_find(&amp;ctl-&gt;newsaved, number)))
+-	sdp-&gt;val.status.mark = UID_SEEN;
++    if ((rec = find_uid_by_num(&amp;ctl-&gt;newsaved, number)))
++	rec-&gt;status = UID_SEEN;
+     /* mark it as seen in oldsaved also! In case, we do not swap the lists
+      * (say, due to socket error), the same mail will not be downloaded
+      * again.
+      */
+-    if ((sdp = id_find(&amp;ctl-&gt;oldsaved, number)))
+-	sdp-&gt;val.status.mark = UID_SEEN;
++    if ((rec = find_uid_by_num(&amp;ctl-&gt;oldsaved, number)))
++	rec-&gt;status = UID_SEEN;
+ }
+ 
+ static int pop3_delete(int sock, struct query *ctl, int number)
+ /* delete a given message */
+ {
++    struct uid_db_record *rec;
+     int ok;
+     mark_uid_seen(ctl, number);
+     /* actually, mark for deletion -- doesn't happen until QUIT time */
+     ok = gen_transact(sock, &quot;DELE %d&quot;, number);
+     if (ok != PS_SUCCESS)
+ 	return(ok);
+-    delete_str(dofastuidl ? &amp;ctl-&gt;oldsaved : &amp;ctl-&gt;newsaved, number);
++
++    rec = find_uid_by_num(dofastuidl ? &amp;ctl-&gt;oldsaved : &amp;ctl-&gt;newsaved, number);
++    rec-&gt;status = UID_DELETED;
+     return(PS_SUCCESS);
+ }
+ 
+--- fetchmail/uid.c	7 May 2010 13:49:16 -0000	1.1.1.2
++++ fetchmail/uid.c	24 May 2010 16:02:10 -0000	1.1.1.2.2.6
+@@ -108,6 +108,19 @@
+ static struct idlist *scratchlist;
+ 
+ /** Read saved IDs from \a idfile and attach to each host in \a hostlist. */
++static int dump_saved_uid(struct uid_db_record *rec, void *unused)
++{
++    char *t;
++    
++    (void)unused;
++
++    t = sdump(rec-&gt;id, rec-&gt;id_len);
++    report_build(stdout, &quot; %s&quot;, t);
++    free(t);
++
++    return 0;
++}
++
+ void initialize_saved_lists(struct query *hostlist, const char *idfile)
+ {
+     struct stat statbuf;
+@@ -117,9 +130,9 @@
+     /* make sure lists are initially empty */
+     for (ctl = hostlist; ctl; ctl = ctl-&gt;next) {
+ 	ctl-&gt;skipped = (struct idlist *)NULL;
+-	ctl-&gt;oldsaved = (struct idlist *)NULL;
+-	ctl-&gt;newsaved = (struct idlist *)NULL;
+-	ctl-&gt;oldsavedend = &amp;ctl-&gt;oldsaved;
++
++	init_uid_db(&amp;ctl-&gt;oldsaved);
++	init_uid_db(&amp;ctl-&gt;newsaved);
+     }
+ 
+     errno = 0;
+@@ -212,11 +225,11 @@
+ 		*atsign = '\0';
+ 		host = atsign + 1;
+ 
+-		/* find proper list and save it */
++		/* find uidl db and save it */
+ 		for (ctl = hostlist; ctl; ctl = ctl-&gt;next) {
+ 		    if (strcasecmp(host, ctl-&gt;server.queryname) == 0
+ 			    &amp;&amp; strcasecmp(user, ctl-&gt;remotename) == 0) {
+-			save_str(&amp;ctl-&gt;oldsaved, id, UID_SEEN);
++			uid_db_insert(&amp;ctl-&gt;oldsaved, id, UID_SEEN);
+ 			break;
+ 		    }
+ 		}
+@@ -248,14 +261,12 @@
+ 	    {
+ 		report_build(stdout, GT_(&quot;Old UID list from %s:&quot;), 
+ 			     ctl-&gt;server.pollname);
+-		idp = ctl-&gt;oldsaved;
+-		if (!idp)
++
++		if (!uid_db_n_records(&amp;ctl-&gt;oldsaved)) 
+ 		    report_build(stdout, GT_(&quot; &lt;empty&gt;&quot;));
+-		else for (idp = ctl-&gt;oldsaved; idp; idp = idp-&gt;next) {
+-		    char *t = sdump(idp-&gt;id, strlen(idp-&gt;id));
+-		    report_build(stdout, &quot; %s&quot;, t);
+-		    free(t);
+-		}
++		else
++		    traverse_uid_db(&amp;ctl-&gt;oldsaved, dump_saved_uid, NULL);
++		
+ 		report_complete(stdout, &quot;\n&quot;);
+ 	    }
+ 
+@@ -273,13 +284,18 @@
+ 
+ /** Assert that all UIDs marked deleted in query \a ctl have actually been
+ expunged. */
+-void expunge_uids(struct query *ctl)
++static int mark_as_expunged_if(struct uid_db_record *rec, void *unused)
+ {
+-    struct idlist *idl;
++    (void)unused;
++
++    if (rec-&gt;status == UID_DELETED) rec-&gt;status = UID_EXPUNGED;
++    return 0;
++}
+ 
+-    for (idl = dofastuidl ? ctl-&gt;oldsaved : ctl-&gt;newsaved; idl; idl = idl-&gt;next)
+-	if (idl-&gt;val.status.mark == UID_DELETED)
+-	    idl-&gt;val.status.mark = UID_EXPUNGED;
++void expunge_uids(struct query *ctl)
++{
++    traverse_uid_db(dofastuidl ? &amp;ctl-&gt;oldsaved : &amp;ctl-&gt;newsaved,
++		     mark_as_expunged_if, NULL);
+ }
+ 
+ static const char *str_uidmark(int mark)
+@@ -303,16 +319,32 @@
+ 	}
+ }
+ 
+-static void dump_list(const struct idlist *idp)
++static int dump_uid_db_record(struct uid_db_record *rec, void *arg)
++{
++	unsigned *n_recs;
++	char *t;
++
++	n_recs = arg;
++	--*n_recs;
++
++	t = sdump(rec-&gt;id, rec-&gt;id_len);
++	report_build(stdout, &quot; %s = %s%s&quot;, t, str_uidmark(rec-&gt;status), *n_recs ? &quot;,&quot; : &quot;&quot;);
++	free(t);
++
++	return 0;
++}
++
++static void dump_uid_db(struct uid_db *db)
+ {
+-	if (!idp) {
++	unsigned n_recs;
++
++	n_recs = uid_db_n_records(db);
++	if (!n_recs) {
+ 		report_build(stdout, GT_(&quot; &lt;empty&gt;&quot;));
+-	} else while (idp) {
+-	    char *t = sdump(idp-&gt;id, strlen(idp-&gt;id));
+-	    report_build(stdout, &quot; %s = %s%s&quot;, t, str_uidmark(idp-&gt;val.status.mark), idp-&gt;next ? &quot;,&quot; : &quot;&quot;);
+-	    free(t);
+-	    idp = idp-&gt;next;
++		return;
+ 	}
++
++	traverse_uid_db(db, dump_uid_db_record, &amp;n_recs);
+ }
+ 
+ /* finish a query */
+@@ -323,10 +355,10 @@
+     {
+ 	if (dofastuidl) {
+ 	    report_build(stdout, GT_(&quot;Merged UID list from %s:&quot;), ctl-&gt;server.pollname);
+-	    dump_list(ctl-&gt;oldsaved);
++	    dump_uid_db(&amp;ctl-&gt;oldsaved);
+ 	} else {
+ 	    report_build(stdout, GT_(&quot;New UID list from %s:&quot;), ctl-&gt;server.pollname);
+-	    dump_list(ctl-&gt;newsaved);
++	    dump_uid_db(&amp;ctl-&gt;newsaved);
+ 	}
+ 	report_complete(stdout, &quot;\n&quot;);
+     }
+@@ -347,15 +379,10 @@
+      * with UIDLs from that account in .fetchids, there is no way for
+      * them to ever get garbage-collected.
+      */
+-    if (ctl-&gt;newsaved)
++    if (uid_db_n_records(&amp;ctl-&gt;newsaved))
+     {
+-	/* old state of mailbox may now be irrelevant */
+-	struct idlist *temp = ctl-&gt;oldsaved;
+-	if (outlevel &gt;= O_DEBUG)
+-	    report(stdout, GT_(&quot;swapping UID lists\n&quot;));
+-	ctl-&gt;oldsaved = ctl-&gt;newsaved;
+-	ctl-&gt;newsaved = (struct idlist *) NULL;
+-	free_str_list(&amp;temp);
++	swap_uid_db_data(&amp;ctl-&gt;newsaved, &amp;ctl-&gt;oldsaved);
++	clear_uid_db(&amp;ctl-&gt;newsaved);
+     }
+     /* in fast uidl, there is no need to swap lists: the old state of
+      * mailbox cannot be discarded! */
+@@ -372,29 +399,53 @@
+ 	/* this is now a merged list! the mails which were seen in this
+ 	 * poll are marked here. */
+ 	report_build(stdout, GT_(&quot;Merged UID list from %s:&quot;), ctl-&gt;server.pollname);
+-	dump_list(ctl-&gt;oldsaved);
++	dump_uid_db(&amp;ctl-&gt;oldsaved);
+ 	report_complete(stdout, &quot;\n&quot;);
+     }
+ 
+-    if (ctl-&gt;newsaved)
++    if (uid_db_n_records(&amp;ctl-&gt;newsaved))
+     {
+ 	/* new state of mailbox is not reliable */
+ 	if (outlevel &gt;= O_DEBUG)
+ 	    report(stdout, GT_(&quot;discarding new UID list\n&quot;));
+-	free_str_list(&amp;ctl-&gt;newsaved);
+-	ctl-&gt;newsaved = (struct idlist *) NULL;
++	clear_uid_db(&amp;ctl-&gt;newsaved);
+     }
+ }
+ 
+ /** Reset the number associated with each id */
+ void uid_reset_num(struct query *ctl)
+ {
+-    struct idlist *idp;
+-    for (idp = ctl-&gt;oldsaved; idp; idp = idp-&gt;next)
+-	idp-&gt;val.status.num = 0;
++    reset_uid_db_nums(&amp;ctl-&gt;oldsaved);
+ }
+ 
+ /** Write list of seen messages, at end of run. */
++static int count_seen_deleted(struct uid_db_record *rec, void *arg)
++{
++    if (rec-&gt;status == UID_SEEN || rec-&gt;status == UID_DELETED)
++	++*(long *)arg;
++    return 0;
++}
++
++struct write_saved_info {
++    struct query *ctl;
++    FILE *fp;
++};
++
++static int write_uid_db_record(struct uid_db_record *rec, void *arg)
++{
++    struct write_saved_info *info;
++    int rc;
++
++    if (!(rec-&gt;status == UID_SEEN || rec-&gt;status == UID_DELETED))
++	return 0;
++
++    info = arg;
++    rc = fprintf(info-&gt;fp, &quot;%s@%s %s\n&quot;,
++		 info-&gt;ctl-&gt;remotename, info-&gt;ctl-&gt;server.queryname,
++		 rec-&gt;id);
++    return rc &lt; 0 ? -1 : 0;
++}
++
+ void write_saved_lists(struct query *hostlist, const char *idfile)
+ {
+     long	idcount;
+@@ -404,12 +455,8 @@
+ 
+     /* if all lists are empty, nuke the file */
+     idcount = 0;
+-    for (ctl = hostlist; ctl; ctl = ctl-&gt;next) {
+-	for (idp = ctl-&gt;oldsaved; idp; idp = idp-&gt;next)
+-	    if (idp-&gt;val.status.mark == UID_SEEN
+-		    || idp-&gt;val.status.mark == UID_DELETED)
+-		idcount++;
+-    }
++    for (ctl = hostlist; ctl; ctl = ctl-&gt;next)
++	traverse_uid_db(&amp;ctl-&gt;oldsaved, count_seen_deleted, &amp;idcount);
+ 
+     /* either nuke the file or write updated last-seen IDs */
+     if (!idcount &amp;&amp; !scratchlist)
+@@ -428,19 +475,22 @@
+ 	    report(stdout, GT_(&quot;Writing fetchids file.\n&quot;));
+ 	(void)unlink(newnam); /* remove file/link first */
+ 	if ((tmpfp = fopen(newnam, &quot;w&quot;)) != (FILE *)NULL) {
++	    struct write_saved_info info;
+ 	    int errflg = 0;
++
++	    info.fp = tmpfp;
++	    
+ 	    for (ctl = hostlist; ctl; ctl = ctl-&gt;next) {
+-		for (idp = ctl-&gt;oldsaved; idp; idp = idp-&gt;next)
+-		    if (idp-&gt;val.status.mark == UID_SEEN
+-				|| idp-&gt;val.status.mark == UID_DELETED)
+-			if (fprintf(tmpfp, &quot;%s@%s %s\n&quot;,
+-			    ctl-&gt;remotename, ctl-&gt;server.queryname, idp-&gt;id) &lt; 0) {
+-			    int e = errno;
+-			    report(stderr, GT_(&quot;Write error on fetchids file %s: %s\n&quot;), newnam, strerror(e));
+-			    errflg = 1;
+-			    goto bailout;
+-			}
++		info.ctl = ctl;
++		
++		if (traverse_uid_db(&amp;ctl-&gt;oldsaved, write_uid_db_record, &amp;info) &lt; 0) {
++		    int e = errno;
++		    report(stderr, GT_(&quot;Write error on fetchids file %s: %s\n&quot;), newnam, strerror(e));
++		    errflg = 1;
++		    goto bailout;
++		}
+ 	    }
++	    
+ 	    for (idp = scratchlist; idp; idp = idp-&gt;next)
+ 		if (EOF == fputs(idp-&gt;id, tmpfp)) {
+ 			    int e = errno;
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ fetchmail/uid_db.c	27 May 2010 21:14:18 -0000	1.23.2.39
+@@ -0,0 +1,547 @@
++/*
++  POP3 UID db
++  
++  	Copyright (c) 2010 MAD Partners, Ltd. (<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rweikusat at mssgmbh.com</A>)
++
++	This file is being published in accordance with the GPLv2 terms
++	contained in the COPYING file being part of the fetchmail
++	6.3.17 release, including the OpenSSL exemption.
++*/
++
++/*
++ * includes
++ */
++#include &lt;inttypes.h&gt;
++#include &lt;stdio.h&gt;
++#include &lt;stdlib.h&gt;
++#include &lt;string.h&gt;
++
++#include &quot;xmalloc.h&quot;
++#include &quot;uid_db.h&quot;
++
++/*
++ *  constants
++ */
++enum {
++    MIN_RECORDS =	16	/* arbitrary */
++};
++
++/*
++ *  types
++ */
++struct pat_node {
++    struct pat_node *ptrs_[3];
++    unsigned bit_ndx;
++    uint16_t bit_ofs, bit_mask;
++
++    struct uid_db_record *rec;
++};
++
++/*
++  The idea behind this is that the 'left' pointer of
++  a node is accessible as ptrs(np)[-1] and the right
++  one a ptrs(np)[1]. This implies that no separate codepaths
++  for 'symmetric left- and right-cases' are needed.
++*/
++#define ptrs(np) ((np)-&gt;ptrs_ + 1)
++
++/*
++ *  routines
++ */
++/*
++ **  various helpers
++ */
++static inline unsigned bit_ofs(unsigned bit_ndx)
++{
++    return bit_ndx &gt;&gt; 3;
++}
++
++static inline unsigned bit_mask(unsigned bit_ndx)
++{
++    return 1 &lt;&lt; (bit_ndx &amp; 7);
++}
++
++/*
++ **  PATRICIA trie insertion
++ */
++/*
++ ***  walkers
++ */
++static struct pat_node *walk_down(struct uid_db *db, struct uid_db_record *rec,
++				  struct pat_node ***edgep, struct pat_node **parentp)
++{
++    /*
++      Find the pat node whose id is 'most similar' to the id
++      stored in rec-&gt;id. Return a pointer to this node.
++      'parentp' and 'edgep' are output-only parameters which
++      will point to the parent of returned node and to the edge
++      pointer going from the parent to the returned node after
++      the call has returned.
++
++      This routine is intended for inserts only. 
++     */
++    struct pat_node *cur, **edge;
++    unsigned bit_ndx, v, ofs;
++
++    cur = db-&gt;pat_root;
++    ofs = -1;
++    do {
++	if (ofs != cur-&gt;bit_ofs) {
++	    ofs = cur-&gt;bit_ofs;
++	    v = ofs &lt; rec-&gt;id_len ? rec-&gt;id[ofs] : 0;
++	}
++	
++	bit_ndx = cur-&gt;bit_ndx;
++	edge = ptrs(cur) + (v &amp; cur-&gt;bit_mask ? 1 : -1);
++    } while ((cur = *edge) &amp;&amp; cur-&gt;bit_ndx &gt; bit_ndx);
++
++    *parentp =
++	(struct pat_node *)
++	((unsigned char *)edge - (v &amp; bit_mask(bit_ndx) ?
++				  offsetof(struct pat_node, ptrs_[2])
++				  : offsetof(struct pat_node, ptrs_[0])));
++    *edgep = edge;
++    return cur;
++}
++
++static inline struct pat_node *walk_up(unsigned diff_ndx, struct pat_node **parent)
++{
++    struct pat_node *p, *np;
++
++    np = *parent;
++    
++    while ((p = *ptrs(np)) &amp;&amp; p-&gt;bit_ndx &gt; diff_ndx)
++	np = p;
++
++    *parent = p;
++    return np;
++}
++
++/*
++ ***  bit fiddling
++ */
++static inline unsigned first_set_bit_in_char(unsigned v)
++{
++    return ffs(v) - 1;
++}
++
++static int find_first_diff_bit(struct uid_db_record const *r0,
++			       struct uid_db_record const *r1)
++{
++    /*
++      Return the bit_ndx of the first differing bit in
++      r0-&gt;id and r1-&gt;id or -1 if the strings are identical.
++    */
++    struct uid_db_record const *long_id;
++    unsigned ofs, max;
++    unsigned char v;
++
++    max = r0-&gt;id_len;
++    if (max &gt; r1-&gt;id_len) {
++	max = r1-&gt;id_len;
++	long_id = r0;
++    } else
++	long_id = r1;
++	
++    ofs = 0;
++    do
++	v = r0-&gt;id[ofs] ^ r1-&gt;id[ofs];
++    while (!v &amp;&amp; ++ofs &lt; max);
++
++    if (!v) {
++	if (r0-&gt;id_len == r1-&gt;id_len) return -1;
++	v = long_id-&gt;id[ofs];
++    }
++
++    return first_set_bit_in_char(v) + ofs * 8;
++}
++
++static inline unsigned bit_set(struct pat_node const *np,
++			       struct uid_db_record const *rec)
++{
++    return np-&gt;bit_ofs &lt; rec-&gt;id_len ?
++	rec-&gt;id[np-&gt;bit_ofs] &amp; np-&gt;bit_mask : 0;
++}
++
++/*
++ ***  node allocation
++ */
++static struct pat_node *get_pat_node(struct uid_db_record *rec)
++{
++    struct pat_node *np;
++
++    np = xmalloc(sizeof(*np));
++    np-&gt;rec = rec;
++    rec-&gt;next = NULL;
++    return np;
++}
++
++static struct pat_node *get_standalone_node(struct uid_db_record *rec)
++{
++    /*
++      Return a pat_node suitable for being inserted on the 'left edge'
++      of the trie, ie either linked to a node whose left pointer was zero
++      or being inserted as root node into an empty trie. The bit_ndx of
++      the pat_node is set to the index corresponding with the highest
++      set bit in rec-&gt;id.
++
++      NB: This is a bad choice when UIDs share a common prefix because
++      this implies that the root node will cause a bit to be tested which
++      is non-zero in all other nodes, adding a theoretically redundant
++      level to the trie. This is (to the best of my knowledge) un-
++      fortunately unavoidable if nodes with different key lengths need
++      to be supported.
++    */
++    struct pat_node *np;
++
++    np = get_pat_node(rec);
++    
++    np-&gt;bit_ndx = first_set_bit_in_char(*rec-&gt;id);
++    np-&gt;bit_mask = bit_mask(np-&gt;bit_ndx);
++    np-&gt;bit_ofs = bit_ofs(np-&gt;bit_ndx);
++    
++    return np;
++}
++
++/*
++ ***  various helpers
++ */
++static inline int record_id_equal(struct uid_db_record const *r0,
++				  struct uid_db_record const *r1)
++{
++    return
++	r0-&gt;id_len == r1-&gt;id_len
++	&amp;&amp; memcmp(r0-&gt;id, r1-&gt;id, r0-&gt;id_len) == 0;
++}
++
++static struct uid_db_record *append_to_list(struct uid_db_record **recp,
++					    struct uid_db_record *rec)
++{
++    while (*recp) recp = &amp;(*recp)-&gt;next;
++    *recp = rec;
++    
++    rec-&gt;next = NULL;
++    return rec;
++}
++
++/*
++ ***  insert routine
++ */
++static struct uid_db_record *pat_insert(struct uid_db *db,
++					struct uid_db_record *rec)
++{
++    /*
++      Insert the record pointed to by rec in the (potentially empty)
++      PATRICIA trie pointed to by db-&gt;pat_root and return rec.
++    */
++    struct pat_node *np, *closest, *parent, **edge;
++    int me, bit_ndx;
++
++    if (!db-&gt;pat_root) {
++	np = get_standalone_node(rec);
++	ptrs(np)[-1] = *ptrs(np) = NULL;
++	ptrs(np)[1] = np;
++	
++	db-&gt;pat_root = np;
++	return rec;
++    }
++
++    closest = walk_down(db, rec, &amp;edge, &amp;parent);
++
++    if (closest) {
++	bit_ndx = find_first_diff_bit(closest-&gt;rec, rec);
++	if (bit_ndx &lt; 0)
++	    return append_to_list(&amp;closest-&gt;rec-&gt;next, rec);
++
++	np = get_pat_node(rec);
++	
++	np-&gt;bit_ndx = bit_ndx;
++	np-&gt;bit_mask = bit_mask(bit_ndx);
++	np-&gt;bit_ofs = bit_ofs(bit_ndx);
++    } else
++	np = get_standalone_node(rec);
++
++    if (parent-&gt;bit_ndx &gt; np-&gt;bit_ndx) {
++	closest = walk_up(np-&gt;bit_ndx, &amp;parent);
++
++	if (!parent) edge = &amp;db-&gt;pat_root;
++	else edge = ptrs(parent)[-1] == closest ?
++		 ptrs(parent) - 1 : ptrs(parent) + 1;
++	*ptrs(closest) = np;
++    }
++    
++    *edge = np;
++    *ptrs(np) = parent;
++
++    me = bit_set(np, rec) ? 1 : -1;
++    ptrs(np)[me] = np;
++    ptrs(np)[-me] = closest;
++
++    return rec;
++}
++
++/*
++ **  general db insertion
++ */
++static struct uid_db_record *get_uid_db_record(char const *id, unsigned status)
++{
++    struct uid_db_record *rec;
++    size_t id_len;
++
++    rec = xmalloc(sizeof(*rec));
++
++    id_len = strlen(id);
++    rec-&gt;id = memcpy(xmalloc(id_len + 1), id, id_len + 1);
++    rec-&gt;id_len = id_len;
++    rec-&gt;status = status;
++    rec-&gt;num = 0;
++
++    return rec;
++}
++
++static void insert_into_records(struct uid_db *db,
++				struct uid_db_record *rec)
++{
++    unsigned next, want;
++
++    next = db-&gt;records_next;
++    
++    if (next == db-&gt;records_max) {
++	want = db-&gt;records_max *= 2;
++	db-&gt;records = xrealloc(db-&gt;records, want * sizeof(rec));
++    }
++
++    rec-&gt;pos = next;
++    db-&gt;records[next] = rec;
++    db-&gt;records_next = next + 1;
++}
++
++struct uid_db_record *uid_db_insert(struct uid_db *db,
++				    char const *id, unsigned status)
++{
++    struct uid_db_record *rec;
++    
++    rec = get_uid_db_record(id, status);
++    insert_into_records(db, rec);
++    return pat_insert(db, rec);
++}
++
++/*
++ **  message number index
++ */
++void set_uid_db_num(struct uid_db *db, struct uid_db_record *rec,
++		    unsigned num)
++{
++    /*
++      Set the message number of the record pointed to by rec to num
++      and insert it into the num_ndx of the uid_db pointed to by db
++      at position corresponding with num. The num_ndx lookup array
++      is grown as needed. Message numbers are expected to 'generally'
++      be recorded in ascending order and hence, no provisions are
++      made to deal with the potentially quadratic complexity of
++      inserting a sequence of numbers into an array such that it
++      needs to be grown continuously.
++    */
++    struct num_ndx *num_ndx;
++    unsigned have, want;
++
++    num_ndx = &amp;db-&gt;num_ndx;
++    
++    if (num_ndx-&gt;end_value &gt; num) {
++	have = num_ndx-&gt;pos_0_value - num_ndx-&gt;end_value + 1;
++	want = num_ndx-&gt;pos_0_value - num + 1;
++	num_ndx-&gt;end_value = num;
++	
++	num_ndx-&gt;records = xrealloc(num_ndx-&gt;records, want * sizeof(rec));
++	do num_ndx-&gt;records[--want] = NULL; while (want &gt; have);
++    }
++
++    num_ndx-&gt;records[uid_db_num_ofs(num_ndx, num)] = rec;
++}
++
++void reset_uid_db_nums(struct uid_db *db)
++{
++    /*
++      Reset the message numbers of all uid_db_records stored
++      in the uid_db pointed to by db. The corresponding num_ndx
++      lookup array is afterwards freed and the num_ndx end_value
++      adjusted in order to indicate an 'empty' message number
++      index.
++    */
++    struct uid_db_record **rec;
++    struct num_ndx *num_ndx;
++    unsigned ndx;
++
++    num_ndx = &amp;db-&gt;num_ndx;
++
++    if (num_ndx-&gt;end_value &lt; num_ndx-&gt;pos_0_value) {
++	ndx = num_ndx-&gt;pos_0_value - num_ndx-&gt;end_value;
++	while (ndx) {
++	    rec = num_ndx-&gt;records + --ndx;
++	    if (*rec) (*rec)-&gt;num = 0;
++	}
++
++	num_ndx-&gt;end_value = num_ndx-&gt;pos_0_value + 1;
++
++	free(num_ndx-&gt;records);
++	num_ndx-&gt;records = NULL;
++    }
++}
++
++/*
++ **  search routines
++ */
++struct uid_db_record *find_uid_by_id(struct uid_db *db, char const *id)
++{
++    struct pat_node *np;
++    struct uid_db_record *rec;
++    unsigned v, bit_ndx, ofs;
++    size_t len;
++
++    np = db-&gt;pat_root;
++    if (np) {
++	len = strlen(id);
++	ofs = -1;
++	do {
++	    if (ofs != np-&gt;bit_ofs) {
++		ofs = np-&gt;bit_ofs;
++		v = ofs &lt; len ? id[ofs] : 0;
++	    }
++
++	    bit_ndx = np-&gt;bit_ndx;
++	    np = ptrs(np)[v &amp; bit_mask(bit_ndx) ? 1 : -1];
++	} while (np &amp;&amp; np-&gt;bit_ndx &gt; bit_ndx);
++
++	if (!np) return NULL;
++
++	rec = np-&gt;rec;
++	return rec-&gt;id_len == len &amp;&amp; memcmp(id, rec-&gt;id, len) == 0 ?
++	    rec : NULL;
++    }
++
++    return NULL;
++}
++
++struct uid_db_record *last_uid_in_db(struct uid_db *db, char const *id)
++{
++    struct uid_db_record *rec;
++
++    rec = find_uid_by_id(db, id);
++    if (!rec) return NULL;
++
++    while (rec-&gt;next) rec = rec-&gt;next;
++    return rec;
++}
++
++/*
++ **  destruction
++ */
++static void free_uid_list(struct uid_db_record *rec)
++{
++    if (rec-&gt;next) free_uid_list(rec-&gt;next);
++
++    xfree(rec-&gt;id);
++    xfree(rec);
++}
++
++static void free_pat_trie(struct pat_node *np)
++{
++    /*
++      Free the PATRCIA-trie pointed to by np and all
++      uid_db_records contained in it.
++
++      The algorithm implemented below is:
++
++      	1. Load the left pointer of the node pointed to by
++	   np into next.
++
++	2. If the result is not NULL,
++		2a) Set the left pointer to NULL.
++		2b) Goto 1 if next points to a child of np.
++
++	3. Load the right pointer of the node pointed to by
++	   np into next.
++
++	4. If the result is not NULL,
++		4a) Set the right pointer to NULL.
++		4b) Goto 1 id next points to a child of np.
++
++	5. Load next with the parent pointer of np.
++
++	6. Free np-&gt;rec and np.
++
++	7. Set np to next and goto 1 if it is not null.
++    */
++    struct pat_node *next;
++    
++    do {
++        next = ptrs(np)[-1];
++        if (next) {
++            ptrs(np)[-1] = NULL;
++            if (next-&gt;bit_ndx &gt; np-&gt;bit_ndx) continue;
++        }
++
++        next = ptrs(np)[1];
++        if (next) {
++            ptrs(np)[1] = NULL;
++            if (next-&gt;bit_ndx &gt; np-&gt;bit_ndx) continue;
++        }
++
++        next = *ptrs(np);
++        
++        free_uid_list(np-&gt;rec);
++        free(np);
++    } while ((np = next));
++}
++
++void free_uid_db(struct uid_db *db)
++{
++    if (db-&gt;pat_root) free_pat_trie(db-&gt;pat_root);
++
++    xfree(db-&gt;records);
++    xfree(db-&gt;num_ndx.records);
++}
++
++/*
++ **  various public interfaces
++ */
++void init_uid_db(struct uid_db *db)
++{
++    struct num_ndx *num_ndx;
++    
++    db-&gt;pat_root = NULL;
++    
++    db-&gt;records = xmalloc(MIN_RECORDS * sizeof(*db-&gt;records));
++    db-&gt;records_max = MIN_RECORDS;
++    db-&gt;records_next = 0;
++
++    num_ndx = &amp;db-&gt;num_ndx;
++    num_ndx-&gt;pos_0_value = num_ndx-&gt;end_value = -1;
++    num_ndx-&gt;records = NULL;
++}
++
++void swap_uid_db_data(struct uid_db *db_0, struct uid_db *db_1)
++{
++    struct uid_db tmp;
++
++    tmp = *db_0;
++    *db_0 = *db_1;
++    *db_1 = tmp;
++}
++
++int traverse_uid_db(struct uid_db *db,
++		     uid_db_traversal_routine *r, void *arg)
++{
++    struct uid_db_record **recs;
++    unsigned ndx, max;
++    int rc;
++
++    rc = 0;
++    ndx = 0;
++    max = db-&gt;records_next;
++    recs = db-&gt;records;
++    while (ndx &lt; max &amp;&amp; (rc = r(recs[ndx], arg)) == 0)
++	++ndx;
++
++    return rc;
++}
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ fetchmail/uid_db.h	27 May 2010 21:09:47 -0000	1.3.2.20
+@@ -0,0 +1,155 @@
++/*
++  POP3 UID database
++
++  	Copyright (c) 2010 MAD Partners, Ltd. (<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rweikusat at mssgmbh.com</A>)
++
++	This file is being published in accordance with the GPLv2 terms
++	contained in the COPYING file being part of the fetchmail
++	6.3.17 release, including the OpenSSL exemption.
++*/
++#ifndef fetchmail_uid_db_h
++#define fetchmail_uid_db_h
++
++/*
++ *  includes
++ */
++#include &lt;stddef.h&gt;
++
++/*  types */
++struct uid_db_record {
++    char *id;
++    size_t id_len;
++
++    /*
++      num	-	message number assigned by server
++      status	-	message status (eg seen, deleted, ...)
++      pos	-	position in record list
++    */
++    unsigned num, status, pos;
++
++    struct uid_db_record *next;
++};
++
++struct num_ndx {
++    /*
++      Used to find uid records by message number.
++
++      pos_0_value	-	highest message number
++      end_value		-	lowest known message number
++
++      Grows downwards because the fastuidl-code may record
++      message numbers in non-ascending order but the 
++      lookup array should ideally only be large enough to
++      store pointers to interesting ('new') messages.
++    */
++    struct uid_db_record **records;
++    unsigned pos_0_value, end_value;
++};
++
++struct uid_db 
++{
++    struct pat_node *pat_root;
++    
++    struct uid_db_record **records;
++    unsigned records_max, records_next;
++
++    struct num_ndx num_ndx;
++};
++
++typedef int uid_db_traversal_routine(struct uid_db_record *, void *);
++
++/*
++ *  routines
++ */
++/*
++ **  initialization/ finalization
++ */
++void init_uid_db(struct uid_db *db);
++
++void free_uid_db(struct uid_db *db);
++
++static inline void clear_uid_db(struct uid_db *db)
++{
++    free_uid_db(db);
++    init_uid_db(db);
++}
++
++/*
++ **  message number index handling
++ */
++static inline unsigned uid_db_num_ofs(struct num_ndx const *num_ndx, unsigned num)
++{
++    return num_ndx-&gt;pos_0_value - num;
++}
++
++void set_uid_db_num(struct uid_db *db, struct uid_db_record *rec,
++		    unsigned num);
++
++static inline void set_uid_db_num_pos_0(struct uid_db *db, unsigned num)
++{
++    db-&gt;num_ndx.pos_0_value = num;
++    db-&gt;num_ndx.end_value = num + 1;
++}
++
++void reset_uid_db_nums(struct uid_db *db);
++
++/*
++ **  various uidl db manipulatiors
++ */
++struct uid_db_record *uid_db_insert(struct uid_db *db,
++				    char const *id, unsigned status);
++
++void swap_uid_db_data(struct uid_db *db_0, struct uid_db *db_1);
++
++/*
++ **  search routines
++ */
++struct uid_db_record *find_uid_by_id(struct uid_db *db, char const *id);
++
++static inline struct uid_db_record *
++find_uid_by_num(struct uid_db *db, unsigned num)
++{
++    struct num_ndx *num_ndx;
++
++    num_ndx = &amp;db-&gt;num_ndx;
++    return num &gt;= num_ndx-&gt;end_value ?
++	num_ndx-&gt;records[uid_db_num_ofs(num_ndx, num)] : NULL;
++}
++    
++static inline struct uid_db_record *
++find_uid_by_pos(struct uid_db *db, unsigned pos)
++{
++    return pos &lt; db-&gt;records_next ? db-&gt;records[pos] : NULL;
++}
++
++static inline struct uid_db_record *
++first_uid_in_db(struct uid_db *db, char const *id)
++{
++    return find_uid_by_id(db, id);
++}
++    
++struct uid_db_record *last_uid_in_db(struct uid_db *db, char const *id);
++
++/*
++ **  various accessors
++ */
++static inline unsigned uid_db_n_records(struct uid_db const *db)
++{
++    return db-&gt;records_next;
++}
++
++/*
++  Traverses the struct uid_db records array in insert order,
++  invoking the subroutine pointed to by r with a pointer to
++  each record and the arg pointer as arguments. If the return
++  value of that is non-zero, traverse_uid_db immediately returns
++  with this value. Otherwise, zero is returned after the last
++  record was visited.
++
++  The uid_db_traversal_routine must not modify the uid_db during
++  traversal.
++*/
++int traverse_uid_db(struct uid_db *db,
++		    uid_db_traversal_routine *r, void *arg);
++
++#endif
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001386.html">[fetchmail-devel] 24h comparison of old and new UID handling code
+</A></li>
+	<LI>Next message: <A HREF="001388.html">[fetchmail-devel] Presently running code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1387">[ date ]</a>
+              <a href="thread.html#1387">[ thread ]</a>
+              <a href="subject.html#1387">[ subject ]</a>
+              <a href="author.html#1387">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

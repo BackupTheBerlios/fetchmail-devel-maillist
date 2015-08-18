@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Downloading remote server certificate for a TLS session?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Downloading%20remote%20server%20certificate%20for%20a%0A%20TLS%20session%3F&In-Reply-To=%3C46CCBF35.2060401%40plonk.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000936.html">
+   <LINK REL="Next"  HREF="000939.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Downloading remote server certificate for a TLS session?</H1>
+    <B>Jakob Hirsch</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Downloading%20remote%20server%20certificate%20for%20a%0A%20TLS%20session%3F&In-Reply-To=%3C46CCBF35.2060401%40plonk.de%3E"
+       TITLE="[fetchmail-devel] Downloading remote server certificate for a TLS session?">jh at plonk.de
+       </A><BR>
+    <I>Thu Aug 23 00:56:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000936.html">[fetchmail-devel] Downloading remote server certificate for a	TLS session?
+</A></li>
+        <LI>Next message: <A HREF="000939.html">[fetchmail-devel] Downloading remote server certificate for a	TLS session?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#938">[ date ]</a>
+              <a href="thread.html#938">[ thread ]</a>
+              <a href="subject.html#938">[ subject ]</a>
+              <a href="author.html#938">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rob MacGregor wrote:
+
+&gt;&gt;<i> You are probably looking for
+</I>&gt;&gt;<i> openssl s_client -connect your.server:pop3s
+</I>&gt;&gt;<i> (or ...:pop3 -starttls pop3)
+</I>&gt;<i> I just tried &quot;openssl s_client -connect my.mail.server:pop3 -starttls
+</I>&gt;<i> pop3&quot; and all I get is:
+</I>&gt;<i> 
+</I>&gt;<i> connect: Connection refused
+</I>&gt;<i> connect:errno=61
+</I>
+I don't know anything about your server, but it works fine here:
+
+$ openssl s_client -connect koi:pop3 -starttls pop3
+CONNECTED(00000003)
+...
++OK Dovecot ready. &lt;...&gt;
+
+&gt;&gt;<i> starttls works only with pop3 and smtp, though (and the smtp support is
+</I>&gt;&gt;<i> lousy...).
+</I>&gt;<i> The recent thread was about an IMAP server that supported TLS, but
+</I>&gt;<i> there was no IMAPS support, and my own test suggests that the s_client
+</I>&gt;<i> protocol support is, well, poor.  If we're going to encourage the use
+</I>
+Right, but I don't hink that fetchmail is the right tool for that. On
+the other hand, it's not that hard to print the certificate.
+
+But it looks like the openssl people are working on it: 0.9.8e also
+contains STARTTLS support for imap (and even handles smtp properly).
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000936.html">[fetchmail-devel] Downloading remote server certificate for a	TLS session?
+</A></li>
+	<LI>Next message: <A HREF="000939.html">[fetchmail-devel] Downloading remote server certificate for a	TLS session?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#938">[ date ]</a>
+              <a href="thread.html#938">[ thread ]</a>
+              <a href="subject.html#938">[ subject ]</a>
+              <a href="author.html#938">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

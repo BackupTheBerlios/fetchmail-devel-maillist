@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] fetchmail.man mentions wrong options
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20fetchmail.man%20mentions%20wrong%20options&In-Reply-To=%3C20070429200937.73212200E9C%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000917.html">
+   <LINK REL="Next"  HREF="000919.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] fetchmail.man mentions wrong options</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20fetchmail.man%20mentions%20wrong%20options&In-Reply-To=%3C20070429200937.73212200E9C%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [PATCH] fetchmail.man mentions wrong options">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun Apr 29 22:09:36 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000917.html">[fetchmail-devel] [PATCH] fetchmail.man mentions wrong options
+</A></li>
+        <LI>Next message: <A HREF="000919.html">[fetchmail-devel] [PATCH] fetchmail.man mentions wrong options
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#918">[ date ]</a>
+              <a href="thread.html#918">[ thread ]</a>
+              <a href="subject.html#918">[ subject ]</a>
+              <a href="author.html#918">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Nico Golde schrieb:
+&gt;<i> Hi,
+</I>&gt;<i> attached patch fixes Debian bug
+</I>&gt;<i> <A HREF="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=421446">http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=421446</A>
+</I>&gt;<i> Kind regards
+</I>&gt;<i> Nico
+</I>
+Does it?
+
+&gt;<i> --- fetchmail.man	2007-04-08 14:52:42.000000000 +0200
+</I>&gt;<i> +++ fetchmail.man.new	2007-04-29 16:59:30.000000000 +0200
+</I>&gt;<i> @@ -408,10 +408,10 @@
+</I>&gt;<i>  .TP
+</I>&gt;<i>  .B \-\-sslproto &lt;name&gt;
+</I>&gt;<i>  (Keyword: sslproto)
+</I>&gt;<i> -Forces an SSL or TLS protocol. Possible values are '\fBSSL2\fR',
+</I>&gt;<i> -\&amp;'\fBSSL3\fR', '\fBSSL23\fR', and '\fBTLS1\fR'. Try this if the default
+</I>&gt;<i> +Forces an SSL or TLS protocol. Possible values are '\fBssl2\fR',
+</I>&gt;<i> +\&amp;'\fBssl3\fR', '\fBssl23\fR', and '\fBtls1\fR'. Try this if the default
+</I>&gt;<i>  handshake does not work for your server. Use this option with
+</I>&gt;<i> -'\fBTLS1\fR' to enforce a TLS connection. To defeat opportunistic TLSv1
+</I>&gt;<i> +'\fBtls1\fR' to enforce a TLS connection. To defeat opportunistic TLSv1
+</I>&gt;<i>  negotiation when the server advertises STARTTLS or STLS, use \fB''\fR.
+</I>&gt;<i>  This option, even if the argument is the empty string, will also
+</I>&gt;<i>  suppress the diagnostic 'SERVER: opportunistic upgrade to TLS.' message
+</I>
+The match is case insensitive, so no need to hack the manpage.
+I can't reproduce this in 6.3.8 either, so no action required upstream.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000917.html">[fetchmail-devel] [PATCH] fetchmail.man mentions wrong options
+</A></li>
+	<LI>Next message: <A HREF="000919.html">[fetchmail-devel] [PATCH] fetchmail.man mentions wrong options
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#918">[ date ]</a>
+              <a href="thread.html#918">[ thread ]</a>
+              <a href="subject.html#918">[ subject ]</a>
+              <a href="author.html#918">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

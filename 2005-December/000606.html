@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #5887] Spurious(?) 553 leads to lost mail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%235887%5D%20Spurious%28%3F%29%20553%20leads%20to%20lost%20mail&In-Reply-To=%3C200512150321.jBF3Lk8R017219%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000598.html">
+   <LINK REL="Next"  HREF="000608.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #5887] Spurious(?) 553 leads to lost mail</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%235887%5D%20Spurious%28%3F%29%20553%20leads%20to%20lost%20mail&In-Reply-To=%3C200512150321.jBF3Lk8R017219%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #5887] Spurious(?) 553 leads to lost mail">noreply at berlios.de
+       </A><BR>
+    <I>Thu Dec 15 04:21:46 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000598.html">[fetchmail-devel] fetchmail 6.3.1-pre1 snapshot - please test
+</A></li>
+        <LI>Next message: <A HREF="000608.html">[fetchmail-devel] [Bug #5887] Spurious(?) 553 leads to lost mail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#606">[ date ]</a>
+              <a href="thread.html#606">[ thread ]</a>
+              <a href="subject.html#606">[ subject ]</a>
+              <a href="author.html#606">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #5887, was updated on 2005-Dec-14 22:21
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: dronis
+Assigned to : none
+Summary: Spurious(?) 553 leads to lost mail
+
+Details: I've just started using fetchmail to bring down mail from fetchmail  6.2.5.2+SSL+NLS to and from on a linux box.  Itt seemed to work, however, I've just discovered that some mail was simply being dropped.  Running with -v shows:
+
+fetchmail: POP3&gt; LIST 3
+fetchmail: POP3&lt; +OK 3 2543
+fetchmail: POP3&gt; RETR 3
+fetchmail: POP3&lt; +OK 2543 octets
+reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">margaret at localhost</A>:3 of 13 (2543 octets)
+fetchmail: SMTP&gt; MAIL FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nakato at fukuoka-pu.ac.jp</A>&gt; BODY=7BIT SIZE=2543
+fetchmail: SMTP&lt; 553 5.1.8 &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nakato at fukuoka-pu.ac.jp</A>&gt;... Domain of sender address
+ <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nakato at fukuoka-pu.ac.jp</A> does not exist
+fetchmail: SMTP error: 553 5.1.8 &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nakato at fukuoka-pu.ac.jp</A>&gt;... Domain of sender address <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nakato at fukuoka-pu.ac.jp</A> does not exist
+fetchmail: SMTP&gt; RSET
+fetchmail: SMTP&lt; 250 2.0.0 Reset state
+ flushed
+fetchmail: POP3&gt; DELE 3
+fetchmail: POP3&lt; +OK Message 3 has been deleted.
+
+The domain and user both exist (and in any case, the e-mail gets to a very heavily spam-protected site I'm using as my mailhost).
+
+host -a fukuoka-pu.ac.jp
+Trying &quot;fukuoka-pu.ac.jp&quot;
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 53810
+;; flags: qr rd ra; QUERY: 1, ANSWER: 4, AUTHORITY: 2, ADDITIONAL: 1
+
+;; QUESTION SECTION:
+;fukuoka-pu.ac.jp.              IN      ANY
+
+;; ANSWER SECTION:
+fukuoka-pu.ac.jp.       86400   IN      MX      10 fpu-vs.fukuoka-pu.ac.jp.
+fukuoka-pu.ac.jp.       86400   IN      SOA     sparc.fukuoka-pu.ac.jp. postmaster.fukuoka-pu.ac.jp. 20030308 10800 3600 604800 86400
+fukuoka-pu.ac.jp.       86400   IN      NS      sparc.fukuoka-pu.ac.jp.
+fukuoka-pu.ac.jp.       86400   IN      NS      fwugate.fwu.ac.jp.
+
+;; AUTHORITY SECTION:
+fukuoka-pu.ac.jp.       86400   IN      NS      sparc.fukuoka-pu.ac.jp.
+fukuoka-pu.ac.jp.       86400   IN      NS      fwugate.fwu.ac.jp.
+
+;; ADDITIONAL SECTION:
+fpu-vs.fukuoka-pu.ac.jp. 86400  IN      A       202.236.111.232
+
+Notice the existence of the MX section of the lookup.  Shouldn't that be enough not to trigger a 553?
+
+In any event,  is there a way to disable this &quot;feature&quot;  There's already tons of spam filtering upstream of me and my mailclient will filter it again.
+
+David
+
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5887&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5887&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000598.html">[fetchmail-devel] fetchmail 6.3.1-pre1 snapshot - please test
+</A></li>
+	<LI>Next message: <A HREF="000608.html">[fetchmail-devel] [Bug #5887] Spurious(?) 553 leads to lost mail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#606">[ date ]</a>
+              <a href="thread.html#606">[ thread ]</a>
+              <a href="subject.html#606">[ subject ]</a>
+              <a href="author.html#606">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

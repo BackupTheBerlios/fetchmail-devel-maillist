@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Incorrect header line and lost mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3C440E970F.1050308%40wowcompany.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000687.html">
+   <LINK REL="Next"  HREF="000699.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Incorrect header line and lost mails</H1>
+    <B>Frederic Marchal</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3C440E970F.1050308%40wowcompany.com%3E"
+       TITLE="[fetchmail-devel] Re: Incorrect header line and lost mails">frederic.marchal at wowcompany.com
+       </A><BR>
+    <I>Wed Mar  8 09:34:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000687.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000699.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#688">[ date ]</a>
+              <a href="thread.html#688">[ thread ]</a>
+              <a href="subject.html#688">[ subject ]</a>
+              <a href="author.html#688">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye wrote:
+&gt;<i> Quoting from Matthias Andree's mail on Tue, Mar 07, 2006:
+</I>&gt;<i>   
+</I>&gt;&gt;<i> what should we do WRT fastuidl?  We seem to need sanity checks to disable
+</I>&gt;&gt;<i> the fastuidl search for servers such as Fr?d?ric's.
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> One option is to change the default to a lower value from the current
+</I>&gt;<i> value of 10. The lowest practical value is 2, which will use linear
+</I>&gt;<i> search in alternate polls.
+</I>&gt;<i>
+</I>&gt;<i> A default of 4 should be alright. It will use linear search in the
+</I>&gt;<i> first poll, followed by binary search in the next three polls,
+</I>&gt;<i> followed by linear search in the next poll, and so on.
+</I>&gt;<i>
+</I>&gt;<i> Other solutions are also possible. For example, keeping a map of UID
+</I>&gt;<i> and message number in memory (with corrections for mails deleted after
+</I>&gt;<i> logout). Then, when there is a mismatch in the message number expected
+</I>&gt;<i> and the message number received from the remote server for any one
+</I>&gt;<i> mail, a linear search should be forced in the next(*) poll. This would
+</I>&gt;<i> be equivalent to setting fastuidl to 2 if this mismatch happens in
+</I>&gt;<i> every poll.
+</I>&gt;<i>
+</I>&gt;<i> Note that Frederic has claimed that messages with low UID never get
+</I>&gt;<i> downloaded. This is only partially correct. In his case, messages with
+</I>&gt;<i> low UID never get downloaded whenever a binary search is performed.
+</I>&gt;<i> However, a linear search is performed once in every ten polls
+</I>&gt;<i> (starting with the first poll) and these messages which were missed
+</I>&gt;<i> out earlier will get downloaded in this poll with linear search.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>Thank you for the clarification ! I was wondering why none of my user 
+had complained about any lost e-mail. We receive a lot of spam but I 
+would have been surprised if all the lost e-mails were only spam :-)
+
+A suitable solution would be to have an entry in the FAQ with the 
+settings required for a smooth operation with Mercury. If I understand 
+it right, the only bad effect is a long delay (up to 10 times the poll 
+delay) in the delivery of some e-mails. It isn't that bad.
+
+BTW, I reported this sorting feature and the long lines wrapping problem 
+to the Mercury mailing list but I don't expect any answer. It is closed 
+source and with only one developer. David Harris seems to be busy fixing 
+other more urgent problems in his mail client Pegasus Mail.
+
+Frederic
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000687.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000699.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#688">[ date ]</a>
+              <a href="thread.html#688">[ thread ]</a>
+              <a href="subject.html#688">[ subject ]</a>
+              <a href="author.html#688">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

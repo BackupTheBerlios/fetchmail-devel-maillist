@@ -1,0 +1,367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] Re: imap search improvements
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20imap%20search%20improvements&In-Reply-To=%3C20100203122923.GA398%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001220.html">
+   <LINK REL="Next"  HREF="001222.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] Re: imap search improvements</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20imap%20search%20improvements&In-Reply-To=%3C20100203122923.GA398%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] Re: imap search improvements">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Feb  3 13:29:23 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001220.html">[fetchmail-devel] imap search improvements
+</A></li>
+        <LI>Next message: <A HREF="001222.html">[fetchmail-devel] [PATCH] Re: imap search improvements
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1221">[ date ]</a>
+              <a href="thread.html#1221">[ thread ]</a>
+              <a href="subject.html#1221">[ subject ]</a>
+              <a href="author.html#1221">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Matthias,
+
+Please check the attached patch for improving imap search.
+
+Quoting from Matthias Andree's mail on Mon, Feb 01, 2010:
+&gt;<i> &gt; 1. In r3838, the &quot;SEARCH UNSEEN&quot; was changed to &quot;SEARCH UNSEEN NOT
+</I>&gt;<i> &gt; DELETED&quot;. Some imap servers do not support such a complex search
+</I>&gt;<i> &gt; phrase. I could find only one reference for that:
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; <A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2004-June/008897.html">http://lists.ccil.org/pipermail/fetchmail-friends/2004-June/008897.html</A>
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; I propose that that change should be undone.
+</I>
+...
+
+&gt;<i> The issue reported 5 years ago refers to a regression on IMAP2 servers, and a
+</I>&gt;<i> regression fix is also always acceptable (though 6.2.X remains unsupported by
+</I>&gt;<i> me, I'm not releasing another 6.2.X - the fix will go into 6.3.X then).
+</I>&gt;<i> 
+</I>&gt;<i> In the implementation of the fix, could you switch by protocol version to use
+</I>&gt;<i> the &quot;... NOT DELETED&quot; form for newer servers (IMAP4r1, not sure if IMAP4 also
+</I>&gt;<i> supports it), and the older &quot;SEARCH UNSEEN&quot; only in IMAP2?  That would give us
+</I>&gt;<i> the best of both approaches -- or perhaps we could just fall back to SEARCH
+</I>&gt;<i> UNSEEN if SEARCH UNSEEN NOT DELETED fails?
+</I>
+Ok, I have ensured that &quot;SEARCH UNSEEN&quot; is used for IMAP2 servers.
+
+Also, I have also changed &quot;NOT DELETED&quot; to &quot;UNDELETED&quot; assuming that
+&quot;SEARCH UNSEEN UNDELETED&quot; will be faster than &quot;SEARCH UNSEEN NOT
+DELETED&quot;. This syntax is acceptable as per IMAP4 and IMAP4r1 RFCs.
+
+&gt;<i> &gt; 2. Some servers do not support &quot;SEARCH&quot; at all. Here are some
+</I>&gt;<i> &gt; references for that:
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; <A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2004-May/008675.html">http://lists.ccil.org/pipermail/fetchmail-friends/2004-May/008675.html</A>
+</I>&gt;<i> &gt; <A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2005-January/009351.html">http://lists.ccil.org/pipermail/fetchmail-friends/2005-January/009351.html</A>
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; In this case, as a fallback, fetchmail should use something like:
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; FETCH 1:1000 FLAGS
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; and process all mails without \Seen as unseen.
+</I>&gt;<i> 
+</I>&gt;<i> Much appreciated. OK since it extends fetchmail's audience.
+</I>
+...
+
+&gt;<i> &gt; 3. The reply to &quot;SEARCH UNSEEN&quot; overflows fetchmail buffer when there
+</I>&gt;<i> &gt; are more than 1860 unseen mails. fetchmail should do a range search:
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; SEARCH 1:1000 UNSEEN
+</I>&gt;<i> &gt; SEARCH 1001:2000 UNSEEN
+</I>&gt;<i> &gt; ...
+</I>&gt;<i> 
+</I>&gt;<i> Desirable bug fix.
+</I>
+...
+
+&gt;<i> Looking forward to your patches!
+</I>
+Thanks a lot for that. I am submitting only one patch to fix all the
+mentioned issues. It is not practical for me to submit separate
+patches since all the issues are interlinked. Hope that that is
+acceptable to you.
+
+Here are the expected fallbacks this patch will do. This means that if
+one search command fails, this patch will use the next command as per
+the following list:
+
+Case 1)
+    no fetchall
+    keep
+    IMAP4 server or higher
+    2000 mails in mailbox
+
+IMAP&gt; SEARCH 1:1000 UNSEEN UNDELETED
+IMAP&gt; SEARCH 1:1000 UNSEEN                   # fallback 1
+IMAP&gt; SEARCH UNSEEN                          # fallback 2
+IMAP&gt; FETCH 1:2000 FLAGS                     # fallback 3
+
+Case 2)
+    no fetchall
+    keep
+    IMAP4 server or higher
+    300 mails in mailbox
+
+IMAP&gt; SEARCH UNSEEN UNDELETED
+IMAP&gt; SEARCH UNSEEN                          # fallback 1
+IMAP&gt; FETCH 1:300 FLAGS                      # fallback 2
+
+Case 3)
+    no fetchall
+    no keep or IMAP2 server or both
+    4000 mails in mailbox
+
+IMAP&gt; SEARCH 1:1000 UNSEEN
+IMAP&gt; SEARCH UNSEEN                          # fallback 1
+IMAP&gt; FETCH 1:4000 FLAGS                     # fallback 2
+
+Case 4)
+    no fetchall
+    no keep or IMAP2 server or both
+    500 mails in mailbox
+
+IMAP&gt; SEARCH UNSEEN
+IMAP&gt; FETCH 1:500 FLAGS                      # fallback 1
+
+Also, is there an IMAP2 server available which can be used for testing
+this patch?
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail-6.3/imap.c
+===================================================================
+--- fetchmail-6.3/imap.c	(revision 5466)
++++ fetchmail-6.3/imap.c	(working copy)
+@@ -798,6 +798,135 @@
+     return(ok);
+ }
+ 
++/* maximum number of numbers we can process in &quot;SEARCH&quot; response */
++# define IMAP_SEARCH_MAX 1000
++
++static int imap_search(int sock, struct query *ctl, int count)
++/* search for unseen messages */
++{
++    int ok, first, last;
++    char buf[MSGBUFSIZE+1], *cp;
++
++    /* Don't count deleted messages. Enabled only for IMAP4 servers or
++     * higher and only when keeping mails. This flag will have an
++     * effect only when user has marked some unread mails for deletion
++     * using another e-mail client. */
++    flag skipdeleted = (imap_version &gt;= IMAP4) &amp;&amp; ctl-&gt;keep;
++    const char *undeleted;
++
++    /* Skip range search if there are less than or equal to
++     * IMAP_SEARCH_MAX mails. */
++    flag skiprangesearch = (count &lt;= IMAP_SEARCH_MAX);
++
++    /* startcount is higher than count so that if there are no
++     * unseen messages, imap_getsizes() will not need to do
++     * anything! */
++    startcount = count + 1;
++
++    for (first = 1, last = IMAP_SEARCH_MAX; first &lt;= count; first += IMAP_SEARCH_MAX, last += IMAP_SEARCH_MAX)
++    {
++	if (last &gt; count)
++	    last = count;
++
++restartsearch:
++	undeleted = (skipdeleted ? &quot; UNDELETED&quot; : &quot;&quot;);
++	if (skiprangesearch)
++	    gen_send(sock, &quot;SEARCH UNSEEN%s&quot;, undeleted);
++	else if (last == first)
++	    gen_send(sock, &quot;SEARCH %d UNSEEN%s&quot;, last, undeleted);
++	else
++	    gen_send(sock, &quot;SEARCH %d:%d UNSEEN%s&quot;, first, last, undeleted);
++	while ((ok = imap_response(sock, buf)) == PS_UNTAGGED)
++	{
++	    if ((cp = strstr(buf, &quot;* SEARCH&quot;)))
++	    {
++		char	*ep;
++
++		cp += 8;	/* skip &quot;* SEARCH&quot; */
++		while (*cp &amp;&amp; unseen &lt; count)
++		{
++		    /* skip whitespace */
++		    while (*cp &amp;&amp; isspace((unsigned char)*cp))
++			cp++;
++		    if (*cp) 
++		    {
++			unsigned long um;
++
++			errno = 0;
++			um = strtoul(cp,&amp;ep,10);
++			if (errno == 0 &amp;&amp; um &lt;= UINT_MAX &amp;&amp; um &lt;= (unsigned)count)
++			{
++			    unseen_messages[unseen++] = um;
++			    if (outlevel &gt;= O_DEBUG)
++				report(stdout, GT_(&quot;%lu is unseen\n&quot;), um);
++			    if (startcount &gt; um)
++				startcount = um;
++			}
++			cp = ep;
++		    }
++		}
++	    }
++	}
++	/* if there is a protocol error on the first loop, try a
++	 * different search command */
++	if (ok == PS_ERROR &amp;&amp; first == 1)
++	{
++	    if (skipdeleted)
++	    {
++		/* retry with &quot;SEARCH 1:1000 UNSEEN&quot; */
++		skipdeleted = FALSE;
++		goto restartsearch;
++	    }
++	    if (!skiprangesearch)
++	    {
++		/* retry with &quot;SEARCH UNSEEN&quot; */
++		skiprangesearch = TRUE;
++		goto restartsearch;
++	    }
++	    /* try with &quot;FETCH 1:n FLAGS&quot; */
++	    goto fetchflags;
++	}
++	if (ok != PS_SUCCESS)
++	    return(ok);
++	/* loop back only when searching in range */
++	if (skiprangesearch)
++	    break;
++    }
++    return(PS_SUCCESS);
++
++fetchflags:
++    if (count == 1)
++	gen_send(sock, &quot;FETCH %d FLAGS&quot;, count);
++    else
++	gen_send(sock, &quot;FETCH %d:%d FLAGS&quot;, 1, count);
++    while ((ok = imap_response(sock, buf)) == PS_UNTAGGED)
++    {
++	unsigned int num;
++
++	/* expected response format:
++	 * IMAP&lt; * 1 FETCH (FLAGS (\Seen))
++	 * IMAP&lt; * 2 FETCH (FLAGS (\Seen \Deleted))
++	 * IMAP&lt; * 3 FETCH (FLAGS ())
++	 * IMAP&lt; * 4 FETCH (FLAGS (\Recent))
++	 * IMAP&lt; * 5 FETCH (UID 10 FLAGS (\Recent))
++	 */
++	if (unseen &lt; count
++		&amp;&amp; sscanf(buf, &quot;* %u FETCH &quot;, &amp;num) == 1
++		&amp;&amp; num &gt;= 1 &amp;&amp; num &lt;= count
++		&amp;&amp; strstr(buf, &quot;FLAGS &quot;)
++		&amp;&amp; !strstr(buf, &quot;\\SEEN&quot;)
++		&amp;&amp; !strstr(buf, &quot;\\DELETED&quot;))
++	{
++	    unseen_messages[unseen++] = num;
++	    if (outlevel &gt;= O_DEBUG)
++		report(stdout, GT_(&quot;%u is unseen\n&quot;), num);
++	    if (startcount &gt; num)
++		startcount = num;
++	}
++    }
++    return(ok);
++}
++
+ static int imap_getrange(int sock, 
+ 			 struct query *ctl, 
+ 			 const char *folder, 
+@@ -805,7 +934,6 @@
+ /* get range of messages to be fetched */
+ {
+     int ok;
+-    char buf[MSGBUFSIZE+1], *cp;
+ 
+     /* find out how many messages are waiting */
+     *bytes = -1;
+@@ -909,44 +1037,7 @@
+ 	memset(unseen_messages, 0, count * sizeof(unsigned int));
+ 	unseen = 0;
+ 
+-	/* don't count deleted messages, in case user enabled keep last time */
+-	gen_send(sock, &quot;SEARCH UNSEEN NOT DELETED&quot;);
+-	while ((ok = imap_response(sock, buf)) == PS_UNTAGGED)
+-	{
+-	    if ((cp = strstr(buf, &quot;* SEARCH&quot;)))
+-	    {
+-		char	*ep;
+-
+-		cp += 8;	/* skip &quot;* SEARCH&quot; */
+-		/* startcount is higher than count so that if there are no
+-		 * unseen messages, imap_getsizes() will not need to do
+-		 * anything! */
+-		startcount = count + 1;
+-
+-		while (*cp &amp;&amp; unseen &lt; count)
+-		{
+-		    /* skip whitespace */
+-		    while (*cp &amp;&amp; isspace((unsigned char)*cp))
+-			cp++;
+-		    if (*cp) 
+-		    {
+-			unsigned long um;
+-
+-			errno = 0;
+-			um = strtoul(cp,&amp;ep,10);
+-			if (errno == 0 &amp;&amp; um &lt;= UINT_MAX &amp;&amp; um &lt;= (unsigned)count)
+-			{
+-			    unseen_messages[unseen++] = um;
+-			    if (outlevel &gt;= O_DEBUG)
+-				report(stdout, GT_(&quot;%lu is unseen\n&quot;), um);
+-			    if (startcount &gt; um)
+-				startcount = um;
+-			}
+-			cp = ep;
+-		    }
+-		}
+-	    }
+-	}
++	ok = imap_search(sock, ctl, count);
+ 	if (ok != 0)
+ 	{
+ 	    report(stderr, GT_(&quot;search for unseen messages failed\n&quot;));
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001220.html">[fetchmail-devel] imap search improvements
+</A></li>
+	<LI>Next message: <A HREF="001222.html">[fetchmail-devel] [PATCH] Re: imap search improvements
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1221">[ date ]</a>
+              <a href="thread.html#1221">[ thread ]</a>
+              <a href="subject.html#1221">[ subject ]</a>
+              <a href="author.html#1221">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

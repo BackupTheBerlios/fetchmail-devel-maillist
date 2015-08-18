@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] minor compilation warnings patch
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20minor%20compilation%20warnings%20patch&In-Reply-To=%3C20100204114139.GA12891%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001224.html">
+   <LINK REL="Next"  HREF="001225.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] minor compilation warnings patch</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20minor%20compilation%20warnings%20patch&In-Reply-To=%3C20100204114139.GA12891%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] minor compilation warnings patch">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Thu Feb  4 12:41:39 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001224.html">[fetchmail-devel] imap search improvements
+</A></li>
+        <LI>Next message: <A HREF="001225.html">[fetchmail-devel] fetchmail 6.3.14 security fix release and fetchmail-SA-2010-01 security announcement
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1223">[ date ]</a>
+              <a href="thread.html#1223">[ thread ]</a>
+              <a href="subject.html#1223">[ subject ]</a>
+              <a href="author.html#1223">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Matthias,
+
+This is a patch to fix a call to gen_transact() in cram.c. Please
+check if my patch (i.e. my understanding of the code) is correct.
+
+The rest of the patch is to suppress compiler warnings in tls.c and to
+enable compiler warnings on incorrect invocation of SockPrintf().
+
+============================================================================
+Index: fetchmail-6.3/cram.c
+===================================================================
+--- fetchmail-6.3/cram.c	(revision 5469)
++++ fetchmail-6.3/cram.c	(working copy)
+@@ -127,7 +127,7 @@
+     /* ship the authentication back, accept the server's responses */
+     /* PMDF5.2 IMAP has a bug that requires this to be a single write */
+     suppress_tags = TRUE;
+-    result = gen_transact(sock, buf1, sizeof(buf1));
++    result = gen_transact(sock, &quot;%s&quot;, buf1);
+     suppress_tags = FALSE;
+     if (result)
+ 	return(result);
+Index: fetchmail-6.3/tls.c
+===================================================================
+--- fetchmail-6.3/tls.c	(revision 5469)
++++ fetchmail-6.3/tls.c	(working copy)
+@@ -16,6 +16,7 @@
+     return (!ctl-&gt;sslproto || !strcasecmp(ctl-&gt;sslproto,&quot;tls1&quot;))
+ 	&amp;&amp; !ctl-&gt;use_ssl;
+ #else
++    (void)ctl;
+     return 0;
+ #endif
+ }
+@@ -28,6 +29,7 @@
+ 	&amp;&amp; (ctl-&gt;sslfingerprint || ctl-&gt;sslcertck
+ 		|| (ctl-&gt;sslproto &amp;&amp; !strcasecmp(ctl-&gt;sslproto, &quot;tls1&quot;)));
+ #else
++    (void)ctl;
+     return 0;
+ #endif
+ }
+Index: fetchmail-6.3/socket.h
+===================================================================
+--- fetchmail-6.3/socket.h	(revision 5469)
++++ fetchmail-6.3/socket.h	(working copy)
+@@ -51,7 +51,9 @@
+ Returns number of bytes successfully written.
+ */
+ #if defined(HAVE_STDARG_H)
+-int SockPrintf(int sock, const char *format, ...) ;
++int SockPrintf(int sock, const char *format, ...)
++    __attribute__ ((format (printf, 2, 3)))
++    ;
+ #else
+ int SockPrintf();
+ #endif
+============================================================================
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001224.html">[fetchmail-devel] imap search improvements
+</A></li>
+	<LI>Next message: <A HREF="001225.html">[fetchmail-devel] fetchmail 6.3.14 security fix release and fetchmail-SA-2010-01 security announcement
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1223">[ date ]</a>
+              <a href="thread.html#1223">[ thread ]</a>
+              <a href="subject.html#1223">[ subject ]</a>
+              <a href="author.html#1223">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

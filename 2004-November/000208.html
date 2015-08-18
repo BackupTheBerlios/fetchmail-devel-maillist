@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] running make dist changes po/*.po files
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20running%20make%20dist%20changes%20po/%2A.po%20files&In-Reply-To=%3Cm34qj9ato5.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000207.html">
+   <LINK REL="Next"  HREF="000209.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] running make dist changes po/*.po files</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20running%20make%20dist%20changes%20po/%2A.po%20files&In-Reply-To=%3Cm34qj9ato5.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] running make dist changes po/*.po files">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Mon Nov 29 10:30:50 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000207.html">[fetchmail-devel] running make dist changes po/*.po files
+</A></li>
+        <LI>Next message: <A HREF="000209.html">[fetchmail-devel] some .po files not included in tarball
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#208">[ date ]</a>
+              <a href="thread.html#208">[ thread ]</a>
+              <a href="subject.html#208">[ subject ]</a>
+              <a href="author.html#208">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">graham at mknod.org</A>&gt; writes:
+
+&gt;<i> Running make dist change po/*.po files. Should the changes be committed
+</I>&gt;<i> to the tree? If not, why are the files changed in the first place?
+</I>
+As far as I see it, the common cause for *.po files being a moving
+target for version control is:
+
+1. we change some code in a source file, possibly inserting or removing
+   a line, at any rate changing line numbers of
+   strings-to-be-translated.
+
+2. fetchmail.pot is updated automatically by make and has new line
+   numbers for the same old strings
+
+3. make dist or make install run &quot;make update-po&quot;, which then propagates
+   the new line numbers.
+
+This must be one of the reasons gettext still deserves a 0.X version number.
+
+I haven't yet checked if we can disable line numbers and what that would
+mean for gettext or helper tools such as Emacs' po-mode.
+
+I have only committed .po changes if I'd changed the po files' content
+at the same time, usually that means de.po and sometimes fr.po.
+
+We'll do a pre-release tarball for the translation teams a week or two
+before the actual release of 6.2.6 or 6.3.0, and we'll also ask them to
+report pluaral form errors or shortcomings.
+  gettext has proper support for proper plural form translations, but ESR
+didn't use it anywhere. Perhaps his gettext version didn't support that
+at its time.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000207.html">[fetchmail-devel] running make dist changes po/*.po files
+</A></li>
+	<LI>Next message: <A HREF="000209.html">[fetchmail-devel] some .po files not included in tarball
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#208">[ date ]</a>
+              <a href="thread.html#208">[ thread ]</a>
+              <a href="subject.html#208">[ subject ]</a>
+              <a href="author.html#208">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

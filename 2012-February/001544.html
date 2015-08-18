@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Telling the daemon to pull a specific mailbox now?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Telling%20the%20daemon%20to%20pull%20a%20specific%20mailbox%0A%20now%3F&In-Reply-To=%3C4F29C009.7020004%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001543.html">
+   <LINK REL="Next"  HREF="001545.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Telling the daemon to pull a specific mailbox now?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Telling%20the%20daemon%20to%20pull%20a%20specific%20mailbox%0A%20now%3F&In-Reply-To=%3C4F29C009.7020004%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Telling the daemon to pull a specific mailbox now?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Feb  1 23:43:21 CET 2012</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001543.html">[fetchmail-devel] Telling the daemon to pull a specific mailbox	now?
+</A></li>
+        <LI>Next message: <A HREF="001545.html">[fetchmail-devel] [patch][RFC] proper kill management of the MDA	process
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1544">[ date ]</a>
+              <a href="thread.html#1544">[ thread ]</a>
+              <a href="subject.html#1544">[ subject ]</a>
+              <a href="author.html#1544">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 01.02.2012 21:14, schrieb Johann 'Myrkraverk' Oskarsson:
+&gt;<i> Rob MacGregor &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rob.macgregor at gmail.com</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;&gt;<i> If you have a single daemon polling all the mailboxes, impossible. If
+</I>&gt;&gt;<i> you have one daemon per mailbox, trivial (see the SIGNALS section of
+</I>&gt;&gt;<i> the man page).
+</I>&gt;<i> 
+</I>&gt;<i> Not really impossible.  It's just a matter of adding some IPC mechanism
+</I>&gt;<i> and probably some other features that allow the command line client to
+</I>&gt;<i> tell the daemon which mailbox to pull.
+</I>&gt;<i> 
+</I>&gt;<i> Depending on the complexiting of the sources, this may be close to
+</I>&gt;<i> impossible.
+</I>
+IPC isn't the issue here, but sorting the command line parsing and
+&quot;which mailbox is active&quot; stuff out is, and that work would entail
+getting rid of the &quot;no command line options permitted with running
+daemon&quot;...
+
+I'd presume it's an effort that might easily amount to two dozen hours
+for someone moderately acquainted with the sources because it requires
+adaptations in multiple parts of the code.
+
+Also, fetchmail would need to lock individual mailboxes against
+concurrent access -- but instead, it locks the whole process instead,
+which is another obstacle.
+
+I suppose fetchmail 8 might follow a different model compared to all
+earlier versions, more modular, which would make such code additions
+easier.  I haven't yet made a real plan, as fetchmail 7 would have to
+happen first (with less radical changes), yet real life has gotten in
+the way of things again.
+
+&gt;<i> I suppose it's rarely needed so I don't think it's worth much efford; as
+</I>&gt;<i> it's quite easy to have a different daemon per mailbox.
+</I>
+Plus you can stop the daemon, run fetchmail with &quot;-d0&quot; option (to defeat
+the daemon mode) + the server's name (from the &quot;poll&quot; option) on the
+command line, and then restart the original daemon.
+
+No big deal from the command line, quite a big deal in code adaptation.
+
+Best regards
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001543.html">[fetchmail-devel] Telling the daemon to pull a specific mailbox	now?
+</A></li>
+	<LI>Next message: <A HREF="001545.html">[fetchmail-devel] [patch][RFC] proper kill management of the MDA	process
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1544">[ date ]</a>
+              <a href="thread.html#1544">[ thread ]</a>
+              <a href="subject.html#1544">[ subject ]</a>
+              <a href="author.html#1544">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

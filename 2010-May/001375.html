@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Some PATRICIA numbers
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3C4BF5DDC7.8080204%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001374.html">
+   <LINK REL="Next"  HREF="001376.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Some PATRICIA numbers</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3C4BF5DDC7.8080204%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Some PATRICIA numbers">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri May 21 03:11:35 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001374.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+        <LI>Next message: <A HREF="001376.html">[fetchmail-devel] An actual patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1375">[ date ]</a>
+              <a href="thread.html#1375">[ thread ]</a>
+              <a href="subject.html#1375">[ subject ]</a>
+              <a href="author.html#1375">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 20.05.2010 22:34, schrieb Rainer Weikusat:
+&gt;<i> &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;<i> [...]
+</I>&gt;<i> 
+</I>&gt;&gt;<i> Looks quite alright at first glance. As a general remark, I wonder if
+</I>&gt;&gt;<i> it  would be worthwhile splitting the PATRICIA core code from the
+</I>&gt;&gt;<i> fetchmail  interfacing code.
+</I>&gt;<i> 
+</I>&gt;<i> My 'general' opinion on this is that abstractions aren't free and
+</I>&gt;<i> creating them 'just in case' should rather be avoided. 
+</I>
+OK.
+
+&gt;<i> For the sake of completeness: 'implicit int' refers to not declaring a
+</I>&gt;<i> function return value which traditionally caused compilers to assume
+</I>&gt;<i> that the function would return a value of type 'int'. This is no
+</I>&gt;<i> longer valid C, as of ISO/IEC 9899:1999 (E). OTOH, the set of valid
+</I>&gt;<i> type specifiers and type specifier combinations is defined in 6.7.2
+</I>&gt;<i> and includes the following text:
+</I>&gt;<i> 
+</I>&gt;<i> 	Each list of type specifiers shall be one of the following
+</I>&gt;<i> 	sets (delimited by commas, when there is more than one set on
+</I>&gt;<i> 	a line);
+</I>&gt;<i> 
+</I>&gt;<i>         [...]
+</I>&gt;<i> 
+</I>&gt;<i>         -- int, signed, or signed int
+</I>&gt;<i> 	-- unsigned, or unsigned int
+</I>&gt;<i>         [6.7.2|2]
+</I>&gt;<i> 
+</I>&gt;<i> Meaning, not only is 'unsigned' a completely legitimate way to declare
+</I>&gt;<i> an unsigned integer but actually, 'signed' is also valid instead of
+</I>&gt;<i> 'int'. That said, I am completely willing to comply with any 'style
+</I>&gt;<i> rules' you consider to be essential.
+</I>
+I stand corrected.  In the light of your quote from the C99 standard,
+please ignore my previous comment in this regard. I was indeed confusing
+function return arguments with variable types.  Sorry!
+
+It was less of a style than rather a technical (namely, portability)
+argument, which is now void.
+
+Also, I don't think I'm currently concerned with style - fetchmail
+source is using different styles... as long as it remains concise, it
+will be fine.
+
+If you're familiar with Doxygen (Javadoc), writings docs in .h files in
+a format that Doxygen can parse would be nice, but no need to get
+acquainted with it if you prefer a different style. Anything sensible is
+better than no documentation. :-)
+
+&gt;<i> General (so that it's before the 'long quoted text'): As I wrote,
+</I>&gt;<i> integration of this code with fetchmail was completed yesterday and
+</I>&gt;<i> the resulting binary has survived a night of pulling e-mail from my
+</I>&gt;<i> account. The most expensive part is now the lexer. I am going to run
+</I>
+So you're essentially saying that the rcfile scanner (lexer) dominates
+execution time?  That's a good thing for fetchmail, and a bad thing for
+its scanner.  The practical workaround is daemon mode, which would only
+read the rcfile on startup and if it changes.
+
+We could have flex inflate its tables so it gets faster, but this easily
+goes in the hundreds-of-kbytes for fetchmail's rather complex lexer.
+
+&gt;<i> this for another night tonight, this time with fastuidl
+</I>&gt;<i> enabled. Should this also go well, I will most likely move this onto
+</I>&gt;<i> our 'production server' tomorrow. Except a few bits of missing
+</I>&gt;<i> functionality (such as a traversal routine), the most notable change I
+</I>
+Just wondering, how are you currently writing out the UIDs without a
+traversal routine?
+
+&gt;<i> have done is that I have replaced the recursive trie-freeing routine
+</I>&gt;<i> with an iterative one: While this is - at best - only marginally
+</I>&gt;<i> faster (for my test dataset), it has the nice property of needing no
+</I>&gt;<i> additional storage beyond what's already used for the trie itself.
+</I>
+Good.
+
+&gt;<i> I've also had an idea how to restrict the size of the num_ndx array to
+</I>&gt;<i> what is actually needed: Since the maximum message number is known in
+</I>&gt;<i> advanced, the vector can grow 'downward' such that position zero is
+</I>&gt;<i> assumed to hold the largest possible message number and lower indices
+</I>&gt;<i> are then inserted sufficiently distant from that with the array being
+</I>&gt;<i> extended as required. Lookup would then use negative offsets relative
+</I>&gt;<i> to a pointer to the end of the array, adjusted according to the
+</I>&gt;<i> 'logical position' of the end of the array relative to the message
+</I>&gt;<i> number 1. I think I will get this implemented tomorrow and could then
+</I>&gt;<i> basically produce a patch relative to 6.3.17 which could serve as
+</I>&gt;<i> base for further changes.
+</I>
+I'm not sure if it's worth the effort of redoing the array handling just
+to shave off a dozen of realloc() calls.  Keep maintainability in mind;
+in my professional live, I've been debugging somebody else's (rather
+awkward [1]) code for many months now, and I'd say maintainability wins
+over a few % of execution speed.
+
+[1] That other code, entirely unrelated to fetchmail, often follows copy
+&amp; paste &amp; modify one line programming style, which is very error-prone...
+
+&gt;&gt;<i> $ gcc -O -Wc++-compat -std=c99 -Wall -Wextra -pedantic \
+</I>&gt;&gt;<i>       -o uidl_db uidl_db.c  -Wno-unused -Dinline=__inline__
+</I>&gt;&gt;<i> # -Dinline for -std=c89 :-)
+</I>&gt;&gt;<i> uidl_db.c: In function &#8216;init_uidl_db&#8217;:
+</I>&gt;&gt;<i> uidl_db.c:63: warning: request for implicit conversion from &#8216;void *&#8217;
+</I>&gt;&gt;<i> to  &#8216;struct uidl_record **&#8217; not permitted in C++
+</I>&gt;<i> 
+</I>&gt;<i> This is just my usual laziness :-): Since void * is kind of a
+</I>&gt;<i> passepartout type in C, I usually just cast to void * whenever any
+</I>&gt;<i> pointer conversion is needed. I've changed that to use the actual
+</I>&gt;<i> destination type.
+</I>
+I was also too lazy to remove that from the compiler logs :)
+I'll be happy to fix this myself should I go for C++ later.
+
+&gt;&gt;<i> uidl_db.c: In function &#8216;walk_down&#8217;:
+</I>&gt;&gt;<i> uidl_db.c:83: warning: comparison between signed and unsigned integer
+</I>&gt;&gt;<i> expressions
+</I>&gt;&gt;<i> uidl_db.c:85: warning: comparison between signed and unsigned integer
+</I>&gt;&gt;<i> expressions
+</I>&gt;<i> 
+</I>&gt;<i> This was due to the ofs variable being of type int. I've changed that
+</I>&gt;<i> to unsigned, which didn't matter for the code. This will, of course,
+</I>
+Yup. The only thing is that loops need to be written more carefully
+because &quot;&gt;= 0&quot; or thereabouts now always holds.  I think that's what you
+meant by &quot;didn't matter for the code&quot;.
+
+&gt;<i> break horribly if UIDs longer than 2^32 - 1 chars are supposed to be
+</I>&gt;<i> processed (or if bit indices higher than 2^31-1 are needed) but I
+</I>&gt;<i> assume that both propositions are not exactly realistic (the POP3
+</I>&gt;<i> specification already prohibits this: Maximum 'payload' of a response
+</I>&gt;<i> line is 510 octets, according to RFC1939, sec. 3).
+</I>
+I propose to document that somewhere in a quiet place in fetchmail.man,
+but to not even add code checks for that - a FIXME comment will be
+sufficient IMO.
+
+&gt;&gt;<i> uidl_db.c:314: warning: &#8216;v&#8217; may be used uninitialized in this function
+</I>&gt;&gt;<i> /tmp/cc6WZFTd.o: In function `main':
+</I>&gt;<i> 
+</I>&gt;<i> I don't usually add spurious initializations just to silence these
+</I>&gt;<i> warnings if they are obviously wrong. 
+</I>
+GCC is also sometimes off track, hadn't checked any of the warnings
+except for the ffs().
+
+&gt;&gt;<i> uidl_db.c(92): warning #1684: conversion from pointer to same-sized
+</I>&gt;&gt;<i> integral type (potential portability problem)
+</I>&gt;&gt;<i>   					offsetof(struct pat_node, ptrs_[2])
+</I>&gt;&gt;<i>   					^
+</I>&gt;<i> 
+</I>&gt;<i> I do not have the slightest idea what this is supposed to refer to.
+</I>
+I'd have to see Intel C++'s stddef.h to see what's really up, but this
+looks like a compiler issue (either way, as stddef.h is a compiler
+provided header).
+
+A pointer difference *is* an integral type; quoting POSIX (which is more
+specific as to the return type than C99 - your quote below - is):
+
+       offsetof(type, member-designator)
+
+              Integer  constant  expression of type size_t, the value of
+which
+              is the offset in bytes to the structure member
+(member-designa&#8208;
+              tor), from the beginning of its structure (type).
+
+But it's indeed a portability problem. Proper code is not portable to
+Intel C++.  8-)
+
+&gt;<i> [...]
+</I>&gt;<i> 
+</I>&gt;&gt;<i> uidl_db.c(119): remark #2259: non-pointer conversion from &quot;int&quot; to
+</I>&gt;&gt;<i> &quot;unsigned char&quot; may lose significant bits
+</I>&gt;&gt;<i>   	v = r0-&gt;id[ofs] ^ r1-&gt;id[ofs];
+</I>&gt;&gt;<i>   	  ^
+</I>&gt;<i> 
+</I>&gt;<i> Since both operands come from arrays of char and are only insofar of
+</I>&gt;<i> type 'int' as the values are supposed to be promoted to int, this
+</I>&gt;<i> seems to be an extremly poor warning.
+</I>
+If the sources are &quot;char&quot; (whatever sign), it's safe. Looks like a
+compiler defect.  I need to re-test with the latest patch release, and
+if it persists I need to regain access to the Intel site so I can file a
+bug report.
+
+&gt;&gt;<i> uidl_db.c(244): warning #2259: non-pointer conversion from
+</I>&gt;&gt;<i> &quot;size_t={unsigned long}&quot; to &quot;unsigned int&quot; may lose significant bits
+</I>&gt;&gt;<i>       id_len = strlen(id);
+</I>&gt;&gt;<i>              ^
+</I>&gt;<i> 
+</I>&gt;<i> I would rather keep this as 'unsigned' because size_t may be a 64-bit
+</I>&gt;<i> type on 64-bit systems and this seems exessive for representing the
+</I>&gt;<i> length of something restricted to less than 510 octets.
+</I>
+Seems this warning is in order and size_t would be OK, or at least
+checking against UINT_MAX as a fall-back.  Probably not in this piece of
+the code though, but in parseuid - reject (skip) overlong UIDs. I have
+yet to see a site that comes even close to the 70 characters that POP3
+allows :-)
+
+what's wrong with size_t?  On 64-bit machines, the other four bytes
+come at no extra cost.  In doubt someone will be padding anyways on
+those computers. :)
+
+&gt;<i> 
+</I>&gt;<i> [...]
+</I>&gt;<i> 
+</I>&gt;&gt;<i> uidl_db.c:92:6: warning: using extended field designator is an
+</I>&gt;&gt;<i> extension  [-pedantic]
+</I>&gt;&gt;<i>                                         offsetof(struct pat_node, ptrs_[2])
+</I>&gt;&gt;<i>                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</I>&gt;<i> 
+</I>&gt;<i> The relevant text of the C-standard is
+</I>&gt;<i> 
+</I>&gt;<i> 	offsetof(type, member-designator)
+</I>&gt;<i> 
+</I>&gt;<i>         [...]
+</I>&gt;<i> 
+</I>&gt;<i>         The type and member designator shall be such that given
+</I>&gt;<i>         
+</I>&gt;<i>         	static type t;
+</I>&gt;<i>                 
+</I>&gt;<i> 	then the expression &amp;(t.member-designator) evaluates to an
+</I>&gt;<i> 	address constant.
+</I>&gt;<i> 	[7.17|3]
+</I>&gt;<i> 
+</I>&gt;<i> Assuming the following code:
+</I>&gt;<i> 
+</I>&gt;<i> 	static struct pat_node t;
+</I>&gt;<i> 
+</I>&gt;<i> &amp;(t.ptrs_[2]) certainly evaluates to an address constant, so this
+</I>&gt;<i> appears to either be a traditional restriction or a C89-one which
+</I>&gt;<i> accidentally escaped into LLVM/clang using someone remembering it as
+</I>&gt;<i> 'transport medium'.
+</I>
+Open issue for me, might be a clang bug, or a configuration issue. Will
+have to check with an SVN version and file a report if it is a bug.
+Same computer as for Intel C++, it's powered down, and I'm 100 km away.
+
+Other than that, I'm really looking forward to the code.
+
+Thanks a lot.
+
+Best regards
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001374.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+	<LI>Next message: <A HREF="001376.html">[fetchmail-devel] An actual patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1375">[ date ]</a>
+              <a href="thread.html#1375">[ thread ]</a>
+              <a href="subject.html#1375">[ subject ]</a>
+              <a href="author.html#1375">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

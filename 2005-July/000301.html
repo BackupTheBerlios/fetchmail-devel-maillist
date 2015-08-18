@@ -1,0 +1,257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail 6.3.0-beta1 next week?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.3.0-beta1%20next%20week%3F&In-Reply-To=%3C20050703152737.GC2815%40amilo.ms.mff.cuni.cz%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000298.html">
+   <LINK REL="Next"  HREF="000306.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail 6.3.0-beta1 next week?</H1>
+    <B>Miloslav Trmac</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.3.0-beta1%20next%20week%3F&In-Reply-To=%3C20050703152737.GC2815%40amilo.ms.mff.cuni.cz%3E"
+       TITLE="[fetchmail-devel] fetchmail 6.3.0-beta1 next week?">mitr at redhat.com
+       </A><BR>
+    <I>Sun Jul  3 17:27:37 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000298.html">[fetchmail-devel] fetchmail 6.3.0-beta1 next week?
+</A></li>
+        <LI>Next message: <A HREF="000306.html">[fetchmail-devel] fetchmail 6.3.0-beta1 next week?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#301">[ date ]</a>
+              <a href="thread.html#301">[ thread ]</a>
+              <a href="subject.html#301">[ subject ]</a>
+              <a href="author.html#301">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+On Sat, Jul 02, 2005 at 02:02:39PM +0200, Matthias Andree wrote:
+&gt;<i> what are the opinions WRT freezing the current Subversion repository
+</I>&gt;<i> contents and releasing fetchmail 6.3.0-beta1 early next week so that we
+</I>&gt;<i> might be able to release the proper 6.3.0 in August?
+</I>I guess I don't have any say in this, but having a release this year
+would certainly be nice :)
+
+Attached are patches used in Fedora / Red Hat packaging.  I'm not
+quite sure about their authorship, my best guess is that they
+are all by Nalin Dahyabhai.
+
+fetchmail-6.2.5-krb5.patch:
+  Don't use krb5_init_ets (), a private Kerberos function. 
+
+fetchmail-6.2.6.alpha1-crlf.patch:
+  The code uses snprintf () to avoid buffer overflows, and it adds '\r\n'
+  in another snprintf (); if the buffer is already full, the &quot;\r\n&quot; wouldn't
+  get added, corrupting the following line.  The patch reserves 2 bytes
+  for the line termination.
+  (<A HREF="https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114470">https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114470</A>)
+
+fetchmail-6.2.6.alpha1-krb5-config.patch:
+  Recent Kerberos libraries provide a krb5-config script that can be used
+  to find out the necessary options, the patch adds support for that.
+
+Another thing is shipping the attached fetchmailconf.man so that
+(man fetchmailconf) works.
+
+And finally, the current rpa.c doesn't compile; fixed by attached
+fetchmail-6.2.6.alpha1.rpa.patch.
+
+Thanks,
+	Mirek
+-------------- next part --------------
+Don't use this libkrb5 private function.
+
+--- fetchmail-6.2.5/driver.c	2005-03-16 18:46:27.755452749 -0500
++++ fetchmail-6.2.5/driver.c	2005-03-16 18:46:29.964164309 -0500
+@@ -210,7 +210,6 @@
+     krb5_auth_context auth_context = NULL;
+ 
+     krb5_init_context(&amp;context);
+-    krb5_init_ets(context);
+     krb5_auth_con_init(context, &amp;auth_context);
+ 
+     if (retval = krb5_cc_default(context, &amp;ccdef)) {
+-------------- next part --------------
+Make sure that these buffers have room for a terminating CR-LF.
+
+--- fetchmail-6.2.6.alpha1/sink.c~	2005-06-29 23:13:56.000000000 +0200
++++ fetchmail-6.2.6.alpha1/sink.c	2005-07-02 21:26:20.000000000 +0200
+@@ -1540,7 +1540,7 @@
+ #else
+     va_start(ap);
+ #endif
+-    vsnprintf(buf, sizeof(buf), fmt, ap);
++    vsnprintf(buf, sizeof(buf) - 2, fmt, ap);
+     va_end(ap);
+ 
+     snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), &quot;\r\n&quot;);
+--- fetchmail-6.2.6.alpha1/transact.c~	2005-02-27 21:19:35.000000000 +0100
++++ fetchmail-6.2.6.alpha1/transact.c	2005-07-02 21:29:06.000000000 +0200
+@@ -1413,7 +1413,7 @@
+     va_list ap;
+ 
+     if (protocol-&gt;tagged &amp;&amp; !suppress_tags)
+-	(void) sprintf(buf, &quot;%s &quot;, GENSYM);
++        snprintf(buf, sizeof(buf) - 2, &quot;%s &quot;, GENSYM);
+     else
+ 	buf[0] = '\0';
+ 
+@@ -1422,7 +1422,7 @@
+ #else
+     va_start(ap);
+ #endif
+-    vsnprintf(buf + strlen(buf), sizeof(buf)-strlen(buf), fmt, ap);
++    vsnprintf(buf + strlen(buf), sizeof(buf)-2-strlen(buf), fmt, ap);
+     va_end(ap);
+ 
+     snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), &quot;\r\n&quot;);
+@@ -1490,7 +1490,7 @@
+     phase = SERVER_WAIT;
+ 
+     if (protocol-&gt;tagged &amp;&amp; !suppress_tags)
+-	(void) sprintf(buf, &quot;%s &quot;, GENSYM);
++	snprintf(buf, sizeof(buf) - 2, &quot;%s &quot;, GENSYM);
+     else
+ 	buf[0] = '\0';
+ 
+@@ -1499,7 +1499,7 @@
+ #else
+     va_start(ap);
+ #endif
+-    vsnprintf(buf + strlen(buf), sizeof(buf)-strlen(buf), fmt, ap);
++    vsnprintf(buf + strlen(buf), sizeof(buf)-2-strlen(buf), fmt, ap);
+     va_end(ap);
+ 
+     snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), &quot;\r\n&quot;);
+-------------- next part --------------
+Use krb5-config, when available.  Detect if krb5 is using the system version
+of com_err, and if krb5-config knows about krb4 stuff.
+
+--- fetchmail-6.2.0/configure.ac	2002-11-12 12:22:11.000000000 -0500
++++ fetchmail-6.2.0/configure.ac	2002-12-13 16:47:50.000000000 -0500
+@@ -434,6 +434,17 @@
+   AC_DEFINE(KERBEROS_V5)
+   CEFLAGS=&quot;$CEFLAGS -I/usr/include/kerberosV&quot;
+   LIBS=&quot;$LIBS -lasn1 -lkrb5 -lcom_err -lkafs&quot;
++elif krb5-config 2&gt; /dev/null &gt;/dev/null ; then
++  krb5_prefix=`krb5-config --prefix krb5`
++  AC_MSG_RESULT([krb5-config points to kerberosV under $krb5_prefix])
++  if test -f ${krb5_prefix}/include/et/com_err.h &amp;&amp; \
++   ! test -f ${krb5_prefix}/include/com_err.h  ; then
++    CEFLAGS=&quot;$CEFLAGS -I${krb5_prefix}/include/et&quot;
++  fi
++  unset krb5_prefix
++  CEFLAGS=&quot;$CEFLAGS `krb5-config --cflags krb5`&quot;
++  LIBS=&quot;$LIBS `krb5-config --libs krb5`&quot;
++  AC_DEFINE(KERBEROS_V5)
+ else
+   if test &quot;$with_kerberos5&quot; != &quot;yes&quot; 
+   then
+@@ -509,6 +520,23 @@
+   AC_DEFINE(KERBEROS_V4)
+   CEFLAGS=&quot;$CEFLAGS -I/usr/include/kerberosIV&quot;
+   LIBS=&quot;$LIBS -lkrb -ldes&quot;
++elif krb4-config 2&gt; /dev/null &gt;/dev/null ; then
++  krb4_prefix=`krb4-config --prefix`
++  AC_MSG_RESULT([krb4-config points to kerberosIV under $krb4_prefix])
++  unset krb4_prefix
++  CEFLAGS=&quot;$CEFLAGS `krb4-config --cflags`&quot;
++  LIBS=&quot;$LIBS `krb4-config --libs`&quot;
++  AC_DEFINE(KERBEROS_V4)
++elif krb5-config 2&gt; /dev/null &gt;/dev/null ; then
++  krb4_prefix=`krb5-config --prefix krb4`
++  AC_MSG_RESULT([krb5-config points to kerberosIV under $krb4_prefix])
++  if test -f ${krb4_prefix}/include/kerberosIV/krb.h ; then
++    AC_DEFINE(KERBEROS_V4_V5,1,Define if you have Kerberos V4 headers under a kerberosIV directory)
++  fi
++  unset krb4_prefix
++  CEFLAGS=&quot;$CEFLAGS `krb5-config --cflags krb4`&quot;
++  LIBS=&quot;$LIBS `krb5-config --libs krb4`&quot;
++  AC_DEFINE(KERBEROS_V4)
+ else
+   #we need to detect when we're building under a kerberosV compatibility
+   #layer, btw...
+--- fetchmail-6.2.0/kerberos.h	2003-11-13 11:24:52.000000000 -0500
++++ fetchmail-6.2.0/kerberos.h	2003-11-13 11:24:46.000000000 -0500
+@@ -15,14 +15,19 @@
+ #endif
+ 
+ #ifdef KERBEROS_V4
+-#  if defined (__bsdi__) 
+-#    include &lt;des.h&gt; /* order of includes matters */
+-#    define krb_get_err_text(e) (krb_err_txt[e])
+-#  endif
+-#  include &lt;krb.h&gt;
+-#  if defined(__NetBSD__) || defined(__FreeBSD__) || defined(__linux__)
+-#    define krb_get_err_text(e) (krb_err_txt[e])
+-#    include &lt;des.h&gt;
++#  ifdef KERBEROS_V4_V5
++#    include &lt;kerberosIV/krb.h&gt;
++#    include &lt;kerberosIV/des.h&gt;
++#  else
++#    if defined (__bsdi__) 
++#      include &lt;des.h&gt; /* order of includes matters */
++#      define krb_get_err_text(e) (krb_err_txt[e])
++#    endif
++#    include &lt;krb.h&gt;
++#    if defined(__NetBSD__) || defined(__FreeBSD__) || defined(__linux__)
++#      define krb_get_err_text(e) (krb_err_txt[e])
++#      include &lt;des.h&gt;
++#    endif
+ #  endif
+ #endif
+ 
+-------------- next part --------------
+.so fetchmail.1
+-------------- next part --------------
+--- fetchmail-6.2.6.alpha1/rpa.c.rpa	2005-07-02 21:57:57.000000000 +0200
++++ fetchmail-6.2.6.alpha1/rpa.c	2005-07-02 21:58:49.000000000 +0200
+@@ -114,10 +114,10 @@
+     unsigned char buf [POPBUFSIZE];
+     unsigned char *bufp;
+     int      status,aulin,kuslin;
+-    char* stdec[4] = { NGT_(&quot;Success&quot;) ,
+-		       NGT_(&quot;Restricted user (something wrong with account)&quot;) ,
+-		       NGT_(&quot;Invalid userid or passphrase&quot;) ,
+-		       NGT_(&quot;Deity error&quot;) };
++    char* stdec[4] = { N_(&quot;Success&quot;) ,
++		       N_(&quot;Restricted user (something wrong with account)&quot;) ,
++		       N_(&quot;Invalid userid or passphrase&quot;) ,
++		       N_(&quot;Deity error&quot;) };
+ 
+     /* Initiate RPA authorisation */
+ 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000298.html">[fetchmail-devel] fetchmail 6.3.0-beta1 next week?
+</A></li>
+	<LI>Next message: <A HREF="000306.html">[fetchmail-devel] fetchmail 6.3.0-beta1 next week?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#301">[ date ]</a>
+              <a href="thread.html#301">[ thread ]</a>
+              <a href="subject.html#301">[ subject ]</a>
+              <a href="author.html#301">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

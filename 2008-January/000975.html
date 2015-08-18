@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #12859] 6.3.8 Query status 10
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2312859%5D%206.3.8%20Query%20status%2010&In-Reply-To=%3C200801061334.m06DYDwj020966%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000976.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #12859] 6.3.8 Query status 10</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2312859%5D%206.3.8%20Query%20status%2010&In-Reply-To=%3C200801061334.m06DYDwj020966%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #12859] 6.3.8 Query status 10">admin at berlios.de
+       </A><BR>
+    <I>Sun Jan  6 14:34:13 CET 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000976.html">[fetchmail-devel] [PATCH] implementing max days to keep mails on	imap server
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#975">[ date ]</a>
+              <a href="thread.html#975">[ thread ]</a>
+              <a href="subject.html#975">[ subject ]</a>
+              <a href="author.html#975">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #12859, was updated on 2008-Jan-06 14:34
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: wheeler
+Assigned to : none
+Summary: 6.3.8 Query status 10
+
+Details: Connect to local smtp host fail.
+Local smtp server is running and accept connections on port 25
+OS OpenBSD 4.2, the same situation if compiling from sources, 6.3.2 working fine.
+
+
+6.3.8 querying domain.com (protocol POP3) at Sun Jan  6 15:31:01 2008: poll started 
+Jan  6 15:31:11 m02 fetchmail[27613]: Trying to connect to xx.xx.xx.xx/110...connected. 
+Jan  6 15:31:11 m02 fetchmail[27613]: POP3&lt; +OK &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">d3b88b1b6353dc33b99bfdf02953a29f at domain.com</A>&gt; 
+Jan  6 15:31:11 m02 fetchmail[27613]: POP3&gt; CAPA 
+Jan  6 15:31:11 m02 fetchmail[27613]: POP3&lt; +OK Capability list follows 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; PIPELINING 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; TOP 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; USER 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; UIDL 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; . 
+Jan  6 15:31:12 m02 fetchmail[27613]: m01.micromeg.eu: opportunistic upgrade to TLS failed, trying to continue. 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&gt; USER <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">test at domain.com</A> 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; +OK Tell me your password. 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&gt; PASS * 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; +OK Welcome aboard! You have 5 messages. 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&gt; STAT 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; +OK 5 3686 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&gt; LAST 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; -ERR Sorry, the LAST command was removed in RFC1725. 
+Jan  6 15:31:12 m02 fetchmail[27613]: Sorry, the LAST command was removed in RFC1725. 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&gt; UIDL 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; +OK ID list follows: 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; 1 2be0d4c361a1eb7ac3206036596d2d15 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; 2 e65621ce1baf2013ed59450aa1f8e299 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; 3 c2d7706ff1bd4cd02b7420209e182138 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; 4 fc504927c7bed230f15ba6cda12dc252 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; 5 0f119ea13d64f1c7069d309855805465 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; . 
+Jan  6 15:31:12 m02 fetchmail[27613]: 5 messages for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">test at domain1.com</A> at domain.com (3686 octets). 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&gt; LIST 1 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; +OK 1 569 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&gt; TOP 1 99999999 
+Jan  6 15:31:12 m02 fetchmail[27613]: POP3&lt; +OK Message follows 
+Jan  6 15:31:12 m02 fetchmail[27613]: reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">test at domain1.com</A>@domain.com:1 of 5 (569 octets) 
+Jan  6 15:32:27 m02 fetchmail[27613]: SMTP connect to localhost failed 
+Jan  6 15:32:27 m02 fetchmail[27613]: POP3&gt; QUIT 
+Jan  6 15:32:27 m02 fetchmail[27613]: POP3&lt; Hi, 
+Jan  6 15:32:27 m02 fetchmail[27613]: SMTP transaction error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">test at domain1.com</A>@domian.com and delivering to SMTP host localhost 
+Jan  6 15:32:27 m02 fetchmail[27613]: 6.3.8 querying domain.com (protocol POP3) at Sun Jan  6 15:32:27 2008: poll completed 
+Jan  6 15:32:27 m02 fetchmail[27613]: Query status=10 (SMTP) 
+Jan  6 15:32:27 m02 fetchmail[27613]: normal termination, status 10 
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12859&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12859&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000976.html">[fetchmail-devel] [PATCH] implementing max days to keep mails on	imap server
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#975">[ date ]</a>
+              <a href="thread.html#975">[ thread ]</a>
+              <a href="subject.html#975">[ subject ]</a>
+              <a href="author.html#975">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

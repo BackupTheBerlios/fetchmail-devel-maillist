@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Add MAPI support to fetchmail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20MAPI%20support%20to%20fetchmail&In-Reply-To=%3C20080506090030.GB10730%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000995.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Add MAPI support to fetchmail</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20MAPI%20support%20to%20fetchmail&In-Reply-To=%3C20080506090030.GB10730%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Add MAPI support to fetchmail">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue May  6 11:00:30 CEST 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000995.html">[fetchmail-devel] delete keeped message after X day
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#994">[ date ]</a>
+              <a href="thread.html#994">[ thread ]</a>
+              <a href="subject.html#994">[ subject ]</a>
+              <a href="author.html#994">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Jelmer Vernooij schrieb am 2008-04-30:
+
+&gt;<i> Hi Matthias,
+</I>&gt;<i> 
+</I>&gt;<i> To quickly introduce myself: I'm one of the OpenChange developers and am
+</I>&gt;<i> mentoring Yangyan for the Summer of Code. 
+</I>&gt;<i> 
+</I>&gt;<i> Am Freitag, den 18.04.2008, 09:51 +0200 schrieb matthias.andreea:
+</I>&gt;<i> &gt; The final issue I'd like to raise for this mail is that of licensing,
+</I>&gt;<i> &gt; any third-party libraries should be GPLv2-compatible and
+</I>&gt;<i> &gt; GPLv3-compatible and also AGPL-(Affero GPL) compatible so that I can
+</I>&gt;<i> &gt; keep your parts should I rewrite major other parts of fetchmail and
+</I>&gt;<i> &gt; maybe put them under the AGPL later on.
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Hope that helps as an early starting point.
+</I>&gt;<i> OpenChange is licensed under GPLv3 or later; in other words,
+</I>&gt;<i> incompatible with GPLv2-only licensed code but compatible with &quot;GPLv2 or
+</I>&gt;<i> later&quot; licensed code. Is this a problem?
+</I>&gt;<i> 
+</I>&gt;<i> If it is, would it be acceptable if Yangyan's contributions were under
+</I>&gt;<i> these three licenses but not OpenChange? I imagine the support for MAPI
+</I>&gt;<i> would be a compile-time option anyway. Changing the OpenChange license
+</I>&gt;<i> is not really an option since it relies on Samba, which is GPLv3 or
+</I>&gt;<i> later as well.
+</I>
+Hi Jelmer, Yangyan, *,
+
+I have contacted Carl Harris Jr (the popclient author, popclient is
+fetchmail's predecessor, some lines of code remain in fetchmail) and
+Eric S. Raymond (who extended and maintained fetchmail for a long time)
+yesterday.
+
+Carl considers GPLv3 compatible with his original distribution terms.
+
+Eric lets me choose what suits the project best from &quot;any version of
+GPL&quot;, &quot;GPL v2 or later&quot;, and &quot;GPL v2 only&quot;, so I guess I'll turn it into
+a &quot;GPL v2, or, at your option, any later version of the GPL&quot; for the
+nonce, and later review if fetchmail as a whole should move on to GPL v3
+or perhaps AGPL v3 - that would require a new license review.
+
+I'll have to check if any code pieces remain that are GPLv2 only or
+otherwise incompatible, or require consent of the authors to change to
+&quot;any later version&quot; or similar; however, as I expect these to be minor,
+I'm ready to drop or rewrite them if need be.
+
+I expect the MAPI support to become part of a later fetchmail version
+I'll dub 6.4 or 7.0 depending on the extent of other changes, so we have
+the opportunity for a bigger cleanup anyways, and we should take it (for
+instance, drop POP2 support).
+
+WRT the MAPI code itself, I'd very much appreciate if it could be kept
+in separate .c/.h/... files with as little changes to other files as
+possible (for instance, don't hack too much on sink.c, but add a
+sink-mapi.c file and just add the hooks to sink.c you need while
+testing, and we'll in a team effort then split sink.c into sink.c,
+sink-smtp.c (perhaps sink-lmtp.c), and sink-mda.c, and add your
+sink-mapi.c.
+
+HTH,
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000995.html">[fetchmail-devel] delete keeped message after X day
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#994">[ date ]</a>
+              <a href="thread.html#994">[ thread ]</a>
+              <a href="subject.html#994">[ subject ]</a>
+              <a href="author.html#994">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

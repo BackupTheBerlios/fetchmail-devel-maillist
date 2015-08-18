@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail 7.0.0-alpha2+MAPI alpha preview	release
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%207.0.0-alpha2%2BMAPI%20alpha%20preview%0A%09release&In-Reply-To=%3C6F0816C5-1A3D-40AA-9801-278C4AA47E0F%40collab.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001521.html">
+   <LINK REL="Next"  HREF="001523.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail 7.0.0-alpha2+MAPI alpha preview	release</H1>
+    <B>Jack Repenning</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%207.0.0-alpha2%2BMAPI%20alpha%20preview%0A%09release&In-Reply-To=%3C6F0816C5-1A3D-40AA-9801-278C4AA47E0F%40collab.net%3E"
+       TITLE="[fetchmail-devel] fetchmail 7.0.0-alpha2+MAPI alpha preview	release">jrepenning at collab.net
+       </A><BR>
+    <I>Mon Aug 22 23:34:07 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001521.html">[fetchmail-devel] fetchmail 6.3.21 critical fix release
+</A></li>
+        <LI>Next message: <A HREF="001523.html">[fetchmail-devel] fetchmail 7.0.0-alpha2+MAPI alpha preview	release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1522">[ date ]</a>
+              <a href="thread.html#1522">[ thread ]</a>
+              <a href="subject.html#1522">[ subject ]</a>
+              <a href="author.html#1522">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>fetchmail-7.0.0-alpha2+MAPI.tar.xz passes basic testing (IMAP, not MAPI) on Mac OS X 10.7.1 'Lion':
+
+configure had no complaints I could spot
+make reported a lot of SSL-related deprecation warnings, but was otherwise happy
+gcc is i686-apple-darwin11-llvm-gcc-4.2 (GCC) 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2335.15.00)
+installed into /usr/local
+fetches via IMAP from Microsoft Exchange Server 2003 IMAP4rev1 server version 6.5.7638.1
+with config settings:
+set postmaster &quot;jrepenning&quot;
+set bouncemail
+set no spambounce
+set properties &quot;&quot;
+#set logfile /Users/jrepenning/Library/Logs/fetchmail.log
+set syslog
+# poll option idle gives quicker fetches, 
+# but doesn't survive network changes
+set daemon 300
+poll exchange.collab.net with protocol IMAP
+       user 'jrepenning' there with password 'XXXXX'
+       is 'jrepenning' here
+       stripcr ssl
+       mda '/usr/bin/procmail -d %T'
+       fetchall
+
+
+
+
+
+-==-
+Jack Repenning
+Technologist
+CollabNet Cloud Services
+CollabNet, Inc.
+8000 Marina Boulevard, Suite 600
+Brisbane, California 94005
+office: +1 650.228.2562
+twitter: <A HREF="http://twitter.com/jrep">http://twitter.com/jrep</A>
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001521.html">[fetchmail-devel] fetchmail 6.3.21 critical fix release
+</A></li>
+	<LI>Next message: <A HREF="001523.html">[fetchmail-devel] fetchmail 7.0.0-alpha2+MAPI alpha preview	release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1522">[ date ]</a>
+              <a href="thread.html#1522">[ thread ]</a>
+              <a href="subject.html#1522">[ subject ]</a>
+              <a href="author.html#1522">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

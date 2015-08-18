@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] BUG: [florent at sarcelle.net: [pkg-fetchmail-maint]	Bug#385160: fetchmail: FTBFS: /usr/bin/msgfmt: found 1 fatal error]
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20BUG%3A%20%5Bflorent%40sarcelle.net%3A%20%5Bpkg-fetchmail-maint%5D%0A%09Bug%23385160%3A%20fetchmail%3A%20FTBFS%3A%20/usr/bin/msgfmt%3A%20found%201%20fatal%20error%5D&In-Reply-To=%3C20060829235634.GB14951%40ngolde.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000773.html">
+   <LINK REL="Next"  HREF="000776.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] BUG: [florent at sarcelle.net: [pkg-fetchmail-maint]	Bug#385160: fetchmail: FTBFS: /usr/bin/msgfmt: found 1 fatal error]</H1>
+    <B>Nico Golde</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20BUG%3A%20%5Bflorent%40sarcelle.net%3A%20%5Bpkg-fetchmail-maint%5D%0A%09Bug%23385160%3A%20fetchmail%3A%20FTBFS%3A%20/usr/bin/msgfmt%3A%20found%201%20fatal%20error%5D&In-Reply-To=%3C20060829235634.GB14951%40ngolde.de%3E"
+       TITLE="[fetchmail-devel] BUG: [florent at sarcelle.net: [pkg-fetchmail-maint]	Bug#385160: fetchmail: FTBFS: /usr/bin/msgfmt: found 1 fatal error]">nico at ngolde.de
+       </A><BR>
+    <I>Wed Aug 30 01:56:34 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000773.html">[fetchmail-devel] New Russian PO file for `fetchmail'
+</A></li>
+        <LI>Next message: <A HREF="000776.html">[fetchmail-devel] BUG: [florent at sarcelle.net: Bug#385160:	fetchmail: FTBFS: /usr/bin/msgfmt: found 1 fatal error]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#775">[ date ]</a>
+              <a href="thread.html#775">[ thread ]</a>
+              <a href="subject.html#775">[ subject ]</a>
+              <a href="author.html#775">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+there is a problem with upstream ja.po localization file, 
+please fix it :)
+Kind regards
+Nico
+----- Forwarded message from Florent Bayle &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">florent at sarcelle.net</A>&gt; -----
+
+Resent-Date: Tue, 29 Aug 2006 14:03:30 +0000
+From: Florent Bayle &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">florent at sarcelle.net</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">submit at bugs.debian.org</A>
+User-Agent: KMail/1.9.4
+Resent-Date: Tue, 29 Aug 2006 07:03:33 -0700
+Subject: [pkg-fetchmail-maint] Bug#385160: fetchmail: FTBFS:
+	/usr/bin/msgfmt: found 1 fatal error
+
+Package: fetchmail
+Version: 6.3.4-5
+Severity: serious
+Justification: no longer builds from source
+
+Hello,
+
+There was a problem while autobuilding your package:
+
+&gt;<i> Automatic build of fetchmail_6.3.4-5 on saturne by sbuild/amd64 85
+</I>&gt;<i> Build started at 20060828-0043
+</I>&gt;<i> ******************************************************************************
+</I>
+[...]
+
+&gt;<i> # recreate gmo-files as workaround
+</I>&gt;<i> (cd po; /usr/bin/make update-gmo)
+</I>&gt;<i> make[1]: Entering directory `/build/buildd/fetchmail-6.3.4/po'
+</I>&gt;<i> rm -f ca.gmo &amp;&amp; /usr/bin/msgfmt -c --statistics -o ca.gmo ca.po
+</I>&gt;<i> 607 translated messages, 8 fuzzy translations, 4 untranslated messages.
+</I>&gt;<i> rm -f cs.gmo &amp;&amp; /usr/bin/msgfmt -c --statistics -o cs.gmo cs.po
+</I>&gt;<i> 571 translated messages, 33 fuzzy translations, 15 untranslated messages.
+</I>&gt;<i> rm -f de.gmo &amp;&amp; /usr/bin/msgfmt -c --statistics -o de.gmo de.po
+</I>&gt;<i> 619 translated messages.
+</I>&gt;<i> rm -f es.gmo &amp;&amp; /usr/bin/msgfmt -c --statistics -o es.gmo es.po
+</I>&gt;<i> 619 translated messages.
+</I>&gt;<i> rm -f fr.gmo &amp;&amp; /usr/bin/msgfmt -c --statistics -o fr.gmo fr.po
+</I>&gt;<i> 616 translated messages, 3 untranslated messages.
+</I>&gt;<i> rm -f ja.gmo &amp;&amp; /usr/bin/msgfmt -c --statistics -o ja.gmo ja.po
+</I>&gt;<i> ja.po:8: nplurals = 1...
+</I>&gt;<i> ja.po:162: ...but some messages have 2 plural forms
+</I>&gt;<i> /usr/bin/msgfmt: found 1 fatal error
+</I>&gt;<i> 619 translated messages.
+</I>&gt;<i> make[1]: *** [ja.gmo] Error 1
+</I>&gt;<i> make[1]: Leaving directory `/build/buildd/fetchmail-6.3.4/po'
+</I>&gt;<i> make: *** [build-stamp] Error 2
+</I>&gt;<i> ******************************************************************************
+</I>&gt;<i> Build finished at 20060828-0043
+</I>&gt;<i> FAILED [dpkg-buildpackage died]
+</I>
+----- End forwarded message -----
+
+-- 
+Nico Golde - JAB: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nion at jabber.ccc.de</A> | GPG: 0x73647CFF
+<A HREF="http://www.ngolde.de">http://www.ngolde.de</A> | <A HREF="http://nion.modprobe.de/blog/">http://nion.modprobe.de/blog/</A>
+Forget about that mouse with 3/4/5 buttons -
+gimme a keyboard with 103/104/105 keys!
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20060830/688751fb/attachment.pgp">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20060830/688751fb/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000773.html">[fetchmail-devel] New Russian PO file for `fetchmail'
+</A></li>
+	<LI>Next message: <A HREF="000776.html">[fetchmail-devel] BUG: [florent at sarcelle.net: Bug#385160:	fetchmail: FTBFS: /usr/bin/msgfmt: found 1 fatal error]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#775">[ date ]</a>
+              <a href="thread.html#775">[ thread ]</a>
+              <a href="subject.html#775">[ subject ]</a>
+              <a href="author.html#775">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

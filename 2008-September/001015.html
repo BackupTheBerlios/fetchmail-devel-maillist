@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Merge MAPI code things
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Merge%20MAPI%20code%20things&In-Reply-To=%3C48BC0E82.8040101%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001014.html">
+   <LINK REL="Next"  HREF="001018.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Merge MAPI code things</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Merge%20MAPI%20code%20things&In-Reply-To=%3C48BC0E82.8040101%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Merge MAPI code things">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Sep  1 17:47:14 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001014.html">[fetchmail-devel] Merge MAPI code things
+</A></li>
+        <LI>Next message: <A HREF="001018.html">[fetchmail-devel] Merge MAPI code things
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1015">[ date ]</a>
+              <a href="thread.html#1015">[ thread ]</a>
+              <a href="subject.html#1015">[ subject ]</a>
+              <a href="author.html#1015">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Yangyan Li schrieb:
+&gt;<i> Hi Matthias,
+</I>&gt;<i> 
+</I>&gt;<i> I've finished the GSoC project &quot;add MAPI support  for fetchmail, what
+</I>&gt;<i> can I do to merge/help merge it into fetchmail trunk?
+</I>&gt;<i> 
+</I>&gt;<i> I didn't update fetchmail's manual now, I write a separate
+</I>&gt;<i> ReadMe.mapi. I will merge the ReadMe.mapi into fetchmail's manual
+</I>&gt;<i> after I have some feedback on both the MAPI plugin and how to write
+</I>&gt;<i> the new manual for easy understanding.
+</I>&gt;<i> 
+</I>&gt;<i> I am always welcoming for opinions.
+</I>
+Hi Yangyan,
+
+congratulations on finishing the project. I haven't yet reviewed your code;
+how about your availability for collaboration on code refinements should I
+deem them helpful - could you work on that if issues arise during the merge?
+
+
+With respect to the merge, the fetchmail trunk is currently out of date,
+unmaintained and disabled.
+
+My tentative roadmap is as follows (but not fixed, I welcome any
+suggestions for improvement)
+
+- release 6.3.9 from BRANCH_6-3.
+
+  Could you check (dry-run) if merging the BRANCH_6-3 changes since you
+  copied that branch when forking BRANCH_MAPI is possible without major
+  effort? If so, I'd appreciate if you could synch up with 6.3.9 before we
+  try the merge-to-trunk effort.
+
+- merge BRANCH_6-3 into trunk and dub it 6.4.X for the nonce
+  (this may mean to delete trunk and recreate it from BRANCH_6-3,
+   and redo changes from the BRANCH_6-3 branch point to the point where
+   trunk fell unmaintained - I'll see)
+
+- The manual page should at least contain pointers to README.mapi where
+  adequate. Something like &quot;--protocol mapi&quot; (fill in whatever you chose):
+  OpenChange support, see README.mapi for details.
+
+- merge MAPI support into trunk, perhaps with code revisions as I review
+  code.
+
+- perhaps clean up trunk, open ends for trunk (not all of them are needed
+  for the merge):
+
+  + sink.c is a mess. It does something like RTTI and under-the-hood
+    behaviour switching for SMTP, LMTP and MDA. Now, with MAPI as fourth
+    sink =&gt; eek. It needs abstraction, much like the &quot;--protocol&quot; feature.
+
+  + protocol vs. authenticator messup. KPOP (if it deserves to live) and
+    APOP are by no means protocols, but are just POP3 authenticators.
+    Probably unrelated to your work.
+
+  + SSL configuration is an intransparent mess, hard to understand, with
+    several &quot;automatic&quot;s under the hood, that I'd like to clean up.
+    Requires changing rcfile format.
+
+    Does MAPI require SSL support in fetchmail?
+    If not, it's independent of your work.
+
+Feel free to ask further questions, make suggestions, whatever, and many
+thanks for your work!
+
+Best regards
+
+-- 
+Matthias Andree
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001014.html">[fetchmail-devel] Merge MAPI code things
+</A></li>
+	<LI>Next message: <A HREF="001018.html">[fetchmail-devel] Merge MAPI code things
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1015">[ date ]</a>
+              <a href="thread.html#1015">[ thread ]</a>
+              <a href="subject.html#1015">[ subject ]</a>
+              <a href="author.html#1015">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [fetchmail-users] master: TODO.txt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2013-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bfetchmail-users%5D%20master%3A%20TODO.txt&In-Reply-To=%3CCAD2Ti2_YY5v5DUTdsd%2BdHtGS66FPFnH6NAW8SHTY8b0o0trFkg%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001617.html">
+   <LINK REL="Next"  HREF="001619.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [fetchmail-users] master: TODO.txt</H1>
+    <B>grarpamp</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bfetchmail-users%5D%20master%3A%20TODO.txt&In-Reply-To=%3CCAD2Ti2_YY5v5DUTdsd%2BdHtGS66FPFnH6NAW8SHTY8b0o0trFkg%40mail.gmail.com%3E"
+       TITLE="[fetchmail-devel] [fetchmail-users] master: TODO.txt">grarpamp at gmail.com
+       </A><BR>
+    <I>Fri Apr 26 11:31:14 CEST 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001617.html">[fetchmail-devel] [fetchmail-users] master: TODO.txt
+</A></li>
+        <LI>Next message: <A HREF="001619.html">[fetchmail-devel] [Bug #18983] Man page table rendering, keywords
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1618">[ date ]</a>
+              <a href="thread.html#1618">[ thread ]</a>
+              <a href="subject.html#1618">[ subject ]</a>
+              <a href="author.html#1618">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;&gt;<i> #### config flexibility
+</I>&gt;&gt;<i> Consider making 'poll [thing]'s thing just a label string. And
+</I>&gt;&gt;<i> breaking apart the config into types:  'polls' with 'poll [label]',
+</I>&gt;&gt;<i> 'hosts' with 'host [label]', and 'accounts' with 'account [label]'.
+</I>&gt;&gt;<i> Put whatever you want in a label ... 'blah' '<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">joe at schmoe.com</A>',
+</I>&gt;&gt;<i> 'foo.com', '1.2.3.4' ... but treat it as a label.
+</I>&gt;<i>
+</I>&gt;<i> Basically we're already quite close, we'd only have to make sure that
+</I>&gt;<i> adding a poll argument on the command line permits specifying an
+</I>&gt;<i> account. See &lt;<A HREF="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=705291">http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=705291</A>&gt;,
+</I>&gt;<i> for instance.
+</I>&gt;<i>
+</I>&gt;<i> Your notion of
+</I>&gt;<i> poll thing   host foo.example.org   account blah
+</I>&gt;<i> is spelt
+</I>&gt;<i> poll thing   via foo.example.org    user blah
+</I>&gt;<i> today :-)
+</I>
+Well sortof, except that in the absence of a 'via', the poll
+'thing' is treated as actual user data, not merely a part of,
+or a private label for, the FM config building engine. It
+almost seems multiplexed and needs to explicitly not be.
+
+I have one of mine constructed as, with n incremented
+poll sections, but can't remember why...
+poll <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">user1 at fqdn1</A>
+ via fqdn
+ username <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">user1 at fqdn1</A>
+
+Additionally, who wants to literally poll a host as in 'poll host'?
+You generally in mind want to poll an account, or some accounts,
+and then figure out where they are.
+Though there's probably value in some shorthand submechanism
+to in fact poll everything that configures out to be residing at the
+same host. But I think giving accounts their independance from
+hosts and their configuration would come first.
+
+This was/is all a sleepy draft... I think I meant the following but would
+need to think on it all more...
+
+# polls
+poll play
+ account play1
+ account play2
+poll kids
+ ...
+
+./fetch  # all polls, or maybe as ./fetch -p, whatever the default
+./fetch -p play,kids  # some listed polls, perhaps even '-p !work'.
+
+&gt;<i> Collect all poll types into a set for daemon or oneshot runs.
+</I>
+I don't think I meant this as a parallel thing, but if no specific
+poll specified,
+collate them all from the config for serial processing, whether daemon
+or cmdline oneshot (-N).
+
+&gt;<i> We lack group selection capability, though, as detailed in the Debian
+</I>&gt;<i> BTS report linked above.
+</I>
+Reading just the report, I thought it was a logic issue. Then
+the response tied in with this.
+
+&gt;<i> bug reports.
+</I>
+Routers often have a mode that emits the config as interpreted, but
+with private info such as passwords hashed out, for posting, storing,
+etc.
+
+
+### parallel stuff
+
+&gt;<i> And require particular attention in tracing output (and possibly imply
+</I>
+Possibly refer to some threading might be early bits below.
+
+&gt;<i> Well, the other frequently asked feature is &quot;poll multiple hosts at the
+</I>&gt;<i> same time&quot; (especially on high-speed-but-high-latency-links, such as
+</I>&gt;<i> DSL, satellite), which needs to go hand in hand here.
+</I>
+Possibly refer to some maildir yes bits below.
+
+&gt;<i> The actual multithreading-the-input is not too hard to come by, the
+</I>
+I'm not sure for fetchmail to be threaded/forked in general right away.
+Though I did throw it in there with the different 'interval [time]' hints.
+
+A gotcha with multiples... if a user has them, they may wish them to
+appear to be reasonably separate to an observer. If they keep polling
+the same accounts at the same time and not via different nets or shared
+proxies, they're linkable. Though if the config was a bit more flexible the
+equivalent of cron plus a random jitter driving ./fetch -a accountX
+would work instead of threading out the 'interval [period + jitter]' polls.
+
+Fetchmail &gt; server... surely an account must be serial locked
+to prevent dupes inbound and various server state issues.
+
+&gt;<i> question is how to limit the output side, and to assess if that is
+</I>&gt;<i> necessary.
+</I>
+FM &gt; MDA &gt; maildir, maildir can handle it just fine. I often have 10
+or more fetches dumping into a maildir at once. Except for
+old offline archives, there's no mbox here :) Other than ensuring
+fetchmail can be externally driven that way with say one FM
+config file, and a state issue doc warning against polling the same
+account in parallel, parallelizing FM itself seems a lot of work right now.
+
+&gt;<i> If you think ISP-grade &quot;POP collector option&quot;
+</I>&gt;<i> you may want to configure &quot;poll 50 accounts at the same time but only
+</I>&gt;<i> use 20 outbound SMTP threads&quot;.  This requires caching mail, either in
+</I>&gt;<i> RAM, or on disk.
+</I>
+You mean loop through all 50 polls with a 20 wide parallel sliding
+window... I'd think FM &gt; MDA &gt; maildir would eliminate cache so long
+as say maildrop had safe tmp file creation and return codes back to FM.
+I admit not having looked into that. And I'd warn against mbox if any of
+this is pursued.
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001617.html">[fetchmail-devel] [fetchmail-users] master: TODO.txt
+</A></li>
+	<LI>Next message: <A HREF="001619.html">[fetchmail-devel] [Bug #18983] Man page table rendering, keywords
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1618">[ date ]</a>
+              <a href="thread.html#1618">[ thread ]</a>
+              <a href="subject.html#1618">[ subject ]</a>
+              <a href="author.html#1618">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

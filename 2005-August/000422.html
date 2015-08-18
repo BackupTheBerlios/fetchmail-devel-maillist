@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bart666%40poczta.onet.pl%3A%20Bug%23322683%3A%20fetchmail%20can%27t%20get%20some%20%22special%22%20messages%20from%20pop3%20o2.pl%5D&In-Reply-To=%3C200508120900.52581.rfunk%40funknet.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000421.html">
+   <LINK REL="Next"  HREF="000423.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]</H1>
+    <B>Rob Funk</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bart666%40poczta.onet.pl%3A%20Bug%23322683%3A%20fetchmail%20can%27t%20get%20some%20%22special%22%20messages%20from%20pop3%20o2.pl%5D&In-Reply-To=%3C200508120900.52581.rfunk%40funknet.net%3E"
+       TITLE="[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]">rfunk at funknet.net
+       </A><BR>
+    <I>Fri Aug 12 15:00:52 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000421.html">[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+</A></li>
+        <LI>Next message: <A HREF="000423.html">[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#422">[ date ]</a>
+              <a href="thread.html#422">[ thread ]</a>
+              <a href="subject.html#422">[ subject ]</a>
+              <a href="author.html#422">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> #********************fetchmail: message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">artii at poczta.o2.pl</A>:1 was not
+</I>&gt;<i> the expected length (4411 actual != 5193 expected)
+</I>&gt;<i> fetchmail: SMTP&gt;. (EOM)
+</I>&gt;<i> fetchmail: SMTP&lt; 250 Ok: queued as 75E0960E3
+</I>&gt;<i>  skasowany
+</I>&gt;<i> fetchmail: POP3&gt; DELE 1
+</I>&gt;<i> fetchmail: POP3&lt; No insecure packages installed would generate no
+</I>&gt;<i>  output and thus no email.
+</I>
+&gt;<i> i use telnet to connect and interesting part of mesage :
+</I>&gt;<i> [start]
+</I>&gt;<i> One could then run a cronjob (or whatever) for dpkg-secure and it
+</I>&gt;<i> would report any of the packages that are both installed and have a
+</I>&gt;<i> security-tagged bug assosiated with it.
+</I>&gt;<i> The result, of course, would end up in whomever crond emails it's
+</I>&gt;<i> output to=
+</I>&gt;<i> .
+</I>&gt;<i> No insecure packages installed would generate no output and thus no
+</I>&gt;<i> email.
+</I>&gt;<i>
+</I>&gt;<i> Maybe there could be two states?  &quot;Insecure, unpatched&quot; and &quot;insecure,
+</I>&gt;<i> patc=
+</I>&gt;<i> hed&quot;?
+</I>&gt;<i> [stop]
+</I>&gt;<i>
+</I>&gt;<i> q: this is fetchmail problem or server o2.pl problem?
+</I>
+Looks like a server problem -- the lone dot on a line is supposed to 
+indicate the end of the message, and if it appears in the message the 
+server is supposed to make it two dots.  It's in the message just because 
+of an unfortunate line break in its quoted-printable encoding.
+
+Unfortunately there's not even any indication of what server software 
+they're running.  The greeting flag is just:
++OK POP3 Ready poczta.o2.pl
+
+-- 
+==============================|   &quot;A microscope locked in on one point
+ Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; |Never sees what kind of room that it's in&quot;
+ <A HREF="http://www.funknet.net/rfunk">http://www.funknet.net/rfunk</A> |    -- Chris Mars, &quot;Stuck in Rewind&quot;
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000421.html">[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+</A></li>
+	<LI>Next message: <A HREF="000423.html">[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#422">[ date ]</a>
+              <a href="thread.html#422">[ thread ]</a>
+              <a href="subject.html#422">[ subject ]</a>
+              <a href="author.html#422">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

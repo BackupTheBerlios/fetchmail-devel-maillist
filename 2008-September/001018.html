@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Merge MAPI code things
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Merge%20MAPI%20code%20things&In-Reply-To=%3Ca243c31d0809070238r4f8bfa52l14f91029007ec6a5%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001015.html">
+   <LINK REL="Next"  HREF="001016.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Merge MAPI code things</H1>
+    <B>Yangyan Li</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Merge%20MAPI%20code%20things&In-Reply-To=%3Ca243c31d0809070238r4f8bfa52l14f91029007ec6a5%40mail.gmail.com%3E"
+       TITLE="[fetchmail-devel] Merge MAPI code things">yangyan.li1986 at gmail.com
+       </A><BR>
+    <I>Sun Sep  7 11:38:09 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001015.html">[fetchmail-devel] Merge MAPI code things
+</A></li>
+        <LI>Next message: <A HREF="001016.html">[fetchmail-devel] documentation inconsistency - fetchmailrc	permissions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1018">[ date ]</a>
+              <a href="thread.html#1018">[ thread ]</a>
+              <a href="subject.html#1018">[ subject ]</a>
+              <a href="author.html#1018">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Matthias,
+
+Thank you for your warmhearted reply!
+
+&gt;<i> congratulations on finishing the project. I haven't yet reviewed your code;
+</I>&gt;<i> how about your availability for collaboration on code refinements should I
+</I>&gt;<i> deem them helpful - could you work on that if issues arise during the merge?
+</I>I've tried to limit the change made to fetchmail's original code as
+few as possible. So I think it won't be too hard and I am confident
+of resolving the issues:-)
+
+&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> With respect to the merge, the fetchmail trunk is currently out of date,
+</I>&gt;<i> unmaintained and disabled.
+</I>&gt;<i>
+</I>&gt;<i> My tentative roadmap is as follows (but not fixed, I welcome any
+</I>&gt;<i> suggestions for improvement)
+</I>&gt;<i>
+</I>&gt;<i> - release 6.3.9 from BRANCH_6-3.
+</I>&gt;<i>
+</I>&gt;<i>  Could you check (dry-run) if merging the BRANCH_6-3 changes since you
+</I>&gt;<i>  copied that branch when forking BRANCH_MAPI is possible without major
+</I>&gt;<i>  effort? If so, I'd appreciate if you could synch up with 6.3.9 before we
+</I>&gt;<i>  try the merge-to-trunk effort.
+</I>BRANCH_MAPI was synchronized up with BRANCH_6-3 now.
+
+&gt;<i>
+</I>&gt;<i> - merge BRANCH_6-3 into trunk and dub it 6.4.X for the nonce
+</I>&gt;<i>  (this may mean to delete trunk and recreate it from BRANCH_6-3,
+</I>&gt;<i>   and redo changes from the BRANCH_6-3 branch point to the point where
+</I>&gt;<i>   trunk fell unmaintained - I'll see)
+</I>&gt;<i>
+</I>&gt;<i> - The manual page should at least contain pointers to README.mapi where
+</I>&gt;<i>  adequate. Something like &quot;--protocol mapi&quot; (fill in whatever you chose):
+</I>&gt;<i>  OpenChange support, see README.mapi for details.
+</I>Could you have a look at the README.mapi and suggest which way is
+better: merge it into manual or add some pointers to the README.mapi
+at appropriate places in the manual?
+
+&gt;<i>
+</I>&gt;<i> - merge MAPI support into trunk, perhaps with code revisions as I review
+</I>&gt;<i>  code.
+</I>&gt;<i>
+</I>&gt;<i> - perhaps clean up trunk, open ends for trunk (not all of them are needed
+</I>&gt;<i>  for the merge):
+</I>&gt;<i>
+</I>&gt;<i>  + sink.c is a mess. It does something like RTTI and under-the-hood
+</I>&gt;<i>    behaviour switching for SMTP, LMTP and MDA. Now, with MAPI as fourth
+</I>&gt;<i>    sink =&gt; eek. It needs abstraction, much like the &quot;--protocol&quot; feature.
+</I>My code did not touch sink.c by now. If the abstraction will take
+place, I will handle the MAPI part.
+
+&gt;<i>
+</I>&gt;<i>  + protocol vs. authenticator messup. KPOP (if it deserves to live) and
+</I>&gt;<i>    APOP are by no means protocols, but are just POP3 authenticators.
+</I>&gt;<i>    Probably unrelated to your work.
+</I>&gt;<i>
+</I>&gt;<i>  + SSL configuration is an intransparent mess, hard to understand, with
+</I>&gt;<i>    several &quot;automatic&quot;s under the hood, that I'd like to clean up.
+</I>&gt;<i>    Requires changing rcfile format.
+</I>&gt;<i>
+</I>&gt;<i>    Does MAPI require SSL support in fetchmail?
+</I>&gt;<i>    If not, it's independent of your work.
+</I>SSL is not needed by MAPI. I've write code to bypass the SSL settings
+if users configure SSL for MAPI.
+
+Best regards!
+Yangyan
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001015.html">[fetchmail-devel] Merge MAPI code things
+</A></li>
+	<LI>Next message: <A HREF="001016.html">[fetchmail-devel] documentation inconsistency - fetchmailrc	permissions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1018">[ date ]</a>
+              <a href="thread.html#1018">[ thread ]</a>
+              <a href="subject.html#1018">[ subject ]</a>
+              <a href="author.html#1018">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

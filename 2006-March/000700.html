@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3C20060314153533.GB11268%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000699.html">
+   <LINK REL="Next"  HREF="000701.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3C20060314153533.GB11268%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Tue Mar 14 16:35:33 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000699.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000701.html">[fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#700">[ date ]</a>
+              <a href="thread.html#700">[ thread ]</a>
+              <a href="subject.html#700">[ subject ]</a>
+              <a href="author.html#700">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Tue, Mar 14, 2006:
+&gt;<i> &gt; One option is to change the default to a lower value from the current
+</I>&gt;<i> &gt; value of 10. The lowest practical value is 2, which will use linear
+</I>&gt;<i> &gt; search in alternate polls.
+</I>&gt;<i> 
+</I>&gt;<i> The algorithm tries to find the first unused UIDL with a binary search,
+</I>&gt;<i> on the assumption that all new messages were at the end of the
+</I>&gt;<i> list. This doesn't work for Fr?d?ric's server and others.
+</I>
+Imagine the worst-case scenario: Frederic's mailbox has 2000 mails on
+this server and it has to be accessed on a slow dialup line which is
+prone to disconnection. Even if the assumption doesn't work, it will
+still download a few mails. Going back to linear search will probably
+fetch even less mails due to the overheads.
+
+&gt;<i> &gt; Other solutions are also possible. For example, keeping a map of UID
+</I>&gt;<i> &gt; and message number in memory (with corrections for mails deleted after
+</I>&gt;<i> &gt; logout).
+</I>&gt;<i> 
+</I>&gt;<i> Aren't we keeping those in memory anyways? If so, such a check wouldn't
+</I>&gt;<i> hurt and serve those users whose servers create messages out of order.
+</I>&gt;<i> 
+</I>&gt;<i> In the long run, we'd probably better keep them in a database on disk to
+</I>&gt;<i> keep the memory footprint down.
+</I>
+The question is not just of keeping in memory or database. The
+question is: What should be done if a mismatch is found? If the only
+solution is to go back to downloading all UIDs at one go, then I would
+prefer continuing with the incorrect assumption.
+
+The fight is not just between linear vs. binary search. The basic idea
+of fastuidl is to avoid downloading all UIDs at one go.
+
+&gt;<i> Well. Should I lower the default to 4 for the nonce or wait for a patch? :)
+</I>
+Here it is:
+
+===============================================================================
+Index: fetchmail-6.3/fetchmailconf.py
+===================================================================
+--- fetchmail-6.3/fetchmailconf.py	(revision 4739)
++++ fetchmail-6.3/fetchmailconf.py	(working copy)
+@@ -249,7 +249,7 @@
+ 	self.warnings = 3600	# Size warning interval (see tunable.h)
+ 	self.fetchlimit = 0	# Max messages fetched per batch
+ 	self.fetchsizelimit = 100	# Max message sizes fetched per transaction
+-	self.fastuidl = 10	# Do fast uidl 9 out of 10 times
++	self.fastuidl = 4	# Do fast uidl 3 out of 4 times
+ 	self.batchlimit = 0	# Max message forwarded per batch
+ 	self.expunge = 0	# Interval between expunges (IMAP)
+ 	self.ssl = 0		# Enable Seccure Socket Layer
+Index: fetchmail-6.3/fetchmail.man
+===================================================================
+--- fetchmail-6.3/fetchmail.man	(revision 4739)
++++ fetchmail-6.3/fetchmail.man	(working copy)
+@@ -615,7 +615,7 @@
+ once followed by binary searches in 'n-1' polls if 'n' is greater than
+ 1; binary search is always used if 'n' is 1; linear search is always
+ used if 'n' is 0. In non-daemon mode, binary search is used if 'n' is
+-1; otherwise linear search is used.
++1; otherwise linear search is used. The default value of 'n' is 4.
+ This option works with POP3 only.
+ .TP
+ .B \-e &lt;count&gt; | \-\-expunge &lt;count&gt;
+Index: fetchmail-6.3/fetchmail.c
+===================================================================
+--- fetchmail-6.3/fetchmail.c	(revision 4739)
++++ fetchmail-6.3/fetchmail.c	(working copy)
+@@ -970,7 +970,7 @@
+     def_opts.remotename = user;
+     def_opts.listener = SMTP_MODE;
+     def_opts.fetchsizelimit = 100;
+-    def_opts.fastuidl = 10;
++    def_opts.fastuidl = 4;
+ 
+     /* get the location of rcfile */
+     rcfiledir[0] = 0;
+===============================================================================
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000699.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000701.html">[fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#700">[ date ]</a>
+              <a href="thread.html#700">[ thread ]</a>
+              <a href="subject.html#700">[ subject ]</a>
+              <a href="author.html#700">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #11980] fetchmail hangs (imap4rev1) with	MSExchange empty body
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2311980%5D%20fetchmail%20hangs%20%28imap4rev1%29%20with%0A%09MSExchange%20empty%20body&In-Reply-To=%3C200709122249.l8CMn23r017467%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000952.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #11980] fetchmail hangs (imap4rev1) with	MSExchange empty body</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2311980%5D%20fetchmail%20hangs%20%28imap4rev1%29%20with%0A%09MSExchange%20empty%20body&In-Reply-To=%3C200709122249.l8CMn23r017467%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #11980] fetchmail hangs (imap4rev1) with	MSExchange empty body">admin at berlios.de
+       </A><BR>
+    <I>Thu Sep 13 00:49:02 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000952.html">[fetchmail-devel] [Bug #11980] fetchmail hangs (imap4rev1) with	MSExchange empty body
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#951">[ date ]</a>
+              <a href="thread.html#951">[ thread ]</a>
+              <a href="subject.html#951">[ subject ]</a>
+              <a href="author.html#951">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #11980, was updated on 2007-Sep-12 15:49
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: kbs
+Assigned to : none
+Summary: fetchmail hangs (imap4rev1) with MSExchange empty body
+
+Details: The MSExchange IMAP server sometimes returns a protocol
+line reading
+
+fetchmail: IMAP&lt; * 1 FETCH (BODY[TEXT] NIL)
+
+for empty body messages.
+
+This causes imap.c to hang in this section of the code:
+[...]
+    /* looking for FETCH response */
+    do {
+	int	ok;
+
+	if ((ok = gen_recv(sock, buf, sizeof(buf))))
+	    return(ok);
+    } while
+	(!strstr(buf+4, &quot;FETCH&quot;) || sscanf(buf+2, &quot;%d&quot;, &amp;num) != 1);
+[...]
+
+as it appears to always expect to find a number.
+
+Here are more details, I've stripped off some of the
+emails and host names etc.
+
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kbs at kbs-deskbottom</A>:/tmp$ fetchmail -V
+This is fetchmail release 6.3.6+NTLM+SDPS+SSL+NLS.
+
+Copyright (C) 2002, 2003 Eric S. Raymond
+Copyright (C) 2004 Matthias Andree, Eric S. Raymond, Rob F. Funk, Graham Wilson
+Copyright (C) 2005-2006 Matthias Andree, Sunil Shetye
+Fetchmail comes with ABSOLUTELY NO WARRANTY. This is free software, and you
+are welcome to redistribute it under certain conditions. For details,
+please see the file COPYING in the source or documentation directory.
+
+Fallback MDA: (none)
+Linux kbs-deskbottom 2.6.18-5-686 #1 SMP Thu Aug 30 02:19:07 UTC 2007 i686 GNU/Linux
+Taking options from command line and /home/kbs/.fetchmailrc
+Poll interval is 120 seconds
+Idfile is /home/kbs/.fetchids
+Fetchmail will forward misaddressed multidrop messages to kbs.
+Options for retrieving from XXX:
+  True name of server is XX
+  Protocol is IMAP.
+  All available authentication methods will be tried.
+  SSL encrypted sessions enabled.
+  Server nonresponse timeout is 60 seconds.
+  Default mailbox selected.
+  Only new messages will be retrieved (--all off).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Oversized messages will not be flushed before message retrieval (--limitflush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 3 out of 4 polls (--fastuidl 4).
+  Messages will be SMTP-forwarded to: localhost (default)
+  Single-drop mode: 1 local name recognized.
+  No UIDs saved from this host.
+
+
+Output from fetchmail --nosyslog --nodetach -vvv 
+
+fetchmail: starting fetchmail 6.3.6 daemon 
+fetchmail: 6.3.6 querying XX (protocol IMAP) at Wed 12 Sep 2007 02:40:32 PM PDT: poll started
+Trying to connect to 16.232.83.0/993...connected.
+fetchmail: Issuer Organization: RSA Data Security, Inc.
+fetchmail: Unknown Issuer CommonName
+fetchmail: Server CommonName: xx
+fetchmail: Subject Alternative Name: xx
+fetchmail: Subject Alternative Name: xx
+fetchmail: Subject Alternative Name: xx
+fetchmail: Subject Alternative Name: xx
+fetchmail: XX key fingerprint: 72:6A:90:DB:D7:E9:64:B0:6E:FC:26:E4:F0:55:9B:5C
+fetchmail: IMAP&lt; * OK Microsoft Exchange Server 2007 IMAP4 service ready
+fetchmail: IMAP&gt; A0001 CAPABILITY
+fetchmail: IMAP&lt; * CAPABILITY IMAP4 IMAP4rev1 AUTH=NTLM AUTH=GSSAPI IDLE NAMESPACE LITERAL+
+fetchmail: IMAP&lt; A0001 OK CAPABILITY completed.
+fetchmail: Protocol identified as IMAP4 rev 1
+fetchmail: IMAP&gt; A0002 AUTHENTICATE NTLM
+fetchmail: IMAP&lt; +
+NTLM Request:
+      Ident = NTLMSSP
+      mType = 1
+      Flags = 0000b207
+       User = xx
+     Domain = xx
+fetchmail: IMAP&gt; TlRMTVNTUAABAAAAB7IAAAgACAAgAAAACAAIACgAAABzcmlyYW1za2FtZXJpY2Fz
+fetchmail: IMAP&lt; + TlRMTVNTUAACAAAAEAAQADgAAAAFgoECvWaPexRO6vgAAAAAAAAAAKwArABIAAAABQLODgAAAA9BAE0ARQBSAEkAQwBBAFMAAgAQAEEATQBFAFIASQBDAEEAUwABAA4ARwAzAFcAMQAwADQANAAEACgAYQBtAGUAcgBpAGMAYQBzAC4AYwBwAHEAYwBvAHIAcAAuAG4AZQB0AAMAOABHADMAVwAxADAANAA0AC4AYQBtAGUAcgBpAGMAYQBzAC4AaABwAHEAYwBvAHIAcAAuAG4AZQB0AAUAFgBjAHAAcQBjAG8AcgBwAC4AbgBlAHQAAAAAAA==
+NTLM Challenge:
+      Ident = NTLMSSP
+      mType = 2
+     Domain = xx
+      Flags = 02818205
+  Challenge = bd 66 8f 7b 14 4e ea f8 
+NTLM Response:
+      Ident = NTLMSSP
+      mType = 3
+     LmResp = c4 b3 6d 24 c8 77 dc 53 c5 3c cb cd 0b 96 41 d1 2b 3e f5 92 e7 13 8a c5 
+     NTResp = 6f 8c f4 a7 57 b9 91 9f b9 dc 60 21 ac 57 79 89 64 3f a1 41 27 89 e2 af 
+     Domain = xx
+       User = xx
+        Wks = xx
+       sKey = 
+      Flags = 02818205
+fetchmail: IMAP&gt; TlRMTVNTUAADAAAAGAAYAEAAAAAYABgAWAAAABAAEABwAAAAEAAQAIAAAAAQABAAkAAAAAAAAABgAAAABYKBAsSzbSTId9xTxTzLzQuWQdErPvWS5xOKxW+M9KdXuZGfudxgIaxXeYlkP6FBJ4nir2EAbQBlAHIAaQBjAGEAcwBzAHIAaQByAGEAbQBzAGsAcwByAGkAcgBhAG0AcwBrAA==
+fetchmail: IMAP&lt; A0002 OK AUTHENTICATE completed.
+fetchmail: selecting or re-polling default folder
+fetchmail: IMAP&gt; A0003 SELECT &quot;INBOX&quot;
+fetchmail: IMAP&lt; * 9 EXISTS
+fetchmail: IMAP&lt; * 0 RECENT
+fetchmail: IMAP&lt; * FLAGS (\Seen \Answered \Flagged \Deleted \Draft $MDNSent)
+fetchmail: IMAP&lt; * OK [PERMANENTFLAGS (\Seen \Answered \Flagged \Deleted \Draft $MDNSent)] Permanent flags
+fetchmail: IMAP&lt; * OK [UNSEEN 1] Is the first unseen message
+fetchmail: IMAP&lt; * OK [UIDVALIDITY 2529] UIDVALIDITY value
+fetchmail: IMAP&lt; * OK [UIDNEXT 32216] The next unique identifier value
+fetchmail: IMAP&lt; A0003 OK [READ-WRITE] SELECT completed.
+fetchmail: 9 messages waiting after first poll
+fetchmail: IMAP&gt; A0004 EXPUNGE
+fetchmail: IMAP&lt; A0004 OK EXPUNGE completed.
+fetchmail: 9 messages waiting after expunge
+fetchmail: IMAP&gt; A0005 SEARCH UNSEEN NOT DELETED
+fetchmail: IMAP&lt; * SEARCH 1 2 3 4 5 6 7 8 9
+fetchmail: 1 is unseen
+fetchmail: 2 is unseen
+fetchmail: 3 is unseen
+fetchmail: 4 is unseen
+fetchmail: 5 is unseen
+fetchmail: 6 is unseen
+fetchmail: 7 is unseen
+fetchmail: 8 is unseen
+fetchmail: 9 is unseen
+fetchmail: IMAP&lt; A0005 OK SEARCH completed.
+fetchmail: 1 is first unseen
+9 messages for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xx at xx</A> at XX.
+fetchmail: IMAP&gt; A0006 FETCH 1:9 RFC822.SIZE
+fetchmail: IMAP&lt; * 1 FETCH (RFC822.SIZE 1046)
+fetchmail: IMAP&lt; * 2 FETCH (RFC822.SIZE 897)
+fetchmail: IMAP&lt; * 3 FETCH (RFC822.SIZE 555)
+fetchmail: IMAP&lt; * 4 FETCH (RFC822.SIZE 860)
+fetchmail: IMAP&lt; * 5 FETCH (RFC822.SIZE 555)
+fetchmail: IMAP&lt; * 6 FETCH (RFC822.SIZE 1699)
+fetchmail: IMAP&lt; * 7 FETCH (RFC822.SIZE 555)
+fetchmail: IMAP&lt; * 8 FETCH (RFC822.SIZE 555)
+fetchmail: IMAP&lt; * 9 FETCH (RFC822.SIZE 555)
+fetchmail: IMAP&lt; A0006 OK FETCH completed.
+fetchmail: IMAP&gt; A0007 FETCH 1 RFC822.HEADER
+fetchmail: IMAP&lt; * 1 FETCH (RFC822.HEADER {964}
+reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xx at xx</A>@XX:1 of 9 (964 header octets)
+About to rewrite From: yy
+
+Rewritten version is From: yy
+
+
+About to rewrite To: zz
+
+Rewritten version is To: zz
+
+
+Trying to connect to 127.0.0.1/25...connected.
+fetchmail: SMTP&lt; 220 aa ESMTP Postfix (Debian/GNU)
+fetchmail: SMTP&gt; EHLO aa
+fetchmail: SMTP&lt; 250-aa
+fetchmail: SMTP&lt; 250-PIPELINING
+fetchmail: SMTP&lt; 250-SIZE 10240000
+fetchmail: SMTP&lt; 250-VRFY
+fetchmail: SMTP&lt; 250-ETRN
+fetchmail: SMTP&lt; 250-STARTTLS
+fetchmail: SMTP&lt; 250-ENHANCEDSTATUSCODES
+fetchmail: SMTP&lt; 250-8BITMIME
+fetchmail: SMTP&lt; 250 DSN
+fetchmail: forwarding to localhost
+fetchmail: SMTP&gt; MAIL FROM:&lt;zz&gt; BODY=8BITMIME SIZE=1046
+fetchmail: SMTP&lt; 250 2.1.0 Ok
+fetchmail: SMTP&gt; RCPT TO:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kbs at localhost</A>&gt;
+fetchmail: SMTP&lt; 250 2.1.5 Ok
+fetchmail: SMTP&gt; DATA
+fetchmail: SMTP&lt; 354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
+fetchmail: IMAP&lt; )
+fetchmail: IMAP&lt; A0007 OK FETCH completed.
+fetchmail: IMAP&gt; A0008 FETCH 1 BODY.PEEK[TEXT]
+fetchmail: IMAP&lt; * 1 FETCH (BODY[TEXT] NIL)
+ (82 body octets)fetchmail: timeout after 60 seconds.
+fetchmail: socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">aa at bb</A>@XX
+fetchmail: 6.3.6 querying XX (protocol IMAP) at Wed 12 Sep 2007 02:41:38 PM PDT: poll completed
+fetchmail: Query status=2 (SOCKET)
+fetchmail: Deleting fetchids file.
+fetchmail: sleeping at Wed 12 Sep 2007 02:41:38 PM PDT for 120 seconds
+
+Finally, I took some tcpdumps (unfortunately, because the IMAP side is over SSL, it wasn't that useful.) However, fetchmail appears to write the FETCH message itself over to the SMTP socket, so
+clearly something is going wrong here.
+
+Here is the extracted tcpdump session on the connection that fetchmail makes with the local SMTP host.
+220 zz ESMTP Postfix (Debian/GNU)
+EHLO zz
+250-zz
+250-PIPELINING
+250-SIZE 10240000
+250-VRFY
+250-ETRN
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250 DSN
+MAIL FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nn at zz</A>&gt; BODY=8BITMIME SIZE=1046
+250 2.1.0 Ok
+RCPT TO:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kbs at localhost</A>&gt;
+250 2.1.5 Ok
+DATA
+354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
+MIME-Version: 1.0
+Received: from xx [xx.xx.xx.xx]
+.by zz with IMAP (fetchmail-6.3.6)
+.for &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kbs at localhost</A>&gt; (single-drop); Wed, 12 Sep 2007 14:46:38 -0700 (PDT)
+Received: from zz ([xx.xx.xx.xx]) by
+ nn ([xx.xx.xx.xx]) with mapi; Wed, 12 Sep 2007
+ 16:30:59 +0000
+From: zz
+To: xx
+Date: Wed, 12 Sep 2007 16:30:57 +0000
+Subject: xx
+Thread-Topic: xx
+Thread-Index: Acf1WkwmkO1XV4CUR+qFqV1I8ZO9Gg==
+Message-ID:
+ &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">B77B101B97D2664095BB678BDDAF0DC0EDD34464 at nn</A>&gt;
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Exchange-Organization-AuthAs: Internal
+X-MS-Exchange-Organization-AuthMechanism: 03
+X-MS-Exchange-Organization-AuthSource: nn
+X-MS-Has-Attach:
+X-Auto-Response-Suppress: DR, OOF, AutoReply
+X-MS-Exchange-Organization-SCL: -1
+X-MS-TNEF-Correlator:
+acceptlanguage: en-US
+Content-Type: text/plain; charset=&quot;us-ascii&quot;
+Content-Transfer-Encoding: quoted-printable
+
+A0008 OK FETCH completed.
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11980&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11980&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000952.html">[fetchmail-devel] [Bug #11980] fetchmail hangs (imap4rev1) with	MSExchange empty body
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#951">[ date ]</a>
+              <a href="thread.html#951">[ thread ]</a>
+              <a href="subject.html#951">[ subject ]</a>
+              <a href="author.html#951">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

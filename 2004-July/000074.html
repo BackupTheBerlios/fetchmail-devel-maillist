@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Can this stuff be removed?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Can%20this%20stuff%20be%20removed%3F&In-Reply-To=%3C20040703222417.GA8657%40quux.local%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000073.html">
+   <LINK REL="Next"  HREF="000075.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Can this stuff be removed?</H1>
+    <B>Graham Wilson</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Can%20this%20stuff%20be%20removed%3F&In-Reply-To=%3C20040703222417.GA8657%40quux.local%3E"
+       TITLE="[fetchmail-devel] Re: Can this stuff be removed?">bob at decoy.wox.org
+       </A><BR>
+    <I>Sun Jul  4 00:24:17 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000073.html">[fetchmail-devel] Re: m4 directories?
+</A></li>
+        <LI>Next message: <A HREF="000075.html">[fetchmail-devel] Re: Can this stuff be removed?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#74">[ date ]</a>
+              <a href="thread.html#74">[ thread ]</a>
+              <a href="subject.html#74">[ subject ]</a>
+              <a href="author.html#74">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wed, Jun 30, 2004 at 04:02:40PM -0400, Rob Funk wrote:
+&gt;<i> I'd be in favor of making a subdirectory for the web stuff though.  I need 
+</I>&gt;<i> to look at the index generatorscript to see how much we need to change 
+</I>&gt;<i> anyway.
+</I>
+Sounds fine. Would the webpage stuff be released in tarballs?
+
+On Wed, Jun 30, 2004 at 04:02:40PM -0400, Rob Funk wrote:
+&gt;<i> Graham Wilson wrote:
+</I>&gt;<i> &gt; I think we should move the testing scripts (torturetest.* and test*)
+</I>&gt;<i> &gt; should be moved to dist-tools/test/.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The other scripts that esr used (getstats.py, growthplot, indexgen.sh,
+</I>&gt;<i> &gt; listsize, makerelease, timeplot, timeseries, upload, and uploadfaq that
+</I>&gt;<i> &gt; I can see) should be moved to dist-tools/.
+</I>&gt;<i> 
+</I>&gt;<i> Sounds good to me.  Paths will probably need to be changed in them though.
+</I>&gt;<i> (Some need even more work than that.)
+</I>
+Should I just move stuff now, and we can fix the scripts up as we use
+them, or the other way around?
+
+&gt;<i> I believe bighand.png is intended as the web page logo, so that should be 
+</I>&gt;<i> kept.
+</I>
+Alright, let's remember to put it in the web directory.
+
+&gt;<i> I'm fine with dropping funny.html if nobody wants it in the new web page.  
+</I>&gt;<i> We might want to wait until we have such a web page built before actually 
+</I>&gt;<i> getting rid of it though.
+</I>
+I'd say let's just create a 'www' or 'web' subdirectory in the trunk
+now, and move the current stuff into it. We can then decide about
+'funny.html' later.
+
+&gt;<i> If the libntlm and mime64 contents are not used in the actual fetchmail 
+</I>&gt;<i> code, we can probably get rid of them.  On the other hand, README.NTLM 
+</I>&gt;<i> seems to go with the copies of the libntlm files that we're actually 
+</I>&gt;<i> distributing, so should probably stay.
+</I>
+I figured we could delete README.NTLM along with libntlm. README.NTLM
+was distributed with tarballs, whereas libtlm wasn't, at least that I
+can tell.
+
+&gt;<i> OPTIONS seems to belong in some sort of historical archive.
+</I>
+Unless we plan on using it, I think we should delete it. Should we need
+it, the file will always be in the older version on version control.
+
+&gt;<i> RFC/ could go in a document archive area (alongside OPTIONS?), or could be 
+</I>&gt;<i> considered redundant.  If deleted, I'd prefer to replace it with an HTML 
+</I>&gt;<i> file of links to canonical locations of the same documents.
+</I>
+I would think we could just get rid of it outright; I doesn't seem that
+esr ever shipped it with tarballs, but rather only had it around for
+personal use.
+
+&gt;<i> Isn't rh-config/ necessary for building the rpm?
+</I>
+I wouldn't know. :)
+
+-- 
+gram
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000073.html">[fetchmail-devel] Re: m4 directories?
+</A></li>
+	<LI>Next message: <A HREF="000075.html">[fetchmail-devel] Re: Can this stuff be removed?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#74">[ date ]</a>
+              <a href="thread.html#74">[ thread ]</a>
+              <a href="subject.html#74">[ subject ]</a>
+              <a href="author.html#74">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

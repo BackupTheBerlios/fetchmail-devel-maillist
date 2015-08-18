@@ -1,0 +1,638 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] fix listener mode [WAS: Re: RFC: Patch to fix Berlios Bug #5849]
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20fix%20listener%20mode%20%5BWAS%3A%20Re%3A%20RFC%3A%20Patch%20to%20fix%20Berlios%20Bug%20%235849%5D&In-Reply-To=%3C20051214075334.GA3208%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000600.html">
+   <LINK REL="Next"  HREF="000610.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] fix listener mode [WAS: Re: RFC: Patch to fix Berlios Bug #5849]</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20fix%20listener%20mode%20%5BWAS%3A%20Re%3A%20RFC%3A%20Patch%20to%20fix%20Berlios%20Bug%20%235849%5D&In-Reply-To=%3C20051214075334.GA3208%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] fix listener mode [WAS: Re: RFC: Patch to fix Berlios Bug #5849]">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Dec 14 08:53:34 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000600.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+        <LI>Next message: <A HREF="000610.html">[fetchmail-devel] [PATCH] fix listener mode
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#602">[ date ]</a>
+              <a href="thread.html#602">[ thread ]</a>
+              <a href="subject.html#602">[ subject ]</a>
+              <a href="author.html#602">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Tue, Dec 13, 2005:
+&gt;<i> &gt; [OFFTOPIC] While debugging this, I found a weird bug relating to this
+</I>&gt;<i> &gt; SMTP/LMTP mode. It seems that once fetchmail switches to LMTP mode,
+</I>&gt;<i> &gt; there is no going back to SMTP mode. Try this simple fetchmail
+</I>&gt;<i> &gt; command:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; $ fetchmail -v --smtphost /this/socket/is/down,localhost
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; fetchmail sends LHLO to the localhost SMTP server. Note that SMTP
+</I>&gt;<i> &gt; cannot be forced as the user could be running this configuration:
+</I>
+Here is a patch which fixes this issue. This basically removes the
+global smtp_mode variable and passes the desired mode in every smtp
+function.
+
+You may compare the output of
+
+$ fetchmail -v --smtphost /this/socket/is/down,localhost
+
+before and after the patch.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/etrn.c
+===================================================================
+--- fetchmail/etrn.c	(revision 4550)
++++ fetchmail/etrn.c	(working copy)
+@@ -25,7 +25,7 @@
+ {
+     int ok;
+ 
+-    ok = SMTP_ok(sock);
++    ok = SMTP_ok(sock, SMTP_MODE);
+     if (ok == SM_UNRECOVERABLE)
+ 	return(PS_PROTOCOL);
+     else
+@@ -40,7 +40,7 @@
+     char buf [MSGBUFSIZE+1];
+     struct idlist *qnp;		/* pointer to Q names */
+ 
+-    if ((ok = SMTP_ehlo(sock, fetchmailhost, 
++    if ((ok = SMTP_ehlo(sock, SMTP_MODE, fetchmailhost,
+ 			ctl-&gt;server.esmtp_name, ctl-&gt;server.esmtp_password,
+ 			&amp;opts)))
+     {
+Index: fetchmail/fetchmail.h
+===================================================================
+--- fetchmail/fetchmail.h	(revision 4550)
++++ fetchmail/fetchmail.h	(working copy)
+@@ -343,6 +343,7 @@
+     int wehavesentauthnote;	/* We've sent an authorization failure note */
+     int wedged;			/* wedged by auth failures or timeouts? */
+     char *smtphost;		/* actual SMTP host we connected to */
++    char smtphostmode;		/* what's the actual SMTP host's wire protocol? */
+     int smtp_socket;		/* socket descriptor for SMTP connection */
+     unsigned int uid;		/* UID of user to deliver to */
+     struct idlist *skipped;	/* messages skipped on the mail server */
+Index: fetchmail/odmr.c
+===================================================================
+--- fetchmail/odmr.c	(revision 4550)
++++ fetchmail/odmr.c	(working copy)
+@@ -35,7 +35,7 @@
+ {
+     int ok;
+ 
+-    ok = SMTP_ok(sock);
++    ok = SMTP_ok(sock, SMTP_MODE);
+     if (ok == SM_UNRECOVERABLE)
+ 	return(PS_PROTOCOL);
+     else
+@@ -51,7 +51,7 @@
+     char buf [MSGBUFSIZE+1];
+     struct idlist *qnp;		/* pointer to Q names */
+ 
+-    if ((ok = SMTP_ehlo(sock, fetchmailhost, 
++    if ((ok = SMTP_ehlo(sock, SMTP_MODE, fetchmailhost, 
+ 			ctl-&gt;server.esmtp_name, ctl-&gt;server.esmtp_password,
+ 			&amp;opts)))
+     {
+Index: fetchmail/sink.c
+===================================================================
+--- fetchmail/sink.c	(revision 4550)
++++ fetchmail/sink.c	(working copy)
+@@ -54,7 +54,7 @@
+     if (ctl-&gt;smtp_socket != -1)
+     {
+ 	if (sayquit)
+-	    SMTP_quit(ctl-&gt;smtp_socket);
++	    SMTP_quit(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);
+ 	SockClose(ctl-&gt;smtp_socket);
+ 	ctl-&gt;smtp_socket = -1;
+     }
+@@ -64,8 +64,6 @@
+ int smtp_open(struct query *ctl)
+ /* try to open a socket to the appropriate SMTP server for this query */ 
+ {
+-    char *parsed_host = NULL;
+-
+     /* maybe it's time to close the socket in order to force delivery */
+     if (last_smtp_ok &gt; 0 &amp;&amp; time((time_t *)NULL) - last_smtp_ok &gt; mytimeout)
+     {
+@@ -102,6 +100,7 @@
+ 	struct idlist	*idp;
+ 	const char *id_me = run.invisible ? ctl-&gt;server.truename : fetchmailhost;
+ 	int oldphase = phase;
++	char *parsed_host = NULL;
+ 
+ 	errno = 0;
+ 
+@@ -122,13 +121,14 @@
+ 	    ctl-&gt;smtphost = idp-&gt;id;  /* remember last host tried. */
+ 	    if (ctl-&gt;smtphost[0]=='/')
+ 	    {
+-		ctl-&gt;listener = LMTP_MODE;
++		ctl-&gt;smtphostmode = LMTP_MODE;
+ 		xfree(parsed_host);
+ 		if ((ctl-&gt;smtp_socket = UnixOpen(ctl-&gt;smtphost))==-1)
+ 		    continue;
+ 	    }
+ 	    else
+ 	    {
++		ctl-&gt;smtphostmode = ctl-&gt;listener;
+ 		parsed_host = xstrdup(idp-&gt;id);
+ 		if ((cp = strrchr(parsed_host, '/')))
+ 		{
+@@ -153,12 +153,9 @@
+ 		return(ctl-&gt;smtp_socket); /* success */
+ 	    }
+ 
+-	    /* are we doing SMTP or LMTP? */
+-	    SMTP_setmode(ctl-&gt;listener);
+-
+ 	    /* first, probe for ESMTP */
+-	    if (SMTP_ok(ctl-&gt;smtp_socket) == SM_OK &amp;&amp;
+-		    SMTP_ehlo(ctl-&gt;smtp_socket, id_me, 
++	    if (SMTP_ok(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode) == SM_OK &amp;&amp;
++		    SMTP_ehlo(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode, id_me,
+ 			ctl-&gt;server.esmtp_name, ctl-&gt;server.esmtp_password,
+ 			&amp;ctl-&gt;server.esmtp_options) == SM_OK)
+ 		break;  /* success */
+@@ -185,8 +182,8 @@
+ 		}
+ 	    }
+ 
+-	    if (SMTP_ok(ctl-&gt;smtp_socket) == SM_OK &amp;&amp; 
+-		    SMTP_helo(ctl-&gt;smtp_socket, id_me) == SM_OK)
++	    if (SMTP_ok(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode) == SM_OK &amp;&amp;
++		    SMTP_helo(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode, id_me) == SM_OK)
+ 		break;  /* success */
+ 
+ 	    smtp_close(ctl, 0);
+@@ -269,8 +266,6 @@
+ 
+     bounce_to = (run.bouncemail ? msg-&gt;return_path : run.postmaster);
+ 
+-    SMTP_setmode(SMTP_MODE);
+-
+     /* can't just use fetchmailhost here, it might be localhost */
+     if (fqdn_of_host == NULL)
+ 	fqdn_of_host = host_fqdn(0); /* can't afford to bail out and
+@@ -283,18 +278,18 @@
+     if ((sock = SockOpen(&quot;localhost&quot;, SMTP_PORT, NULL)) == -1)
+ 	return(FALSE);
+ 
+-    if (SMTP_ok(sock) != SM_OK)
++    if (SMTP_ok(sock, SMTP_MODE) != SM_OK)
+     {
+ 	SockClose(sock);
+ 	return FALSE;
+     }
+ 
+-    if (SMTP_helo(sock, fetchmailhost) != SM_OK
+-	|| SMTP_from(sock, &quot;&lt;&gt;&quot;, (char *)NULL) != SM_OK
+-	|| SMTP_rcpt(sock, bounce_to) != SM_OK
+-	|| SMTP_data(sock) != SM_OK) 
++    if (SMTP_helo(sock, SMTP_MODE, fetchmailhost) != SM_OK
++	|| SMTP_from(sock, SMTP_MODE, &quot;&lt;&gt;&quot;, (char *)NULL) != SM_OK
++	|| SMTP_rcpt(sock, SMTP_MODE, bounce_to) != SM_OK
++	|| SMTP_data(sock, SMTP_MODE) != SM_OK)
+     {
+-	SMTP_quit(sock);
++	SMTP_quit(sock, SMTP_MODE);
+ 	SockClose(sock);
+ 	return(FALSE);
+     }
+@@ -407,7 +402,8 @@
+     }
+     SockPrintf(sock, &quot;--%s--\r\n&quot;, boundary); 
+ 
+-    if (SMTP_eom(sock) != SM_OK || SMTP_quit(sock))
++    if (SMTP_eom(sock, SMTP_MODE) != SM_OK
++	    || SMTP_quit(sock, SMTP_MODE) != SM_OK)
+     {
+ 	SockClose(sock);
+ 	return(FALSE);
+@@ -500,7 +496,7 @@
+      */
+     if (smtperr &gt;= 400)
+ 	report(stderr, GT_(&quot;%cMTP error: %s\n&quot;), 
+-	      ctl-&gt;listener,
++	      ctl-&gt;smtphostmode,
+ 	      responses[0]);
+ 
+     switch (smtperr)
+@@ -584,7 +580,7 @@
+ 
+     if (smtperr &gt;= 400)
+ 	report(stderr, GT_(&quot;%cMTP error: %s\n&quot;), 
+-	      ctl-&gt;listener,
++	      ctl-&gt;smtphostmode,
+ 	      smtp_response);
+ 
+     switch (smtperr)
+@@ -899,7 +895,8 @@
+ 	ap = addr;
+     }
+ 
+-    if ((smtp_err = SMTP_from(ctl-&gt;smtp_socket, ap, options)) == SM_UNRECOVERABLE)
++    if ((smtp_err = SMTP_from(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode,
++		    ap, options)) == SM_UNRECOVERABLE)
+     {
+ 	smtp_close(ctl, 0);
+ 	return(PS_TRANSIENT);
+@@ -908,7 +905,7 @@
+     {
+ 	int err = handle_smtp_report(ctl, msg); /* map to PS_TRANSIENT or PS_REFUSED */
+ 
+-	SMTP_rset(ctl-&gt;smtp_socket);    /* stay on the safe side */
++	SMTP_rset(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);    /* stay on the safe side */
+ 	return(err);
+     }
+ 
+@@ -926,7 +923,8 @@
+ 	{
+ 	    const char *address;
+ 	    address = rcpt_address (ctl, idp-&gt;id, 1);
+-	    if ((smtp_err = SMTP_rcpt(ctl-&gt;smtp_socket, address)) == SM_UNRECOVERABLE)
++	    if ((smtp_err = SMTP_rcpt(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode,
++			    address)) == SM_UNRECOVERABLE)
+ 	    {
+ 		smtp_close(ctl, 0);
+ transient:
+@@ -958,14 +956,14 @@
+ 		    if (outlevel &gt;= O_VERBOSE)
+ 			report(stderr,
+ 			      GT_(&quot;%cMTP listener doesn't like recipient address `%s'\n&quot;),
+-			      ctl-&gt;listener, address);
++			      ctl-&gt;smtphostmode, address);
+ 		    break;
+ 
+ 		    case PS_REFUSED:
+ 		    if (outlevel &gt;= O_VERBOSE)
+ 			report(stderr,
+ 			      GT_(&quot;%cMTP listener doesn't really like recipient address `%s'\n&quot;),
+-			      ctl-&gt;listener, address);
++			      ctl-&gt;smtphostmode, address);
+ 		    break;
+ 		}
+ 	    }
+@@ -976,7 +974,7 @@
+ 	     * crap. If one of the recipients returned PS_TRANSIENT,
+ 	     * we return exactly that.
+ 	     */
+-	    SMTP_rset(ctl-&gt;smtp_socket);        /* required by RFC1870 */
++	    SMTP_rset(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);        /* required by RFC1870 */
+ 	    goto transient;
+     }
+ #ifdef EXPLICIT_BOUNCE_ON_BAD_ADDRESS
+@@ -1006,10 +1004,10 @@
+ 	{
+ 	    if (outlevel &gt;= O_VERBOSE)
+ 		report(stderr, GT_(&quot;no address matches; no postmaster set.\n&quot;));
+-	    SMTP_rset(ctl-&gt;smtp_socket);	/* required by RFC1870 */
++	    SMTP_rset(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);	/* required by RFC1870 */
+ 	    return(PS_REFUSED);
+ 	}
+-	if ((smtp_err = SMTP_rcpt(ctl-&gt;smtp_socket,
++	if ((smtp_err = SMTP_rcpt(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode,
+ 		rcpt_address (ctl, run.postmaster, 0))) == SM_UNRECOVERABLE)
+ 	{
+ 	    smtp_close(ctl, 0);
+@@ -1018,7 +1016,7 @@
+ 	if (smtp_err != SM_OK)
+ 	{
+ 	    report(stderr, GT_(&quot;can't even send to %s!\n&quot;), run.postmaster);
+-	    SMTP_rset(ctl-&gt;smtp_socket);	/* required by RFC1870 */
++	    SMTP_rset(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);	/* required by RFC1870 */
+ 	    return(PS_REFUSED);
+ 	}
+ 
+@@ -1030,7 +1028,8 @@
+      * Tell the listener we're ready to send data.
+      * Some listeners (like zmailer) may return antispam errors here.
+      */
+-    if ((smtp_err = SMTP_data(ctl-&gt;smtp_socket)) == SM_UNRECOVERABLE)
++    if ((smtp_err = SMTP_data(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode))
++	    == SM_UNRECOVERABLE)
+     {
+ 	smtp_close(ctl, 0);
+ 	return(PS_TRANSIENT);
+@@ -1038,7 +1037,7 @@
+     if (smtp_err != SM_OK)
+     {
+ 	int err = handle_smtp_report(ctl, msg);
+-	SMTP_rset(ctl-&gt;smtp_socket);    /* stay on the safe side */
++	SMTP_rset(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);    /* stay on the safe side */
+ 	return(err);
+     }
+ 
+@@ -1239,7 +1238,7 @@
+     else if (!ctl-&gt;mda)
+     {
+ 	report(stderr, GT_(&quot;%cMTP connect to %s failed\n&quot;),
+-	       ctl-&gt;listener,
++	       ctl-&gt;smtphostmode,
+ 	       ctl-&gt;smtphost ? ctl-&gt;smtphost : &quot;localhost&quot;);
+ 
+ #ifndef FALLBACK_MDA
+@@ -1352,7 +1351,8 @@
+     else if (forward)
+     {
+ 	/* write message terminator */
+-	if ((smtp_err = SMTP_eom(ctl-&gt;smtp_socket)) == SM_UNRECOVERABLE)
++	if ((smtp_err = SMTP_eom(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode))
++		== SM_UNRECOVERABLE)
+ 	{
+ 	    smtp_close(ctl, 0);
+ 	    return(FALSE);
+@@ -1361,13 +1361,13 @@
+ 	{
+ 	    if (handle_smtp_report(ctl, msg) != PS_REFUSED)
+ 	    {
+-	        SMTP_rset(ctl-&gt;smtp_socket);    /* stay on the safe side */
++	        SMTP_rset(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);    /* stay on the safe side */
+ 		return(FALSE);
+ 	    }
+ 	    else
+ 	    {
+ 		report(stderr, GT_(&quot;SMTP listener refused delivery\n&quot;));
+-	        SMTP_rset(ctl-&gt;smtp_socket);    /* stay on the safe side */
++	        SMTP_rset(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);    /* stay on the safe side */
+ 		return(TRUE);
+ 	    }
+ 	}
+@@ -1382,11 +1382,11 @@
+ 	 * otherwise the message will get left in the queue and resent
+ 	 * to people who got it the first time.
+ 	 */
+-	if (ctl-&gt;listener == LMTP_MODE)
++	if (ctl-&gt;smtphostmode == LMTP_MODE)
+ 	{
+ 	    if (lmtp_responses == 0)
+ 	    {
+-		SMTP_ok(ctl-&gt;smtp_socket); 
++		SMTP_ok(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode);
+ 
+ 		/*
+ 		 * According to RFC2033, 503 is the only legal response
+@@ -1419,7 +1419,8 @@
+ 		responses = xmalloc(sizeof(char *) * lmtp_responses);
+ 		for (errors = i = 0; i &lt; lmtp_responses; i++)
+ 		{
+-		    if ((smtp_err = SMTP_ok(ctl-&gt;smtp_socket)) == SM_UNRECOVERABLE)
++		    if ((smtp_err = SMTP_ok(ctl-&gt;smtp_socket, ctl-&gt;smtphostmode))
++			    == SM_UNRECOVERABLE)
+ 		    {
+ 			smtp_close(ctl, 0);
+ 			goto unrecov;
+Index: fetchmail/smtp.c
+===================================================================
+--- fetchmail/smtp.c	(revision 4550)
++++ fetchmail/smtp.c	(working copy)
+@@ -39,23 +39,15 @@
+ 
+ char smtp_response[MSGBUFSIZE];
+ 
+-static char smtp_mode = 'S';
+-
+-void SMTP_setmode(char sl)
+-/* set whether we are speaking SMTP or LMTP */
+-{
+-    smtp_mode = sl;
+-}
+-
+-int SMTP_helo(int sock,const char *host)
++int SMTP_helo(int sock, char smtp_mode, const char *host)
+ /* send a &quot;HELO&quot; message to the SMTP listener */
+ {
+   int ok;
+ 
+   SockPrintf(sock,&quot;HELO %s\r\n&quot;, host);
+   if (outlevel &gt;= O_MONITOR)
+-      report(stdout, &quot;SMTP&gt; HELO %s\n&quot;, host);
+-  ok = SMTP_ok(sock);
++      report(stdout, &quot;%cMTP&gt; HELO %s\n&quot;, smtp_mode, host);
++  ok = SMTP_ok(sock, smtp_mode);
+   return ok;
+ }
+ 
+@@ -66,7 +58,7 @@
+     if (outlevel &gt;= O_MONITOR) report(stdout, msg);
+ }
+ 
+-static void SMTP_auth(int sock, char *username, char *password, char *buf)
++static void SMTP_auth(int sock, char smtp_mode, char *username, char *password, char *buf)
+ /* ESMTP Authentication support for fetchmail by Wojciech Polak */
+ {	
+ 	int c;
+@@ -115,7 +107,7 @@
+ 
+ 		to64frombits(b64buf, tmp, strlen(tmp));
+ 		SockPrintf(sock, &quot;%s\r\n&quot;, b64buf);
+-		SMTP_ok(sock);
++		SMTP_ok(sock, smtp_mode);
+ 	}
+ 	else if (strstr(buf, &quot;PLAIN&quot;)) {
+ 		int len;
+@@ -131,7 +123,7 @@
+ 		}
+ 		to64frombits(b64buf, tmp, len);
+ 		SockPrintf(sock, &quot;AUTH PLAIN %s\r\n&quot;, b64buf);
+-		SMTP_ok(sock);
++		SMTP_ok(sock, smtp_mode);
+ 	}
+ 	else if (strstr(buf, &quot;LOGIN&quot;)) {
+ 		if (outlevel &gt;= O_MONITOR)
+@@ -170,12 +162,12 @@
+ 		}
+ 		to64frombits(b64buf, password, strlen(password));
+ 		SockPrintf(sock, &quot;%s\r\n&quot;, b64buf);
+-		SMTP_ok(sock);
++		SMTP_ok(sock, smtp_mode);
+ 	}
+ 	return;
+ }
+ 
+-int SMTP_ehlo(int sock, const char *host, char *name, char *password, int *opt)
++int SMTP_ehlo(int sock, char smtp_mode, const char *host, char *name, char *password, int *opt)
+ /* send a &quot;EHLO&quot; message to the SMTP listener, return extension status bits */
+ {
+   struct opt *hp;
+@@ -209,7 +201,7 @@
+ 	  }
+       if ((smtp_response[0] == '1' || smtp_response[0] == '2' || smtp_response[0] == '3') &amp;&amp; smtp_response[3] == ' ') {
+ 	  if (*opt &amp; ESMTP_AUTH)
+-		SMTP_auth(sock, name, password, auth_response);
++		SMTP_auth(sock, smtp_mode, name, password, auth_response);
+ 	  return SM_OK;
+       }
+       else if (smtp_response[3] != '-')
+@@ -218,7 +210,7 @@
+   return SM_UNRECOVERABLE;
+ }
+ 
+-int SMTP_from(int sock, const char *from, const char *opts)
++int SMTP_from(int sock, char smtp_mode, const char *from, const char *opts)
+ /* send a &quot;MAIL FROM:&quot; message to the SMTP listener */
+ {
+     int ok;
+@@ -233,11 +225,11 @@
+     SockPrintf(sock,&quot;%s\r\n&quot;, buf);
+     if (outlevel &gt;= O_MONITOR)
+ 	report(stdout, &quot;%cMTP&gt; %s\n&quot;, smtp_mode, buf);
+-    ok = SMTP_ok(sock);
++    ok = SMTP_ok(sock, smtp_mode);
+     return ok;
+ }
+ 
+-int SMTP_rcpt(int sock, const char *to)
++int SMTP_rcpt(int sock, char smtp_mode, const char *to)
+ /* send a &quot;RCPT TO:&quot; message to the SMTP listener */
+ {
+   int ok;
+@@ -245,11 +237,11 @@
+   SockPrintf(sock,&quot;RCPT TO:&lt;%s&gt;\r\n&quot;, to);
+   if (outlevel &gt;= O_MONITOR)
+       report(stdout, &quot;%cMTP&gt; RCPT TO:&lt;%s&gt;\n&quot;, smtp_mode, to);
+-  ok = SMTP_ok(sock);
++  ok = SMTP_ok(sock, smtp_mode);
+   return ok;
+ }
+ 
+-int SMTP_data(int sock)
++int SMTP_data(int sock, char smtp_mode)
+ /* send a &quot;DATA&quot; message to the SMTP listener */
+ {
+   int ok;
+@@ -257,11 +249,11 @@
+   SockPrintf(sock,&quot;DATA\r\n&quot;);
+   if (outlevel &gt;= O_MONITOR)
+       report(stdout, &quot;%cMTP&gt; DATA\n&quot;, smtp_mode);
+-  ok = SMTP_ok(sock);
++  ok = SMTP_ok(sock, smtp_mode);
+   return ok;
+ }
+ 
+-int SMTP_rset(int sock)
++int SMTP_rset(int sock, char smtp_mode)
+ /* send a &quot;RSET&quot; message to the SMTP listener */
+ {
+   int ok;
+@@ -269,11 +261,11 @@
+   SockPrintf(sock,&quot;RSET\r\n&quot;);
+   if (outlevel &gt;= O_MONITOR)
+       report(stdout, &quot;%cMTP&gt; RSET\n&quot;, smtp_mode);
+-  ok = SMTP_ok(sock);
++  ok = SMTP_ok(sock, smtp_mode);
+   return ok;
+ }
+ 
+-int SMTP_quit(int sock)
++int SMTP_quit(int sock, char smtp_mode)
+ /* send a &quot;QUIT&quot; message to the SMTP listener */
+ {
+   int ok;
+@@ -281,11 +273,11 @@
+   SockPrintf(sock,&quot;QUIT\r\n&quot;);
+   if (outlevel &gt;= O_MONITOR)
+       report(stdout, &quot;%cMTP&gt; QUIT\n&quot;, smtp_mode);
+-  ok = SMTP_ok(sock);
++  ok = SMTP_ok(sock, smtp_mode);
+   return ok;
+ }
+ 
+-int SMTP_eom(int sock)
++int SMTP_eom(int sock, char smtp_mode)
+ /* send a message data terminator to the SMTP listener */
+ {
+   int ok;
+@@ -298,7 +290,7 @@
+    * When doing LMTP, must process many of these at the outer level. 
+    */
+   if (smtp_mode == 'S')
+-      ok = SMTP_ok(sock);
++      ok = SMTP_ok(sock, smtp_mode);
+   else
+       ok = SM_OK;
+ 
+@@ -307,7 +299,7 @@
+ 
+ time_t last_smtp_ok = 0;
+ 
+-int SMTP_ok(int sock)
++int SMTP_ok(int sock, char smtp_mode)
+ /* returns status of SMTP connection */
+ {
+     SIGHANDLERTYPE alrmsave;
+Index: fetchmail/smtp.h
+===================================================================
+--- fetchmail/smtp.h	(revision 4550)
++++ fetchmail/smtp.h	(working copy)
+@@ -25,16 +25,15 @@
+ 
+ extern time_t last_smtp_ok;
+ 
+-void SMTP_setmode(char);
+-int SMTP_helo(int socket,const char *host);
+-int SMTP_ehlo(int socket,const char *host, char *name, char *passwd, int *opt);
+-int SMTP_from(int socket,const char *from,const char *opts);
+-int SMTP_rcpt(int socket,const char *to);
+-int SMTP_data(int socket);
+-int SMTP_eom(int socket);
+-int SMTP_rset(int socket);
+-int SMTP_quit(int socket);
+-int SMTP_ok(int socket);
++int SMTP_helo(int socket, char smtp_mode, const char *host);
++int SMTP_ehlo(int socket, char smtp_mode, const char *host, char *name, char *passwd, int *opt);
++int SMTP_from(int socket, char smtp_mode, const char *from,const char *opts);
++int SMTP_rcpt(int socket, char smtp_mode, const char *to);
++int SMTP_data(int socket, char smtp_mode);
++int SMTP_eom(int socket, char smtp_mode);
++int SMTP_rset(int socket, char smtp_mode);
++int SMTP_quit(int socket, char smtp_mode);
++int SMTP_ok(int socket, char smtp_mode);
+ 
+ extern char smtp_response[MSGBUFSIZE];
+ 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000600.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+	<LI>Next message: <A HREF="000610.html">[fetchmail-devel] [PATCH] fix listener mode
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#602">[ date ]</a>
+              <a href="thread.html#602">[ thread ]</a>
+              <a href="subject.html#602">[ subject ]</a>
+              <a href="author.html#602">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

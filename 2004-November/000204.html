@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: r3995 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r3995%20-%20trunk&In-Reply-To=%3C20041118091237.GA725%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000203.html">
+   <LINK REL="Next"  HREF="000205.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: r3995 - trunk</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r3995%20-%20trunk&In-Reply-To=%3C20041118091237.GA725%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] Re: r3995 - trunk">B.Candler at pobox.com
+       </A><BR>
+    <I>Thu Nov 18 10:12:37 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000203.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000205.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#204">[ date ]</a>
+              <a href="thread.html#204">[ thread ]</a>
+              <a href="subject.html#204">[ subject ]</a>
+              <a href="author.html#204">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Thu, Nov 18, 2004 at 12:41:12AM -0600, Graham Wilson wrote:
+&gt;<i> On Fri, Nov 12, 2004 at 11:54:51PM +0100, Matthias Andree wrote:
+</I>&gt;<i> &gt; Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">graham at mknod.org</A>&gt; writes:
+</I>&gt;<i> &gt; &gt; Why do we want it as a separate project?
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Ripping code out of other software is harder to track WRT updates.
+</I>&gt;<i> 
+</I>&gt;<i> I'm not really concerned as much about updates to an snprintf
+</I>&gt;<i> implementation; I wouldn't think there would need to be much updating.
+</I>&gt;<i> I'm more concerned with adding a whole other project into the fetchmail
+</I>&gt;<i> tarball.
+</I>
+What do other projects do with regard to snprintf or lack of it? How many
+Unix systems lack snprintf these days?
+
+According to the FreeBSD manpage,
+
+     the snprintf() and vsnprintf()
+     functions conform to ISO/IEC 9899:1999 (`ISO C99'').
+
+Would it be reasonable simply to expect a decent O/S to have these functions
+now? I don't know if SunOS 4.1 has snprintf or not, but if it doesn't and
+you're still running it, you'll have worse problems than not being able to
+compile fetchmail.
+
+If there is a free-standing external snprintf library, then we could just
+point people at it and tell them to install it first if it's needed.
+
+Regards,
+
+Brian.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000203.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000205.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#204">[ date ]</a>
+              <a href="thread.html#204">[ thread ]</a>
+              <a href="subject.html#204">[ subject ]</a>
+              <a href="author.html#204">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

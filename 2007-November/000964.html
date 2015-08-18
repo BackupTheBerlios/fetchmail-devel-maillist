@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20broken%20behavior%20in%20Exchange%20Server%0A%092003%09IMAP4rev1&In-Reply-To=%3C1194022711.19552.175.camel%40rho.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000963.html">
+   <LINK REL="Next"  HREF="000965.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20broken%20behavior%20in%20Exchange%20Server%0A%092003%09IMAP4rev1&In-Reply-To=%3C1194022711.19552.175.camel%40rho.emma.line.org%3E"
+       TITLE="[fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Nov  2 17:58:31 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000963.html">[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+</A></li>
+        <LI>Next message: <A HREF="000965.html">[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#964">[ date ]</a>
+              <a href="thread.html#964">[ thread ]</a>
+              <a href="subject.html#964">[ subject ]</a>
+              <a href="author.html#964">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am Donnerstag, den 01.11.2007, 18:06 -0700 schrieb Adam Simpkins:
+
+&gt;<i> I tracked down the problem, and it occurs because the Exchange server
+</I>&gt;<i> is rewriting the MIME boundary before sending it to the IMAP client.
+</I>
+So tell Exchange not to do that.
+Why would a client want to cater for servers who tamper with data? It's
+the MIME boundary today and the sender address tomorrow. And why would a
+client want to use such a server at all?
+
+&gt;<i> It rewrites the boundary differently (using a different randomly
+</I>&gt;<i> generated string) for each IMAP request.  Because fetchmail downloads
+</I>&gt;<i> the headers and body separately, this results in a different boundary
+</I>&gt;<i> in the Content-Type header than in the message body.
+</I>
+...
+
+[bug fixing for Lotus insanity transferred to MS Exchange?]
+&gt;<i> I don't suppose I can convince you to reconsider?  (I somehow doubt
+</I>&gt;<i> I'll have much luck convincing Microsoft to fix exchange.)
+</I>
+Well, if I had time at my hands, I might offer to fix this for money.
+Given that 6.3.9 has been delayed for weeks already, I'd rather not make
+any offers in that direction.
+
+I'm aware this isn't too helpful, but I don't see it as my foremost
+interest to work around server bugs - especially not if the changes to
+code would have to be rather intrusive.
+
+Sorry.
+
+Best regards
+Matthias
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000963.html">[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+</A></li>
+	<LI>Next message: <A HREF="000965.html">[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#964">[ date ]</a>
+              <a href="thread.html#964">[ thread ]</a>
+              <a href="subject.html#964">[ subject ]</a>
+              <a href="author.html#964">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

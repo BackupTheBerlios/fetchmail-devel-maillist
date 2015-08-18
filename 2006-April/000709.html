@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCHes] Misc. bug fixes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCHes%5D%20Misc.%20bug%20fixes&In-Reply-To=%3Cm3k6a9a8g8.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000710.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCHes] Misc. bug fixes</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCHes%5D%20Misc.%20bug%20fixes&In-Reply-To=%3Cm3k6a9a8g8.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [PATCHes] Misc. bug fixes">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sat Apr  1 12:36:39 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000710.html">[fetchmail-devel] [PATCHes] Misc. bug fixes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#709">[ date ]</a>
+              <a href="thread.html#709">[ thread ]</a>
+              <a href="subject.html#709">[ subject ]</a>
+              <a href="author.html#709">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Miloslav Trmac &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mitr at redhat.com</A>&gt; writes:
+
+&gt;<i> Hello,
+</I>&gt;<i> The warning cleanups have allowed me to notice bugs on some more exotic
+</I>&gt;<i> architectures which were previously lost in the noise:
+</I>&gt;<i>
+</I>&gt;<i> - in several places the *printf format string doesn't agree with the
+</I>&gt;<i>   parameter types
+</I>&gt;<i> - glibc doesn't export res_* on architectures with newer ABI, only
+</I>&gt;<i>   __res_* and defines macros in &lt;resolv.h&gt;, thus configure would not
+</I>&gt;<i>   detect res_* presence.
+</I>&gt;<i>
+</I>&gt;<i> The attached patches fix these problems.
+</I>
+Merged for 6.3.4, thanks.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000710.html">[fetchmail-devel] [PATCHes] Misc. bug fixes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#709">[ date ]</a>
+              <a href="thread.html#709">[ thread ]</a>
+              <a href="subject.html#709">[ subject ]</a>
+              <a href="author.html#709">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

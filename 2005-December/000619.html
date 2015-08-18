@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] handle imap EXPUNGE better
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20handle%20imap%20EXPUNGE%20better&In-Reply-To=%3C20051224115130.GA4336%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000618.html">
+   <LINK REL="Next"  HREF="000620.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] handle imap EXPUNGE better</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20handle%20imap%20EXPUNGE%20better&In-Reply-To=%3C20051224115130.GA4336%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] handle imap EXPUNGE better">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Sat Dec 24 12:51:30 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000618.html">[fetchmail-devel] fetchmail security announcement 2005-03 (CVE-2005-4348)
+</A></li>
+        <LI>Next message: <A HREF="000620.html">[fetchmail-devel] [PATCH] handle imap EXPUNGE better
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#619">[ date ]</a>
+              <a href="thread.html#619">[ thread ]</a>
+              <a href="subject.html#619">[ subject ]</a>
+              <a href="author.html#619">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>A good imap server can handle two email clients accessing the same
+mailbox and reports the mails deleted by one email client correctly to
+the other email client.
+
+However, fetchmail cannot handle this unexpected deletion of mails.
+This is because fetchmail caches which mails are new and the size of
+those new mails. This caching is required to give a better
+performance, but leads to unexpected results when another email client
+is writing to the same mailbox:
+
+- An old mail could be delivered instead of a recent mail.
+
+- fetchmail passes the wrong size to the SMTP server in the MAIL FROM:
+  command. If the SMTP server has size restrictions, a wrong mail will
+  get rejected!
+
+- &quot;fetchmail -vv&quot; reports that there is a mismatch in the expected and
+  received message sizes.
+
+This patch causes fetchmail to quit the poll if there is a mismatch in
+the count of mails being deleted.
+
+This patch also handles servers which do not report RECENT on EXPUNGE
+in a better way. Now, recentcount is counted down on EXPUNGE of each
+mail along with count. This way, recentcount need not be reset to zero
+if the server does not give a new report of RECENT mails.
+
+This patch has been tested by running two fetchmails on the same
+mailbox!
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/imap.c
+===================================================================
+--- fetchmail/imap.c	(revision 4585)
++++ fetchmail/imap.c	(working copy)
+@@ -43,7 +43,7 @@
+ static unsigned int *unseen_messages;
+ 
+ /* for &quot;IMAP&gt; EXPUNGE&quot; */
+-static int recentcount_ok = 0;
++static int actual_deletions = 0;
+ 
+ /* for &quot;IMAP&gt; IDLE&quot; */
+ static int saved_timeout = 0;
+@@ -114,7 +114,6 @@
+ 	    }
+ 	    else if (strstr(buf, &quot; RECENT&quot;))
+ 	    {
+-		recentcount_ok = 1;
+ 		recentcount = atoi(buf+2);
+ 	    }
+ 	    else if (strstr(buf, &quot; EXPUNGE&quot;))
+@@ -122,9 +121,18 @@
+ 		/* the response &quot;* 10 EXPUNGE&quot; means that the currently
+ 		 * tenth (i.e. only one) message has been deleted */
+ 		if (atoi(buf+2) &gt; 0)
+-		    count--;
+-		if (count &lt; 0)
+-		    count = 0;
++		{
++		    if (count &gt; 0)
++			count--;
++		    /* Some servers do not report RECENT after an EXPUNGE.
++		     * For such servers, assume that the mail being
++		     * expunged is a recent one. For other servers, we
++		     * should get an updated RECENT report later and this
++		     * assumption will have no effect. */
++		    if (recentcount &gt; 0)
++			recentcount--;
++		    actual_deletions++;
++		}
+ 	    }
+ 	    else if (strstr(buf, &quot; PREAUTH&quot;))
+ 	    {
+@@ -577,15 +585,26 @@
+ {
+     int	ok;
+ 
+-    recentcount_ok = 0;
++    actual_deletions = 0;
+ 
+     if ((ok = gen_transact(sock, &quot;EXPUNGE&quot;)))
+ 	return(ok);
+ 
+-    /* some servers do not report RECENT after an EXPUNGE. in this case, 
+-     * the previous value of recentcount is just ignored. */
+-    if (!recentcount_ok)
+-        recentcount = 0;
++    /* if there is a mismatch between the number of mails which should
++     * have been expunged and the number of mails actually expunged,
++     * another email client may be deleting mails. Quit here,
++     * otherwise fetchmail gets out-of-sync with the imap server,
++     * reports the wrong size to the SMTP server on MAIL FROM: and
++     * triggers a &quot;message ... was not the expected length&quot; error on
++     * every subsequent mail */
++    if (deletions &gt; 0 &amp;&amp; deletions != actual_deletions)
++    {
++	report(stderr,
++		GT_(&quot;mail expunge mismatch (%d actual != %d expected)\n&quot;),
++		actual_deletions, deletions);
++	deletions = 0;
++	return(PS_ERROR);
++    }
+ 
+     expunged += deletions;
+     deletions = 0;
+@@ -1125,7 +1144,10 @@
+      * the next session.
+      */
+     if (NUM_NONZERO(expunge_period) &amp;&amp; (deletions % expunge_period) == 0)
+-	internal_expunge(sock);
++    {
++	if ((ok = internal_expunge(sock)))
++	    return(ok);
++    }
+ 
+     return(PS_SUCCESS);
+ }
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000618.html">[fetchmail-devel] fetchmail security announcement 2005-03 (CVE-2005-4348)
+</A></li>
+	<LI>Next message: <A HREF="000620.html">[fetchmail-devel] [PATCH] handle imap EXPUNGE better
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#619">[ date ]</a>
+              <a href="thread.html#619">[ thread ]</a>
+              <a href="subject.html#619">[ subject ]</a>
+              <a href="author.html#619">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

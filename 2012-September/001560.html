@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] RFC PATCH: Allow envelope to use regular	expression to identify recipient
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RFC%20PATCH%3A%20Allow%20envelope%20to%20use%20regular%0A%09expression%20to%20identify%20recipient&In-Reply-To=%3C1346702804.83421.YahooMailNeo%40web162402.mail.bf1.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001562.html">
+   <LINK REL="Next"  HREF="001563.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] RFC PATCH: Allow envelope to use regular	expression to identify recipient</H1>
+    <B>Earl Chew</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RFC%20PATCH%3A%20Allow%20envelope%20to%20use%20regular%0A%09expression%20to%20identify%20recipient&In-Reply-To=%3C1346702804.83421.YahooMailNeo%40web162402.mail.bf1.yahoo.com%3E"
+       TITLE="[fetchmail-devel] RFC PATCH: Allow envelope to use regular	expression to identify recipient">earl_chew at yahoo.com
+       </A><BR>
+    <I>Mon Sep  3 22:06:44 CEST 2012</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001562.html">[fetchmail-devel] PATCH: Clear	SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+</A></li>
+        <LI>Next message: <A HREF="001563.html">[fetchmail-devel] fetchmail 7.0.0-alpha3 alpha preview release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1560">[ date ]</a>
+              <a href="thread.html#1560">[ thread ]</a>
+              <a href="subject.html#1560">[ subject ]</a>
+              <a href="author.html#1560">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Per my post in fetchmail-users (<A HREF="https://lists.berlios.de/pipermail/fetchmail-users/2012-September/003231.html">https://lists.berlios.de/pipermail/fetchmail-users/2012-September/003231.html</A>)
+here is a candidate patch to enable additional envelope functionality to better identify the intended
+recipient in multidrop scenarios.
+
+
+This patch approaches the enhancement in a straightforward way and is relatively unintrusive.
+
+
+Apologies for the tab mangling in this RFC.&#160; I can offer up a unmangled version if required to
+commit the patch.
+
+Earl
+
+
+
+--- fetchmail.h.orig&#160;&#160;&#160; 2012-08-13 13:02:41.000000000 -0700
++++ fetchmail.h&#160;&#160;&#160; 2012-09-03 09:17:37.000000000 -0700
+@@ -33,6 +33,7 @@
+&#160;#endif
+&#160;#include &lt;netdb.h&gt;
+&#160;#include &lt;stdio.h&gt;
++#include &lt;regex.h&gt;
+&#160;
+&#160;/* Import Trio if needed */
+&#160;#if !defined(HAVE_SNPRINTF) || !defined(HAVE_VSNPRINTF)
+@@ -270,6 +271,7 @@
+&#160;&#160;&#160;&#160; int interval;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; /* # cycles to skip between polls */
+&#160;&#160;&#160;&#160; int authenticate;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; /* authentication mode to try */
+&#160;&#160;&#160;&#160; int timeout;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; /* inactivity timout in seconds */
++&#160;&#160;&#160; regex_t *envre;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; /* envelope address list header regex */
+&#160;&#160;&#160;&#160; char *envelope;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; /* envelope address list header */
+&#160;&#160;&#160;&#160; int envskip;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; /* skip to numbered envelope header */
+&#160;&#160;&#160;&#160; char *qvirtual;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; /* prefix removed from local user id */
+--- transact.c.orig&#160;&#160;&#160; 2012-09-03 11:40:42.000000000 -0700
++++ transact.c&#160;&#160;&#160; 2012-09-03 13:04:12.000000000 -0700
+@@ -104,6 +104,88 @@
+&#160;&#160;&#160;&#160; }
+&#160;}
+&#160;
++static int match_envelope(char *hdr,
++&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160; struct query *ctl)
++/** compare the envelope with the RFC822 header and potentially rewrite */
++/** \param hdr&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; RFC822 header in question */
++/** \param ctl&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; envelope */
++{
++&#160;&#160;&#160; static regex_t regex_disabled;
++
++&#160;&#160;&#160; if (hdr == (char *)NULL ||
++&#160;&#160;&#160; !ctl-&gt;server.envelope ||
++&#160;&#160;&#160; ctl-&gt;server.envelope == STRING_DISABLED)
++&#160;&#160;&#160; {
++&#160;&#160;&#160;&#160;&#160;&#160; return 0;
++&#160;&#160;&#160; }
++
++&#160;&#160;&#160; if (ctl-&gt;server.envelope[0] != '^')
++&#160;&#160;&#160; return strncasecmp(ctl-&gt;server.envelope,
++&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160; hdr, strlen(ctl-&gt;server.envelope));
++
++&#160;&#160;&#160; if (ctl-&gt;server.envre == (regex_t*)NULL)
++&#160;&#160;&#160; {
++&#160;&#160;&#160; int regerr;
++
++&#160;&#160;&#160; if (outlevel &gt;= O_DEBUG)
++&#160;&#160;&#160; &#160;&#160;&#160; report(stdout,
++&#160;&#160;&#160; &#160;&#160;&#160; GT_(&quot;compiling envelope regexp %s\n&quot;), ctl-&gt;server.envelope);
++
++&#160;&#160;&#160; ctl-&gt;server.envre = (regex_t *)xmalloc(sizeof(*ctl-&gt;server.envre));
++&#160;&#160;&#160; regerr = regcomp(ctl-&gt;server.envre, ctl-&gt;server.envelope, REG_EXTENDED);
++
++&#160;&#160;&#160; if (regerr)
++&#160;&#160;&#160; {
++&#160;&#160;&#160; &#160;&#160;&#160; report(stderr,
++&#160;&#160;&#160; &#160;&#160;&#160; GT_(&quot;Error %d compling regex: %s\n&quot;),
++&#160;&#160;&#160; &#160;&#160;&#160; regerr, ctl-&gt;server.envelope);
++
++&#160;&#160;&#160; &#160;&#160;&#160; xfree(ctl-&gt;server.envre);
++&#160;&#160;&#160; &#160;&#160;&#160; ctl-&gt;server.envre = &amp;regex_disabled;
++&#160;&#160;&#160; }
++&#160;&#160;&#160; }
++
++&#160;&#160;&#160; if (ctl-&gt;server.envre != &amp;regex_disabled)
++&#160;&#160;&#160; {
++&#160;&#160;&#160; regmatch_t regmatch[2];
++
++&#160;&#160;&#160; int matcherr = regexec(ctl-&gt;server.envre, hdr, 2, regmatch, 0);
++
++&#160;&#160;&#160; if (matcherr == 0)
++&#160;&#160;&#160; {
++&#160;&#160;&#160; &#160;&#160;&#160; if (regmatch[1].rm_so != -1)
++&#160;&#160;&#160; &#160;&#160;&#160; {
++&#160;&#160;&#160; &#160;&#160;&#160; int matchlen = regmatch[1].rm_eo - regmatch[1].rm_so;
++&#160;&#160;&#160; &#160;&#160;&#160; char *hp = hdr + matchlen + 1;
++
++&#160;&#160;&#160; &#160;&#160;&#160; memmove(hdr+1, hdr + regmatch[1].rm_so, matchlen);
++&#160;&#160;&#160; &#160;&#160;&#160; hdr[0] = ':';
++
++&#160;&#160;&#160; &#160;&#160;&#160; while (*hp != '\0' &amp;&amp; *hp != '\r' &amp;&amp; *hp != '\n')
++&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; *hp++ = ' ';
++
++&#160;&#160;&#160; &#160;&#160;&#160; if (outlevel &gt;= O_DEBUG)
++&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; report(stdout,
++&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; GT_(&quot;extracted envelope address %s\n&quot;), hdr+1);
++&#160;&#160;&#160; &#160;&#160;&#160; }
++
++&#160;&#160;&#160; &#160;&#160;&#160; return 1;
++&#160;&#160;&#160; }
++
++&#160;&#160;&#160; if (matcherr != REG_NOMATCH)
++&#160;&#160;&#160; {
++&#160;&#160;&#160; &#160;&#160;&#160; char msgbuf[256];
++
++&#160;&#160;&#160; &#160;&#160;&#160; regerror(matcherr, ctl-&gt;server.envre, msgbuf, sizeof(msgbuf));
++
++&#160;&#160;&#160; &#160;&#160;&#160; report(stderr,
++&#160;&#160;&#160; &#160;&#160;&#160; GT_(&quot;Error matching %s: %s\n&quot;), ctl-&gt;server.envelope, msgbuf);
++&#160;&#160;&#160; }
++&#160;&#160;&#160; }
++
++&#160;&#160;&#160; return 0;
++}
++
+&#160;static void find_server_names(const char *hdr,
+&#160;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160;&#160;&#160; struct query *ctl,
+&#160;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160;&#160;&#160; struct idlist **xmit_names)
+@@ -936,9 +1018,7 @@
+&#160;&#160;&#160;&#160; &#160;&#160;&#160; if (ctl-&gt;server.envelope 
+&#160;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &amp;&amp; strcasecmp(ctl-&gt;server.envelope, &quot;Received&quot;))
+&#160;&#160;&#160;&#160; &#160;&#160;&#160; {
+-&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; if (env_offs == -1 &amp;&amp; !strncasecmp(ctl-&gt;server.envelope,
+-&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160;&#160;&#160;&#160; line,
+-&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160;&#160;&#160;&#160; strlen(ctl-&gt;server.envelope)))
++&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; if (env_offs == -1 &amp;&amp; match_envelope(line, ctl))
+&#160;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; {&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; 
+&#160;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; if (skipcount++ &lt; ctl-&gt;server.envskip)
+&#160;&#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; &#160;&#160;&#160; continue;
+</PRE>
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001562.html">[fetchmail-devel] PATCH: Clear	SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+</A></li>
+	<LI>Next message: <A HREF="001563.html">[fetchmail-devel] fetchmail 7.0.0-alpha3 alpha preview release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1560">[ date ]</a>
+              <a href="thread.html#1560">[ thread ]</a>
+              <a href="subject.html#1560">[ subject ]</a>
+              <a href="author.html#1560">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

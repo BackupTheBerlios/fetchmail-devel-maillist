@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] lost UIDs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20lost%20UIDs&In-Reply-To=%3C422A2FAB.1090204%40ict.tuwien.ac.at%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000214.html">
+   <LINK REL="Next"  HREF="000216.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] lost UIDs</H1>
+    <B>Manfred Weihs</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20lost%20UIDs&In-Reply-To=%3C422A2FAB.1090204%40ict.tuwien.ac.at%3E"
+       TITLE="[fetchmail-devel] lost UIDs">weihs at ict.tuwien.ac.at
+       </A><BR>
+    <I>Sat Mar  5 23:16:11 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000214.html">[fetchmail-devel] translations for message catalogs, info and inquiry
+</A></li>
+        <LI>Next message: <A HREF="000216.html">[fetchmail-devel] lost UIDs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#215">[ date ]</a>
+              <a href="thread.html#215">[ thread ]</a>
+              <a href="subject.html#215">[ subject ]</a>
+              <a href="author.html#215">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I have a problem with fetchmail, which occurs every once in a while (and
+also happened with older versions of fetchmail). I use fetchmail in
+daemon mode (started from my KDE startup script when I log in) to poll
+two mail servers.
+Sometimes when I log in the .fetchids file is very short, it contains
+only very few uids. And therefore fetchmail loads down very many old
+mails. And since I get very much spam, this is very much, often several
+thousand mails. My first thought was, that probably fetchmail is killed
+in a bad moment during writing the .fetchids by system shutdown. This is
+one possibility, but I had a look into the code and found a bug, which
+also could cause this problem.
+
+In the function uid_swap_lists (in uid.c) there is this code:
+     if (ctl-&gt;newsaved)
+     {
+	/* old state of mailbox may now be irrelevant */
+	if (outlevel &gt;= O_DEBUG)
+	    report(stdout, GT_(&quot;swapping UID lists\n&quot;));
+	free_str_list(&amp;ctl-&gt;oldsaved);
+	ctl-&gt;oldsaved = ctl-&gt;newsaved;
+	ctl-&gt;newsaved = (struct idlist *) NULL;
+     }
+
+So first the old oldsaved list is freed, and then it is overwritten with
+the newsaved list. If the TERM signal arrives during the free_str_list,
+an incomplete oldsaved list will be saved to .fetchids. And since
+free_str_list is implemented by a recursion, it really shortens the list
+beginning at the end (BTW I do not know, why this is implemented by a
+recursion rather then by a loop. If there are many messages on the
+server this could lead to a really deep recursion with the possibility
+of a stack overflow).
+IMHO the correct solution would be:
+     if (ctl-&gt;newsaved)
+     {
+	struct idlist *temp;
+	/* old state of mailbox may now be irrelevant */
+	if (outlevel &gt;= O_DEBUG)
+	    report(stdout, GT_(&quot;swapping UID lists\n&quot;));
+	temp = ctrl-&gt;oldsaved;
+	ctl-&gt;oldsaved = ctl-&gt;newsaved;
+	ctl-&gt;newsaved = (struct idlist *) NULL;
+	free_str_list(&amp;ctl-&gt;oldsaved);
+     }
+
+
+An additional good idea would be not to overwrite the old idfile, but
+write to new idfile (e.g. ~/.fetchids-new), and after completion rename
+the file (e.g. &quot;rename(&quot;~/.fetchids-new&quot;, &quot;~/.fetchids&quot;);&quot; or similar).
+Since there is a comment in the code &quot;FIXME: do not overwrite the old
+idfile&quot; I assume that you already planned such change and I wonder, why
+you did not implement it. I think, it is a very easy change, it is
+probably just about 3 or 4 additional lines; if you want, I can provide
+you a patch.
+
+
+Here is the information you require (according to the FAQ) in a bug report:
+1. Linux 2.6.10 (but the problem occurred also with older versions)
+2. fetchmail_6.2.5-12_i386.deb
+3. I do not see a greeting when logging into the pop3 server (not
+relevant for the problem anyway).
+4. Exim 4.34
+5. -d 600
+5.
+This is fetchmail release 6.2.5+NTLM+SDPS+SSL+NLS
+Fallback MDA: (none)
+Linux pc235 2.6.10 #1 Mon Dec 27 10:43:40 CET 2004 i686 GNU/Linux
+Taking options from command line and /home/weihs/.fetchmailrc
+Idfile is /home/weihs/.fetchids
+Fetchmail will show progress dots even in logfiles.
+Fetchmail will forward misaddressed multidrop messages to weihs.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">XXXX at XXX.XXX.XXX.XX</A>:
+   True name of server is mail.ict.tuwien.ac.at.
+   Protocol is POP3 (forcing UIDL use).
+   All available authentication methods will be tried.
+   SSL encrypted sessions enabled.
+   Server nonresponse timeout is 300 seconds (default).
+   Default mailbox selected.
+   Only new messages will be retrieved (--all off).
+   Fetched messages will be kept on the server (--keep on).
+   Old messages will not be flushed before message retrieval (--flush off).
+   Rewrite of server-local addresses is enabled (--norewrite off).
+   Carriage-return stripping is disabled (stripcr off).
+   Carriage-return forcing is disabled (forcecr off).
+   Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+   MIME decoding is disabled (mimedecode off).
+   Idle after poll is disabled (idle off).
+   Nonempty Status lines will be kept (dropstatus off)
+   Delivered-To lines will be kept (dropdelivered off)
+   Fetch message size limit is 100 (--fetchsizelimit 100).
+   Do binary search of UIDs during 9 out of 10 polls (--fastuidl 10).
+   Messages will be SMTP-forwarded to: localhost (default)
+   Single-drop mode: 1 local name(s) recognized.
+   4098 UIDs saved.
+
+
+Manfred Weihs
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000214.html">[fetchmail-devel] translations for message catalogs, info and inquiry
+</A></li>
+	<LI>Next message: <A HREF="000216.html">[fetchmail-devel] lost UIDs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#215">[ date ]</a>
+              <a href="thread.html#215">[ thread ]</a>
+              <a href="subject.html#215">[ subject ]</a>
+              <a href="author.html#215">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

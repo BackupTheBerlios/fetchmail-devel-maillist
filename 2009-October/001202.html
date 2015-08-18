@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] 6.3.12 regression: SMTP error code parser
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%206.3.12%20regression%3A%20SMTP%20error%20code%20parser&In-Reply-To=%3C200910281106.03910.thomas.jarosch%40intra2net.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001201.html">
+   <LINK REL="Next"  HREF="001203.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] 6.3.12 regression: SMTP error code parser</H1>
+    <B>Thomas Jarosch</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%206.3.12%20regression%3A%20SMTP%20error%20code%20parser&In-Reply-To=%3C200910281106.03910.thomas.jarosch%40intra2net.com%3E"
+       TITLE="[fetchmail-devel] 6.3.12 regression: SMTP error code parser">thomas.jarosch at intra2net.com
+       </A><BR>
+    <I>Wed Oct 28 11:06:03 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001201.html">[fetchmail-devel] [Feature #4829] Add timestamps to logs
+</A></li>
+        <LI>Next message: <A HREF="001203.html">[fetchmail-devel] fetchmail 6.3.13 regression/bug fix release	available (STABLE)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1202">[ date ]</a>
+              <a href="thread.html#1202">[ thread ]</a>
+              <a href="subject.html#1202">[ subject ]</a>
+              <a href="author.html#1202">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+
+I just upgraded from fetchmail 6.3.11 to 6.3.12 and noticed that
+the softbounce option wasn't working as expected.
+
+As a test, I sent a message to an unknown recipient in a multidrop domain.
+The message should then be bounced to the sender once (set no softbounce).
+
+Here's the output from fetchmail 6.3.12 with smtp.c from fetchmail 6.3.11:
+
+fetchmail: passed through <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">gibtsnicht at recipient.com</A> matching recipient.com
+fetchmail: Trying to connect to 127.0.0.1/25...connected.
+fetchmail: SMTP&lt; 220 intratest2.net.lan ESMTP
+fetchmail: SMTP&gt; EHLO intratest2.net.lan
+fetchmail: SMTP&lt; 250-intratest2.net.lan
+fetchmail: SMTP&lt; 250-PIPELINING
+fetchmail: SMTP&lt; 250-SIZE 104857600
+fetchmail: SMTP&lt; 250-ETRN
+fetchmail: SMTP&lt; 250-STARTTLS
+fetchmail: SMTP&lt; 250-ENHANCEDSTATUSCODES
+fetchmail: SMTP&lt; 250-8BITMIME
+fetchmail: SMTP&lt; 250 DSN
+fetchmail: forwarding to localhost
+fetchmail: SMTP&gt; MAIL FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">thomas.jarosch at sender.com</A>&gt; BODY=7BIT SIZE=1756
+fetchmail: SMTP&lt; 250 2.1.0 Ok
+fetchmail: SMTP&gt; RCPT TO:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">gibtsnicht at recipient.com</A>&gt;
+fetchmail: SMTP&lt; 550 5.1.1 &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">gibtsnicht at recipient.com</A>&gt;: Recipient address rejected: User unknown
+fetchmail: SMTP error: 550 5.1.1 &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">gibtsnicht at recipient.com</A>&gt;: Recipient address rejected: User unknown
+fetchmail: SMTP listener doesn't like recipient address `<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">gibtsnicht at recipient.com</A>'
+
+-&gt; Generates one bounce mail only
+
+Output from a vanilla 6.3.12 installation:
+
+fetchmail: passed through <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">gibtsnicht at recipient.com</A> matching recipient.com
+fetchmail: Trying to connect to 127.0.0.1/25...connected.
+fetchmail: SMTP&lt; 220 intratest2.net.lan ESMTP
+fetchmail: SMTP&gt; EHLO intratest2.net.lan
+fetchmail: SMTP&lt; 250-intratest2.net.lan
+fetchmail: SMTP&lt; 250-PIPELINING
+fetchmail: SMTP&lt; 250-SIZE 104857600
+fetchmail: SMTP&lt; 250-ETRN
+fetchmail: SMTP&lt; 250-STARTTLS
+fetchmail: SMTP&lt; 250-ENHANCEDSTATUSCODES
+fetchmail: SMTP&lt; 250-8BITMIME
+fetchmail: SMTP&lt; 250 DSN
+fetchmail: forwarding to localhost
+fetchmail: SMTP&gt; MAIL FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">thomas.jarosch at sender.com</A>&gt; BODY=7BIT SIZE=1757
+fetchmail: SMTP&lt; 250 2.1.0 Ok
+fetchmail: SMTP&gt; RCPT TO:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">gibtsnicht at recipient.com</A>&gt;
+fetchmail: SMTP&lt; 550 5.1.1 &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">gibtsnicht at recipient.com</A>&gt;: Recipient address rejected: User unknown
+fetchmail: SMTP&gt; RSET
+fetchmail: SMTP&lt; 250 2.0.0 Ok
+fetchmail:  not flushed
+fetchmail: POP3&gt; QUIT
+fetchmail: POP3&lt; +OK POP server signing off
+fetchmail: SMTP&gt; QUIT
+fetchmail: SMTP&lt; 221 2.0.0 Bye
+
+-&gt; Message stays on the server and will be refetched everytime fetchmail is called.
+
+To me this looks like the new multiline smtp error code parser is broken?
+The SMTP server in question is postfix 2.6.2.
+
+Cheers,
+Thomas
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001201.html">[fetchmail-devel] [Feature #4829] Add timestamps to logs
+</A></li>
+	<LI>Next message: <A HREF="001203.html">[fetchmail-devel] fetchmail 6.3.13 regression/bug fix release	available (STABLE)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1202">[ date ]</a>
+              <a href="thread.html#1202">[ thread ]</a>
+              <a href="subject.html#1202">[ subject ]</a>
+              <a href="author.html#1202">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

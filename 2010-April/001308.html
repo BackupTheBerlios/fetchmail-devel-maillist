@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] CR missing in messages of 6.3.15-beta2 ?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20CR%20missing%20in%20messages%20of%206.3.15-beta2%20%3F&In-Reply-To=%3Cop.vah055qd1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001309.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] CR missing in messages of 6.3.15-beta2 ?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20CR%20missing%20in%20messages%20of%206.3.15-beta2%20%3F&In-Reply-To=%3Cop.vah055qd1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] CR missing in messages of 6.3.15-beta2 ?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Apr  1 21:45:31 CEST 2010</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001309.html">[fetchmail-devel] fetchmail 6.3.16 bugfix release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1308">[ date ]</a>
+              <a href="thread.html#1308">[ thread ]</a>
+              <a href="subject.html#1308">[ subject ]</a>
+              <a href="author.html#1308">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 29.03.2010, 09:25 Uhr, schrieb Fr&#233;d&#233;ric Marchal:
+
+&gt;<i> On Sunday 28 March 2010, Matthias Andree wrote:
+</I>&gt;&gt;<i> (sorry for breaking the threading and the late reply, this message was  
+</I>&gt;&gt;<i> lost
+</I>&gt;&gt;<i> in transit of eaten by my spam filter; I'm replying from the web  
+</I>&gt;&gt;<i> archives
+</I>&gt;&gt;<i> where I lack message-id headers)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Fr&#233;d&#233;ric Marchal wrote:
+</I>&gt;&gt;<i> &gt; Hello,
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; I just noticed that the message printed in rfc822.c at line 76:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;     if (outlevel &gt;= O_DEBUG)
+</I>&gt;&gt;<i> &gt; 	report_build(stdout, GT_(&quot;About to rewrite %s&quot;), buf);
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; doesn't end with a \n. The next message written at line 212 is  
+</I>&gt;&gt;<i> therefore
+</I>&gt;&gt;<i> &gt; concatenated with this one.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> That's bad and I think it's a bug. I think I'll fix it after the 6.3.15
+</I>&gt;&gt;<i> release so as not to break the translations of this message.
+</I>&gt;<i>
+</I>&gt;<i> It only occurs when -vv is in the command line so it is really a trivial
+</I>&gt;<i> issue.
+</I>
+Fixed for me in  
+&lt;<A HREF="http://gitorious.org/fetchmail/fetchmail/commit/f333f5cf33a6acdaeb39f7c707ec82012063770f">http://gitorious.org/fetchmail/fetchmail/commit/f333f5cf33a6acdaeb39f7c707ec82012063770f</A>&gt;
+
+&gt;&gt;<i> &gt; The same may be true for the message printed in driver.c starting at  
+</I>&gt;&gt;<i> line
+</I>&gt;&gt;<i> &gt; 619:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; 		report_build(stdout, GT_(&quot;reading message %s@%s:%d of %d&quot;),
+</I>&gt;&gt;<i> &gt; 			     ctl-&gt;remotename, ctl-&gt;server.truename,
+</I>&gt;&gt;<i> &gt; 			     num, count);
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; 		if (len &gt; 0)
+</I>&gt;&gt;<i> &gt; 		    report_build(stdout, wholesize ? GT_(&quot; (%d octets)&quot;)
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; 				 : GT_(&quot; (%d header octets)&quot;), len);
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; In my log, it is concatenated with the above mentioned message.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Can you show a sample for that?  I think the LF is deliberately missing
+</I>&gt;&gt;<i> here, because we want to add the dots ticker, but OTOH if that's not  
+</I>&gt;&gt;<i> going
+</I>&gt;&gt;<i> to be displayed, we do need the LF.
+</I>&gt;<i>
+</I>&gt;<i> The lines are going to be wrapped by the mailer so I add one additional  
+</I>&gt;<i> blank
+</I>&gt;<i> line after each LF of the original log.
+</I>&gt;<i>
+</I>&gt;<i> Mar 29 07:11:53 mail fetchmail[3045]: lecture du message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">www at mmm.be</A>:37  
+</I>&gt;<i> parmi
+</I>&gt;<i> 396 (20695 octets)#012Sur le point de r&#233;&#233;crire Return-path:
+</I>&gt;<i> &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">amberjack at xr.co.za</A>&gt;#015#012#012La version r&#233;&#233;crite est Return-path:
+</I>&gt;<i> &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">amberjack at xr.co.za</A>&gt;#015#012
+</I>&gt;<i>
+</I>&gt;<i> Mar 29 07:11:53 mail fetchmail[3045]: Sur le point de r&#233;&#233;crire From:  
+</I>&gt;<i> Barillo
+</I>&gt;<i> Schoreplum &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">amberjack at xr.co.za</A>&gt;#015#012#012La version r&#233;&#233;crite est From:
+</I>&gt;<i> Barillo Schoreplum &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">amberjack at xr.co.za</A>&gt;#015#012
+</I>&gt;<i>
+</I>&gt;<i> Mar 29 07:11:53 mail fetchmail[3045]: Sur le point de r&#233;&#233;crire To:  
+</I>&gt;<i> Bansmer
+</I>&gt;<i> Selis &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">laurencediseur at wowcompany.com</A>&gt;#015#012#012La version r&#233;&#233;crite est  
+</I>&gt;<i> To:
+</I>&gt;<i> Bansmer Selis &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">laurencediseur at wowcompany.com</A>&gt;#015#012
+</I>&gt;<i>
+</I>&gt;<i> Mar 29 07:11:53 mail fetchmail[3045]: passage au travers de
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">laurencediseur at wowcompany.com</A> et co&#239;ncidence avec wowcompany.com
+</I>&gt;<i>
+</I>&gt;<i> Mar 29 07:11:53 mail fetchmail[3045]: r&#233;exp&#233;dition vers localhost
+</I>&gt;<i>
+</I>&gt;<i> Mar 29 07:11:53 mail fetchmail[3045]: SMTP&gt; MAIL  
+</I>&gt;<i> FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">amberjack at xr.co.za</A>&gt;
+</I>&gt;<i> SIZE=20695
+</I>&gt;<i>
+</I>&gt;<i> Mar 29 07:11:53 mail fetchmail[3045]: SMTP&lt; 250 2.1.0 Ok
+</I>&gt;<i>
+</I>&gt;<i> I see no dot tickers.
+</I>
+That's OK. They're printed on console logs only, unless you force them  
+with --showdots.
+
+I agree that there's still some intermixing of different topics in the  
+logging, particularly of progress and debug logging - I know it's ugly,  
+but there are bigger issues in the code, so I don't want to spend too much  
+time here just now.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001309.html">[fetchmail-devel] fetchmail 6.3.16 bugfix release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1308">[ date ]</a>
+              <a href="thread.html#1308">[ thread ]</a>
+              <a href="subject.html#1308">[ subject ]</a>
+              <a href="author.html#1308">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

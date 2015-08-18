@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail 6.3.15-beta1 beta release with	&quot;bad-header pass&quot; feature
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.3.15-beta1%20beta%20release%20with%0A%09%22bad-header%20pass%22%20feature&In-Reply-To=%3C201002250832.55473.frederic.marchal%40wowcompany.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001253.html">
+   <LINK REL="Next"  HREF="001256.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail 6.3.15-beta1 beta release with	&quot;bad-header pass&quot; feature</H1>
+    <B>Fr&#233;d&#233;ric Marchal</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.3.15-beta1%20beta%20release%20with%0A%09%22bad-header%20pass%22%20feature&In-Reply-To=%3C201002250832.55473.frederic.marchal%40wowcompany.com%3E"
+       TITLE="[fetchmail-devel] fetchmail 6.3.15-beta1 beta release with	&quot;bad-header pass&quot; feature">frederic.marchal at wowcompany.com
+       </A><BR>
+    <I>Thu Feb 25 08:32:55 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001253.html">[fetchmail-devel] fetchmail 6.3.15-beta1 beta release with	&quot;bad-header pass&quot; feature
+</A></li>
+        <LI>Next message: <A HREF="001256.html">[fetchmail-devel] fetchmail 6.3.15-beta1 beta release with	&quot;bad-header pass&quot; feature
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1255">[ date ]</a>
+              <a href="thread.html#1255">[ thread ]</a>
+              <a href="subject.html#1255">[ subject ]</a>
+              <a href="author.html#1255">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Thursday 25 February 2010, grarpamp wrote:
+&gt;<i> &gt;&gt;&gt; fetchmail.  This beta1 has the long-desired feature to ignore bad
+</I>&gt;<i> &gt;&gt;&gt; headers in messages and pass them on.
+</I>&gt;<i>
+</I>&gt;<i> Hi group.
+</I>&gt;<i> What are 'bad headers'?
+</I>&gt;<i> Certainly would not all inbound headers be passed through fetchmail
+</I>&gt;<i> to disk or pipe, etc?
+</I>
+The purpose of this option is to ignore the invalid header lines if the server 
+on which we are fetching the mail accepted (or even produced) that mail in 
+the first place. If the mail can be delivered properly, everybody will be 
+happy. If it can't, let's the blame fall on the software that can't handle it 
+properly :-).
+
+For instance, a mail header containing a very long line, was wrapped 
+improperly by a previous version of my mail server. That is, the continuation 
+line didn't start with a space. That invalid continuation line was then seen 
+as an invalid mail header and fetchmail used to reject the whole mail as 
+invalid. The mail was therefore undeliverable even though any other link in 
+the mail delivery chain would have ignored that header just fine and passed 
+the mail along. Returning it to the sender was dangerous (as the source 
+address might have been forged) so the mail was stuck on the server.
+
+With the new option, you can choose to reject any such mail as it used to be 
+and avoid any trouble with the MDA/MTA to which fetchmail is passing the 
+mail.
+
+On the other hand, if you know the mail will be delivered without any problem, 
+you can let it go and avoid to loose any mail.
+
+Frederic
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001253.html">[fetchmail-devel] fetchmail 6.3.15-beta1 beta release with	&quot;bad-header pass&quot; feature
+</A></li>
+	<LI>Next message: <A HREF="001256.html">[fetchmail-devel] fetchmail 6.3.15-beta1 beta release with	&quot;bad-header pass&quot; feature
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1255">[ date ]</a>
+              <a href="thread.html#1255">[ thread ]</a>
+              <a href="subject.html#1255">[ subject ]</a>
+              <a href="author.html#1255">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

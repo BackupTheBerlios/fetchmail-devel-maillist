@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail and mapi II
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3C20090616102732.GA12691%40fedora7.2kgames.t2.corp%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001091.html">
+   <LINK REL="Next"  HREF="001098.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail and mapi II</H1>
+    <B>mojmir svoboda</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3C20090616102732.GA12691%40fedora7.2kgames.t2.corp%3E"
+       TITLE="[fetchmail-devel] fetchmail and mapi II">mojmir.svoboda at 2kczech.com
+       </A><BR>
+    <I>Tue Jun 16 12:27:32 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001091.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+        <LI>Next message: <A HREF="001098.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1097">[ date ]</a>
+              <a href="thread.html#1097">[ thread ]</a>
+              <a href="subject.html#1097">[ subject ]</a>
+              <a href="author.html#1097">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>hello everyone,
+
+first i'd like to note that i am not a mapi specialist.. or anything close to
+that. i simply have to live with this exchange and not want to use outlook.
+
+
+&gt;<i> &gt; 3. missing mapi_session* argument
+</I>&gt;<i> &gt; 	affected functions are mapi_init, smtp_address
+</I>&gt;<i> &gt; 	(calls OpenMsgStore, GetGALTable)
+</I>&gt;<i> &gt; 	i had to introduce static global variable for that.
+</I>
+you can find a patch in the attachment. this way it at least compiles and runs.
+
+the things is: if i use s_mapi_session everywhere it stops to work properly in
+mapi_getauth (MapiLogonProvider creates another session and if the
+s_mapi_session passed as arg, it crashes later in ProcessNetworkProfile)
+
+so the s_mapi_session is shared only between mapi_init and smptp_address for a
+moment.
+
+&gt;<i> &gt; 4. buffer overflows
+</I>&gt;<i> &gt; 	affected functions get_base64_attachment, octool_get_stream
+</I>&gt;<i> &gt; 	perhaps all these memcpys should be reviewed
+</I>
+i will toy with this few days until i figure what the correct form should be. 
+
+as a hotfix i simply allocated lot of memory and removed the loop that did
+nothing. i assume you do not want that kind of solution (and neither do i..
+in long term)
+
+&gt;<i> &gt; 6. \r characters and = spread all around in mail body
+</I>&gt;<i> What is this quoted_printable_encode part doing wrong? Could you provide
+</I>&gt;<i> your solution to (6)? Perhaps we can build a full solution on top of yours.
+</I>
+errr.. do not overestimate me... i simply removed the code that did not
+suited me ;)
+
+	for example: what is this supposed to do? 8-&gt;7 bit?
+			if (is_safe_char(ch))
+				line[line_count++] = ch;
+			else {  
+				line[line_count++] = '=';
+				line[line_count++] = hex[(ch &gt;&gt; 4) &amp; 15];
+				line[line_count++] = hex[ch &amp; 15];
+			}
+	if yes i wonder why mutt (set noallow_8bit) displays that incorrectly.
+
+	and then there are these line[line_count++] = '\r';
+	which are later visible in mutt.
+
+	sincerely, i have no idea what proper solution should look like. 
+
+there are more problems:
+	- fetchmail modifies the &quot;From: &quot; header
+	- fetchmail seems to drop any list-id and in-reply-to fields (and perhaps
+	  other fields). this makes mailing lists (and threading) a little bit
+	  uncomfortable
+
+best regards and thanks for your replies,
+mojmir
+-------------- next part --------------
+Index: mapi.c
+===================================================================
+--- mapi.c	(revision 5358)
++++ mapi.c	(working copy)
+@@ -58,6 +58,7 @@
+ static int      mapi_initialized = FALSE;
+ static char     mapi_profdb[PATH_MAX];	/* mapi profiles databse */
+ static char     password[128];
++static struct mapi_session * s_mapi_session = NULL;
+ 
+ 
+ static DATA_BLOB mapi_buffer;
+@@ -394,7 +395,6 @@
+ static int mapi_init(const char *folder)
+ {
+     enum MAPISTATUS retval;
+-    struct mapi_session *session = NULL;
+     mapi_object_t   obj_tis;
+     mapi_id_t       id_folder;
+     struct SPropTagArray *SPropTagArray = NULL;
+@@ -426,20 +426,19 @@
+ 	return GetLastError();
+     }
+ 
+-    retval = MapiLogonEx(&amp;session, profname, password);
++    retval = MapiLogonEx(&amp;s_mapi_session, profname, password);
+     if (retval != MAPI_E_SUCCESS) {
+ 	report(stderr, GT_(&quot;MAPI: MapiLogonEx failed\n&quot;));
+ 	mapi_clean();
+ 	return GetLastError();
+     }
+-    mapi_profile = session-&gt;profile;
++    mapi_profile = s_mapi_session-&gt;profile;
+ 
+-
+     /*-----------------------------------------------------------------------------
+      *  Open the default message store
+      *-----------------------------------------------------------------------------*/
+     mapi_object_init(&amp;mapi_obj_store);
+-    retval = OpenMsgStore(&amp;mapi_obj_store);
++    retval = OpenMsgStore(s_mapi_session, &amp;mapi_obj_store);
+     if (retval != MAPI_E_SUCCESS) {
+ 	report(stderr, GT_(&quot;MAPI: OpenMsgStore failed\n&quot;));
+ 	mapi_clean();
+@@ -664,7 +663,7 @@
+  */
+ static uint32_t callback(struct SRowSet *rowset, void *private)
+ {
+-    // TODO: check if running in daemon mode
++    /* TODO: check if running in daemon mode*/
+     int             daemon_mode = FALSE;
+ 
+     if (!daemon_mode) {
+@@ -1109,7 +1108,7 @@
+     ulFlags = TABLE_START;
+     do {
+ 	count += 0x2;
+-	retval = GetGALTable(SPropTagArray, &amp;SRowSet, count, ulFlags);
++	retval = GetGALTable(s_mapi_session, SPropTagArray, &amp;SRowSet, count, ulFlags);
+ 	if (retval != MAPI_E_SUCCESS) {
+ 	    MapiWrite(lenp, &quot;\n&quot;);
+ 	    report(stderr, &quot;MAPI: Error when translate display name into smtp address\n&quot;);
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001091.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+	<LI>Next message: <A HREF="001098.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1097">[ date ]</a>
+              <a href="thread.html#1097">[ thread ]</a>
+              <a href="subject.html#1097">[ subject ]</a>
+              <a href="author.html#1097">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

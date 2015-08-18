@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [patch] Drop privileges
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%20Drop%20privileges&In-Reply-To=%3C200904281158.06749.thomas.jarosch%40intra2net.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001054.html">
+   <LINK REL="Next"  HREF="001055.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [patch] Drop privileges</H1>
+    <B>Thomas Jarosch</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%20Drop%20privileges&In-Reply-To=%3C200904281158.06749.thomas.jarosch%40intra2net.com%3E"
+       TITLE="[fetchmail-devel] [patch] Drop privileges">thomas.jarosch at intra2net.com
+       </A><BR>
+    <I>Tue Apr 28 11:58:06 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001054.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+        <LI>Next message: <A HREF="001055.html">[fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1057">[ date ]</a>
+              <a href="thread.html#1057">[ thread ]</a>
+              <a href="subject.html#1057">[ subject ]</a>
+              <a href="author.html#1057">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello Matthias,
+
+On Wednesday, 22. April 2009 18:22:57 Matthias Andree wrote:
+&gt;<i> We'd probably need more detailed instructions of what doesn't work inside
+</I>&gt;<i> chroots (you mentioned /var/run -- and this may require revising the stale
+</I>&gt;<i> lock detection and/or logging), and what needs to be inside the chroot
+</I>&gt;<i> because it's re-read at run-time, for instance, the resolver is
+</I>&gt;<i> re-initialized frequently in daemon mode, so we need some libs and config
+</I>&gt;<i> files inside the chroot, and depending on how much caching the libc does,
+</I>&gt;<i> we may need f. i. /etc/services... unfortunately, this is highly OS and
+</I>&gt;<i> version dependent.
+</I>
+If someone uses the daemon mode inside the chroot, I guess /etc/fetchmailrc
+needs to be owned by the unprivileged user, too.
+Though I don't use the daemon mode myself.
+
+My current chroot sandbox looks like this:
+
+[<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">root at intranator</A> fetchmail]# ls -alR
+.:
+total 5
+drwxr-xr-x    2 root     root         1024 Apr 24 16:03 etc
+drwxr-xr-x    2 root     root         1024 Apr 24 16:00 lib
+drwxr-x---    2 fetchmai fetchmai     1024 Apr 24 11:59 tmp
+
+./etc:
+total 18
+-rw-r--r--    1 root     root           26 Apr 24 16:03 host.conf
+-rw-r--r--    1 root     root           48 Apr 24 16:03 hosts
+-rw-r--r--    1 root     root          837 Apr 24 16:03 localtime
+-rw-r--r--    1 root     root           34 Apr 24 16:03 resolv.conf
+-rw-r--r--    1 root     root        11375 Apr 24 16:03 services
+
+./lib:
+total 1264
+-rwxr-xr-x    1 root     root       218749 Nov  2  2004 libnss_compat-2.1.3.so
+lrwxrwxrwx    1 root     root           22 Apr 24 16:00 libnss_compat.so.2 -&gt; libnss_compat-2.1.3.so
+-rwxr-xr-x    1 root     root        68957 Nov  2  2004 libnss_dns-2.1.3.so
+lrwxrwxrwx    1 root     root           19 Apr 24 16:00 libnss_dns.so.2 -&gt; libnss_dns-2.1.3.so
+-rwxr-xr-x    1 root     root       245542 Nov  2  2004 libnss_files-2.1.3.so
+lrwxrwxrwx    1 root     root           21 Apr 24 16:00 libnss_files.so.2 -&gt; libnss_files-2.1.3.so
+-rwxr-xr-x    1 root     root        69129 Nov  2  2004 libnss_hesiod-2.1.3.so
+lrwxrwxrwx    1 root     root           22 Apr 24 16:00 libnss_hesiod.so.2 -&gt; libnss_hesiod-2.1.3.so
+-rwxr-xr-x    1 root     root       255929 Nov  2  2004 libnss_nis-2.1.3.so
+lrwxrwxrwx    1 root     root           19 Apr 24 16:00 libnss_nis.so.2 -&gt; libnss_nis-2.1.3.so
+-rwxr-xr-x    1 root     root       254328 Nov  2  2004 libnss_nisplus-2.1.3.so
+lrwxrwxrwx    1 root     root           23 Apr 24 16:00 libnss_nisplus.so.2 -&gt; libnss_nisplus-2.1.3.so
+-rwxr-xr-x    1 root     root       169644 Apr 24 16:00 libresolv-2.1.3.so
+lrwxrwxrwx    1 root     root           18 Apr 24 16:00 libresolv.so.2 -&gt; libresolv-2.1.3.so
+
+&gt;<i> I still need to think how to integrate all this, since 6.3.X is supposed to
+</I>&gt;<i> be a bug-fix branch... it seems I need to revive the bit-rotten 6.4.X
+</I>&gt;<i> branch for new features, mark 6.3 &quot;regression fixes only&quot; and move on...
+</I>
+Put it in 6.4.x if you like, it works fine for me in 6.3.
+
+&gt;<i> I'm also pondering whether fetchmail needs a split-process model some day,
+</I>&gt;<i> which might then solve issues such as the /var/run (PID file) removal
+</I>&gt;<i> problem you mentioned and perhaps allow for a pool of concurrent fetch
+</I>&gt;<i> children - useful with multiple accounts. That's certainly for later...
+</I>
+So much ideas - so little time :-)
+
+Cheers,
+Thomas
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001054.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+	<LI>Next message: <A HREF="001055.html">[fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1057">[ date ]</a>
+              <a href="thread.html#1057">[ thread ]</a>
+              <a href="subject.html#1057">[ subject ]</a>
+              <a href="author.html#1057">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Trouble parsing a particular	fetchmailrc	file: bison parser update?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Trouble%20parsing%20a%20particular%0A%09fetchmailrc%09file%3A%20bison%20parser%20update%3F&In-Reply-To=%3C20080718150952.GB18969%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001009.html">
+   <LINK REL="Next"  HREF="001011.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Trouble parsing a particular	fetchmailrc	file: bison parser update?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Trouble%20parsing%20a%20particular%0A%09fetchmailrc%09file%3A%20bison%20parser%20update%3F&In-Reply-To=%3C20080718150952.GB18969%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Trouble parsing a particular	fetchmailrc	file: bison parser update?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Jul 18 17:09:52 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001009.html">[fetchmail-devel] Trouble parsing a particular fetchmailrc file: bison parser update?
+</A></li>
+        <LI>Next message: <A HREF="001011.html">[fetchmail-devel] Trouble parsing a particular fetchmailrc file: bison parser update?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1010">[ date ]</a>
+              <a href="thread.html#1010">[ thread ]</a>
+              <a href="subject.html#1010">[ subject ]</a>
+              <a href="author.html#1010">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wed, 09 Jul 2008, <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">JUANVAQUEROPONC at terra.es</A> wrote:
+
+&gt;<i> Rob Funk wrote:
+</I>&gt;<i> &gt; Could you send us the fetchmailrc file and tell us specifically how 
+</I>&gt;<i> it is
+</I>&gt;<i> &gt; being parsed incorrectly?
+</I>&gt;<i> 
+</I>&gt;<i> I am attaching a fetchmailrc file that is being parsed incorrectly.
+</I>&gt;<i> 
+</I>&gt;<i> Could someone run fetchmail on it to see that a username is being 
+</I>&gt;<i> parsed incorrectly?
+</I>&gt;<i> 
+</I>&gt;<i> The username in question is being parsed as 'sername 
+</I>&gt;<i> &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">aaaaaaaaaaaaa at aaaaaaaaaaaaa</A>'
+</I>
+I can verify the problem, but I cannot currently narrow it down
+unfortunately - I can cut some lines from the file, but the remaining
+file is still way too large that I would want to observe the parser in
+debug mode.
+
+Do you have a shorter file to exhibit the same problem?
+
+I can try to do some more experiments next week, but I'm not overly
+optimistic I'll be able to track and fix this.
+
+It may be some arcane buffer boundary issue, and it may also be that
+we're inheriting a bison bug here.
+
+Sorry no positive reply yet.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001009.html">[fetchmail-devel] Trouble parsing a particular fetchmailrc file: bison parser update?
+</A></li>
+	<LI>Next message: <A HREF="001011.html">[fetchmail-devel] Trouble parsing a particular fetchmailrc file: bison parser update?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1010">[ date ]</a>
+              <a href="thread.html#1010">[ thread ]</a>
+              <a href="subject.html#1010">[ subject ]</a>
+              <a href="author.html#1010">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

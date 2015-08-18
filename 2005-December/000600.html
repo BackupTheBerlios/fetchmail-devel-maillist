@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20RFC%3A%20Patch%20to%20fix%20Berlios%20Bug%20%235849&In-Reply-To=%3Cm3wti9gkwb.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000599.html">
+   <LINK REL="Next"  HREF="000602.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20RFC%3A%20Patch%20to%20fix%20Berlios%20Bug%20%235849&In-Reply-To=%3Cm3wti9gkwb.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Dec 13 14:57:08 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000599.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+        <LI>Next message: <A HREF="000602.html">[fetchmail-devel] [PATCH] fix listener mode [WAS: Re: RFC: Patch to fix Berlios Bug #5849]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#600">[ date ]</a>
+              <a href="thread.html#600">[ thread ]</a>
+              <a href="subject.html#600">[ subject ]</a>
+              <a href="author.html#600">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;<i> Quoting from Matthias Andree's mail on Tue, Dec 13, 2005:
+</I>&gt;&gt;<i> Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;&gt;<i> &gt; Joachim Feise reported that his smtphost setting is lost/ignored since
+</I>&gt;&gt;<i> &gt; 6.3.0. I could reproduce this.
+</I>&gt;&gt;<i> &gt; &lt;<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5849&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5849&amp;group_id=1824</A>&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; However, I use neither LMTP nor multidrop, so I need help determining if
+</I>&gt;&gt;<i> &gt; the attached patch that I made is safe.
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Hm. This is the same sink.c patch but without space changes and should
+</I>&gt;&gt;<i> thus be easier to review. Please comment:
+</I>&gt;<i>
+</I>&gt;<i> Oops, my mistake.
+</I>
+Is it really?
+
+&gt;<i> Yes, this patch is certainly required. This will also avoid an
+</I>&gt;<i> xfree/xstrdup on every mail. I would even recommend moving the
+</I>&gt;<i> declaration of parsed_host into the if block.
+</I>&gt;<i>
+</I>&gt;<i> [OFFTOPIC] While debugging this, I found a weird bug relating to this
+</I>&gt;<i> SMTP/LMTP mode. It seems that once fetchmail switches to LMTP mode,
+</I>&gt;<i> there is no going back to SMTP mode. Try this simple fetchmail
+</I>&gt;<i> command:
+</I>&gt;<i>
+</I>&gt;<i> $ fetchmail -v --smtphost /this/socket/is/down,localhost
+</I>&gt;<i>
+</I>&gt;<i> fetchmail sends LHLO to the localhost SMTP server. Note that SMTP
+</I>&gt;<i> cannot be forced as the user could be running this configuration:
+</I>
+Well, one thing that astonished me a bit is that on one hand the input
+side is clearly encapsulated with object-oriented practices, while the
+output side (SMTP/LMTP; MDA; BSMTP) is not nearly as clearly separated.
+On the other hand, we use POP3 sibling &quot;protocols&quot; where a distinction
+per &quot;authentication&quot; would be sufficient.
+
+We certainly have some tasks ahead before fetchmail 7.0.0 some day - and
+I wonder if we should talk to the compilers in C++ rather than C.
+
+&gt;<i> $ fetchmail -v --lmtp --smtphost localhost/port,/this/socket/is/up
+</I>&gt;<i>
+</I>&gt;<i> where localhost is indeed meant to be an LMTP server.
+</I>&gt;<i>
+</I>&gt;<i> The situation gets worse if fetchmail sends a bounce message in
+</I>&gt;<i> between!
+</I>
+Sending bounce messages is a sore spot. AFAIR, no bounce messages are
+ever sent if bogofilter is in MDA mode. MDA mode doesn't work for
+multidrop, as you'll probably recall from past discussions over at
+fetchmail-friends. I don't know about BSMTP restrictions.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000599.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+	<LI>Next message: <A HREF="000602.html">[fetchmail-devel] [PATCH] fix listener mode [WAS: Re: RFC: Patch to fix Berlios Bug #5849]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#600">[ date ]</a>
+              <a href="thread.html#600">[ thread ]</a>
+              <a href="subject.html#600">[ subject ]</a>
+              <a href="author.html#600">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

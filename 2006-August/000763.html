@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Continuation%20of%20%22Domino%20IMAP%20and%20missing%0A%09Content-Transfer-Encoding%22&In-Reply-To=%3C44DA2DB3.7030605%40raytheon.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000762.html">
+   <LINK REL="Next"  HREF="000764.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;</H1>
+    <B>Jason Ostermann</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Continuation%20of%20%22Domino%20IMAP%20and%20missing%0A%09Content-Transfer-Encoding%22&In-Reply-To=%3C44DA2DB3.7030605%40raytheon.com%3E"
+       TITLE="[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;">josterm at raytheon.com
+       </A><BR>
+    <I>Wed Aug  9 20:47:15 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000762.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+        <LI>Next message: <A HREF="000764.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#763">[ date ]</a>
+              <a href="thread.html#763">[ thread ]</a>
+              <a href="subject.html#763">[ subject ]</a>
+              <a href="author.html#763">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+&gt;<i> Jason Ostermann &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">josterm at raytheon.com</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Perhaps the reply to a CAPABILITY request can help with identifying the
+</I>&gt;<i> server.
+</I>&gt;<i> 
+</I>&gt;<i> What does Lotus respond to such a command?
+</I>
+* OK IMAP Server Ready Tue, 8 Aug 2006 17:11:19 -0500
+a capability
+* CAPABILITY IMAP4rev1 AUTH=PLAIN LITERAL+ NAMESPACE QUOTA UIDPLUS
+a OK CAPABILITY completed
+
+
+&gt;<i> 
+</I>&gt;<i> Another workaround idea: what if we check the received headers from the
+</I>&gt;<i> RFC822.HEADERS request if it contains &quot;MIME-Header: 1.0&quot;, and if it
+</I>&gt;<i> does, but is missing Content-Transfer-Encoding, request the latter
+</I>&gt;<i> explicitly and attach it to the headers if we get one?
+</I>&gt;<i> 
+</I>&gt;<i> Such a workaround would reorder headers, but better that
+</I>&gt;<i> than a missing quoted-printable or base64 tag.
+</I>&gt;<i> 
+</I>&gt;<i> What do you think?
+</I>&gt;<i> 
+</I>
+Sounds like a PITA to code. =( Would that fit into the current execution 
+scheme of
+1) request headers
+2) read headers
+3) request body
+4) ready body??
+
+Or, at least, would it fit any better than making a single header/body 
+read version of imap?
+
+Jason
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000762.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+	<LI>Next message: <A HREF="000764.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#763">[ date ]</a>
+              <a href="thread.html#763">[ thread ]</a>
+              <a href="subject.html#763">[ subject ]</a>
+              <a href="author.html#763">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

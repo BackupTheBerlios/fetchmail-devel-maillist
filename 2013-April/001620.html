@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #18984] Relocating pidfile, FETCHMAILHOME,	parallel
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2013-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2318984%5D%20Relocating%20pidfile%2C%20FETCHMAILHOME%2C%0A%09parallel&In-Reply-To=%3C201304261019.r3QAIlMP007668%40www.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001619.html">
+   <LINK REL="Next"  HREF="001621.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #18984] Relocating pidfile, FETCHMAILHOME,	parallel</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2318984%5D%20Relocating%20pidfile%2C%20FETCHMAILHOME%2C%0A%09parallel&In-Reply-To=%3C201304261019.r3QAIlMP007668%40www.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #18984] Relocating pidfile, FETCHMAILHOME,	parallel">admin at berlios.de
+       </A><BR>
+    <I>Fri Apr 26 12:19:04 CEST 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001619.html">[fetchmail-devel] [Bug #18983] Man page table rendering, keywords
+</A></li>
+        <LI>Next message: <A HREF="001621.html">[fetchmail-devel] Old UID list from user at fqdn: &lt;empty&gt;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1620">[ date ]</a>
+              <a href="thread.html#1620">[ thread ]</a>
+              <a href="subject.html#1620">[ subject ]</a>
+              <a href="author.html#1620">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #18984, was updated on 2013-Apr-26 06:17
+Here is a current snapshot of the bug.
+
+Project: fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: grarpamp
+Assigned to : none
+Summary: Relocating pidfile, FETCHMAILHOME, parallel
+
+Details: I needed  to work around the lack of --password and also
+fetch some things in parallel.
+
+FETCHMAILHOME didn't seem to honor itself if set to an
+empty writeable dir. [bug #1]
+
+There was --pidfile, but it needed to be parallelizable to
+avoid clobbering itself. By default it has no random part.
+So --pidfile $(mktemp group1.pid.XXXXXX). [feat #1]
+
+Looking to fix b#1 for others.
+Note f#1 also applies to idfile, etc.
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18984&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18984&amp;group_id=1824</A>
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001619.html">[fetchmail-devel] [Bug #18983] Man page table rendering, keywords
+</A></li>
+	<LI>Next message: <A HREF="001621.html">[fetchmail-devel] Old UID list from user at fqdn: &lt;empty&gt;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1620">[ date ]</a>
+              <a href="thread.html#1620">[ thread ]</a>
+              <a href="subject.html#1620">[ subject ]</a>
+              <a href="author.html#1620">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

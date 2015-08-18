@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060219215717.GA30978%40zoidberg.homeip.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000658.html">
+   <LINK REL="Next"  HREF="000661.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD</H1>
+    <B>Casper Gripenberg</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060219215717.GA30978%40zoidberg.homeip.net%3E"
+       TITLE="[fetchmail-devel] BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD">casper.gripenberg at kotiportti.fi
+       </A><BR>
+    <I>Sun Feb 19 22:57:17 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000658.html">[fetchmail-devel] Incorrect README.svn
+</A></li>
+        <LI>Next message: <A HREF="000661.html">[fetchmail-devel] BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#660">[ date ]</a>
+              <a href="thread.html#660">[ thread ]</a>
+              <a href="subject.html#660">[ subject ]</a>
+              <a href="author.html#660">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I include here full gdb, -V, and -v -v output. Here's a description
+of the problem:
+
+I'm running 6.3.2 on OpenBSD 3.3 to an IMAP server with 'idle' in the 
+config file. The server does not support the IDLE command, so fetchmail
+does the NOOP stuff.
+
+Everything works fine until fetchmail enters the NOOP loop
+_AND_ it receives a new incoming mail notification. I.e. the
+IMAP server says:
+
+fetchmail: IMAP&lt; * 1 EXISTS
+
+..then fetchmail hangs..it won't continue until a 300 second
+timeout passes, and after that it reports:
+
+fetchmail: socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">ea5540 at pop.kolumbus.fi</A>
+fetchmail: 6.3.2 querying pop.kolumbus.fi (protocol IMAP) at Sun, 19 Feb 2006 23:43:40 +0200 (EET): poll completed
+fetchmail: Query status=2 (SOCKET)
+
+..and then the normal cycle starts again. 
+
+Here's all the debug info:
+
+----------------------------------------------------------------------
+
+Configurarion options:
+&gt;<i> ./configure --enable-NTLM --with-ssl --disable-nls
+</I>
+----------------------------------------------------------------------
+
+Config file:
+
+set postmaster &quot;casper&quot;
+set bouncemail
+set no spambounce
+set properties &quot;&quot;
+set daemon 10
+poll pop.kolumbus.fi with proto IMAP port 143
+  user 'ea5540' there with password 'xxxxxxx' is 'casper' here options no keep idle
+
+----------------------------------------------------------------------
+
+&gt;<i> fetchmail -V
+</I>This is fetchmail release 6.3.2+NTLM+SSL.
+
+Copyright (C) 2002, 2003 Eric S. Raymond
+Copyright (C) 2004 Matthias Andree, Eric S. Raymond, Rob F. Funk, Graham Wilson
+Copyright (C) 2005 Matthias Andree, Sunil Shetye
+Copyright (C) 2006 Matthias Andree
+Fetchmail comes with ABSOLUTELY NO WARRANTY. This is free software, and you
+are welcome to redistribute it under certain conditions. For details,
+please see the file COPYING in the source or documentation directory.
+
+Fallback MDA: (none)
+OpenBSD zoidberg.homeip.net 3.3 GENERIC_NOIPV6#0 i386
+Taking options from command line and /home/casper/.fetchmailrc
+Poll interval is 10 seconds
+Idfile is /home/casper/.fetchids
+Fetchmail will forward misaddressed multidrop messages to casper.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">ea5540 at pop.kolumbus.fi</A>:
+  True name of server is pop.kolumbus.fi.
+  Protocol is IMAP (using service 143).
+  All available authentication methods will be tried.
+  Server nonresponse timeout is 300 seconds (default).
+  Default mailbox selected.
+  Only new messages will be retrieved (--all off).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Oversized messages will not be flushed before message retrieval (--limitflush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 9 out of 10 polls (--fastuidl 10).
+  Messages will be SMTP-forwarded to: localhost (default)
+  Single-drop mode: 1 local name recognized.
+  No UIDs saved from this host.
+
+------------------------------------------------------------------------
+Running with -v -v + gdb session:
+
+zoidberg [Sun 19 23:33] &lt;~/tmp/fetchmail-6.3.2&gt;: ./fetchmail -N -v -v
+fetchmail: starting fetchmail 6.3.2 daemon
+fetchmail: 6.3.2 querying pop.kolumbus.fi (protocol IMAP) at Sun, 19 Feb 2006 23:33:25 +0200 (EET): poll started
+fetchmail: IMAP&lt; * OK IMAP4 server (InterMail vM.6.01.04.01 201-2131-118-101-20041129) ready Sun, 19 Feb 2006 23:33:25 +0200 (EET)
+fetchmail: IMAP&gt; A0001 CAPABILITY
+fetchmail: IMAP&lt; * CAPABILITY IMAP4rev1 UIDPLUS NAMESPACE QUOTA
+fetchmail: IMAP&lt; A0001 OK CAPABILITY completed
+fetchmail: Protocol identified as IMAP4 rev 1
+fetchmail: will idle after poll
+fetchmail: IMAP&gt; A0002 LOGIN &quot;ea5540&quot; *
+fetchmail: IMAP&lt; A0002 OK LOGIN completed
+fetchmail: selecting or re-polling default folder
+fetchmail: IMAP&gt; A0003 SELECT &quot;INBOX&quot;
+fetchmail: IMAP&lt; * 0 EXISTS
+fetchmail: IMAP&lt; * OK [UIDVALIDITY 1031331700] UIDs valid
+fetchmail: IMAP&lt; * OK [UIDNEXT 1000] Predicted next UID
+fetchmail: IMAP&lt; * FLAGS (\Answered \Flagged \Deleted \Draft \Seen)
+fetchmail: IMAP&lt; * OK [PERMANENTFLAGS (\* \Answered \Flagged \Deleted \Draft \Seen)] Permanent flags
+fetchmail: IMAP&lt; * 0 RECENT
+fetchmail: IMAP&lt; A0003 OK [READ-WRITE] SELECT completed
+fetchmail: 0 messages waiting after first poll
+fetchmail: IMAP&gt; A0004 NOOP
+fetchmail: IMAP&lt; A0004 OK NOOP completed
+fetchmail: IMAP&gt; A0005 NOOP
+fetchmail: IMAP&lt; A0005 OK NOOP completed
+fetchmail: IMAP&lt; * 1 EXISTS
+fetchmail: IMAP&lt; * 2 EXISTS
+fetchmail: IMAP&lt; * 3 EXISTS
+fetchmail: IMAP&lt; * 4 EXISTS
+
+Here fetchmail hangs..nothing happens for 300 secs (unless a new
+&quot;EXISTS&quot; event arrives and then the 300 secs timer resets)..it's totally
+dead. Sending SIGHUP doesn't help. So I enter GDB on another terminal:
+
+(gdb) attach 14837
+Attaching to program `/home/casper/tmp/fetchmail-6.3.2/fetchmail', process 14837
+Reading symbols from /usr/libexec/ld.so...done.
+Reading symbols from /usr/lib/libssl.so.7.0...done.
+Reading symbols from /usr/lib/libcrypto.so.9.0...done.
+Reading symbols from /usr/lib/libc.so.29.0...done.
+0x401cb7af in recvfrom ()
+(gdb) where
+#0  0x401cb7af in recvfrom ()
+#1  0x401a8eff in recv ()
+#2  0x22cf in SockRead (sock=3, buf=0xcfbf6ae8 &quot;* 2 EXISTS&quot;, len=8192)
+    at socket.c:467
+#3  0x1c5f9 in gen_recv (sock=3, buf=0xcfbf6ae8 &quot;* 2 EXISTS&quot;, size=8193)
+    at transact.c:1483
+#4  0x6448 in imap_ok (sock=3, argbuf=0x0) at imap.c:60
+#5  0x7626 in imap_idle (sock=3) at imap.c:637
+#6  0x7ab0 in imap_getrange (sock=3, ctl=0x43000, folder=0x0,
+    countp=0xcfbfabec, newp=0xcfbfabe8, bytes=0xcfbfabe4) at imap.c:717
+#7  0x18294 in do_session (ctl=0x43000, proto=0x8b00, maxfetch=0)
+    at driver.c:1307
+#8  0x18e78 in do_protocol (ctl=0x43000, proto=0x8b00) at driver.c:1630
+#9  0x8b6f in doIMAP (ctl=0x43000) at imap.c:1199
+#10 0xdff8 in query_host (ctl=0x43000) at fetchmail.c:1413
+#11 0xb81a in main (argc=4, argv=0xcfbfd1c4) at fetchmail.c:685
+(gdb) up
+#1  0x401a8eff in recv ()
+(gdb) up
+#2  0x22cf in SockRead (sock=3, buf=0xcfbf6ae8 &quot;* 2 EXISTS&quot;, len=8192)
+    at socket.c:467
+467                 if ((n = fm_peek(sock, bp, len)) &lt;= 0)
+
+(gdb) attach 14837
+Attaching to program `/home/casper/tmp/fetchmail-6.3.2/fetchmail', process 14837
+Reading symbols from /usr/libexec/ld.so...done.
+Reading symbols from /usr/lib/libssl.so.7.0...done.
+Reading symbols from /usr/lib/libcrypto.so.9.0...done.
+Reading symbols from /usr/lib/libc.so.29.0...done.
+0x401cb7af in recvfrom ()
+(gdb) where
+#0  0x401cb7af in recvfrom ()
+#1  0x401a8eff in recv ()
+#2  0x22cf in SockRead (sock=3, buf=0xcfbf6ae8 &quot;* 2 EXISTS&quot;, len=8192)
+    at socket.c:467
+#3  0x1c5f9 in gen_recv (sock=3, buf=0xcfbf6ae8 &quot;* 2 EXISTS&quot;, size=8193)
+    at transact.c:1483
+#4  0x6448 in imap_ok (sock=3, argbuf=0x0) at imap.c:60
+#5  0x7626 in imap_idle (sock=3) at imap.c:637
+#6  0x7ab0 in imap_getrange (sock=3, ctl=0x43000, folder=0x0,
+    countp=0xcfbfabec, newp=0xcfbfabe8, bytes=0xcfbfabe4) at imap.c:717
+#7  0x18294 in do_session (ctl=0x43000, proto=0x8b00, maxfetch=0)
+    at driver.c:1307
+#8  0x18e78 in do_protocol (ctl=0x43000, proto=0x8b00) at driver.c:1630
+#9  0x8b6f in doIMAP (ctl=0x43000) at imap.c:1199
+#10 0xdff8 in query_host (ctl=0x43000) at fetchmail.c:1413
+#11 0xb81a in main (argc=4, argv=0xcfbfd1c4) at fetchmail.c:685
+(gdb) up
+#1  0x401a8eff in recv ()
+(gdb) up
+#2  0x22cf in SockRead (sock=3, buf=0xcfbf6ae8 &quot;* 2 EXISTS&quot;, len=8192)
+    at socket.c:467
+467                 if ((n = fm_peek(sock, bp, len)) &lt;= 0)
+
+It's stuck on the 'peek'??
+
+(gdb) list
+462             {
+463
+464     #ifdef __BEOS__
+465                 if ((n = fm_read(sock, bp, 1)) &lt;= 0)
+466     #else
+467                 if ((n = fm_peek(sock, bp, len)) &lt;= 0)
+468     #endif
+469                     return (-1);
+470     #ifdef FORCE_STUFFING
+471                 maxavailable = n;
+(gdb) up
+#3  0x1c5f9 in gen_recv (sock=3, buf=0xcfbf6ae8 &quot;* 2 EXISTS&quot;, size=8193)
+    at transact.c:1483
+1483        if (SockRead(sock, buf, size) == -1)
+(gdb) list
+1478    {
+1479        int oldphase = phase;       /* we don't have to be re-entrant */
+1480
+1481        phase = SERVER_WAIT;
+1482        set_timeout(mytimeout);
+1483        if (SockRead(sock, buf, size) == -1)
+1484        {
+1485            set_timeout(0);
+1486            phase = oldphase;
+1487            if(is_idletimeout())
+(gdb) print mytimeout
+$1 = 300
+(gdb) detach
+Detaching from program: /home/casper/tmp/fetchmail-6.3.2/fetchmail process 14837
+
+Timeout is indeed 300...so I detach and wait to see what happens,
+and sure enough after 300 seconds it wakes up:
+
+fetchmail: timeout after 300 seconds waiting for server pop.kolumbus.fi.
+fetchmail: socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">ea5540 at pop.kolumbus.fi</A>
+fetchmail: 6.3.2 querying pop.kolumbus.fi (protocol IMAP) at Sun, 19 Feb 2006 23:43:40 +0200 (EET): poll completed
+fetchmail: Query status=2 (SOCKET)
+fetchmail: Deleting fetchids file.
+fetchmail: sleeping at Sun, 19 Feb 2006 23:43:40 +0200 (EET)
+fetchmail: awakened at Sun, 19 Feb 2006 23:43:50 +0200 (EET)
+fetchmail: 6.3.2 querying pop.kolumbus.fi (protocol IMAP) at Sun, 19 Feb 2006 23:43:50 +0200 (EET): poll started
+fetchmail: IMAP&lt; * OK IMAP4 server (InterMail vM.6.01.04.01 201-2131-118-101-20041129) ready Sun, 19 Feb 2006 23:43:50 +0200 (EET)
+fetchmail: IMAP&gt; A0001 CAPABILITY
+fetchmail: IMAP&lt; * CAPABILITY IMAP4rev1 UIDPLUS NAMESPACE QUOTA
+...
+
+..and the mail is finally delivered. This cycle continues ad infinitum..
+It hangs every time a new mail is reported by the IMAP server, and
+then continues after 300 secs :(
+
+Any ideas what could be wrong?
+
+Thanks.
+
+Regards,
+  Casper
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000658.html">[fetchmail-devel] Incorrect README.svn
+</A></li>
+	<LI>Next message: <A HREF="000661.html">[fetchmail-devel] BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#660">[ date ]</a>
+              <a href="thread.html#660">[ thread ]</a>
+              <a href="subject.html#660">[ subject ]</a>
+              <a href="author.html#660">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

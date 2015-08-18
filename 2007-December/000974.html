@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail-6.3.8 portability patches
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail-6.3.8%20portability%20patches&In-Reply-To=%3C1198801730.9691.3.camel%40rho.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000973.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail-6.3.8 portability patches</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail-6.3.8%20portability%20patches&In-Reply-To=%3C1198801730.9691.3.camel%40rho.emma.line.org%3E"
+       TITLE="[fetchmail-devel] fetchmail-6.3.8 portability patches">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Dec 28 01:28:50 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000973.html">[fetchmail-devel] please help from multiple mails
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#974">[ date ]</a>
+              <a href="thread.html#974">[ thread ]</a>
+              <a href="subject.html#974">[ subject ]</a>
+              <a href="author.html#974">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am Mittwoch, den 31.10.2007, 11:41 -0500 schrieb Peter O'Gorman:
+
+&gt;<i> We built fetchmail on a number of platforms and had few issues, thank
+</I>&gt;<i> you!
+</I>&gt;<i> 
+</I>&gt;<i> Include the typedef for int16 in the #ifndef _AIX in smbencrypt.c
+</I>&gt;<i> 
+</I>&gt;<i> Correct check for u_int32_t in configure.ac (seems to be typedef'ed in
+</I>&gt;<i> namser.h on some platforms.)
+</I>&gt;<i> 
+</I>&gt;<i> In configure.ac change all CPFLAGS to CPPFLAGS, CEFLAGS to CFLAGS and
+</I>&gt;<i> LDEFLAGS to LDFLAGS otherwise the results of some tests (additional -L
+</I>&gt;<i> and -I flags) do not get used for later tests causing incorrect
+</I>&gt;<i> configure results. Makefile.am was also changed to reflect this.
+</I>&gt;<i> 
+</I>&gt;<i> m4/gethostbyname_r.m4 does AC_TRY_COMPILE, which unfortunately can
+</I>&gt;<i> pass even if there is no gethostbyname_r. Changed to AC_TRY_LINK.
+</I>&gt;<i> 
+</I>&gt;<i>  __attribute__ ((unused)) is a gccism, removed from
+</I>&gt;<i> libesmtp/gethostbyname.c.
+</I>&gt;<i> 
+</I>&gt;<i> In KAME/getnameinfo.c it's best to use the correct argument to
+</I>&gt;<i> inet_ntoa.
+</I>&gt;<i> 
+</I>&gt;<i> Patch attached, sorry if these issues have already been fixed in the
+</I>&gt;<i> development sources.
+</I>
+Hi Peter,
+
+it was a long time since you wrote that mail, and I finally got around
+to looking at your patch and merging it, it will be part of fetchmail
+6.3.9 - portability work is always very welcome and much appreciated.
+
+I had to add a NULL define for FreeBSD 6.2 to run the get*info() test
+properly (it appears sys/types.h is insufficient on that OS), and I have
+also needed to add an AC_DEFINE for HAVE_GETNAMEINFO).
+
+Thanks a lot for your patch.
+
+Best regards
+Matthias
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000973.html">[fetchmail-devel] please help from multiple mails
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#974">[ date ]</a>
+              <a href="thread.html#974">[ thread ]</a>
+              <a href="subject.html#974">[ subject ]</a>
+              <a href="author.html#974">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

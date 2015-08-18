@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [patch][RFC] proper kill management of the MDA process
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%5BRFC%5D%20proper%20kill%20management%20of%20the%0A%20MDA%20process&In-Reply-To=%3C504E590D.2000902%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001564.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [patch][RFC] proper kill management of the MDA process</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%5BRFC%5D%20proper%20kill%20management%20of%20the%0A%20MDA%20process&In-Reply-To=%3C504E590D.2000902%40gmx.de%3E"
+       TITLE="[fetchmail-devel] [patch][RFC] proper kill management of the MDA process">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Sep 10 23:18:05 CEST 2012</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001564.html">[fetchmail-devel] [patch][RFC] proper kill management of the MDA process
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1565">[ date ]</a>
+              <a href="thread.html#1565">[ thread ]</a>
+              <a href="subject.html#1565">[ subject ]</a>
+              <a href="author.html#1565">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 06.09.2012 14:12, schrieb Fabio Rossi:
+&gt;&gt;&gt;<i> Am 09.03.2012 23:02, schrieb Fabio Rossi:
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Has anyone tried the patch? Is the implementation correct? As it solves a 
+</I>&gt;&gt;&gt;<i> problem with the current fetchmail release I think it's a starting point to 
+</I>&gt;<i> fix 
+</I>&gt;&gt;&gt;<i> the above described problem.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Fabio,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> grazie mille.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I've been meaning to look at the patch, but didn't get around to do much
+</I>&gt;&gt;<i> fetchmail work in the past months; I have three issues pending
+</I>&gt;&gt;<i> work/review for 6.3.22: (a) a change in OpenSSL compatibility options
+</I>&gt;&gt;<i> (mostly done, in Git), (b) your MDA kill management (pending review),
+</I>&gt;&gt;<i> (c) a fix for --plugin and &quot;-f -&quot; from a Debian user (in the Debian BTS,
+</I>&gt;&gt;<i> pending review).
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Also, some translation updates have accumulated that will be included in
+</I>&gt;&gt;<i> the next release.
+</I>&gt;<i> 
+</I>&gt;<i> Matthias, 
+</I>&gt;<i> I have just seen the latest fetchmail 6.3.22/7.0.0 releases but unfortunately 
+</I>&gt;<i> the patch hasn't been included. Is there any plan for the next release?
+</I>
+Fabio,
+
+I have been looking at it today. Your approach is the right one, the
+devil, however, hides in the details, as your original changelog hinted.
+
+For instance, we lose file descriptors (from mda_pipe) and do not kill
+the child if fdopen() or anything else fails during writing.  This would
+hurt in daemon mode because we'd then run out of file descriptors sooner
+or later if the machine is under load.
+
+Another problem, the exit status is not properly fetched from the child.
+It would seem that that the SIGCHLD handler runs asynchronously *before*
+we wait_for_child(mda_pid), and with its &quot;while (waitpid(-1, &amp;status,
+WONOHANG) &gt; 0) continue;&quot; steals the exit code. Try:
+
+fetchmail --all --fetchlimit 3 --keep --mda &quot;cat &gt;/dev/null &amp;&amp; exit 75&quot;
+
+- this &quot;exit 75&quot; goes unnoticed in my testing (it should postpone
+messages -- check with the debugger; I have added --keep to protect the
+innocent, which will force leaving the messages on the server).
+
+I tend to believe that if fetchmail needs to use a SIGCHLD handler to
+reap random (grand-)children, that there are bugs (possibly with
+plugin/plugout) where the waitpid() was missing.  The global mda_pid may
+be insufficient here, and we may need to pay more attention when we call
+waitpid(-1, ...).
+
+It would seem fine to call this at the end of a poll, in daemon-mode.
+
+Also, I find using 0 as &quot;unset&quot; for mda_pid unfortunate, because
+waitpid(0, ...) is valid and means &quot;wait for children from our process
+group&quot;.  Either we need a separate BOOL (flag) to state that mda_pid is
+valid, or (what I've currently been experimenting with) use mda_pid =
+MDA_PID_UNSET; with enum { MDA_PID_UNSET = 1 }; on the assumption that
+we will never wait for the init(8) process (which is special in that it
+always has PID #1).
+
+This needs more attention, and I am not sure if I want to integrate this
+into 6.3.
+
+Best regards,
+Matthias
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001564.html">[fetchmail-devel] [patch][RFC] proper kill management of the MDA process
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1565">[ date ]</a>
+              <a href="thread.html#1565">[ thread ]</a>
+              <a href="subject.html#1565">[ subject ]</a>
+              <a href="author.html#1565">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

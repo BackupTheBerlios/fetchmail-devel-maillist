@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] lost UIDs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20lost%20UIDs&In-Reply-To=%3C20050306153323.GA814%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000218.html">
+   <LINK REL="Next"  HREF="000221.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] lost UIDs</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20lost%20UIDs&In-Reply-To=%3C20050306153323.GA814%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] lost UIDs">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun Mar  6 16:33:23 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000218.html">[fetchmail-devel] lost UIDs
+</A></li>
+        <LI>Next message: <A HREF="000221.html">[fetchmail-devel] lost UIDs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#219">[ date ]</a>
+              <a href="thread.html#219">[ thread ]</a>
+              <a href="subject.html#219">[ subject ]</a>
+              <a href="author.html#219">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Manfred Weihs schrieb am 2005-03-06:
+
+&gt;<i> You might have a look at the attached patch. It removes the (completely 
+</I>&gt;<i> unnecessary) recursion in free_str_list. So it reduces stack usage and 
+</I>
+OK that far. However...
+
+&gt;<i> avoids possible problems with very long lists. Furthermore I slightly 
+</I>&gt;<i> changed the interface and replaced the pointer to a pointer to the first 
+</I>&gt;<i> list element by just a pointer to the first list element. I think, this 
+</I>
+...now is not the time for interface changes, as the next fetchmail
+release has been long overdue and intrusive changes should wait.
+
+So I've left the interface unchanged and just removed the recursion. I
+have ignored your change to the __UNUSED__ code which isn't compiled in.
+
+&gt;<i> &gt; Perhaps keeping all spam mail on the server isn't the best idea then?
+</I>&gt;<i> 
+</I>&gt;<i> But since I fetch the mails from two PCs (at home and at work), I have 
+</I>&gt;<i> to leave them on the server. Maybe I should delete mails from the server 
+</I>&gt;<i> more frequently. But I have to do this manually, because fetchmail does 
+</I>&gt;<i> not support to keep the mails only for X days or to keep only the latest 
+</I>&gt;<i> X mails (the later would be very easy to implement, but according to the 
+</I>&gt;<i> fetchmail FAQ it will not be implemented due to political reasons).
+</I>
+Yup, that was ESR's opinion. I don't share this view, but the UID code
+needs to be cleaned up *massively* before any feature changes should be
+allowed in. The UID code is a mess, and it's not used for IMAP.
+
+&gt;<i> And an automatic cron job is no alternative, because, in this case I
+</I>&gt;<i> cannot be sure, that fetchmail got all the mails before the cron job
+</I>&gt;<i> deletes them. The deletion should be done _after_ fetchmail delivered
+</I>&gt;<i> the mails locally, ideally within the same pop3 session.
+</I>
+Right. If you can live with a slower software that has less features in
+several areas, Charles Cazabon's getmail-4 has this feature.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000218.html">[fetchmail-devel] lost UIDs
+</A></li>
+	<LI>Next message: <A HREF="000221.html">[fetchmail-devel] lost UIDs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#219">[ date ]</a>
+              <a href="thread.html#219">[ thread ]</a>
+              <a href="subject.html#219">[ subject ]</a>
+              <a href="author.html#219">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] issues pending before 6.2.6 -- IANA vs. UNIX character/coding set
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20issues%20pending%20before%206.2.6%20--%20IANA%20vs.%20UNIX%20character/coding%20set&In-Reply-To=%3Cm3r7e61aov.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000349.html">
+   <LINK REL="Next"  HREF="000352.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] issues pending before 6.2.6 -- IANA vs. UNIX character/coding set</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20issues%20pending%20before%206.2.6%20--%20IANA%20vs.%20UNIX%20character/coding%20set&In-Reply-To=%3Cm3r7e61aov.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] issues pending before 6.2.6 -- IANA vs. UNIX character/coding set">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Jul 11 01:52:00 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000349.html">[fetchmail-devel] Observations of a new user
+</A></li>
+        <LI>Next message: <A HREF="000352.html">[fetchmail-devel] fetchmail-6.2.6-pre4 release candidate - please test!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#350">[ date ]</a>
+              <a href="thread.html#350">[ thread ]</a>
+              <a href="subject.html#350">[ subject ]</a>
+              <a href="author.html#350">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">ma at dt.e-technik.uni-dortmund.de</A>&gt; writes:
+
+&gt;<i> 2. Rob setting up and running the regression tests?
+</I>
+OK, I have looked at the regression tests and fixed (ESR's programming
+style was pretty locale agnostic, but mbox format in TEST.LOG is quite
+sensitive to localized timestamps) and updated the torturetest.py
+scripts to use my sender address. I then found that a good deal of the
+test sites are either no longer offering esr's test account and
+refusing/bouncing mail, or don't let us log in.
+
+We may need to ask those sites that are still reachable for new
+passwords, but for the nonce, we have a handful of sites that work and
+that we can fetch from.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000349.html">[fetchmail-devel] Observations of a new user
+</A></li>
+	<LI>Next message: <A HREF="000352.html">[fetchmail-devel] fetchmail-6.2.6-pre4 release candidate - please test!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#350">[ date ]</a>
+              <a href="thread.html#350">[ thread ]</a>
+              <a href="subject.html#350">[ subject ]</a>
+              <a href="author.html#350">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

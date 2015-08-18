@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail and mapi II
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3Cop.uwsjl4001e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001117.html">
+   <LINK REL="Next"  HREF="001116.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail and mapi II</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3Cop.uwsjl4001e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] fetchmail and mapi II">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Jul  9 10:09:30 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001117.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+        <LI>Next message: <A HREF="001116.html">[fetchmail-devel] Fetchmail &amp; Yahoo
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1118">[ date ]</a>
+              <a href="thread.html#1118">[ thread ]</a>
+              <a href="subject.html#1118">[ subject ]</a>
+              <a href="author.html#1118">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 09.07.2009, 06:43 Uhr, schrieb Yangyan Li &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">yangyan.lee at gmail.com</A>&gt;:
+
+&gt;<i> Sorry for the messing up of branch MAPI, I will try to fix these
+</I>&gt;<i> issues one by one.
+</I>
+That sounds great. Thank you!
+
+&gt;<i> Roughly speaking, I will concentrate on:
+</I>&gt;<i> 1. a complete review of the existing code, probably a rewriting is  
+</I>&gt;<i> required.
+</I>&gt;<i> 2. port this branch to match the latest libmapi release.
+</I>&gt;<i>
+</I>&gt;<i> In fact, I test on the Exchange Server inside my Virtualbox, it will
+</I>&gt;<i> be great if anyone can provide some testing environments.
+</I>&gt;<i>
+</I>&gt;<i> I will seek more advice from you during my development and welcome  
+</I>&gt;<i> opinions!
+</I>
+You're welcome to use the fetchmail-devel@ list for further questions. Use  
+&quot;MAPI&quot; in the subject so that all interested parties will see your  
+messages.
+
+CONTENTS
+
+I have merged the 6.3.10 release (from /branches/BRANCH_6-3) into  
+BRANCH_MAPI, and merged Mojmir's patches where they looked sane, and fixed  
+some minor configure.ac issues (see NEWS).
+
+Do we really need libmagic for MAPI support? What exactly does it do?
+
+
+SUBVERSION CHANGES
+
+WRT the Subversion server:  I have had Graham (who maintains the server)  
+enable mergeinfo tracking. The server now also locks out commits from SVN  
+clients that are older than version 1.5.0, to make sure that no clients  
+mess up the mergeinfo. (The server is version 1.6.X).
+
+The bonus is that you no longer need to manually track which version you  
+have merged, Subversion does that for you. It can't hurt to document the  
+version, as you used to do :). Just make sure to only use &quot;svn merge [-c  
+M[,N...] | -r N:M ...] SOURCE[@REV] [WCPATH]&quot; syntax.
+
+If this feature is new for you, and you're looking for documentation, see  
+for instance  
+<A HREF="http://svnbook.red-bean.com/en/1.5/svn.branchmerge.basicmerging.html">http://svnbook.red-bean.com/en/1.5/svn.branchmerge.basicmerging.html</A> and  
+the following sections and chapters.
+
+
+COMPILE WITH WARNINGS
+
+Could I ask you a favour? Can you configure with modified CFLAGS, for  
+instance:
+
+configure -C --with-ssl --enable-MAPI CFLAGS=&quot;-O -g -pipe -Wall -W -Wextra  
+-pedantic&quot;
+
+(-W -Wextra is redundant, but covers older and newer GCC versions)
+
+That enables some more warnings and helps find bugs - for instance, I  
+found the sprintf() bug (around language code parsing) in rcfile_y.y that  
+way.
+
+Warnings of the &quot;defined but not used&quot; need not be fixed if you're sure  
+that you haven't mistyped somewhere and actually meant to use the unused  
+variables.
+
+Signedness warnings should be double-checked and fixed by matching types -  
+please do not add casts to silence the compiler!  These warnings are  
+usually hints that something's wrong with the code, and a second thought  
+needs to be spent especially on indexes and wraparound/overflow behaviour.
+
+
+Thanks again!
+
+Best regards
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001117.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+	<LI>Next message: <A HREF="001116.html">[fetchmail-devel] Fetchmail &amp; Yahoo
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1118">[ date ]</a>
+              <a href="thread.html#1118">[ thread ]</a>
+              <a href="subject.html#1118">[ subject ]</a>
+              <a href="author.html#1118">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

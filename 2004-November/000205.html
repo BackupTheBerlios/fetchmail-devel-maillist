@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: r3995 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r3995%20-%20trunk&In-Reply-To=%3Cm3sm77tmob.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000204.html">
+   <LINK REL="Next"  HREF="000206.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: r3995 - trunk</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r3995%20-%20trunk&In-Reply-To=%3Cm3sm77tmob.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: r3995 - trunk">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Thu Nov 18 12:35:16 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000204.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000206.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#205">[ date ]</a>
+              <a href="thread.html#205">[ thread ]</a>
+              <a href="subject.html#205">[ subject ]</a>
+              <a href="author.html#205">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">graham at mknod.org</A>&gt; writes:
+
+&gt;<i> Matthias Andree:
+</I>
+&gt;&gt;<i> Ripping code out of other software is harder to track WRT updates.
+</I>&gt;<i>
+</I>&gt;<i> I'm not really concerned as much about updates to an snprintf
+</I>&gt;<i> implementation;
+</I>
+I am.
+
+&gt;<i> I wouldn't think there would need to be much updating.
+</I>
+More than 4/5 of the snprintf replacements I've looked at were broken in
+one way or another.
+
+&gt;<i> I'm more concerned with adding a whole other project into the fetchmail
+</I>&gt;<i> tarball.
+</I>
+We aren't doing that.
+
+&gt;&gt;<i> What is the claim mutt had a &quot;good snprintf&quot; implementation based on?
+</I>&gt;<i>
+</I>&gt;<i> Probably some unfounded claim that I read somewhere else I suppose. If
+</I>&gt;<i> you don't think the implementation is good, I'm fine with going with
+</I>&gt;<i> something else.
+</I>
+I think the mutt implementation is too incomplete to be useful for
+fetchmail.
+
+&gt;<i> What about the implementation at [1]? The downside is that it doesn't
+</I>&gt;<i> support a number of conversion characters (f, e, E, g, G, lc, ls, n),
+</I>&gt;<i> none of which we seem to use though. There are a few other small things
+</I>&gt;<i> missing which I don't think we use (or will) either.
+</I>
+(from different mail)
+&gt;<i> [1] <A HREF="http://www.ijs.si/software/snprintf/">http://www.ijs.si/software/snprintf/</A>
+</I>
+It doesn't support %n$ either, which is needed for internationalized
+projects, so it, too, is out of the game. I haven't yet had the time to
+look _closely_ at snprintfv.
+
+
+Brian Candler &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">B.Candler at pobox.com</A>&gt; writes:
+
+&gt;<i> What do other projects do with regard to snprintf or lack of it? How many
+</I>&gt;<i> Unix systems lack snprintf these days?
+</I>
+I don't know, but I wouldn't want to break compatibility in a patchlevel
+or minot update. If we drop all the cruft,  we need to call it 7.0 - and
+we'd instead need to get out 6.2.6 or 6.3.0 soon.  We can change
+requirements an drop compatibility cruft for a later major version.
+
+&gt;<i> According to the FreeBSD manpage,
+</I>&gt;<i>
+</I>&gt;<i>      the snprintf() and vsnprintf()
+</I>&gt;<i>      functions conform to ISO/IEC 9899:1999 (`ISO C99'').
+</I>&gt;<i>
+</I>&gt;<i> Would it be reasonable simply to expect a decent O/S to have these functions
+</I>&gt;<i> now? I don't know if SunOS 4.1 has snprintf or not,
+</I>
+It doesn't, but SunOS older than 5.7 (IIRC) isn't supported by the
+vendor any more.
+
+&gt;<i> If there is a free-standing external snprintf library, then we could just
+</I>&gt;<i> point people at it and tell them to install it first if it's needed.
+</I>
+The replacements I've looked at all assumed to be packaged as integral
+part of another application.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000204.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000206.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#205">[ date ]</a>
+              <a href="thread.html#205">[ thread ]</a>
+              <a href="subject.html#205">[ subject ]</a>
+              <a href="author.html#205">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

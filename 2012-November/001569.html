@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2318794%5D%20BUG%20in%20libdispatch%20client%20-%20OSX%20ML%0A%0910.8.2&In-Reply-To=%3C201211141027.qAEARTw5021547%40www.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001568.html">
+   <LINK REL="Next"  HREF="001570.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2318794%5D%20BUG%20in%20libdispatch%20client%20-%20OSX%20ML%0A%0910.8.2&In-Reply-To=%3C201211141027.qAEARTw5021547%40www.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2">admin at berlios.de
+       </A><BR>
+    <I>Wed Nov 14 11:27:29 CET 2012</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001568.html">[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2
+</A></li>
+        <LI>Next message: <A HREF="001570.html">[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1569">[ date ]</a>
+              <a href="thread.html#1569">[ thread ]</a>
+              <a href="subject.html#1569">[ subject ]</a>
+              <a href="author.html#1569">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #18794, was updated on 2012-Nov-14 01:12
+Here is a current snapshot of the bug.
+
+Project: fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: madman1234
+Assigned to : none
+Summary: BUG in libdispatch client - OSX ML 10.8.2
+
+Details: I installed fetchmail using mac ports. But everytime I start fetchmail (SSL included), I receive the following message in /var/log/mail.log
+
+[...]
+BUG in libdispatch client: Do not close random Unix descriptors
+[...]
+
+I have compiled the latest fetchmail version by myself, but I receive the same message. 
+
+Fetchmail itself works, but what does it means? 
+
+If I should ran any debugs, just let me know :)
+
+Thanks
+Soeren
+
+Follow-Ups:
+
+Date: 2012-Nov-14 01:27
+By: madman1234
+
+Comment:
+Here is the answer from macports:
+
+[...]
+<A HREF="http://trac.macports.org/ticket/36984#comment:3">http://trac.macports.org/ticket/36984#comment:3</A>
+
+This message is printed by libdispatch (and is thus Apple-specific). Apparently fetchmail closes file descriptors that are used by libdispatch, which terminates the process using this message when this happens. I guess one would have to attach a debugger, see where the file descriptor is closed and see whether this actually is a &quot;random&quot; file descriptor and what can be done about it. The maintainer might also consider forwarding this to upstream fetchmail. 
+[...]
+
+Do you have such a debug script? 
+
+Thanks
+
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18794&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18794&amp;group_id=1824</A>
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001568.html">[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2
+</A></li>
+	<LI>Next message: <A HREF="001570.html">[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1569">[ date ]</a>
+              <a href="thread.html#1569">[ thread ]</a>
+              <a href="subject.html#1569">[ subject ]</a>
+              <a href="author.html#1569">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

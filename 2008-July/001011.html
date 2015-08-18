@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Trouble parsing a particular fetchmailrc file: bison parser update?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Trouble%20parsing%20a%20particular%20fetchmailrc%0A%20file%3A%20bison%20parser%20update%3F&In-Reply-To=%3C29406840.1216464194062.JavaMail.root%40cps6%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001010.html">
+   <LINK REL="Next"  HREF="001012.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Trouble parsing a particular fetchmailrc file: bison parser update?</H1>
+    <B>JUANVAQUEROPONC at terra.es</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Trouble%20parsing%20a%20particular%20fetchmailrc%0A%20file%3A%20bison%20parser%20update%3F&In-Reply-To=%3C29406840.1216464194062.JavaMail.root%40cps6%3E"
+       TITLE="[fetchmail-devel] Trouble parsing a particular fetchmailrc file: bison parser update?">JUANVAQUEROPONC at terra.es
+       </A><BR>
+    <I>Sat Jul 19 12:43:14 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001010.html">[fetchmail-devel] Trouble parsing a particular	fetchmailrc	file: bison parser update?
+</A></li>
+        <LI>Next message: <A HREF="001012.html">[fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1011">[ date ]</a>
+              <a href="thread.html#1011">[ thread ]</a>
+              <a href="subject.html#1011">[ subject ]</a>
+              <a href="author.html#1011">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+&gt;<i> On Wed, 09 Jul 2008, <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">JUANVAQUEROPONC at terra.es</A> wrote:
+</I>&gt;<i> &gt; Rob Funk wrote:
+</I>&gt;<i> &gt; &gt; Could you send us the fetchmailrc file and tell us specifically 
+</I>how 
+&gt;<i> &gt; it is
+</I>&gt;<i> &gt; &gt; being parsed incorrectly?
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; I am attaching a fetchmailrc file that is being parsed 
+</I>incorrectly.
+&gt;<i> &gt; 
+</I>&gt;<i> &gt; Could someone run fetchmail on it to see that a username is being 
+</I>&gt;<i> &gt; parsed incorrectly?
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; The username in question is being parsed as 'sername 
+</I>&gt;<i> &gt; &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">aaaaaaaaaaaaa at aaaaaaaaaaaaa</A>'
+</I>&gt;<i> 
+</I>&gt;<i> I can verify the problem, but I cannot currently narrow it down
+</I>&gt;<i> unfortunately - I can cut some lines from the file, but the 
+</I>remaining
+&gt;<i> file is still way too large that I would want to observe the parser 
+</I>in
+&gt;<i> debug mode.
+</I>&gt;<i> 
+</I>&gt;<i> Do you have a shorter file to exhibit the same problem?
+</I>
+It is quite difficult to trigger this bug.
+If I change some lines the bug does not trigger.
+I have got to the attached file that triggers the bug, but
+if I remove the last line the same bug seems not to trigger.
+
+&gt;<i> I can try to do some more experiments next week, but I'm not overly
+</I>&gt;<i> optimistic I'll be able to track and fix this.
+</I>&gt;<i> 
+</I>&gt;<i> It may be some arcane buffer boundary issue, and it may also be that
+</I>&gt;<i> we're inheriting a bison bug here.
+</I>
+
+
+Ahora tambi&#233;n puedes acceder a tu correo Terra desde el m&#243;vil.
+Inf&#243;rmate pinchando aqu&#237;.
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: fetchmailrc
+Type: application/octet-stream
+Size: 41049 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20080719/1a463baf/attachment.obj">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20080719/1a463baf/attachment.obj</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001010.html">[fetchmail-devel] Trouble parsing a particular	fetchmailrc	file: bison parser update?
+</A></li>
+	<LI>Next message: <A HREF="001012.html">[fetchmail-devel] [Bug #14257] Incorrect parsing of fetchmailrc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1011">[ date ]</a>
+              <a href="thread.html#1011">[ thread ]</a>
+              <a href="subject.html#1011">[ subject ]</a>
+              <a href="author.html#1011">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

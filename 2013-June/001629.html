@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #19024] wrong permissions on .fetchids
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2013-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2319024%5D%20wrong%20permissions%20on%20.fetchids&In-Reply-To=%3C201306211744.r5LHidK7018633%40www.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001628.html">
+   <LINK REL="Next"  HREF="001630.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #19024] wrong permissions on .fetchids</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2319024%5D%20wrong%20permissions%20on%20.fetchids&In-Reply-To=%3C201306211744.r5LHidK7018633%40www.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #19024] wrong permissions on .fetchids">admin at berlios.de
+       </A><BR>
+    <I>Fri Jun 21 19:44:39 CEST 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001628.html">[fetchmail-devel] [Bug #19032] Not the expected Length
+</A></li>
+        <LI>Next message: <A HREF="001630.html">[fetchmail-devel] [Bug #19024] wrong permissions on .fetchids
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1629">[ date ]</a>
+              <a href="thread.html#1629">[ thread ]</a>
+              <a href="subject.html#1629">[ subject ]</a>
+              <a href="author.html#1629">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #19024, was updated on 2013-Jun-16 15:59
+Here is a current snapshot of the bug.
+
+Project: fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: martinwodrich
+Assigned to : none
+Summary: wrong permissions on .fetchids
+
+Details: I have one fetchmail poll where I set 'keep' and 'no fetchall'.
+After I start fetchmail the .fetchids-File have read-write owner and
+read group. The next time fetchmail stops with the error that 
+read-write-execute owner is the maximum allowed permissions.
+
+I uderstand that fetchmail stops with wrong permissions, but thats the permission that it hase self set.
+
+I use fetchmail 6.3.26.
+
+
+Follow-Ups:
+
+Date: 2013-Jun-21 19:44
+By: m-a
+
+Comment:
+Thank you for taking the time to report this problem.
+
+However, we need further information in order to be able to 
+investigate and eventually fix the problem.
+
+Please see <A HREF="http://fetchmail.info/fetchmail-FAQ.html#G3">http://fetchmail.info/fetchmail-FAQ.html#G3</A> for a 
+checklist of pieces of information that you need to report.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=19024&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=19024&amp;group_id=1824</A>
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001628.html">[fetchmail-devel] [Bug #19032] Not the expected Length
+</A></li>
+	<LI>Next message: <A HREF="001630.html">[fetchmail-devel] [Bug #19024] wrong permissions on .fetchids
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1629">[ date ]</a>
+              <a href="thread.html#1629">[ thread ]</a>
+              <a href="subject.html#1629">[ subject ]</a>
+              <a href="author.html#1629">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

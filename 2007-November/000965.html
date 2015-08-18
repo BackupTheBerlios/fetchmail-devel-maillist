@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20broken%20behavior%20in%20Exchange%20Server%202003%0A%09IMAP4rev1&In-Reply-To=%3C20071104202644.GW19374%40cisco.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000964.html">
+   <LINK REL="Next"  HREF="000966.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1</H1>
+    <B>Adam Simpkins</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20broken%20behavior%20in%20Exchange%20Server%202003%0A%09IMAP4rev1&In-Reply-To=%3C20071104202644.GW19374%40cisco.com%3E"
+       TITLE="[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1">simpkins at cisco.com
+       </A><BR>
+    <I>Sun Nov  4 21:26:44 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000964.html">[fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1
+</A></li>
+        <LI>Next message: <A HREF="000966.html">[fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#965">[ date ]</a>
+              <a href="thread.html#965">[ thread ]</a>
+              <a href="subject.html#965">[ subject ]</a>
+              <a href="author.html#965">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Fri, Nov 02, 2007 at 05:58:31PM +0100, Matthias Andree wrote:
+&gt;<i> Am Donnerstag, den 01.11.2007, 18:06 -0700 schrieb Adam Simpkins:
+</I>&gt;<i> 
+</I>&gt;<i> &gt; I tracked down the problem, and it occurs because the Exchange server
+</I>&gt;<i> &gt; is rewriting the MIME boundary before sending it to the IMAP client.
+</I>&gt;<i> 
+</I>&gt;<i> So tell Exchange not to do that.
+</I>&gt;<i> Why would a client want to cater for servers who tamper with data? It's
+</I>&gt;<i> the MIME boundary today and the sender address tomorrow. And why would a
+</I>&gt;<i> client want to use such a server at all?
+</I>
+Yes, I agree Exchange is broken here.  Unfortunately, I don't have any
+control over the mail server.  I have contacted my IT support contacts
+about this problem with the server, but I haven't heard anything back
+from them yet.  (And I don't have high hopes that they'll be willing
+or able to fix this problem anyway.)
+
+
+&gt;<i> [bug fixing for Lotus insanity transferred to MS Exchange?]
+</I>&gt;<i> &gt; I don't suppose I can convince you to reconsider?  (I somehow doubt
+</I>&gt;<i> &gt; I'll have much luck convincing Microsoft to fix exchange.)
+</I>&gt;<i> 
+</I>&gt;<i> Well, if I had time at my hands, I might offer to fix this for money.
+</I>&gt;<i> Given that 6.3.9 has been delayed for weeks already, I'd rather not make
+</I>&gt;<i> any offers in that direction.
+</I>&gt;<i> 
+</I>&gt;<i> I'm aware this isn't too helpful, but I don't see it as my foremost
+</I>&gt;<i> interest to work around server bugs - especially not if the changes to
+</I>&gt;<i> code would have to be rather intrusive.
+</I>
+Sure, I completely understand.  I've switched to POP3 for now, which
+shouldn't have the problem.
+
+If I have the time later, I might create a patch for this on my own.
+Would you consider accepting the patch if I came up with one?  It
+looks like I should probably just create a new method struct identical
+to the current &quot;imap&quot; one, but with a single fetch method that gets
+everthing, and fetch_body set to NULL.  Is that the preferred
+approach, or did you have something else in mind?
+
+-- 
+Adam Simpkins
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">simpkins at cisco.com</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000964.html">[fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1
+</A></li>
+	<LI>Next message: <A HREF="000966.html">[fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#965">[ date ]</a>
+              <a href="thread.html#965">[ thread ]</a>
+              <a href="subject.html#965">[ subject ]</a>
+              <a href="author.html#965">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

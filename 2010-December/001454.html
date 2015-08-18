@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Presently running code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Presently%20running%20code&In-Reply-To=%3C4D04FDCC.5080504%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001453.html">
+   <LINK REL="Next"  HREF="001458.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Presently running code</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Presently%20running%20code&In-Reply-To=%3C4D04FDCC.5080504%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Presently running code">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun Dec 12 17:52:28 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001453.html">[fetchmail-devel] New Japanese PO file for 'fetchmail' (version	6.3.19-pre1)
+</A></li>
+        <LI>Next message: <A HREF="001458.html">[fetchmail-devel] Presently running code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1454">[ date ]</a>
+              <a href="thread.html#1454">[ thread ]</a>
+              <a href="subject.html#1454">[ subject ]</a>
+              <a href="author.html#1454">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 12.06.2010 00:06, schrieb Rainer Weikusat:
+&gt;<i> &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;&gt;<i> Am 08.06.2010, 23:57 Uhr, schrieb Rainer Weikusat:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> The file included below is a diff of the 'running' uid_db code against
+</I>&gt;&gt;&gt;<i> the 6.3.17 fetchmail tree. I hope that it is ok in this form, because
+</I>&gt;&gt;&gt;<i> I'm still in extreme 'now, we just need to deliver'-mode ...
+</I>&gt;<i> 
+</I>&gt;<i> [...]
+</I>&gt;<i> 
+</I>&gt;&gt;<i> Is that the final submission to be expected, or do you still want to
+</I>&gt;&gt;<i> polish some bits of it?
+</I>&gt;<i> 
+</I>&gt;<i> This is the code which is used for the POP3-using customers of 'my'
+</I>&gt;<i> application. Because of this, I will fix or mitigate any issues with
+</I>&gt;<i> it which come to my attention and affect me. As always, I'm meanwhile
+</I>&gt;<i> working on something completely different with the usual 'Yesterday!'
+</I>&gt;<i> [emphatically!] as most wanted release date. This means the short
+</I>&gt;<i> answer is 'Yes' and the medium-sized one would be &quot;I can want things
+</I>&gt;<i> all day but that doesn't mean I can actually do them :-(&quot;.
+</I>
+Hi Rainer,
+
+thanks again for the contribution.  I have finally rebased your patch onto
+6.3.19, and then merged it for 6.4.0-alpha1 (in Git's next branch, see
+<A HREF="http://gitorious.org/fetchmail/">http://gitorious.org/fetchmail/</A> for the repositories).
+
+I'd like you to look over the changes; specifically I had to initialize &quot;v&quot; in
+two functions to 0 explicitly to fix compiler warnings.
+
+I'd also appreciate if you could read the code and check for merge errors.
+
+Thanks again.
+
+Best regards
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001453.html">[fetchmail-devel] New Japanese PO file for 'fetchmail' (version	6.3.19-pre1)
+</A></li>
+	<LI>Next message: <A HREF="001458.html">[fetchmail-devel] Presently running code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1454">[ date ]</a>
+              <a href="thread.html#1454">[ thread ]</a>
+              <a href="subject.html#1454">[ subject ]</a>
+              <a href="author.html#1454">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #17599] antispam does not work
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2317599%5D%20antispam%20does%20not%20work&In-Reply-To=%3C20101013191631.GA10086%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001438.html">
+   <LINK REL="Next"  HREF="001440.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #17599] antispam does not work</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2317599%5D%20antispam%20does%20not%20work&In-Reply-To=%3C20101013191631.GA10086%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [Bug #17599] antispam does not work">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Oct 13 21:16:31 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001438.html">[fetchmail-devel] [Bug #17599] antispam does not work
+</A></li>
+        <LI>Next message: <A HREF="001440.html">[fetchmail-devel] [Bug #17599] antispam does not work
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1439">[ date ]</a>
+              <a href="thread.html#1439">[ thread ]</a>
+              <a href="subject.html#1439">[ subject ]</a>
+              <a href="author.html#1439">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>This appears to be similar to the recent --nosoftbounce and --nobounce
+issue where options are not handled exactly the same way as the rcfile
+parser. Is there a way to push the options also to the parser so that
+options.c as well as these mismatches can be eliminated?
+
+
+Dear keesbakker,
+
+Quoting from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">admin at berlios.de</A>'s mail on Wed, Oct 13, 2010:
+&gt;<i> Summary: antispam does not work
+</I>&gt;<i> 
+</I>&gt;<i> Details: The --antispam option does not work (anymore?). I guess, it must have been disfunctional since 2002-sep-04, when a patch from Sunil Shetye (&quot;double-bounce patch&quot;) was applied. (Git commit efe3c6cc82e214142809c77c4f2fa8a58bdef787)
+</I>
+Oops...
+
+&gt;<i> The code that was added in sink.c has this piece
+</I>&gt;<i> 
+</I>&gt;<i>    if (str_find(&amp;ctl-&gt;antispam, smtperr))
+</I>&gt;<i> 
+</I>&gt;<i> And the problem is that the function returns a NULL pointer even if it finds the requested value.
+</I>&gt;<i> 
+</I>&gt;<i> Notice that there is another location in sink.c which searches the ctl-&gt;antispam list using a while loop.
+</I>
+It looks like one str_find() was replaced by the loop after my patch
+while the other was left alone. Let me try restoring the str_find()
+first!!!
+
+Please try this patch and report:
+
+=========================================================================
+&gt;<i>From 00c78f2ada31b85ea2089a48f6c9467144a4fbf1 Mon Sep 17 00:00:00 2001
+</I>From: Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt;
+Date: Thu, 14 Oct 2010 00:00:54 +0530
+Subject: [PATCH] handle --antispam option correctly
+
+---
+ NEWS      |    2 ++
+ options.c |    2 +-
+ sink.c    |   12 +-----------
+ 3 files changed, 4 insertions(+), 12 deletions(-)
+
+diff --git a/NEWS b/NEWS
+index 4cbdd21..9a319e7 100644
+--- a/NEWS
++++ b/NEWS
+@@ -63,6 +63,8 @@ fetchmail-6.3.19 (not yet released):
+   of local users, not just at the end.
+ * In multidrop mode, header parsing is now more verbose in -vv mode, so that it
+   becomes possible to see which header is used.
++* Make --antispam work from command line (these used to work in rcfiles).
++  Reported by keesbakker. (Sunil Shetye)
+ 
+ # KNOWN BUGS AND WORKAROUNDS:
+   (this section floats upwards through the NEWS file so it stays with the
+diff --git a/options.c b/options.c
+index d0c7c2a..a298cb6 100644
+--- a/options.c
++++ b/options.c
+@@ -487,7 +487,7 @@ int parsecmdline (int argc /** argument count */,
+ 	    buf = xstrdup(optarg);
+ 	    cp = strtok(buf, &quot;,&quot;);
+ 	    do {
+-		struct idlist	*idp = save_str(&amp;ctl-&gt;antispam, NULL, 0);;
++		struct idlist	*idp = save_str(&amp;ctl-&gt;antispam, STRING_DUMMY, 0);
+ 
+ 		idp-&gt;val.status.num = xatoi(cp, &amp;errflag);
+ 	    } while
+diff --git a/sink.c b/sink.c
+index 3abbd60..92f7b43 100644
+--- a/sink.c
++++ b/sink.c
+@@ -441,8 +441,6 @@ static int handle_smtp_report(struct query *ctl, struct msgblk *msg)
+ {
+     int smtperr = atoi(smtp_response);
+     char *responses[1];
+-    struct idlist *walk;
+-    int found = 0;
+ 
+     responses[0] = xstrdup(smtp_response);
+ 
+@@ -466,15 +464,7 @@ static int handle_smtp_report(struct query *ctl, struct msgblk *msg)
+      * messages, which are probably in English (none of the
+      * MTAs I know about are internationalized).
+      */
+-    for( walk = ctl-&gt;antispam; walk; walk = walk-&gt;next )
+-        if ( walk-&gt;val.status.num == smtperr ) 
+-	{ 
+-		found=1;
+-		break;
+-	}
+-
+-    /* if (str_find(&amp;ctl-&gt;antispam, smtperr)) */
+-    if ( found )
++    if (str_find(&amp;ctl-&gt;antispam, smtperr))
+     {
+ 	/*
+ 	 * SMTP listener explicitly refuses to deliver mail
+-- 
+1.7.2.3
+
+=========================================================================
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001438.html">[fetchmail-devel] [Bug #17599] antispam does not work
+</A></li>
+	<LI>Next message: <A HREF="001440.html">[fetchmail-devel] [Bug #17599] antispam does not work
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1439">[ date ]</a>
+              <a href="thread.html#1439">[ thread ]</a>
+              <a href="subject.html#1439">[ subject ]</a>
+              <a href="author.html#1439">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

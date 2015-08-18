@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] why one person hates fetchmail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20why%20one%20person%20hates%20fetchmail&In-Reply-To=%3C200406172008.NAA25621%40riparian.beaverton.windriver.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000015.html">
+   <LINK REL="Next"  HREF="000017.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] why one person hates fetchmail</H1>
+    <B>Perry Hutchison</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20why%20one%20person%20hates%20fetchmail&In-Reply-To=%3C200406172008.NAA25621%40riparian.beaverton.windriver.com%3E"
+       TITLE="[fetchmail-devel] why one person hates fetchmail">phutchis at beaverton.windriver.com
+       </A><BR>
+    <I>Thu Jun 17 22:08:38 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000015.html">[fetchmail-devel] why one person hates fetchmail
+</A></li>
+        <LI>Next message: <A HREF="000017.html">[fetchmail-devel] Re: why one person hates fetchmail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> ... In particular, I have
+</I>&gt;<i>
+</I>&gt;<i> poll pop3.mydomain.com  ... account 1 settings
+</I>&gt;<i> skip pop3.mydomain.com  ... account 2 settings
+</I>&gt;<i>
+</I>&gt;<i> and the only way I can make a poll of account 2 is by editing the
+</I>&gt;<i> config file before polling.
+</I>
+I thought the cure for that sort of thing was to run two (or more)
+instances of fetchmail, each with a different setting of FETCHMAILHOME.
+
+&gt;<i> The config language is a nightmare, and pretty illogical (e.g.
+</I>&gt;<i> settings which I think should be settable globally and inherited
+</I>&gt;<i> by all accounts, like 'ssl' for example, aren't; and working out
+</I>&gt;<i> which settings apply to hosts and which to users has had me
+</I>&gt;<i> digging in the source code more than once).
+</I>
+I haven't been reduced to digging in the source, but have had some
+trial and error finding out whether certain settings are &quot;host&quot; or
+&quot;user&quot;.  This is largely a matter of incomplete documentation :(
+
+&gt;<i> To be fair to fetchmail, in the olden days it *did* offer direct
+</I>&gt;<i> to mailbox delivery, and it was ESR's decision that the design
+</I>&gt;<i> would be made much cleaner by having delivery to a local SMTP
+</I>&gt;<i> daemon instead. Then slowly, things crept back in like delivery
+</I>&gt;<i> via a pipe to procmail, delivery by invoking an MTA command-line
+</I>&gt;<i> directly, delivery by LMTP... but things I *actually* want, like
+</I>&gt;<i> delivery to a Maildir, aren't there.
+</I>
+As long as we have the ability to hand off to a specified agent,
+I would think it preferable -- at least, more modular -- to use a
+different external agent for each type of local mail store, rather
+than to try to amalgamate the lot of them into fetchmail.  You can
+have fetchmail invoke the same local delivery program that sendmail
+would use to write to a maildir.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000015.html">[fetchmail-devel] why one person hates fetchmail
+</A></li>
+	<LI>Next message: <A HREF="000017.html">[fetchmail-devel] Re: why one person hates fetchmail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

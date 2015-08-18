@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] RE: [fetchmail]Help with warning: Illegal address syntax
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RE%3A%20%5Bfetchmail%5DHelp%20with%20warning%3A%20Illegal%20address%20syntax&In-Reply-To=%3CBAY1-DAV181u51rMum50000a01d%40hotmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000081.html">
+   <LINK REL="Next"  HREF="000083.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] RE: [fetchmail]Help with warning: Illegal address syntax</H1>
+    <B>Rob</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RE%3A%20%5Bfetchmail%5DHelp%20with%20warning%3A%20Illegal%20address%20syntax&In-Reply-To=%3CBAY1-DAV181u51rMum50000a01d%40hotmail.com%3E"
+       TITLE="[fetchmail-devel] RE: [fetchmail]Help with warning: Illegal address syntax">rob_macgregor at hotmail.com
+       </A><BR>
+    <I>Fri Jul 23 19:23:32 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000081.html">[fetchmail-devel] Re: [fetchmail]My previous syntax error report and patch
+</A></li>
+        <LI>Next message: <A HREF="000083.html">[fetchmail-devel] SVN woes :-(
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-friends-admin at lists.ccil.org</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-friends-admin at lists.ccil.org</A>] On Behalf Of Gary Sims
+</I>&gt;<i> 
+</I>&gt;<i> Clearly the return-path is broken, it looks like the 
+</I>&gt;<i> Received: header has been 
+</I>&gt;<i> pasted on the end. I would guess a memory corruption 
+</I>&gt;<i> somewhere as the closing 
+</I>&gt;<i> &quot;&gt;&quot; is missing which would imply something is being 
+</I>&gt;<i> overwritten by something else.
+</I>&gt;<i> 
+</I>&gt;<i> I agree, the question now remains, is it my ISP's mail server 
+</I>&gt;<i> which is broken 
+</I>&gt;<i> or is it fetchmail in its fetching of the mail by POP3.
+</I>
+Unlikely to be fetchmail (but not impossible).  The address is stored in a
+buffer defined as being BUFSIZ characters long.  This is an OS define.  On my
+Mandrake 9.1 box it's defined by stdio.h as being _IO_BUFSIZ.  That appears to
+be defined by libio.h as _G_BUFSIZ which appears to be defined by _G_config.h
+as 8192.  Even a very long email address should be less than 8191 bytes :)
+
+It could be some bizarre bug (so I've CCd to the -devel list so that the
+experts can have a look) that's causing a lack of truncation only for really
+long addresses (or possibly ones where the terminating &gt; is missing), but the
+fact that you're the only person to report it (so far anyway) makes me suspect
+a cause elsewhere.
+
+One test might be to hack rfc822.c such that at each invocation of nxtaddr()
+it sets all bytes in address[] to be NULL.  Of course, you'll need to get a
+hold of a known broken email to test with :(
+ 
+&gt;<i> IMHO, I don't actually agree. The mail message was on a POP3 
+</I>&gt;<i> server somewhere 
+</I>&gt;<i> which means it has gone through some sort of processing and 
+</I>&gt;<i> has arrived. The 
+</I>&gt;<i> local delivery failed and the NDN failed. In my opinion this 
+</I>&gt;<i> message should 
+</I>&gt;<i> be saved to disk and a notification sent to the postmaster. A 
+</I>&gt;<i> few years back 
+</I>&gt;<i> I worked on several email gateways including X.400 to SMTP 
+</I>&gt;<i> and our golden 
+</I>&gt;<i> rule was that no message should ever be lost. Worse case it 
+</I>&gt;<i> should be written 
+</I>&gt;<i> to disk for later examination. Just my opinion.
+</I>
+Actually, I agree.  What I'd like is that any broken message be forwarded as a
+plain text attachment to the postmaster.  I agree with the line &quot;Be liberal in
+what you accept, and conservative in what you send&quot;.  Right now however
+fetchmail simply drops broken email on the floor (or leaves it behind and
+ignores it).
+
+
+PLEASE - keep list traffic on the list.  Email sent directly to me may be
+ignored utterly.
+
+-- 
+Rob | What part of &quot;no&quot; was it you didn't understand? 
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000081.html">[fetchmail-devel] Re: [fetchmail]My previous syntax error report and patch
+</A></li>
+	<LI>Next message: <A HREF="000083.html">[fetchmail-devel] SVN woes :-(
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

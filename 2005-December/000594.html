@@ -1,0 +1,360 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] close smtp socket early
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20close%20smtp%20socket%20early&In-Reply-To=%3C20051212073908.GA2081%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000593.html">
+   <LINK REL="Next"  HREF="000595.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] close smtp socket early</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20close%20smtp%20socket%20early&In-Reply-To=%3C20051212073908.GA2081%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] close smtp socket early">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Mon Dec 12 08:39:08 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000593.html">[fetchmail-devel] Contents of file `fetchmail-6.3.0.ca.po'
+</A></li>
+        <LI>Next message: <A HREF="000595.html">[fetchmail-devel] RFC: Patch to fix Berlios Bug #5849
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#594">[ date ]</a>
+              <a href="thread.html#594">[ thread ]</a>
+              <a href="subject.html#594">[ subject ]</a>
+              <a href="author.html#594">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+The attached patch fixes the following bugs:
+
+1. fetchmail should close smtp socket as soon as its work is done.
+This matters when fetchmail is polling multiple hosts and the smtp
+sockets just pile up till the end of the run. A SIGPIPE can also be
+triggered if there is a lot of time interval between the end of poll
+of the first mailserver and the end of run.
+
+Running fetchmail -v, the output can be seen as:
+
+6.3.0 querying mailserver1 (protocol IMAP) at ...: poll completed
+...
+6.3.0 querying mailserver2 (protocol IMAP) at ...: poll completed
+...
+6.3.0 querying mailserver3 (protocol IMAP) at ...: poll completed
+SMTP&gt; QUIT
+SMTP&lt; 221 2.0.0 localhost closing connection
+SMTP&gt; QUIT
+SMTP&lt; 221 2.0.0 localhost closing connection
+SMTP&gt; QUIT
+SMTP&lt; 221 2.0.0 localhost closing connection
+
+After this patch, the output will be:
+
+SMTP&gt; QUIT
+SMTP&lt; 221 2.0.0 localhost closing connection
+6.3.0 querying mailserver1 (protocol IMAP) at ...: poll completed
+...
+SMTP&gt; QUIT
+SMTP&lt; 221 2.0.0 localhost closing connection
+6.3.0 querying mailserver2 (protocol IMAP) at ...: poll completed
+...
+SMTP&gt; QUIT
+SMTP&lt; 221 2.0.0 localhost closing connection
+6.3.0 querying mailserver3 (protocol IMAP) at ...: poll completed
+
+2. PS_MAXFETCH is being treated as an error condition. It should be
+treated as a successful run instead.
+
+3. On reaching the fetchlimit, a negative count is shown of mails
+remaining on the server when fetchmail IDLEs (or repolls) atleast once
+with this configuration before reaching the fetchlimit:
+
+poll mailserver
+    protocol imap
+    fetchlimit 150
+    idle
+
+The line looks like this:
+
+fetchlimit 150 reached; -99 messages left on server mailserver account user
+
+4. stage should be set to STAGE_LOGOUT on a normal logout. Also, a new
+stage STAGE_PREAUTH has been added to handle the server greeting line
+(currently unused). stage is now an enum.
+
+5. The value of err is overwritten if there is a postconnect script or
+during normal logout. It should be preserved as far as possible.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/driver.c
+===================================================================
+--- fetchmail/driver.c	(revision 4540)
++++ fetchmail/driver.c	(working copy)
+@@ -64,7 +64,7 @@
+ #define MSGLEN_OLD	-3		/* message is old */
+ 
+ int pass;		/* how many times have we re-polled? */
+-int stage;		/* where are we? */
++enum Stage stage;	/* where are we? */
+ int phase;		/* where are we, for error-logging purposes? */
+ int batchcount;		/* count of messages sent in current batch */
+ flag peek_capable;	/* can we peek for better error recovery? */
+@@ -427,6 +427,7 @@
+     int num, firstnum = 1, lastnum = 0, err, len;
+     int fetchsizelimit = ctl-&gt;fetchsizelimit;
+     int msgsize;
++    int initialfetches = *fetches;
+ 
+     if (ctl-&gt;server.base_protocol-&gt;getpartialsizes &amp;&amp; NUM_NONZERO(fetchsizelimit))
+     {
+@@ -517,7 +518,7 @@
+ 	     * error while just getting the sizes of all mails! */
+ 
+ 	    int i;
+-	    int oldstage = stage;
++	    enum Stage oldstage = stage;
+ 	    firstnum = num;
+ 	    lastnum = num + fetchsizelimit - 1;
+ 	    if (lastnum &gt; count)
+@@ -814,10 +815,11 @@
+ 	/* perhaps this as many as we're ready to handle */
+ 	if (maxfetch &amp;&amp; maxfetch &lt;= *fetches &amp;&amp; num &lt; count)
+ 	{
++	    int remcount = count - (*fetches - initialfetches);
+ 	    report(stdout,
+ 		   ngettext(&quot;fetchlimit %d reached; %d message left on server %s account %s\n&quot;,
+-			    &quot;fetchlimit %d reached; %d messages left on server %s account %s\n&quot;, count - *fetches),
+-		   maxfetch, count - *fetches, ctl-&gt;server.truename, ctl-&gt;remotename);
++			    &quot;fetchlimit %d reached; %d messages left on server %s account %s\n&quot;, remcount),
++		   maxfetch, remcount, ctl-&gt;server.truename, ctl-&gt;remotename);
+ 	    return(PS_MAXFETCH);
+ 	}
+     } /* for (num = 1; num &lt;= count; num++) */
+@@ -836,6 +838,7 @@
+ {
+     static int *msgsizes;
+     volatile int err, mailserver_socket = -1;	/* pacifies -Wall */
++    int tmperr;
+     int deletions = 0, js;
+     const char *msg;
+     SIGHANDLERTYPE pipesave;
+@@ -1136,6 +1139,7 @@
+ #endif /* KERBEROS_V5 */
+ 
+ 	/* accept greeting message from mail server */
++	stage = STAGE_PREAUTH;
+ 	err = (ctl-&gt;server.base_protocol-&gt;parse_response)(mailserver_socket, buf);
+ 	if (err != 0)
+ 	    goto cleanUp;
+@@ -1416,7 +1420,7 @@
+ 					 count, &amp;msgsizes,
+ 					 maxfetch,
+ 					 &amp;fetches, &amp;dispatches, &amp;deletions);
+-		    if (err)
++		    if (err != PS_SUCCESS &amp;&amp; err != PS_MAXFETCH)
+ 			goto cleanUp;
+ 
+ 		    if (!check_only &amp;&amp; ctl-&gt;skipped
+@@ -1434,6 +1438,9 @@
+ 		    if (err)
+ 			goto cleanUp;
+ 		}
++		/* Return now if we have reached the fetchlimit */
++		if (maxfetch &amp;&amp; maxfetch &lt;= fetches)
++		    goto no_error;
+ 	    } while
+ 		  /*
+ 		   * Only re-poll if we either had some actual forwards and 
+@@ -1443,15 +1450,33 @@
+ 		  (dispatches &amp;&amp; ctl-&gt;server.base_protocol-&gt;retry &amp;&amp; !ctl-&gt;keep &amp;&amp; !ctl-&gt;errcount);
+ 	}
+ 
+-    /* no_error: */
+-	/* ordinary termination with no errors -- officially log out */
+-	err = (ctl-&gt;server.base_protocol-&gt;logout_cmd)(mailserver_socket, ctl);
++	/* XXX: From this point onwards, preserve err unless a new error has occurred */
++
++    no_error:
++	/* PS_SUCCESS, PS_MAXFETCH: ordinary termination with no errors -- officially log out */
++	stage = STAGE_LOGOUT;
++	tmperr = (ctl-&gt;server.base_protocol-&gt;logout_cmd)(mailserver_socket, ctl);
++	if (tmperr != PS_SUCCESS)
++	    err = tmperr;
+ 	/*
+ 	 * Hmmmm...arguably this would be incorrect if we had fetches but
+ 	 * no dispatches (due to oversized messages, etc.)
+ 	 */
+-	if (err == 0)
+-	    err = (fetches &gt; 0) ? PS_SUCCESS : PS_NOMAIL;
++	else if (err == PS_SUCCESS &amp;&amp; fetches == 0)
++	    err = PS_NOMAIL;
++	/*
++	 * Close all SMTP delivery sockets.  For optimum performance
++	 * we'd like to hold them open til end of run, but (1) this
++	 * loses if our poll interval is longer than the MTA's
++	 * inactivity timeout, and (2) some MTAs (like smail) don't
++	 * deliver after each message, but rather queue up mail and
++	 * wait to actually deliver it until the input socket is
++	 * closed.
++	 *
++	 * don't send QUIT for ODMR case because we're acting as a
++	 * proxy between the SMTP server and client.
++	 */
++	smtp_close(ctl, ctl-&gt;server.protocol != P_ODMR);
+ 	cleanupSockClose(mailserver_socket);
+ 	goto closeUp;
+ 
+@@ -1465,6 +1490,15 @@
+ 
+ 	/* try to clean up all streams */
+ 	release_sink(ctl);
++	/*
++	 * Sending SMTP QUIT on signal is theoretically nice, but led
++	 * to a subtle bug.  If fetchmail was terminated by signal
++	 * while it was shipping message text, it would hang forever
++	 * waiting for a command acknowledge.  In theory we could
++	 * enable the QUIT only outside of the message send.  In
++	 * practice, we don't care.  All mailservers hang up on a
++	 * dropped TCP/IP connection anyway.
++	 */
+ 	smtp_close(ctl, 0);
+ 	if (mailserver_socket != -1) {
+ 	    cleanupSockClose(mailserver_socket);
+@@ -1479,7 +1513,7 @@
+ 	}
+     }
+ 
+-    /* no report on PS_MAXFETCH or PS_UNDEFINED or PS_AUTHFAIL */
++    /* no report on PS_AUTHFAIL */
+     msg = NULL;
+     switch (err)
+     {
+@@ -1508,7 +1542,7 @@
+ 	msg = GT_(&quot;DNS lookup&quot;);
+ 	break;
+     case PS_UNDEFINED:
+-	report(stderr, GT_(&quot;undefined error\n&quot;));
++	msg = GT_(&quot;undefined&quot;);
+ 	break;
+     }
+     if (msg) {
+@@ -1526,9 +1560,9 @@
+     xfree(msgsizes);
+ 
+     /* execute wrapup command, if any */
+-    if (ctl-&gt;postconnect &amp;&amp; (err = system(ctl-&gt;postconnect)))
++    if (ctl-&gt;postconnect &amp;&amp; (tmperr = system(ctl-&gt;postconnect)))
+     {
+-	report(stderr, GT_(&quot;post-connection command failed with status %d\n&quot;), err);
++	report(stderr, GT_(&quot;post-connection command failed with status %d\n&quot;), tmperr);
+ 	if (err == PS_SUCCESS)
+ 	    err = PS_SYNTAX;
+     }
+Index: fetchmail/fetchmail.c
+===================================================================
+--- fetchmail/fetchmail.c	(revision 4540)
++++ fetchmail/fetchmail.c	(working copy)
+@@ -1274,39 +1274,10 @@
+ static RETSIGTYPE terminate_poll(int sig)
+ /* to be executed at the end of a poll cycle */
+ {
+-    /*
+-     * Close all SMTP delivery sockets.  For optimum performance
+-     * we'd like to hold them open til end of run, but (1) this
+-     * loses if our poll interval is longer than the MTA's inactivity
+-     * timeout, and (2) some MTAs (like smail) don't deliver after
+-     * each message, but rather queue up mail and wait to actually
+-     * deliver it until the input socket is closed. 
+-     *
+-     * Sending SMTP QUIT on signal is theoretically nice, but led to a 
+-     * subtle bug.  If fetchmail was terminated by signal while it was 
+-     * shipping message text, it would hang forever waiting for a
+-     * command acknowledge.  In theory we could enable the QUIT
+-     * only outside of the message send.  In practice, we don't
+-     * care.  All mailservers hang up on a dropped TCP/IP connection
+-     * anyway.
+-     */
+ 
+     if (sig != 0)
+         report(stdout, GT_(&quot;terminated with signal %d\n&quot;), sig);
+-    else
+-    {
+-	struct query *ctl;
+ 
+-	/* terminate all SMTP connections cleanly */
+-	for (ctl = querylist; ctl; ctl = ctl-&gt;next)
+-	    if (ctl-&gt;smtp_socket != -1)
+-	    {
+-		/* don't send QUIT for ODMR case because we're acting
+-		   as a proxy between the SMTP server and client. */
+-		smtp_close(ctl, ctl-&gt;server.protocol != P_ODMR);
+-	    }
+-    }
+-
+ #ifdef POP3_ENABLE
+     /*
+      * Update UID information at end of each poll, rather than at end
+Index: fetchmail/fetchmail.h
+===================================================================
+--- fetchmail/fetchmail.h	(revision 4540)
++++ fetchmail/fetchmail.h	(working copy)
+@@ -498,13 +498,16 @@
+ extern int phase;
+ 
+ /* response hooks can use this to identify the query stage */
+-#define STAGE_GETAUTH	0
+-#define STAGE_GETRANGE	1
+-#define STAGE_GETSIZES	2
+-#define STAGE_FETCH	3
+-#define STAGE_IDLE	4
+-#define STAGE_LOGOUT	5
+-extern int stage;
++enum Stage {
++    STAGE_PREAUTH,
++    STAGE_GETAUTH,
++    STAGE_GETRANGE,
++    STAGE_GETSIZES,
++    STAGE_FETCH,
++    STAGE_IDLE,
++    STAGE_LOGOUT,
++};
++extern enum Stage stage;
+ 
+ extern int mytimeout;
+ 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000593.html">[fetchmail-devel] Contents of file `fetchmail-6.3.0.ca.po'
+</A></li>
+	<LI>Next message: <A HREF="000595.html">[fetchmail-devel] RFC: Patch to fix Berlios Bug #5849
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#594">[ date ]</a>
+              <a href="thread.html#594">[ thread ]</a>
+              <a href="subject.html#594">[ subject ]</a>
+              <a href="author.html#594">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

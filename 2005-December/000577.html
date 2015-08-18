@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: fetchmail segfault on 'empty' mail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20fetchmail%20segfault%20on%20%27empty%27%20mail&In-Reply-To=%3C20051207063023.GA1342%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000575.html">
+   <LINK REL="Next"  HREF="000579.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: fetchmail segfault on 'empty' mail</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20fetchmail%20segfault%20on%20%27empty%27%20mail&In-Reply-To=%3C20051207063023.GA1342%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: fetchmail segfault on 'empty' mail">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Dec  7 07:30:23 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000575.html">[fetchmail-devel] Re: [fetchmail]Re: fetchmail segfault on 'empty' mail
+</A></li>
+        <LI>Next message: <A HREF="000579.html">[fetchmail-devel] Re: fetchmail segfault on 'empty' mail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#577">[ date ]</a>
+              <a href="thread.html#577">[ thread ]</a>
+              <a href="subject.html#577">[ subject ]</a>
+              <a href="author.html#577">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Daniel Drake's mail on Tue, Dec 06, 2005:
+&gt;<i> I don't know what the upstream server runs. Is there a way of figuring this 
+</I>&gt;<i> out through the server? It is an ISP POP3 server running at 
+</I>&gt;<i> aap.businessserve.co.uk
+</I>&gt;<i> 
+</I>&gt;<i> I am running Gentoo Linux which compiles fetchmail from source, however I 
+</I>&gt;<i> also reproduced the bug on an unmodified locally compiled fetchmail-6.3.0
+</I>&gt;<i> 
+</I>&gt;<i> My .fetchmailrc :
+</I>&gt;<i> 
+</I>&gt;<i> poll aap.businessserve.co.uk proto pop3 no dns localdomains mydomain.com:
+</I>&gt;<i> envelope &quot;Delivered-To:&quot;
+</I>&gt;<i> user xxx with pass xxx to * here keep
+</I>
+Please send the output of &quot;fetchmail -v&quot; before and after the patch
+when you have an empty mail in your mailbox. This will show that the
+patch indeed works correctly and only that empty mail is getting
+properly deleted when you have multiple mails in your mailbox.
+
+Do you keep on getting such empty mails frequently? Or, did that
+happen only once?
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000575.html">[fetchmail-devel] Re: [fetchmail]Re: fetchmail segfault on 'empty' mail
+</A></li>
+	<LI>Next message: <A HREF="000579.html">[fetchmail-devel] Re: fetchmail segfault on 'empty' mail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#577">[ date ]</a>
+              <a href="thread.html#577">[ thread ]</a>
+              <a href="subject.html#577">[ subject ]</a>
+              <a href="author.html#577">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

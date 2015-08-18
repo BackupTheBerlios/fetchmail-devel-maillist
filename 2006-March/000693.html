@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Misc. cleanups
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Misc.%20cleanups&In-Reply-To=%3C20060313124849.GA1190%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000691.html">
+   <LINK REL="Next"  HREF="000694.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Misc. cleanups</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Misc.%20cleanups&In-Reply-To=%3C20060313124849.GA1190%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: Misc. cleanups">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Mon Mar 13 13:48:50 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000691.html">[fetchmail-devel] [PATCHes] Misc. cleanups
+</A></li>
+        <LI>Next message: <A HREF="000694.html">[fetchmail-devel] [PATCHes] Misc. cleanups
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#693">[ date ]</a>
+              <a href="thread.html#693">[ thread ]</a>
+              <a href="subject.html#693">[ subject ]</a>
+              <a href="author.html#693">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Nico Golde's mail on Sun, Mar 12, 2006:
+&gt;<i> * Miloslav Trmac &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mitr at redhat.com</A>&gt; [2006-03-12 01:25]:
+</I>&gt;<i> [...] 
+</I>&gt;<i> &gt; -    if (retval = krb5_cc_get_principal(context, ccdef, &amp;client)) {
+</I>&gt;<i> &gt; +    if ((retval = krb5_cc_get_principal(context, ccdef, &amp;client)) != 0) {
+</I>&gt;<i> 
+</I>&gt;<i> [...] 
+</I>&gt;<i> What is your point here? I can't see a real reason to do 
+</I>&gt;<i> this because its the same.
+</I>
+The C construct
+
+    if (var = expression) { ... }
+
+is valid, but is also a common typo. The actual intention may be to
+write it as:
+
+    if (var == expression) { ... }
+
+To emphasise that it is not a typo, it is preferred to write the first
+expression above in one of the following formats:
+
+    if ((var = expression) != 0) { ... }
+    if ((var = expression)) { ... }
+
+So, it's the same, but it's different.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000691.html">[fetchmail-devel] [PATCHes] Misc. cleanups
+</A></li>
+	<LI>Next message: <A HREF="000694.html">[fetchmail-devel] [PATCHes] Misc. cleanups
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#693">[ date ]</a>
+              <a href="thread.html#693">[ thread ]</a>
+              <a href="subject.html#693">[ subject ]</a>
+              <a href="author.html#693">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

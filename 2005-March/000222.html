@@ -1,0 +1,426 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] 6.2.6 fails where 6.2.5 was OK
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%206.2.6%20fails%20where%206.2.5%20was%20OK&In-Reply-To=%3C423B2514.6040505%40dgreaves.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000220.html">
+   <LINK REL="Next"  HREF="000223.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] 6.2.6 fails where 6.2.5 was OK</H1>
+    <B>David Greaves</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%206.2.6%20fails%20where%206.2.5%20was%20OK&In-Reply-To=%3C423B2514.6040505%40dgreaves.com%3E"
+       TITLE="[fetchmail-devel] 6.2.6 fails where 6.2.5 was OK">david at dgreaves.com
+       </A><BR>
+    <I>Fri Mar 18 19:59:32 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000220.html">[fetchmail-devel] lost UIDs
+</A></li>
+        <LI>Next message: <A HREF="000223.html">[fetchmail-devel] Re: 6.2.6 fails where 6.2.5 was OK
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#222">[ date ]</a>
+              <a href="thread.html#222">[ thread ]</a>
+              <a href="subject.html#222">[ subject ]</a>
+              <a href="author.html#222">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi
+
+I'm upgrading from 6.2.5 to 6.2.6 and I've encountered a possible bug 
+where 6.2.6 resends a CAPA challenge even when the server doesn't 
+understand it. The ISP is a major UK one.
+
+Matthias asked me to use the code from here to check another bug (this 
+was an embarrisingly long time ago)
+<A HREF="http://home.pages.de/~mandree/tmp/fetchmail-6.2.6.tar.bz2">http://home.pages.de/~mandree/tmp/fetchmail-6.2.6.tar.bz2</A>
+
+I was going to hack on the code but thought I'd check first so...
+Is this a known issue? Is this code up-to-date?
+
+config:
+1. OS: Linux RedHat 7.3 kernel 2.6.6
+2. gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
+3. below
+4. forwarding to lmtp listener on cyrus 2.2.3 (bounce goes to SMTP exim 
+4.2)
+
+
+
+here's a working 6.2.5 behaviour - notice that when it gets an ERR to 
+the CAPA challenge it skips it (the CAPA) on the repoll:
+
+fetchmail: 6.2.5 querying pop.freeserve.net (protocol POP3) at Fri 18 
+Mar 2005 06:44:29 PM GMT: poll started
+fetchmail: POP3&lt; +OK connected to pop3 on 3212
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; -ERR unknown command
+fetchmail: unknown command
+fetchmail: Repoll immediately on 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>@pop.freeserve.com
+fetchmail: POP3&lt; +OK connected to pop3 on 3212
+fetchmail: POP3&gt; USER <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>
+fetchmail: POP3&lt; +OK name is a valid mailbox
+fetchmail: POP3&gt; PASS *
+fetchmail: POP3&lt; +OK user exist with that password
+fetchmail: selecting or re-polling default folder
+fetchmail: POP3&gt; STAT
+fetchmail: POP3&lt; +OK 1 2518
+1 message for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A> at pop.freeserve.net (2518 
+octets).
+fetchmail: POP3&gt; LIST 1
+fetchmail: POP3&lt; +OK 1 2518
+fetchmail: POP3&gt; RETR 1
+fetchmail: POP3&lt; +OK Message follows
+reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>@pop.freeserve.com:1 of 1 
+(2518 octets)
+About to rewrite Return-Path: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kayat at emailaccount.com</A>&gt;
+Rewritten version is Return-Path: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kayat at emailaccount.com</A>&gt;
+
+About to rewrite From: &quot;Scotty Akers&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kayat at emailaccount.com</A>&gt;
+Rewritten version is From: &quot;Scotty Akers&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kayat at emailaccount.com</A>&gt;
+
+About to rewrite To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A>
+Rewritten version is To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A>
+
+fetchmail: LMTP&lt; 220 willow LMTP Cyrus v2.2.3 ready
+fetchmail: LMTP&gt; LHLO localhost
+fetchmail: SMTP&lt; 250-willow
+fetchmail: SMTP&lt; 250-8BITMIME
+fetchmail: SMTP&lt; 250-ENHANCEDSTATUSCODES
+fetchmail: SMTP&lt; 250-PIPELINING
+fetchmail: SMTP&lt; 250-SIZE
+fetchmail: SMTP&lt; 250-AUTH EXTERNAL
+fetchmail: SMTP&lt; 250 IGNOREQUOTA
+fetchmail: forwarding to /var/imap/socket/lmtp
+fetchmail: LMTP&gt; MAIL FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">kayat at emailaccount.com</A>&gt; SIZE=2518
+fetchmail: LMTP&lt; 250 2.1.0 ok
+fetchmail: LMTP&gt; RCPT TO:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A>&gt;
+fetchmail: LMTP&lt; 250 2.1.5 ok
+fetchmail: LMTP&gt; DATA
+fetchmail: LMTP&lt; 354 go ahead
+#***************************fetchmail: LMTP&gt;. (EOM)
+fetchmail: LMTP&lt; 250 2.1.5 Ok
+ flushed
+fetchmail: POP3&gt; DELE 1
+fetchmail: POP3&lt; +OK message deleted
+fetchmail: POP3&gt; QUIT
+fetchmail: POP3&lt; +OK
+fetchmail: 6.2.5 querying pop.freeserve.net (protocol POP3) at Fri 18 
+Mar 2005 06:44:48 PM GMT: poll completed
+
+
+
+on 6.2.6, same config:
+fetchmail: 6.2.6 querying pop.freeserve.net (protocol POP3) at Fri 18 
+Mar 2005 06:42:42 PM GMT: poll started
+fetchmail: POP3&lt; +OK connected to pop3 on 3013
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; -ERR unknown command
+fetchmail: unknown command
+fetchmail: Repoll immediately on 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>@pop.freeserve.com
+fetchmail: POP3&lt; +OK connected to pop3 on 3212
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; -ERR unknown command
+fetchmail: unknown command
+fetchmail: Repoll immediately on 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>@pop.freeserve.com
+fetchmail: POP3&lt; +OK connected to pop3 on 3114
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; -ERR unknown command
+fetchmail: unknown command
+fetchmail: Repoll immediately on 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>@pop.freeserve.com
+fetchmail: POP3&lt; +OK connected to pop3 on 3013
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; -ERR unknown command
+fetchmail: unknown command
+fetchmail: Repoll immediately on 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>@pop.freeserve.com
+fetchmail: POP3&lt; +OK connected to pop3 on 3114
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; -ERR unknown command
+fetchmail: unknown command
+fetchmail: Repoll immediately on 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>@pop.freeserve.com
+
+
+this hangs forever.
+
+David
+
+
+More config:
+
+set syslog
+set postmaster &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A>&quot;
+set nobouncemail
+set properties &quot;&quot;
+set daemon 180
+set idfile /var/run/fetchmail.ids
+
+# tracepolls: Insert headers with pop3 acc info...
+
+
+# fetchall: Sometimes messages are marked 'seen' if e.g. a fetchmail 
+fails due
+# to network dropping. This makes sure they're all retrieved:
+
+# The ukfsn accounts
+poll pop3.ukfsn.org with proto POP3 tracepolls
+    user 'dgreaves' there with password 'xxxxxxxx' is <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A> 
+here options fetchal
+l lmtp smtp /var/imap/socket/lmtp expunge 30
+    antispam 571 550 501 554
+    user '<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at atomicsquirrel.co.uk</A>' there with password 'xxxxxxxxxxx' 
+is <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at dgreaves.com</A>
+here options fetchall lmtp smtp /var/imap/socket/lmtp expunge 30
+    antispam 571 550 501 554
+    user '<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at dgreaves.com</A>' there with password 'xxxxxxxxxxxx' is 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at dgreaves.com</A> here opt
+ions fetchall lmtp smtp /var/imap/socket/lmtp expunge 30
+    antispam 571 550 501 554
+
+# Old freeserve account - mainly spam now
+poll pop.freeserve.net with proto POP3 tracepolls
+    user '<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>' there with password 'xxxxxxxxxx' 
+is <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A> h
+ere options fetchall lmtp smtp /var/imap/socket/lmtp expunge 30
+    antispam 571 550 501 554
+    user '<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at intrax.freeserve.co.uk</A>' there with password 'xxxxxxxxx' 
+is <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at dgreaves.com</A>
+ here options fetchall lmtp smtp /var/imap/socket/lmtp expunge 30
+    antispam 571 550 501 554
+
+
+# /usr/bin/fetchmail -V -v -v -f /etc/fetchmailrc
+This is fetchmail release 6.2.6+NLS
+Fallback MDA: (none)
+Linux willow 2.6.6 #1 Wed Jun 2 12:15:21 BST 2004 i586 unknown
+Taking options from command line and /etc/fetchmailrc
+Poll interval is 180 seconds
+Idfile is /var/run/fetchmail.ids
+Progress messages will be logged via syslog
+Fetchmail will forward misaddressed multidrop messages to 
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com.</A>
+Fetchmail will direct error mail to the postmaster.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">dgreaves at pop3.ukfsn.org</A>:
+  True name of server is pop3.ukfsn.org.
+  This host will be queried when no host is specified.
+  Password = &quot;xxxxxxxxxx&quot;.
+  Protocol is POP3 (using default port).
+  All available authentication methods will be tried.
+  Server nonresponse timeout is 300 seconds (default).
+  Default mailbox selected.
+  All messages will be retrieved (--all on).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  No received-message limit (--fetchlimit 0).
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 9 out of 10 polls (--fastuidl 10).
+  No SMTP message batch limit (--batchlimit 0).
+  Deletion interval between expunges forced to 30 (--expunge 30).
+  Messages will be LMTP-forwarded to: /var/imap/socket/lmtp
+  Recognized listener spam block responses are: 571 550 501 554
+  No pre-connection command.
+  No post-connection command.
+  Single-drop mode: 1 local name(s) recognized.
+        <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A>
+  No interface requirement specified.
+  No monitor interface specified.
+  No plugin command specified.
+  No plugout command specified.
+  No UIDs saved from this host.
+  Poll trace information will be added to the Received header.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at atomicsquirrel.co.uk</A>@pop3.ukfsn.org:
+  True name of server is pop3.ukfsn.org.
+  This host will be queried when no host is specified.
+  Password = &quot;xxxxxxxx&quot;.
+  Protocol is POP3 (using default port).
+  All available authentication methods will be tried.
+  Server nonresponse timeout is 300 seconds (default).
+  Default mailbox selected.
+  All messages will be retrieved (--all on).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  No received-message limit (--fetchlimit 0).
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 9 out of 10 polls (--fastuidl 10).
+  No SMTP message batch limit (--batchlimit 0).
+  Deletion interval between expunges forced to 30 (--expunge 30).
+  Messages will be LMTP-forwarded to: /var/imap/socket/lmtp
+  Recognized listener spam block responses are: 571 550 501 554
+  No pre-connection command.
+  No post-connection command.
+  Single-drop mode: 1 local name(s) recognized.
+        <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at dgreaves.com</A>
+  No interface requirement specified.
+  No monitor interface specified.
+  No plugin command specified.
+  No plugout command specified.
+  No UIDs saved from this host.
+  No poll trace information will be added to the Received header.
+.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at dgreaves.com</A>@pop3.ukfsn.org:
+  True name of server is pop3.ukfsn.org.
+  This host will be queried when no host is specified.
+  Password = &quot;xxxxxxxxx&quot;.
+  Protocol is POP3 (using default port).
+  All available authentication methods will be tried.
+  Server nonresponse timeout is 300 seconds (default).
+  Default mailbox selected.
+  All messages will be retrieved (--all on).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  No received-message limit (--fetchlimit 0).
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 9 out of 10 polls (--fastuidl 10).
+  No SMTP message batch limit (--batchlimit 0).
+  Deletion interval between expunges forced to 30 (--expunge 30).
+  Messages will be LMTP-forwarded to: /var/imap/socket/lmtp
+  Recognized listener spam block responses are: 571 550 501 554
+  No pre-connection command.
+  No post-connection command.
+  Single-drop mode: 1 local name(s) recognized.
+        <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at dgreaves.com</A>
+  No interface requirement specified.
+  No monitor interface specified.
+  No plugin command specified.
+  No plugout command specified.
+  No UIDs saved from this host.
+  No poll trace information will be added to the Received header.
+.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at intrax.freeserve.co.uk</A>@pop.freeserve.net:
+  True name of server is pop.freeserve.net.
+  This host will be queried when no host is specified.
+  Password = &quot;xxxxxxxx&quot;.
+  Protocol is POP3 (using default port).
+  All available authentication methods will be tried.
+  Server nonresponse timeout is 300 seconds (default).
+  Default mailbox selected.
+  All messages will be retrieved (--all on).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  No received-message limit (--fetchlimit 0).
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 9 out of 10 polls (--fastuidl 10).
+  No SMTP message batch limit (--batchlimit 0).
+  Deletion interval between expunges forced to 30 (--expunge 30).
+  Messages will be LMTP-forwarded to: /var/imap/socket/lmtp
+  Recognized listener spam block responses are: 571 550 501 554
+  No pre-connection command.
+  No post-connection command.
+  Single-drop mode: 1 local name(s) recognized.
+        <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A>
+  No interface requirement specified.
+  No monitor interface specified.
+  No plugin command specified.
+  No plugout command specified.
+  No UIDs saved from this host.
+  Poll trace information will be added to the Received header.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at intrax.freeserve.co.uk</A>@pop.freeserve.net:
+  True name of server is pop.freeserve.net.
+  This host will be queried when no host is specified.
+  Password = &quot;xxxxxxxxxx&quot;.
+  Protocol is POP3 (using default port).
+  All available authentication methods will be tried.
+  Server nonresponse timeout is 300 seconds (default).
+  Default mailbox selected.
+  All messages will be retrieved (--all on).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  No received-message limit (--fetchlimit 0).
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 9 out of 10 polls (--fastuidl 10).
+  No SMTP message batch limit (--batchlimit 0).
+  Deletion interval between expunges forced to 30 (--expunge 30).
+  Messages will be LMTP-forwarded to: /var/imap/socket/lmtp
+  Recognized listener spam block responses are: 571 550 501 554
+  No pre-connection command.
+  No post-connection command.
+  Single-drop mode: 1 local name(s) recognized.
+        <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">denise at dgreaves.com</A>
+  No interface requirement specified.
+  No monitor interface specified.
+  No plugin command specified.
+  No plugout command specified.
+  No UIDs saved from this host.
+  No poll trace information will be added to the Received header.
+.
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000220.html">[fetchmail-devel] lost UIDs
+</A></li>
+	<LI>Next message: <A HREF="000223.html">[fetchmail-devel] Re: 6.2.6 fails where 6.2.5 was OK
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#222">[ date ]</a>
+              <a href="thread.html#222">[ thread ]</a>
+              <a href="subject.html#222">[ subject ]</a>
+              <a href="author.html#222">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

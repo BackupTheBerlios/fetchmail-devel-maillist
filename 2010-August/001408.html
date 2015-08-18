@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Slow handling of large fetchid-list?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Slow%20handling%20of%20large%20fetchid-list%3F&In-Reply-To=%3C4C77F22A.3070203%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001407.html">
+   <LINK REL="Next"  HREF="001409.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Slow handling of large fetchid-list?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Slow%20handling%20of%20large%20fetchid-list%3F&In-Reply-To=%3C4C77F22A.3070203%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Slow handling of large fetchid-list?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Aug 27 19:13:14 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001407.html">[fetchmail-devel] Slow handling of large fetchid-list?
+</A></li>
+        <LI>Next message: <A HREF="001409.html">[fetchmail-devel] fetchmail 6.3.18-pre1 snapshot up for testing
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1408">[ date ]</a>
+              <a href="thread.html#1408">[ thread ]</a>
+              <a href="subject.html#1408">[ subject ]</a>
+              <a href="author.html#1408">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 27.08.2010 17:29, schrieb Robert Linden:
+&gt;<i> Hello fetchmail-devel!
+</I>&gt;<i> 
+</I>&gt;<i> I would like to get a confirmation that the following fetchmail-behaviour is
+</I>&gt;<i> normal/the way it is implemented, or if I might be doing something wrong:
+</I>
+Confirmed as suboptimal fetchmail -6.3.X behaviour, due to use of inadequate
+data structures, namely linked lists, as you've already figured out.
+
+&gt;<i> I noticed that fetchmail becomes very slow when I have had a lot of
+</I>&gt;<i> mails downloaded, i.e. when the fetchid-file grows very large.
+</I>&gt;<i> The numbers for one run (with no new mail) look roughly like this:
+</I>&gt;<i> 
+</I>&gt;<i>     10 lines:  0.5 sec
+</I>&gt;<i> 30.000 lines:  5.0 sec
+</I>&gt;<i> 45.000 lines: 10.0 sec
+</I>&gt;<i> 60.000 lines: 20.0 sec
+</I>&gt;<i> 90.000 lines: 70.0 sec
+</I>&gt;<i> 
+</I>&gt;<i> At first glance (at the code) it seems that the handling of this list is
+</I>&gt;<i> suboptimal, with traversal of linked lists and stuff like that. Also it is
+</I>&gt;<i> written [completely] a lot.
+</I>&gt;<i> 
+</I>&gt;<i> Is this over-proportional time to be expected and has anybody seen it
+</I>&gt;<i> too, or are long id-lists working fine for everone but me?
+</I>
+Over-proportional time (over the number of messages or UIDs stored) is
+unavoidable the way fetchmail is currently designed, however we can do better
+than what we're doing currently.
+
+In fact, Rainer Weikusat has contributed new code that gets complexity down from
+O(n^2) to O(n log n) with P(atricia)-Tries. We don't get better than O(n log n)
+without major changes to the overall design, and I'm not sure going further is
+worth the effort. In practice however, O(n log n) is quite manageable, and it
+feels much faster and wastes much less CPU.
+
+While not exact and lacking constant factors and constant overhead, this gives a
+rough idea of how the current and new code effort would scale in a simulation.
+
+Left column is the number of messages kept, right two columns are computational
+complexity compared, roughly.
+
+                     n               current                   new
+
+                    10                   100                  33.2
+                    30                   900                 147.2
+                   100                 10000                 664.4
+                   300                 90000                2468.6
+                  1000               1000000                9965.8
+                  3000               9000000               34652.2
+                 10000             100000000              132877.1
+                 30000             900000000              446180.2
+                100000           10000000000             1660964
+
+See the list archives:
+&lt;<A HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-June/001359.html">http://lists.berlios.de/pipermail/fetchmail-devel/2010-June/001359.html</A>&gt;
+
+I plan to merge this for fetchmail 6.4 (which please consider a working name and
+not necessarily the final release version, I may call it 6.5 or 7.0 depending on
+other changes I make).
+
+&gt;<i> Apologies if this is the wrong list for such a question.
+</I>
+No need to apologize, you've picked the right list.
+
+&gt;<i> PS: just FYI, I use the same id-file for several different accounts, so my
+</I>&gt;<i> first workaround will be to split it up, so that each account has it's own
+</I>&gt;<i> list - but still I wonder if this is a common problem.
+</I>
+It will help only a tiny bit, because fetchmail splits the .fetchids file into
+several lists internally. Not worth the effort IMO.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001407.html">[fetchmail-devel] Slow handling of large fetchid-list?
+</A></li>
+	<LI>Next message: <A HREF="001409.html">[fetchmail-devel] fetchmail 6.3.18-pre1 snapshot up for testing
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1408">[ date ]</a>
+              <a href="thread.html#1408">[ thread ]</a>
+              <a href="subject.html#1408">[ subject ]</a>
+              <a href="author.html#1408">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

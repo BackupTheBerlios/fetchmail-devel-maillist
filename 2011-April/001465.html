@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] imap: introduce imapsearchmax parameter
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20imap%3A%20introduce%20imapsearchmax%20parameter&In-Reply-To=%3C20110425125535.GA1618%40linux.develer.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001464.html">
+   <LINK REL="Next"  HREF="001466.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] imap: introduce imapsearchmax parameter</H1>
+    <B>Andrea Righi</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20imap%3A%20introduce%20imapsearchmax%20parameter&In-Reply-To=%3C20110425125535.GA1618%40linux.develer.com%3E"
+       TITLE="[fetchmail-devel] imap: introduce imapsearchmax parameter">righi.andrea at gmail.com
+       </A><BR>
+    <I>Mon Apr 25 14:55:35 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001464.html">[fetchmail-devel] imap: introduce imapsearchmax parameter
+</A></li>
+        <LI>Next message: <A HREF="001466.html">[fetchmail-devel] imap: introduce imapsearchmax parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1465">[ date ]</a>
+              <a href="thread.html#1465">[ thread ]</a>
+              <a href="subject.html#1465">[ subject ]</a>
+              <a href="author.html#1465">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Sun, Apr 24, 2011 at 08:07:51PM +0530, Sunil Shetye wrote:
+&gt;<i> Hi Andrea Righi,
+</I>&gt;<i> 
+</I>&gt;<i> &gt; To retrieve new messages from a IMAP
+</I>&gt;<i> &gt; folder we use the IMAP SEARCH
+</I>&gt;<i> &gt; command, but we limit the messages processed by the query
+</I>&gt;<i> &gt; to 1000.
+</I>&gt;<i> &gt; This limit is hard-coded and it cannot be changed at
+</I>&gt;<i> &gt; runtime.
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; This value is not the best option in some cases, especially
+</I>&gt;<i> &gt; for large
+</I>&gt;<i> &gt; folders, because we need to submit a query each 1000
+</I>&gt;<i> &gt; messages.
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; The following patch introduces a new option (imapsearchmax)
+</I>&gt;<i> &gt; that can be
+</I>&gt;<i> &gt; used to change this limit at runtime.
+</I>&gt;<i> 
+</I>&gt;<i> You are missing the point of why there is a limit of 1000 in the IMAP SEARCH command. There is a risk of response truncation when there are more than 1860 new messages in the IMAP folder if the limit is not imposed.
+</I>
+OK, thanks for the clarification, I didn't know about this risk.
+
+Maybe a simple and safe improvement could be to check if there are more
+than 1000 new messages in the folder using a single IMAP SEARCH query
+and only in this case download the new messages all at once. Otherwise
+we can fallback to the default behaviour.
+
+What do you think?
+
+This would be perfect for my case, because even if my IMAP folder is
+huge, I always have less than 1000 new messages each time fetchmail
+checks for new messages.
+
+&gt;<i> 
+</I>&gt;<i> To truly test your patch, get a huge mailbox with all new messages(*) and check how many mails get skipped during the first poll. You may even find some mails getting downloaded twice in some edge cases.
+</I>&gt;<i> 
+</I>&gt;<i> However, I understand the unnecessary delay in the case when there are very few messages. I will see if there is a better approach than the one currently implemented to avoid the delay as well as proceed in a safer manner.
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i> Sunil Shetye.
+</I>&gt;<i> 
+</I>&gt;<i> (*) Or you may set up a test mailbox, copy existing 10000+ messages to that folder, mark all of them as unread, and test your patch on that folder with the imapsearchmax parameter set to 10000. Note how many messages (including duplicates) get downloaded in one poll of that folder.
+</I>
+OK, I'll also prepare a huge mailbox to do some tests and I'll keep you
+informed.
+
+Thanks,
+-Andrea
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001464.html">[fetchmail-devel] imap: introduce imapsearchmax parameter
+</A></li>
+	<LI>Next message: <A HREF="001466.html">[fetchmail-devel] imap: introduce imapsearchmax parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1465">[ date ]</a>
+              <a href="thread.html#1465">[ thread ]</a>
+              <a href="subject.html#1465">[ subject ]</a>
+              <a href="author.html#1465">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

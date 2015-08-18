@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] mapi again
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20mapi%20again&In-Reply-To=%3C20090902082545.GA5291%40fedora7.2kgames.t2.corp%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001170.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] mapi again</H1>
+    <B>mojmir svoboda</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20mapi%20again&In-Reply-To=%3C20090902082545.GA5291%40fedora7.2kgames.t2.corp%3E"
+       TITLE="[fetchmail-devel] mapi again">mojmir.svoboda at 2kczech.com
+       </A><BR>
+    <I>Wed Sep  2 10:25:45 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001170.html">[fetchmail-devel] mapi again
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1169">[ date ]</a>
+              <a href="thread.html#1169">[ thread ]</a>
+              <a href="subject.html#1169">[ subject ]</a>
+              <a href="author.html#1169">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>good morning Matthias,
+
+* <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A> &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; [2009-08-28 06:15:43 +0000]:
+
+&gt;<i> * Don't introduce security holes, avoid static buffers
+</I>
+oh i must read some secure programming stuff, i was never involved :)
+by avoiding static buffers (local? global ones?) you mean allocate
+every buffer on heap?
+
+&gt;<i> &gt; 2. mapi
+</I>&gt;<i> &gt; /O=TAKE-TWOINTERACTIVE/OU=2KGB/CN=RECIPIENTS/CN?<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">A.BBB at 2kgbrn.2kgames.t2.corp</A>
+</I>&gt;<i> 
+</I>&gt;<i> Looks like ITU-T X.500 series stuff, which isn't overly weird, it's just
+</I>&gt;<i> that you're usually interested in the CN field (common name). Depending on
+</I>&gt;<i> how openMAPI gets this information to you, take care of escaping and
+</I>&gt;<i> continuation lines. LDIF for instance has rather unusual (in my personal
+</I>&gt;<i> perspetion) line continuation format... just chop, insert LF and blank...
+</I>
+oka, will try
+
+&gt;<i> &gt; 4. mapi todo
+</I>&gt;<i> &gt; - threading of messages does not work
+</I>&gt;<i> 
+</I>&gt;<i> Is the cause known yet? Incomplete headers, such as In-Reply-To: or
+</I>&gt;<i> References:?
+</I>
+yes, only very few fields from the whole header is passed to mda. i have
+to add the other fields, the problem is which ones, mapi has cca 1000 of
+these tags :) i'll talk with openchange people about this.
+
+&gt;<i> &gt; - when &gt; 1000 messages, fetchmail says it cannot open MDA
+</I>&gt;<i> &gt; 	  report(stderr, GT_(&quot;MDA open failed\n&quot;));
+</I>&gt;<i> 
+</I>&gt;<i> Try running with -vvv and see if you still get the &quot;about to deliver
+</I>&gt;<i> with:&quot; message, and please show it to me.
+</I>
+oka, next time, i had to run outlook and flush everything so every time
+that happens i loose some of messages.
+
+&gt;<i> Can I also see your mda option's argument?
+</I>
+mda &quot;procmail -d x&quot;
+
+&gt;<i> In doubt, report the usual stuff I ask users to report,
+</I>&gt;<i> <A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#G3">http://www.fetchmail.info/fetchmail-FAQ.html#G3</A>
+</I>
+gentoo, i686-pc-linux-gnu
+gcc version 4.3.4 (Gentoo 4.3.4 p1.0, pie-10.1.5)
+mda = procmail v3.22 2001/09/10
+using fetchmail -kvvv options. -F for separate flush
+
+more info next time i'll investigate that behaviour.
+
+&gt;<i> WRT descriptor leaks: Try &quot;lsof -c fetchmail&quot; in a separate console while
+</I>
+i did that in fact and according to lsof there seems not to be descriptor leak.
+
+&gt;<i> strace or truss could help. You could also grep &quot;ps ax&quot; or &quot;ps -ef&quot; output
+</I>
+good idea - will do next time that happens.
+weren't there some performance monitor for linux? three or four letters
+that was... oh i cannot remember the name :)
+
+&gt;<i> &lt;<A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#S2">http://www.fetchmail.info/fetchmail-FAQ.html#S2</A>&gt; - does it help to fiddle
+</I>&gt;<i> with the Exchange registry?
+</I>
+ee, i do not have access to exchange server as i am trying it on company's mail
+server. well these messages seem non fatal, so i'd postpone this too.
+
+
+i have to hurry back to work so bye and many thanks for your responses,
+mojmir
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001170.html">[fetchmail-devel] mapi again
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1169">[ date ]</a>
+              <a href="thread.html#1169">[ thread ]</a>
+              <a href="subject.html#1169">[ subject ]</a>
+              <a href="author.html#1169">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

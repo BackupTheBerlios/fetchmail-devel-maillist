@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] please help from multiple mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20please%20help%20from%20multiple%20mails&In-Reply-To=%3C1198216591.3075.24.camel%40localhost.localdomain%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000971.html">
+   <LINK REL="Next"  HREF="000973.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] please help from multiple mails</H1>
+    <B>jaspal singla</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20please%20help%20from%20multiple%20mails&In-Reply-To=%3C1198216591.3075.24.camel%40localhost.localdomain%3E"
+       TITLE="[fetchmail-devel] please help from multiple mails">jaspal at tetrain.com
+       </A><BR>
+    <I>Fri Dec 21 06:56:31 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000971.html">[fetchmail-devel] please help from multiple mails
+</A></li>
+        <LI>Next message: <A HREF="000973.html">[fetchmail-devel] please help from multiple mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#972">[ date ]</a>
+              <a href="thread.html#972">[ thread ]</a>
+              <a href="subject.html#972">[ subject ]</a>
+              <a href="author.html#972">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thanks, for the response But the problem is that I have found 3
+Delivered To: address The pattern is like that:
+
+_________________________________________________________________________
+Return-Path: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fplain2155 at hotrachel.com</A>&gt;
+Delivered-To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">example.com-test at example.com</A>
+&gt;<i>From <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fplain2155 at hotrachel.com</A> Fri Dec 21 05:33:07 2007
+</I>Return-Path: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fplain2155 at hotrachel.com</A>&gt;
+X-Spam-Checker-Version: SpamAssassin 3.1.1 (2006-03-10) on 
+	latte-filter06.cybercon.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.5 required=5.0 tests=AWL,BAYES_00 
+	autolearn=unavailable version=3.1.1
+Delivered-To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">example.com-test at example.com</A>
+Received: (qmail 12923 invoked by uid 89); 21 Dec 2007 05:33:07 -0000
+Delivered-To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">harveen at example.com</A>
+Received: (qmail 12919 invoked by uid 89); 21 Dec 2007 05:33:07 -0000
+Received: by simscan 1.1.0 ppid: 12914, pid: 12915, t: 0.3113s
+         scanners: attach: 1.1.0 clamav: 0.88/m:36/d:1351 spam: 3.1.1
+Received: from unknown (HELO latte-mx01.cybercon.com) (192.168.167.10)
+  by 0 with (DHE-RSA-AES256-SHA encrypted) SMTP; 21 Dec 2007 05:33:06 -0000
+Received: (qmail 4451 invoked by uid 89); 21 Dec 2007 05:33:01 -0000
+Received: by simscan 1.1.0 ppid: 4440, pid: 4443, t: 0.5224s
+         scanners: attach: 1.1.0 clamav: 0.88/m:36/d:1351 spam: 3.1.1
+Received: from unknown (HELO remote-station.example.com) (69.95.50.181)
+  by 0 with SMTP; 21 Dec 2007 05:33:01 -0000
+Message-ID: &lt;001c01c84369$14afed00$<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">0ba7c700 at remotestation</A>&gt;
+From: &quot;Rowena Baca&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fplain2155 at hotrachel.com</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">harveen at example.com</A>
+Subject: Changing careers but lack the right  Degree?
+Date: Fri, 21 Dec 2007 00:33:17 -0500
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+
+______________________________________________________________________
+
+Where, test is the pop-ID;harleen is the localuser.
+
+There is 3 Delivered To: But I want to skip the first two Deliverd To:.
+I want to take delivered To: from the localuser name(harleen) not from
+the pop-ID(test).
+
+My fetchmailrc are as:
+
+________________________________________________________________________
+
+ 
+set postmaster &quot;postmaster&quot;
+set nobouncemail
+set
+properties&quot;Delivered-To:<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">boutiqueintl.com-boutique_gurgaon at boutiqueintl.com</A>&quot;
+
+poll example.com with proto POP3
+        no dns, aka example.com
+        envelope &quot;Delivered-To:&quot; 
+        user <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">test at example.com</A> is * here
+        password test
+forcecr
+smtphost        localhost
+smtpaddress     example.com
+dropdelivered
+
+But. I am still getting multiple mails.Please, suggest some good
+solution.
+
+On Thu, 2007-12-20 at 20:12 +0000, Rob MacGregor wrote:
+&gt;<i> Note - this would be far more relevant to the fetchmail-users list as
+</I>&gt;<i> it isn't related to the development of fetchmail.
+</I>&gt;<i> 
+</I>&gt;<i> On Dec 20, 2007 7:16 PM, Jaspal Singhal &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">jaspal at tetrain.com</A>&gt; wrote:
+</I>&gt;<i> &gt; Dear All,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I am using fetchmail for downloading mails from other server.But the
+</I>&gt;<i> &gt; problem I have faced is that :
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; 1)When someone send mails to 2 or 3 people then on local mailserver every
+</I>&gt;<i> &gt; user get or three mails depending on the mails in To or cc field.
+</I>&gt;<i> 
+</I>&gt;<i> When you follow up to the fetchmail-users list, be sure to provide:
+</I>&gt;<i> 
+</I>&gt;<i> 1) Version of fetchmail (if not already 6.3.8 then upgrade to 6.3.8)
+</I>&gt;<i> 2) Contents of .fetchmailrc
+</I>&gt;<i> 3) Output of &quot;fetchmail --nosyslog --nodetach -vvv&quot; for a problem email
+</I>&gt;<i> 
+</I>&gt;<i> I suspect however that you'll find that solving your second problem
+</I>&gt;<i> will make this vanish.
+</I>&gt;<i> 
+</I>&gt;<i> &gt; 2) whe someone send mails to 2 or 3 users then in every mail headers I
+</I>&gt;<i> &gt; have found 2 or 3 Delivered To: address but, only last Delivered To:
+</I>&gt;<i> &gt; address is useful for me.Is that possible to take Delivered To: address
+</I>&gt;<i> &gt; from the third one .Please, do needful I have got lots of problem
+</I>&gt;<i> &gt; regarding this.
+</I>&gt;<i> 
+</I>&gt;<i> Yes - see the man page for the &quot;envelope&quot; option.  In your case you would use:
+</I>&gt;<i> 
+</I>&gt;<i> envelope Delivered-to 2
+</I>&gt;<i> 
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000971.html">[fetchmail-devel] please help from multiple mails
+</A></li>
+	<LI>Next message: <A HREF="000973.html">[fetchmail-devel] please help from multiple mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#972">[ date ]</a>
+              <a href="thread.html#972">[ thread ]</a>
+              <a href="subject.html#972">[ subject ]</a>
+              <a href="author.html#972">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

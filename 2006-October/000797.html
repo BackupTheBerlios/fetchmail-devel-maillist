@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Bug#390861: fetchmail: Daemon Mode: Can't	work with encrypted user private keys
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Bug%23390861%3A%20fetchmail%3A%20Daemon%20Mode%3A%20Can%27t%0A%09work%20with%20encrypted%20user%20private%20keys&In-Reply-To=%3C20061003173924.GA7966%40ngolde.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000819.html">
+   <LINK REL="Next"  HREF="000798.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Bug#390861: fetchmail: Daemon Mode: Can't	work with encrypted user private keys</H1>
+    <B>Nico Golde</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Bug%23390861%3A%20fetchmail%3A%20Daemon%20Mode%3A%20Can%27t%0A%09work%20with%20encrypted%20user%20private%20keys&In-Reply-To=%3C20061003173924.GA7966%40ngolde.de%3E"
+       TITLE="[fetchmail-devel] Bug#390861: fetchmail: Daemon Mode: Can't	work with encrypted user private keys">nico at ngolde.de
+       </A><BR>
+    <I>Tue Oct  3 19:39:24 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000819.html">[fetchmail-devel] (no subject)
+</A></li>
+        <LI>Next message: <A HREF="000798.html">[fetchmail-devel] fetchmail 6.3.5 stable release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#797">[ date ]</a>
+              <a href="thread.html#797">[ thread ]</a>
+              <a href="subject.html#797">[ subject ]</a>
+              <a href="author.html#797">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>severity 390861 minor
+tags 390861 + confirmed upstream
+thanks
+
+Hi,
+* Stephan Seitz &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nur-ab-sal at gmx.de</A>&gt; [2006-10-03 15:38]:
+&gt;<i> Package: fetchmail
+</I>&gt;<i> Version: 6.3.4-6
+</I>&gt;<i> Severity: normal
+</I>&gt;<i> 
+</I>&gt;<i> I need to give a client certificate to my server. If my private 
+</I>&gt;<i> key is encrypted fetchmail only asks for my password at the 
+</I>&gt;<i> server but not for my private key passphrase. The log file says:
+</I>&gt;<i> 	Enter PEM pass phrase:
+</I>&gt;<i> but fetchmail is already in the background. The man page says 
+</I>&gt;<i> for sslkey &quot;This can cause some complications in daemon 
+</I>&gt;<i> mode.???, but in which situations will this work in daemon mode? 
+</I>&gt;<i> I never found one.
+</I>&gt;<i> 
+</I>&gt;<i> I would prefer a fix of fetchmail to ask for all passwords 
+</I>&gt;<i> before going into background, or at least the man page should be 
+</I>&gt;<i> updated to say, that this will never work.
+</I>
+I think updating the manpage would not be enough, I forward
+this to upstream. I downgraded the bug to minor since this 
+is not a very common situation.
+Kind regards
+Nico
+-- 
+Nico Golde - <A HREF="http://www.ngolde.de">http://www.ngolde.de</A>
+JAB: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nion at jabber.ccc.de</A> - GPG: 0x73647CFF
+Forget about that mouse with 3/4/5 buttons,
+gimme a keyboard with 103/104/105 keys!
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20061003/ba03d307/attachment.pgp">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20061003/ba03d307/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000819.html">[fetchmail-devel] (no subject)
+</A></li>
+	<LI>Next message: <A HREF="000798.html">[fetchmail-devel] fetchmail 6.3.5 stable release
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#797">[ date ]</a>
+              <a href="thread.html#797">[ thread ]</a>
+              <a href="subject.html#797">[ subject ]</a>
+              <a href="author.html#797">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

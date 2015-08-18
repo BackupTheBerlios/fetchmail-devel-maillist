@@ -1,0 +1,256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail and mapi II
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3C20090616155534.GA17721%40fedora7.2kgames.t2.corp%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001098.html">
+   <LINK REL="Next"  HREF="001092.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail and mapi II</H1>
+    <B>mojmir svoboda</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3C20090616155534.GA17721%40fedora7.2kgames.t2.corp%3E"
+       TITLE="[fetchmail-devel] fetchmail and mapi II">mojmir.svoboda at 2kczech.com
+       </A><BR>
+    <I>Tue Jun 16 17:55:34 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001098.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+        <LI>Next message: <A HREF="001092.html">[fetchmail-devel] mapi support
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1099">[ date ]</a>
+              <a href="thread.html#1099">[ thread ]</a>
+              <a href="subject.html#1099">[ subject ]</a>
+              <a href="author.html#1099">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>* <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">MatthiasAndree at 2kgbrnexg1.2kgames.t2.corp</A> &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">MatthiasAndree at 2kgbrnexg1.2kgames.t2.corp</A>&gt; [2009-06-16 14:11:37 +0000]:
+
+&gt;<i> &gt; as a hotfix i simply allocated lot of memory and removed the loop that
+</I>&gt;<i> &gt; did nothing. i assume you do not want that kind of solution (and neither
+</I>&gt;<i> &gt; do i.. in long term)
+</I>&gt;<i> 
+</I>&gt;<i> Ah, ok.
+</I>
+in attachment there is a patch fixing this (hopefuly) correctly.  still,
+the postscript attachment i sent myself got little bit scrambled
+(periodically at buffer boundaries). may be bug in stream, may be bug in
+ldb_base64_encode.
+
+btw: ldb_base64_encode can be removed from the source file mapi.c, as it
+is already present in samba4.
+
+&gt;<i> &gt;&gt; &gt; 6. \r characters and = spread all around in mail body
+</I>&gt;<i> This looks like quoted printable encoding to me. hex is likely (i. e. I
+</I>
+i confirm. this seems to be hardcoded in mapi.c
+perhaps there should be an option specifying output format? i.e. if
+exchange sends it in 7bit, i'm fine with it. no need for another
+translation.
+
+&gt;<i> Perhaps headers do not properly declare content. Do you have an example of
+</I>&gt;<i> such a message (inside mutt, just pipe it into &quot;cat - &gt;/tmp/msg.bin&quot;, then
+</I>&gt;<i> mail msg.bin as application/octet-stream attachment).
+</I>
+in attachment. it's in czech, sorry - only sample i did not deleted
+
+&gt;<i> &gt; 	- fetchmail modifies the &quot;From: &quot; header
+</I>&gt;<i> Is it fetchmail or OpenChange or Exchange that does this?
+</I>
+this is what i have when i look out from outlook:
+	From: &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at your.email</A>&gt;
+	To: &quot;mojmir svoboda&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mojmir.svoboda at my.email</A>&gt;, <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>
+	Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
+	Content-Transfer-Encoding: 7bit
+
+this is what i receive after fetchmailing via mapi:
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">MatthiasAndree at exchange_server_address.here</A>
+	To: 2K Czech &lt;MojmirSvoboda&gt;;, <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>
+	Content-Type: text/plain; charset=us-ascii
+	Content-Transfer-Encoding: quoted-printable
+
+there is some header manipulation code in mapi_fetch_headers, i'd start
+search there.
+
+best regards,
+mojmir
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: msg.bin
+Type: application/octet-stream
+Size: 2707 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20090616/74f5553c/attachment.bin">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20090616/74f5553c/attachment.bin</A>&gt;
+-------------- next part --------------
+Index: mapi.c
+===================================================================
+--- mapi.c	(revision 5358)
++++ mapi.c	(working copy)
+@@ -58,6 +58,7 @@
+ static int      mapi_initialized = FALSE;
+ static char     mapi_profdb[PATH_MAX];	/* mapi profiles databse */
+ static char     password[128];
++static struct mapi_session * s_mapi_session = NULL;
+ 
+ 
+ static DATA_BLOB mapi_buffer;
+@@ -199,52 +200,47 @@
+ }
+ 
+ 
+-static char *get_base64_attachment(TALLOC_CTX * mem_ctx, mapi_object_t obj_attach, const uint32_t size, char **magic)
++static char * get_base64_attachment (TALLOC_CTX * mem_ctx, mapi_object_t obj_attach, const uint32_t size, char ** magic)
+ {
+     enum MAPISTATUS retval;
+-    const char     *tmp;
+     mapi_object_t   obj_stream;
+-    uint32_t        stream_size;
+-    uint32_t        read_size;
+-    unsigned char   buf[MSGBUFSIZE];
+-    uint32_t        max_read_size = MSGBUFSIZE;
+-    DATA_BLOB       data;
+-    magic_t         cookie = NULL;
++    DATA_BLOB	    data;
++    size_t	    data_pos = 0;
++    uint16_t	    read_bytes = 0;
++    magic_t	    cookie = NULL;
+ 
+-    retval = OpenStream(&amp;obj_attach, PR_ATTACH_DATA_BIN, 0, &amp;obj_stream);
+-    if (retval != MAPI_E_SUCCESS)
+-	return false;
++    if (outlevel &gt;= O_MONITOR) report(stdout, GT_(&quot;MAPI&gt; mapi_get_base64_attachment(): size=%u\n&quot;), size);
+ 
+-    retval = GetStreamSize(&amp;obj_stream, &amp;data.length);
+-    if (retval != MAPI_E_SUCCESS)
+-	return false;
++    if (OpenStream(&amp;obj_attach, PR_ATTACH_DATA_BIN, 0, &amp;obj_stream) != MAPI_E_SUCCESS)
++	return NULL;
++    if (GetStreamSize(&amp;obj_stream, &amp;data.length) != MAPI_E_SUCCESS)
++	return NULL;
++
+     data.data = talloc_size(mem_ctx, data.length);
++    if (outlevel &gt;= O_MONITOR) report(stdout, GT_(&quot;MAPI&gt; allocated size=%u\n&quot;), data.length);
+ 
+-    read_size = size;
+-    for (stream_size = 0; stream_size &lt; data.length &amp;&amp; read_size != 0; stream_size += MSGBUFSIZE) {
+-	retval = ReadStream(&amp;obj_stream, buf, max_read_size, &amp;read_size);
+-	if (retval != MAPI_E_SUCCESS)
++    do {
++	if (ReadStream(&amp;obj_stream, data.data + data_pos, MSGBUFSIZE, &amp;read_bytes) != MAPI_E_SUCCESS)
+ 	    return NULL;
+-	memcpy(data.data, buf, read_size);
+-    }
++	data_pos += read_bytes;
++    } while (data_pos &lt; data.length);
+ 
++    if (outlevel &gt;= O_MONITOR) report(stdout, GT_(&quot;MAPI&gt; All data received: data_pos=%u\n&quot;), data_pos);
++
+     cookie = magic_open(MAGIC_MIME);
+     if (cookie == NULL) {
+-	printf(&quot;%s\n&quot;, magic_error(cookie));
++	report(stderr, GT_(&quot;MAPI&gt; mime error: %s\n&quot;), magic_error(cookie));
+ 	return NULL;
+     }
+     if (magic_load(cookie, NULL) == -1) {
+-	printf(&quot;%s\n&quot;, magic_error(cookie));
++	report(stderr, GT_(&quot;MAPI&gt; mime error: %s\n&quot;), magic_error(cookie));
++	magic_close(cookie);
+ 	return NULL;
+     }
+-    tmp = magic_buffer(cookie, (void *) data.data, data.length);
+-    *magic = talloc_strdup(mem_ctx, tmp);
++    *magic = talloc_strdup(mem_ctx, magic_buffer(cookie, data.data, data.length));
+     magic_close(cookie);
+ 
+-    /*
+-     * convert attachment to base64 
+-     */
+-    return (ldb_base64_encode(mem_ctx, (const char *) data.data, data.length));
++    return ldb_base64_encode(mem_ctx, data.data, data.length);
+ }
+ 
+ 
+@@ -394,7 +390,6 @@
+ static int mapi_init(const char *folder)
+ {
+     enum MAPISTATUS retval;
+-    struct mapi_session *session = NULL;
+     mapi_object_t   obj_tis;
+     mapi_id_t       id_folder;
+     struct SPropTagArray *SPropTagArray = NULL;
+@@ -426,20 +421,19 @@
+ 	return GetLastError();
+     }
+ 
+-    retval = MapiLogonEx(&amp;session, profname, password);
++    retval = MapiLogonEx(&amp;s_mapi_session, profname, password);
+     if (retval != MAPI_E_SUCCESS) {
+ 	report(stderr, GT_(&quot;MAPI: MapiLogonEx failed\n&quot;));
+ 	mapi_clean();
+ 	return GetLastError();
+     }
+-    mapi_profile = session-&gt;profile;
++    mapi_profile = s_mapi_session-&gt;profile;
+ 
+-
+     /*-----------------------------------------------------------------------------
+      *  Open the default message store
+      *-----------------------------------------------------------------------------*/
+     mapi_object_init(&amp;mapi_obj_store);
+-    retval = OpenMsgStore(&amp;mapi_obj_store);
++    retval = OpenMsgStore(s_mapi_session, &amp;mapi_obj_store);
+     if (retval != MAPI_E_SUCCESS) {
+ 	report(stderr, GT_(&quot;MAPI: OpenMsgStore failed\n&quot;));
+ 	mapi_clean();
+@@ -664,7 +658,7 @@
+  */
+ static uint32_t callback(struct SRowSet *rowset, void *private)
+ {
+-    // TODO: check if running in daemon mode
++    /* TODO: check if running in daemon mode*/
+     int             daemon_mode = FALSE;
+ 
+     if (!daemon_mode) {
+@@ -1109,7 +1103,7 @@
+     ulFlags = TABLE_START;
+     do {
+ 	count += 0x2;
+-	retval = GetGALTable(SPropTagArray, &amp;SRowSet, count, ulFlags);
++	retval = GetGALTable(s_mapi_session, SPropTagArray, &amp;SRowSet, count, ulFlags);
+ 	if (retval != MAPI_E_SUCCESS) {
+ 	    MapiWrite(lenp, &quot;\n&quot;);
+ 	    report(stderr, &quot;MAPI: Error when translate display name into smtp address\n&quot;);
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001098.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+	<LI>Next message: <A HREF="001092.html">[fetchmail-devel] mapi support
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1099">[ date ]</a>
+              <a href="thread.html#1099">[ thread ]</a>
+              <a href="subject.html#1099">[ subject ]</a>
+              <a href="author.html#1099">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

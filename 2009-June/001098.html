@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail and mapi II
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3Cop.uvmfa7bz1e62zd%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001097.html">
+   <LINK REL="Next"  HREF="001099.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail and mapi II</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3Cop.uvmfa7bz1e62zd%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] fetchmail and mapi II">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Jun 16 16:17:21 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001097.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+        <LI>Next message: <A HREF="001099.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1098">[ date ]</a>
+              <a href="thread.html#1098">[ thread ]</a>
+              <a href="subject.html#1098">[ subject ]</a>
+              <a href="author.html#1098">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 16.06.2009, 12:27 Uhr, schrieb mojmir svoboda  
+&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mojmir.svoboda at 2kczech.com</A>&gt;:
+
+&gt;<i> first i'd like to note that i am not a mapi specialist.. or anything  
+</I>&gt;<i> close to that. i simply have to live with this exchange and not want to  
+</I>&gt;<i> use outlook.
+</I>
+No need to justify your goals - your input and observations are useful and  
+welcome, even if you cannot provide full solutions to issues that you see.
+
+&gt;&gt;<i> &gt; 3. missing mapi_session* argument
+</I>&gt;&gt;<i> &gt; 	affected functions are mapi_init, smtp_address
+</I>&gt;&gt;<i> &gt; 	(calls OpenMsgStore, GetGALTable)
+</I>&gt;&gt;<i> &gt; 	i had to introduce static global variable for that.
+</I>&gt;<i>
+</I>&gt;<i> you can find a patch in the attachment. this way it at least compiles  
+</I>&gt;<i> and runs.
+</I>&gt;<i>
+</I>&gt;<i> the things is: if i use s_mapi_session everywhere it stops to work  
+</I>&gt;<i> properly in mapi_getauth (MapiLogonProvider creates another session and  
+</I>&gt;<i> if the
+</I>&gt;<i> s_mapi_session passed as arg, it crashes later in ProcessNetworkProfile)
+</I>&gt;<i>
+</I>&gt;<i> so the s_mapi_session is shared only between mapi_init and smptp_address  
+</I>&gt;<i> for a moment.
+</I>
+I'll save this part and look at it later; perhaps Jelmer can help here.
+
+&gt;&gt;<i> &gt; 4. buffer overflows
+</I>&gt;&gt;<i> &gt; 	affected functions get_base64_attachment, octool_get_stream
+</I>&gt;&gt;<i> &gt; 	perhaps all these memcpys should be reviewed
+</I>&gt;<i>
+</I>&gt;<i> i will toy with this few days until i figure what the correct form  
+</I>&gt;<i> should be.
+</I>&gt;<i>
+</I>&gt;<i> as a hotfix i simply allocated lot of memory and removed the loop that  
+</I>&gt;<i> did nothing. i assume you do not want that kind of solution (and neither  
+</I>&gt;<i> do i.. in long term)
+</I>
+Ah, ok.
+
+&gt;&gt;<i> &gt; 6. \r characters and = spread all around in mail body
+</I>&gt;&gt;<i> What is this quoted_printable_encode part doing wrong? Could you provide
+</I>&gt;&gt;<i> your solution to (6)? Perhaps we can build a full solution on top of  
+</I>&gt;&gt;<i> yours.
+</I>&gt;<i>
+</I>&gt;<i> errr.. do not overestimate me... i simply removed the code that did not
+</I>&gt;<i> suited me ;)
+</I>&gt;<i>
+</I>&gt;<i> 	for example: what is this supposed to do? 8-&gt;7 bit?
+</I>&gt;<i> 			if (is_safe_char(ch))
+</I>&gt;<i> 				line[line_count++] = ch;
+</I>&gt;<i> 			else {
+</I>&gt;<i> 				line[line_count++] = '=';
+</I>&gt;<i> 				line[line_count++] = hex[(ch &gt;&gt; 4) &amp; 15];
+</I>&gt;<i> 				line[line_count++] = hex[ch &amp; 15];
+</I>&gt;<i> 			}
+</I>
+This looks like quoted printable encoding to me. hex is likely (i. e. I  
+haven't looked at the code) a char array &quot;0123456789ABCDEF&quot; and if it's a  
+safe character (no control character), it's emitted directly, otherwise,  
+it's encoded as =XX, where XX is the associated ASCII value, expressed as  
+a sedecimal number.
+
+&gt;<i> 	if yes i wonder why mutt (set noallow_8bit) displays that incorrectly.
+</I>
+Perhaps headers do not properly declare content. Do you have an example of  
+such a message (inside mutt, just pipe it into &quot;cat - &gt;/tmp/msg.bin&quot;, then  
+mail msg.bin as application/octet-stream attachment).
+
+&gt;<i> 	and then there are these line[line_count++] = '\r';
+</I>&gt;<i> 	which are later visible in mutt.
+</I>
+If that's correct depends on the location in the code where you've found  
+this.
+
+&gt;<i> 	sincerely, i have no idea what proper solution should look like.
+</I>&gt;<i>
+</I>&gt;<i> there are more problems:
+</I>&gt;<i> 	- fetchmail modifies the &quot;From: &quot; header
+</I>&gt;<i> 	- fetchmail seems to drop any list-id and in-reply-to fields (and  
+</I>&gt;<i> perhaps
+</I>&gt;<i> 	  other fields). this makes mailing lists (and threading) a little bit
+</I>&gt;<i> 	  uncomfortable
+</I>
+Is it fetchmail or OpenChange or Exchange that does this?
+
+I recall an internship some 8 years ago where the company also Exchange  
+(that was in early 2001), and Emacs+Gnus was rather confused by the output  
+(which also included blank lines in places where you didn't expect them,  
+and where PINE didn't show them), while PINE worked reasonably well. I  
+don't recall how well mutt fared at the time.
+
+HTH
+Matthias
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001097.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+	<LI>Next message: <A HREF="001099.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1098">[ date ]</a>
+              <a href="thread.html#1098">[ thread ]</a>
+              <a href="subject.html#1098">[ subject ]</a>
+              <a href="author.html#1098">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

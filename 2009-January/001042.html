@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] POP3 UIDL behavior
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20POP3%20UIDL%20behavior&In-Reply-To=%3C497A09AA.8070108%40rollernet.us%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001038.html">
+   <LINK REL="Next"  HREF="001043.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] POP3 UIDL behavior</H1>
+    <B>Seth Mattinen</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20POP3%20UIDL%20behavior&In-Reply-To=%3C497A09AA.8070108%40rollernet.us%3E"
+       TITLE="[fetchmail-devel] POP3 UIDL behavior">sethm at rollernet.us
+       </A><BR>
+    <I>Fri Jan 23 19:17:14 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001038.html">[fetchmail-devel] POP3 UIDL behavior
+</A></li>
+        <LI>Next message: <A HREF="001043.html">[fetchmail-devel] POP3 UIDL behavior
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1042">[ date ]</a>
+              <a href="thread.html#1042">[ thread ]</a>
+              <a href="subject.html#1042">[ subject ]</a>
+              <a href="author.html#1042">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+&gt;<i> Seth Mattinen schrieb am 2009-01-19:
+</I>&gt;<i> 
+</I>&gt;&gt;<i> I was working on developing fetchmail for use in a large multiuser 
+</I>&gt;&gt;<i> environment and came across some issues with the POP3 UID lists. I'm 
+</I>&gt;&gt;<i> very new to fetchmail's code, so I don't know of these things are 
+</I>&gt;&gt;<i> intentional or expected behavior, but they seemed &quot;broken&quot; to me.
+</I>&gt;<i> 
+</I>&gt;<i> Hi Seth,
+</I>&gt;<i> 
+</I>&gt;<i> you're scratching a sore spot ;-) Except for minimal streamlining and
+</I>&gt;<i> minor fixes, the uid.c code is what we inherited from Eric S. Raymond,
+</I>&gt;<i> who was very loathe to touch anything of it since it broke all too
+</I>&gt;<i> easily.
+</I>&gt;<i> 
+</I>&gt;<i> A while back, Sunil and I had exchanged patches to save UIDs in one file
+</I>&gt;<i> per account, but I didn't merge that code into fetchmail, to make
+</I>&gt;<i> fetchmail 6.3.X as drop-in compatible with 6.2.5 so that nobody would
+</I>&gt;<i> have excuses for not upgrading from 6.2.X to 6.3.X.
+</I>&gt;<i> 
+</I>&gt;<i> Let me beforehand state that the data structures for storing the UID
+</I>&gt;<i> lists are very inefficient, and costly at run-time. Several hundred kept
+</I>&gt;<i> messages bog down old computers, and several thousands bog down modern
+</I>&gt;<i> computers. We have cascaded linear lists, and we store the file very
+</I>&gt;<i> inefficiently on-disk (which is less of an issue today).
+</I>&gt;<i> 
+</I>&gt;<i> The whole UID issue is for reconsideration when I really start working
+</I>&gt;<i> on 6.4.X. At least, we need efficient memory and on-disk structures and
+</I>&gt;<i> we'd preferably save to one uid file per account, so we can do away with
+</I>&gt;<i> all the &quot;load unrelated host info to scratchlist&quot; stuff. It may be
+</I>&gt;<i> useful to store everything in some lightweight/embedded database instead
+</I>&gt;<i> (such as TokyoCabinet, Berkeley DB, SQLite). No decisions made yet, and
+</I>&gt;<i> maybe we need to benchmark our options here during development.
+</I>
+Something other than a linear list written to disk on every iteration 
+would obviously be better. Personally I wouldn't worry about backwards 
+compatibility. If it were me, I probably wouldn't bother with loading 
+anything into memory and just do queries against the database. It'll end 
+up in the disk cache anyway.
+
+
+&gt;&gt;<i> 1) The old UID list is never loaded when the daemon starts or restarts 
+</I>&gt;&gt;<i> and the whole POP3 box downloaded every time for &quot;keep&quot; sources. My fix 
+</I>&gt;&gt;<i> was to comment out the break after save_str() in uid.c because as far as 
+</I>&gt;&gt;<i> I can tell, having that break in there causes it to never load the id 
+</I>&gt;&gt;<i> file and it'll self-break when the for loop hits a null anyway.
+</I>&gt;<i> 
+</I>&gt;<i> I do not observe such behaviour - which version of fetchmail are you
+</I>&gt;<i> looking at?
+</I>&gt;<i> 
+</I>&gt;<i> As far as I can see (it's around line 218 in my current uid.c version as
+</I>&gt;<i> of post-6.3.9 SVN, in initialize_saved_lists()), it just breaks out of
+</I>&gt;<i> &quot;find the correct list&quot; (there's a for loop three lines above) AFTER it
+</I>&gt;<i> has saved the UID.
+</I>&gt;<i> 
+</I>&gt;<i> So if commenting out that break; at line 219 fixes anything for you,
+</I>&gt;<i> your fix is for the symptoms, but not the root cause. We should then
+</I>&gt;<i> find the latter.
+</I>
+I was using the released 6.3.9 version, not the bleeding edge from SVN 
+since I'm not going for a development environment. The break seemed to 
+be causing it to exit the outermost loop though and neither oldlist nor 
+scratchlist were being populated at start time when a uidl file was present.
+
+
+
+&gt;&gt;<i> 2) Everything is duplicated in the scratchlist even for UID entries we 
+</I>&gt;&gt;<i> should know about so I added a boolean flag to skips duplicates. 
+</I>&gt;&gt;<i> Otherwise when the UID file is written it'll include oldlist plus 
+</I>&gt;&gt;<i> duplicates in scratchlist. Is it supposed to duplicate everything into 
+</I>&gt;&gt;<i> the scratchlist for some reason? This isn't a functional problem, but it 
+</I>&gt;&gt;<i> does waste memory and disk space if you're thinking about large deployments.
+</I>&gt;<i> 
+</I>&gt;<i> This appears to be a side effect of your commenting out the &quot;break;&quot;,
+</I>&gt;<i> since the for loop you made complete now terminates with uid == NULL.
+</I>
+It is since according to the debug output oldlist was never populated by 
+initialize_saved_lists(), but without the break they both ran.
+
+
+&gt;<i> Make sure the spelling on the command line matches the one in the rcfile
+</I>&gt;<i> exactly (including case) for a test and see if that helps.
+</I>&gt;<i> 
+</I>&gt;<i> Could you show me your configuration file (remove/mask passwords!) and
+</I>&gt;<i> your command line? Please do not edit host names, they are crucial here.
+</I>&gt;<i> If you're concerned about disclosing that in public, send the material
+</I>&gt;<i> to me GnuPG encrypted off-list (my key is 0x052e7d95), but please again
+</I>&gt;<i> without passwords.
+</I>&gt;<i> 
+</I>
+
+This is the specific fetchmailrc file that it's currently running with:
+
+set daemon 60
+set no syslog
+set logfile /var/lib/fetchmail/test/log
+set idfile /var/lib/fetchmail/test/uidl
+set no bouncemail
+set spambounce
+set postmaster &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail+1 at bounce.rollernet.net</A>&quot;
+
+defaults
+	pass8bits
+	smtphost mail2.rollernet.us,mail.rollernet.us
+	antispam 554
+
+skip mail.mattinen.org with proto imap and tracepolls
+	user &quot;sethm&quot;
+	pass &quot;xxxxxxxxxxxxx&quot;
+	smtpname &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at rollernet.us</A>&quot;
+	ssl
+
+poll mail.mattinen.org proto pop3 uidl tracepolls
+	user &quot;sethm&quot;
+	pass &quot;xxxxxxxxxxxxx&quot;
+	smtpname &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at rollernet.us</A>&quot;
+	ssl
+	keep
+	fastuidl 4
+
+su fetchmail -c \
+'fetchmail --quit \
+-f /var/lib/fetchmail/test/fetchmailrc \
+--pidfile /var/lib/fetchmail/test/fetchmail.pid'
+
+
+And one more thing:
+3) If two servers of the same name were present but one was &quot;skip&quot; and 
+the other &quot;poll&quot;, every &quot;skip&quot; would cause the UID file to be written 
+with duplicate data because the server name is in ctl more than once so 
+each loop through ctl during the uidl file write duplicated data. Added 
+cases to check the skip/uidl flags and ignore servers without those set.
+
+Here's my patch that I ended up with that fixed the issues I observed. 
+I've been running it for several days without any side effects. The only 
+changes are to uid.c.
+
+<A HREF="http://www.rollernet.us/opensource/patches/fetchmail-rollernet-uidfixes2.patch">http://www.rollernet.us/opensource/patches/fetchmail-rollernet-uidfixes2.patch</A>
+
+I haven't done extensive testing against it beyond the few cases where I 
+had issues.
+
+-- 
+Seth Mattinen		<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at rollernet.us</A>
+Roller Network LLC
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001038.html">[fetchmail-devel] POP3 UIDL behavior
+</A></li>
+	<LI>Next message: <A HREF="001043.html">[fetchmail-devel] POP3 UIDL behavior
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1042">[ date ]</a>
+              <a href="thread.html#1042">[ thread ]</a>
+              <a href="subject.html#1042">[ subject ]</a>
+              <a href="author.html#1042">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

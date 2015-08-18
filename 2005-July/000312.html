@@ -1,0 +1,288 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail-6.2.6.alpha2 released - please test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail-6.2.6.alpha2%20released%20-%20please%20test&In-Reply-To=%3C20050703223056.GA15332%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000310.html">
+   <LINK REL="Next"  HREF="000327.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail-6.2.6.alpha2 released - please test</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail-6.2.6.alpha2%20released%20-%20please%20test&In-Reply-To=%3C20050703223056.GA15332%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] fetchmail-6.2.6.alpha2 released - please test">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Jul  4 00:30:56 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000310.html">[fetchmail-devel] fetchmail-6.2.6.alpha2 released - please test
+</A></li>
+        <LI>Next message: <A HREF="000327.html">[fetchmail-devel] fetchmail-6.2.6.alpha2 released - please test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#312">[ date ]</a>
+              <a href="thread.html#312">[ thread ]</a>
+              <a href="subject.html#312">[ subject ]</a>
+              <a href="author.html#312">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>[Please reply to the fetchmail-devel list, I forgot to set the header on
+my first post. Reply-To: is set now.]
+
+On Sun, 03 Jul 2005, Brian Candler wrote:
+
+&gt;<i> On Sun, Jul 03, 2005 at 09:41:17PM +0200, Matthias Andree wrote:
+</I>&gt;<i> &gt; I have released a snapshot of the current fetchmail development code,
+</I>&gt;<i> &gt; labelled as fetchmail-6.2.6.alpha2.
+</I>&gt;<i> 
+</I>&gt;<i> The INSTALL file is very Linux-specific (talking about required versions of
+</I>&gt;<i> glibc, for example).
+</I>&gt;<i> 
+</I>&gt;<i> I run FreeBSD 5.4 and I note:
+</I>&gt;<i> 
+</I>&gt;<i> &quot;Fetchmail has had serious grief from buggy versions of the gettext suite.
+</I>&gt;<i> If your version is older than 1.10.40, you should use the configure
+</I>&gt;<i> option --with-included-gettext'.&quot;
+</I>
+Ah well. As long as the fetchmail build doesn't complain (--disable-nls
+would be your workaround), you should be fine. I'm using 0.14.1 to build
+fetchmail.
+
+I've revised INSTALL a bit (attached). In the long run, the IPsec code
+and all references to inet6-apps will disappear, inet6-apps is, to the
+best of my knowledge, no longer available.
+
+&gt;<i> Separate point: it might be worth documenting how to set up certificate
+</I>&gt;<i> verification. I always have to rummage through the OpenSSL source to find
+</I>&gt;<i> out how to do this. For reference I did the following:
+</I>&gt;<i> 
+</I>&gt;<i> - mkdir /etc/openssl/certs
+</I>&gt;<i> - from the openssl/certs directory: cp *.pem /etc/openssl/certs/
+</I>&gt;<i> - in the openssl/tools directory: edit c_rehash and set $dir = &quot;/etc/ssl&quot;
+</I>&gt;<i>   then run &quot;perl c_rehash&quot;
+</I>&gt;<i> - in .fetchmailrc, set option &quot;sslcertpath /etc/ssl/certs&quot;
+</I>
+Leaving differences /etc/ssl vs. /etc/openssl aside - my system uses
+/etc/ssl - would you care to write this up for fetchmail-FAQ.html?
+
+-- 
+Matthias Andree
+-------------- next part --------------
+INSTALL Instructions for fetchmail
+==================================
+
+If you have installed binaries (e.g. from a Linux RPM or DPKG, Solaris
+package or FreeBSD port), you can skip to step 5.
+
+The Frequently Asked Questions list, included as the file FAQ in this
+distributions, answers the most common questions about configuring and
+running fetchmail.
+
+1. USEFUL THINGS TO INSTALL FIRST
+
+If you want support for RFC1938-compliant one-time passwords, you'll
+need to install Craig Metz's OPIE libraries first and *make sure
+they're on the normal library path* where configure will find them.  Then
+configure with --enable-OPIE, and fetchmail build process will detect
+them and compile appropriately.
+
+Note: there is no point in doing this unless your server is
+OTP-enabled.  To test this, telnet to the server port and give it
+a valid USER id.  If the OK response includes the string &quot;otp-&quot;,
+you should install OPIE.  You need version 2.32 or better.
+
+The OPIE library sources are available at <A HREF="http://www.inner.net/pub/opie/">http://www.inner.net/pub/opie/</A>
+You can also find OPIE and IPV6-capable servers there.
+
+Building in IPv6 support *requires* an up-to-date operating system.
+Recent Linux versions with glibc 2.1.1 or newer, FreeBSD, Solaris should
+be fine.
+
+The IPsec code *requires* the inet6-apps kit, which used to be available
+from ftp.ipv6.inner.net:/pub/ipv6 (via IPv6) or ftp.inner.net /pub/ipv6
+(via IPv4), but the software has been withdrawn, so we're sorry, no
+advanced IPsec support at this time.
+
+If you have trouble with intl or gettext functions, try using the
+configure option `--with-included-gettext'.
+
+
+2. CONFIGURE
+
+Installing fetchmail is easy.  From within this directory, type:
+
+	./configure
+
+(If your gettext is old, you may need to include the
+--with-included-gettext option).
+
+The autoconfiguration script will spend a bit of time figuring out the
+specifics of your system.  If you want to specify a particular compiler
+(e.g. you have gcc but want to compile with cc), set the environment
+variable CC before you run configure.
+
+The configure script accepts certain standard configuration options.
+These include --prefix, --exec-prefix, --bindir, --infodir, --mandir,
+and --srcdir.  Do `configure --help' for more.
+
+POP2 support is no longer compiled in by default, as POP2 is way obsolete
+and there don't seem to be any live servers for it anymore.  You can
+configure it back in if you want with `configure --enable-POP2', but
+leaving it out cuts the executable's size slightly.
+
+Support for CompuServe's RPA authentication method (rather similar to
+APOP) is available but also not included in the standard build.  You
+can compile it in with `configure --enable-RPA'.
+
+Support for Microsoft's NTLM authentication method is also available
+but also not included in the standard build.  You can compile it in
+with `configure --enable-NTLM'.
+
+Support for authentication using RFC1731 GSSAPI is available
+but also not included by default.  You can compile it in with
+`configure --with-gssapi', which looks for GSSAPI support in standard
+locations (/usr, /usr/local).  If you set --with-GSSAPI=DIR
+you can direct the build to look for GSSAPI support under DIR.
+
+Hooks for the OpenSSL library (see <A HREF="http://www.openssl.org/">http://www.openssl.org/</A>) are
+included in the distribution.  To enable these, configure with
+--with-ssl; they are not included in the standard build.
+
+If you want to build for debugging,
+
+	CFLAGS=-g LDFLAGS=&quot; &quot; ./configure
+
+will do that.
+
+To specify a fallback MUA in case local port 25 doesn't respond, this is
+not recommended, because you'll usually see differences between MTA and
+MDA use. If you wish to proceed nonetheless, do one of:
+
+	configure --enable-fallback=procmail
+	configure --enable-fallback=sendmail
+
+A disadvantage of using procmail is that local alias expansion
+according to /etc/aliases won't get done if we fall back to it.
+
+Advanced configuration:
+-----------------------
+Specifying --with-kerberos=DIR or --with-kerberos5=DIR will tell the
+fetchmail build process to look in DIR for Kerberos support.
+Configure normally looks in /usr/kerberos and /usr/athena; if you
+specify this option with an argument it will look in DIR first.
+
+Unfortunately, there doesn't seem to be good standardization of where
+Kerberos lives.  If your configuration doesn't match one of the four
+that fetchmail's configure.in knows about, you may find you have to
+hand-hack the Makefile a bit.
+
+You may also want to hand-hack the Makefile if you're writing a custom
+or bleeding-edge resolver library.  In that case you will probably
+want to add -lresolv or whatever to the definition of LOADLIBS.
+
+It is also possible to explicitly condition out the support for
+POP3, IMAP, and ETRN (with configure arguments of --disable-POP3,
+--disable-IMAP, and --disable-ETRN respectively).
+
+
+3. MAKE
+
+Run
+
+	make
+
+This should compile fetchmail for your system.  If fetchmail fails to build
+properly, see the FAQ section B on build-time problems.
+
+
+4. INSTALL
+
+Lastly, become root and run
+
+	make install
+
+This will install fetchmail.  By default, fetchmail will be installed
+in /usr/local/bin, with the man page in /usr/local/man/man1.  You can
+use the configure options --bindir and --mandir to change these.
+
+If you are tight on disk space, you can run instead
+
+	make install-strip
+
+NOTE: If you are using an MTA other than sendmail (such as qmail,
+exim, or smail), see the FAQ (section T) for discussion of any special
+configuration steps that may be necessary.
+
+
+5. SET UP A RUN CONTROL FILE
+
+See the man page for a description of how to configure your individual
+preferences.
+
+If you're upgrading from popclient, see question F4 in the FAQ file.
+
+
+6. TEST
+
+I strongly recommend that your first fetchmail run use the -v, -a and -k
+options, in case there is something not quite right with your server,
+your local delivery configuration or your port 25 listener.  Also,
+beware of aliases that direct your local mail back to the server host!
+
+This software is known to work with the qpop/popper series of freeware
+POP3 servers; also with the IMAP2bis and IMAP4 servers that are
+distributed with Pine from the University of Washington; also with the
+Cyrus IMAP server from CMU.  This covers all the servers commonly
+hosted on Linux and *BSD systems.  It also works with the IMAP service
+of Microsoft Exchange, despite the fact that Microsoft Exchange is
+extremely broken (returns incorrect message lengths in LIST
+responses).
+
+See the FAQ, section S, for detailed advice on running with various
+servers.
+
+
+7. REPORTING BUGS
+
+You should read the FAQ file question G3 before reporting a bug.
+
+
+8. USE IT
+
+Once you've verified your configuration, you can start fetchmail to
+run in background and forget about it.  Enjoy!
+
+
+END of text file INSTALL
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000310.html">[fetchmail-devel] fetchmail-6.2.6.alpha2 released - please test
+</A></li>
+	<LI>Next message: <A HREF="000327.html">[fetchmail-devel] fetchmail-6.2.6.alpha2 released - please test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#312">[ date ]</a>
+              <a href="thread.html#312">[ thread ]</a>
+              <a href="subject.html#312">[ subject ]</a>
+              <a href="author.html#312">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

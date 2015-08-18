@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] what about message delimiter
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20what%20about%20message%20delimiter&In-Reply-To=%3Cm37jgclugr.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000267.html">
+   <LINK REL="Next"  HREF="000270.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] what about message delimiter</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20what%20about%20message%20delimiter&In-Reply-To=%3Cm37jgclugr.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] what about message delimiter">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Jun 29 23:32:52 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000267.html">[fetchmail-devel] what about message delimiter
+</A></li>
+        <LI>Next message: <A HREF="000270.html">[fetchmail-devel] [Patch] close ssl sockets
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#275">[ date ]</a>
+              <a href="thread.html#275">[ thread ]</a>
+              <a href="subject.html#275">[ subject ]</a>
+              <a href="author.html#275">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Nico Golde &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">nico at ngolde.de</A>&gt; writes:
+
+&gt;<i> I have a problem with the following bug:
+</I>&gt;<i> <A HREF="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=287215">http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=287215</A>
+</I>&gt;<i> Can someone explain it and tell me if it's a real bug?
+</I>
+Hard to say if (1) it's a bug, (2) it still persists (the bug was filed
+against an ancient version, 5.9.11) - the message alone just means the
+server sent a malformed or truncated message over the wire, that had the
+&quot;CRLF.CRLF&quot; before the blank line that delimits the body from the header
+had been seen. Perhaps the POP3 server has a broken TOP
+implementation. Who knows. A bit more detail wouldn't hurt...
+
+It might be that fetchmail doesn't recover properly, someone would have
+to find out.  Perhaps the original reporter, Martin A. Hansen, can
+update to the version that shipped with sarge and retry, and if it
+persists, show a log of a run with LC_ALL=C and fetchmail -vv?
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000267.html">[fetchmail-devel] what about message delimiter
+</A></li>
+	<LI>Next message: <A HREF="000270.html">[fetchmail-devel] [Patch] close ssl sockets
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#275">[ date ]</a>
+              <a href="thread.html#275">[ thread ]</a>
+              <a href="subject.html#275">[ subject ]</a>
+              <a href="author.html#275">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

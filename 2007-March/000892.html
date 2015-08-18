@@ -1,0 +1,343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Security vulnerability in APOP authentication
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Security%20vulnerability%20in%20APOP%20authentication&In-Reply-To=%3C20070318014021.GB26584%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000891.html">
+   <LINK REL="Next"  HREF="000894.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Security vulnerability in APOP authentication</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Security%20vulnerability%20in%20APOP%20authentication&In-Reply-To=%3C20070318014021.GB26584%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Security vulnerability in APOP authentication">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun Mar 18 02:40:21 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000891.html">[fetchmail-devel] Security vulnerability in APOP authentication
+</A></li>
+        <LI>Next message: <A HREF="000894.html">[fetchmail-devel] Security vulnerability in APOP authentication
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#892">[ date ]</a>
+              <a href="thread.html#892">[ thread ]</a>
+              <a href="subject.html#892">[ subject ]</a>
+              <a href="author.html#892">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>(Mince alors, que je n'utilise pas Thunderbird pour des pi&#232;ces
+jointes en text. Dommage.)
+
+&quot;8-bit us-ascii&quot; MIME encoding, what kind of TB brainfart is that?
+
+*This* message should get the character encoding of the attachment
+right.  Sorry for the mess.
+
+-- 
+Matthias 'mutt simply works' Andree
+-------------- next part --------------
+Index: pop3.c
+===================================================================
+--- pop3.c	(Revision 5051)
++++ pop3.c	(Arbeitskopie)
+@@ -659,6 +659,20 @@
+ 	else
+ 	    *++end = '\0';
+ 
++	/* SECURITY: 2007-03-17
++	 * Strictly validating the presented challenge for RFC-822
++	 * conformity (it must be a msg-id in terms of that standard) is
++	 * supposed to make attacks against the MD5 implementation
++	 * harder[1]
++	 *
++	 * [1] &quot;Security vulnerability in APOP authentication&quot;,
++	 *     Ga&#235;tan Leurent, fetchmail-devel, 2007-03-17 */
++	if (!rfc822_valid_msgid((unsigned char *)start)) {
++	    report(stderr,
++		    GT_(&quot;Invalid APOP timestamp.\n&quot;));
++	    return PS_AUTHFAIL;
++	}
++
+ 	/* copy timestamp and password into digestion buffer */
+ 	msg = xmalloc((end-start+1) + strlen(ctl-&gt;password) + 1);
+ 	strcpy(msg,start);
+Index: fetchmail.h
+===================================================================
+--- fetchmail.h	(Revision 5051)
++++ fetchmail.h	(Arbeitskopie)
+@@ -770,5 +770,8 @@
+ int maybe_tls(struct query *ctl);
+ int must_tls(struct query *ctl);
+ 
++/* prototype from rfc822valid.c */
++int rfc822_valid_msgid(const unsigned char *);
++
+ #endif
+ /* fetchmail.h ends here */
+Index: fetchmail.man
+===================================================================
+--- fetchmail.man	(Revision 5055)
++++ fetchmail.man	(Arbeitskopie)
+@@ -237,6 +237,7 @@
+ Post Office Protocol 3
+ .IP APOP
+ Use POP3 with old-fashioned MD5-challenge authentication.
++Considered not resistant to man-in-the-middle attacks.
+ .IP RPOP
+ Use POP3 with RPOP authentication.
+ .IP KPOP
+@@ -978,15 +979,15 @@
+ facility was vulnerable to spoofing and was withdrawn in RFC1460.
+ .PP
+ RFC1460 introduced APOP authentication.  In this variant of POP3,
+-you register an APOP password on your server host (the program
+-to do this with on the server is probably called \fIpopauth\fR(8)).  You
+-put the same password in your
+-.I ~/.fetchmailrc
+-file.  Each time
+-.I fetchmail
+-logs in, it sends a cryptographically secure hash of your password and
+-the server greeting time to the server, which can verify it by
+-checking its authorization database.
++you register an APOP password on your server host (on some servers, the
++program to do this is called \fIpopauth\fR(8)).  You put the same
++password in your \fI~/.fetchmailrc\fP file.  Each time \fIfetchmail\fP
++logs in, it sends an MD5 hash of your password and the server greeting
++time to the server, which can verify it by checking its authorization
++database.
++
++\fBNote that APOP is no longer considered resistant against
++man-in-the-middle attacks.\fP
+ .SS RETR or TOP
+ .I fetchmail
+ makes some efforts to make the server believe messages had not been
+Index: Makefile.am
+===================================================================
+--- Makefile.am	(Revision 5051)
++++ Makefile.am	(Arbeitskopie)
+@@ -39,7 +39,7 @@
+ 			servport.c ntlm.h smbbyteorder.h smbdes.h smbmd4.h \
+ 			smbencrypt.h smbdes.c smbencrypt.c smbmd4.c smbutil.c \
+ 			libesmtp/gethostbyname.h libesmtp/gethostbyname.c \
+-			smbtypes.h fm_getaddrinfo.c tls.c
++			smbtypes.h fm_getaddrinfo.c tls.c rfc822valid.c
+ libfm_a_LIBADD=		$(EXTRAOBJ)
+ libfm_a_DEPENDENCIES=	$(EXTRAOBJ)
+ LDADD	=		libfm.a @LIBINTL@ $(LIBOBJS)
+@@ -100,12 +100,14 @@
+ fetchmail_SOURCES += libesmtp/getaddrinfo.h libesmtp/getaddrinfo.c
+ endif
+ 
+-check_PROGRAMS +=	rfc822 unmime netrc rfc2047e mxget
++check_PROGRAMS +=	rfc822 unmime netrc rfc2047e mxget rfc822valid
+ 
+ rfc2047e_CFLAGS=	-DTEST
+ 
+-rfc822_CFLAGS=	-DMAIN
++rfc822valid_CFLAGS=	-DTEST
+ 
++rfc822_CFLAGS=		-DMAIN
++
+ unmime_SOURCES=	unmime.c
+ unmime_CFLAGS=	-DSTANDALONE -DHAVE_CONFIG_H -I$(builddir)
+ 
+Index: rfc822valid.c
+===================================================================
+--- rfc822valid.c	(Revision 0)
++++ rfc822valid.c	(Revision 0)
+@@ -0,0 +1,140 @@
++/* rfc822valid.c -- validators for RFC-822 syntax
++ * (C) Copyright 2007 Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt;
++ * GNU General Public License v2 */
++
++/* This works only on ASCII-based computers. */
++
++#include &quot;fetchmail.h&quot;
++#include &lt;string.h&gt;
++
++/* CHAR except specials, SPACE, CTLs */
++static const char *atomchar = &quot;!#$%&amp;'*+-/0123456789=?ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz{|}~&quot;;
++
++static int quotedpair(unsigned char const **x) {
++    if (**x != '\\') return 0;
++    ++ *x;
++    if ((int)* *x &gt; 127 || * *x == '\0')
++	/* XXX FIXME: 0 is a legal CHAR, so the == '\0' is sort of bogus
++	 * above, but fetchmail does not currently deal with NUL inputs
++	 * so we don't need to make the distinction between
++	 * end-of-string and quoted NUL. */
++	return 0;
++    ++ *x;
++    return 1;
++}
++
++
++static int quotedstring(unsigned char const **x) {
++    if (* *x != '&quot;') return 0;
++    ++ *x;
++    for(;;) {
++	switch (* *x) {
++	    case '&quot;':
++		++ *x;
++		return 1;
++	    case '\\':
++		if (quotedpair(x) == 0) return 0;
++		continue;
++	    case '\r':
++	    case '\0':
++		return 0;
++	}
++	if ((int)* *x &gt;= 128) {
++	    return 0;
++	}
++	++ *x;
++    }
++}
++
++static int atom(unsigned char const **x) {
++    /* atom */
++    if (strchr(atomchar, (const char)**x)) {
++	*x += strspn((const char *)*x, atomchar);
++	return 1;
++    }
++    /* invalid character */
++    return 0;
++}
++
++static int word(unsigned char const **x) {
++    if (**x == '&quot;')
++	return quotedstring(x);
++    return atom(x);
++}
++
++static int domain_literal(unsigned char const **x) {
++    if (**x != '[') return 0;
++    ++ *x;
++    for(;;) {
++	switch (* *x) {
++	    case '\0':
++	    case '\r':
++	    case '[':
++		return 0;
++	    case ']':
++		++ *x;
++		return 1;
++	    case '\\':
++		if (quotedpair(x) == 0) return 0;
++		continue;
++	}
++	if ((int)* *x &gt; 127) return 0;
++	++ *x;
++    }
++}
++
++static int subdomain(unsigned char const **x) {
++    if (* *x == '[') return domain_literal(x);
++    return atom(x);
++}
++
++int rfc822_valid_msgid(const unsigned char *x) {
++    /* expect &quot;&lt;&quot; */
++    if (*x != '&lt;') return 0;
++    ++ x;
++
++    /* expect local-part = word *(&quot;.&quot; word)
++     * where
++     * word = atom/quoted-string
++     * atom = 1*ATOMCHAR
++     * quoted-string = &lt;&quot;&gt; *(qtext/quoted-pair) &lt;&quot;&gt;
++     * qtext = CHAR except &quot;, \, CR
++     * quoted-pair = &quot;\&quot; CHAR
++     */
++    for(;;) {
++	if (word(&amp;x) == 0) return 0;
++	if (*x == '.') { ++x; continue; }
++	if (*x == '@') break;
++	return 0;
++    }
++
++    /* expect &quot;@&quot; */
++    if (*x != '@') return 0;
++    ++ x;
++
++    /* expect domain = sub-domain *(&quot;.&quot; sub-domain)
++     * sub-domain = domain-ref/domain-literal
++     * domain-ref = atom
++     * domain-literal = &quot;[&quot; *(dtext/quoted-pair) &quot;]&quot; */
++    for(;;) {
++	if (subdomain(&amp;x) == 0) return 0;
++	if (*x == '.') { ++x; continue; }
++	if (*x == '&gt;') break;
++	return 0;
++    }
++
++    if (*x != '&gt;') return 0;
++    return 1;
++}
++
++#ifdef TEST
++#include &lt;stdio.h&gt;
++
++int main(int argc, char **argv) {
++    int i;
++    for (i = 1; i &lt; argc; i++) {
++	printf(&quot;%s: %s\n&quot;, argv[i], rfc822_valid_msgid((unsigned char *)argv[i]) ? &quot;OK&quot; : &quot;INVALID&quot;);
++    }
++    return 0;
++}
++#endif
+Index: NEWS
+===================================================================
+--- NEWS	(Revision 5054)
++++ NEWS	(Arbeitskopie)
+@@ -44,6 +44,17 @@
+ 
+ fetchmail 6.3.8 (not yet released):
+ 
++# SECURITY STRENGTHENING:
++* Make the APOP challenge parser more distrustful and have it reject challenges
++  that do not conform to RFC-822 msg-id format, in the hope to make mounting
++  man-in-the-middle attacks (MITM) against APOP a bit more difficult.
++
++  APOP is claimed insecure by Ga&#235;tan Leurent for MITM scenarios for typical
++  setups: based on MD5 collisions, it is purportedly possible to recover the
++  first three characters of the shared secret (password), which would then make
++  recovery of the shared secret a matter of hours or minutes; this would then
++  enable the attacker to impersonate the client vis-&#224;-vis the server.
++
+ # BUG FIXES:
+ * Fix pluralization of oversized-message warning mails.
+ * Fix manual page: --sslcheck -&gt; --sslcertck, and do not set trailing 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000891.html">[fetchmail-devel] Security vulnerability in APOP authentication
+</A></li>
+	<LI>Next message: <A HREF="000894.html">[fetchmail-devel] Security vulnerability in APOP authentication
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#892">[ date ]</a>
+              <a href="thread.html#892">[ thread ]</a>
+              <a href="subject.html#892">[ subject ]</a>
+              <a href="author.html#892">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

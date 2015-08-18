@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2315551%5D%20Fetmail%20envelope%20option%20-%20Reg&In-Reply-To=%3C200904230900.n3N900Ok006004%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001057.html">
+   <LINK REL="Next"  HREF="001056.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2315551%5D%20Fetmail%20envelope%20option%20-%20Reg&In-Reply-To=%3C200904230900.n3N900Ok006004%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg">admin at berlios.de
+       </A><BR>
+    <I>Thu Apr 23 11:00:01 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001057.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+        <LI>Next message: <A HREF="001056.html">[fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1055">[ date ]</a>
+              <a href="thread.html#1055">[ thread ]</a>
+              <a href="subject.html#1055">[ subject ]</a>
+              <a href="author.html#1055">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #15551, was updated on 2009-Apr-23 14:30
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: arunvasan
+Assigned to : none
+Summary: Fetmail envelope option - Reg
+
+Details: Hi and Hello to all,
+
+I have one clsrification in the Fetchmail. 
+My Fetchmail version is 6.3.6
+My .fetchmailrc file is as follows
+
+set logfile '/var/log/fetchmail.log'
+set invisible
+set bouncemail
+set showdots
+
+poll mail.mydomain.com
+protocol pop3
+no dns
+envelope Delivered-To
+qvirtual 'mailindx-mydomain:com-'
+localdomains mydomain.com
+user test
+password test
+is * here
+smtphost intranet.mydomain.com
+no rewrite
+flush
+fetchall
+
+All our mail users mail will be received at mail.mydomain.com with in a comman user id having their original email id in Delivered-To header. (Mutidrop)
+
+This is Delivered-To header will be as a second header to my email.
+
+In the fetchmail man pages I came to know that 
+
+-E &lt;line&gt; | --envelope &lt;line&gt;
+(Keyword: envelope; Multidrop only)
+In the configuration file, an enhanced syntax is used:
+envelope [&lt;count&gt;] &lt;line&gt;
+
+This option changes the header fetchmail assumes will carry a copy of the mail's envelope address. Normally this is 'X-Envelope-To', but as this
+header is not standard, practice varies. See the discussion of multidrop address handling below. As a special case, 'envelope &quot;Received&quot;' enables
+parsing of sendmail-style Received lines. This is the default, and it should not be necessary unless you have globally disabled Received parsing
+with 'no envelope' in the .fetchmailrc file.
+
+The optional count argument (only available in the configuration file) determines how many header lines of this kind are skipped. A count of 1
+means: skip the first, take the second. A count of 2 means: skip the first and second, take the third, and so on.
+
+But if I give the option in the .fetchmailrc as follows
+
+envelope [1] Deivered-To
+
+it throws an error as follows,
+fetchmail:/root/.fetchmailrc:9: syntax error at Delivered-To
+
+Can any one Help me to rectify this error ?
+Thanks in advance.
+
+Regards,
+Arun
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15551&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15551&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001057.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+	<LI>Next message: <A HREF="001056.html">[fetchmail-devel] [Bug #15551] Fetmail envelope option - Reg
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1055">[ date ]</a>
+              <a href="thread.html#1055">[ thread ]</a>
+              <a href="subject.html#1055">[ subject ]</a>
+              <a href="author.html#1055">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

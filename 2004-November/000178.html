@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Assorted minor bugs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3Cm3bre8zkaj.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000177.html">
+   <LINK REL="Next"  HREF="000179.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Assorted minor bugs</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3Cm3bre8zkaj.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Assorted minor bugs">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Mon Nov  8 11:50:44 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000177.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+        <LI>Next message: <A HREF="000179.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#178">[ date ]</a>
+              <a href="thread.html#178">[ thread ]</a>
+              <a href="subject.html#178">[ subject ]</a>
+              <a href="author.html#178">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Brian Candler &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">B.Candler at pobox.com</A>&gt; writes:
+
+&gt;<i> There's some more detailled output at
+</I>&gt;<i> <A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2004-April/008516.html">http://lists.ccil.org/pipermail/fetchmail-friends/2004-April/008516.html</A>
+</I>&gt;<i>
+</I>&gt;<i> Basically, each verify callback operation causes this warning to be shown,
+</I>&gt;<i> and with fetchmail -v you get this in addition to the other verification
+</I>&gt;<i> warning associated with that callback. So with fetchmail -v I get (snipped a
+</I>&gt;<i> little):
+</I>&gt;<i>
+</I>&gt;<i> fetchmail: Server CommonName mismatch: webmail.example.com != pop3.example.com
+</I>&gt;<i> fetchmail: Warning: server certificate verification: unable to get local issuer certificate
+</I>&gt;<i> fetchmail: Server CommonName mismatch: webmail.example.com != pop3.example.com
+</I>&gt;<i> fetchmail: Warning: server certificate verification: certificate not trusted
+</I>&gt;<i> fetchmail: Server CommonName mismatch: webmail.example.com != pop3.example.com
+</I>&gt;<i> fetchmail: Warning: server certificate verification: unable to verify the first certificate
+</I>&gt;<i>
+</I>&gt;<i> That's with 6.2.5, I've not tried your snapshot yet.
+</I>&gt;<i>
+</I>&gt;<i> Now, if I run fetchmail without -v, then the intervening verification errors
+</I>&gt;<i> are not shown, so I just see the CN mismatch errors three times. Perhaps you
+</I>&gt;<i> only see them once because you have root certs installed in the correct
+</I>&gt;<i> places, or maybe it's a difference in our versions of openssl.
+</I>&gt;<i>
+</I>&gt;&gt;<i> Anyways, I would not want to limit this warning to verbose
+</I>&gt;&gt;<i> or strict mode or similar, it's an important information and needs to be
+</I>&gt;&gt;<i> printed unconditionally.
+</I>&gt;<i>
+</I>&gt;<i> Well, I disagree that this information is any more important than
+</I>&gt;<i> &quot;certificate not trusted&quot; or &quot;unable to verify signature&quot; or the various
+</I>&gt;<i> other errors that only fetchmail -v or fetchmail sslcertck will show.
+</I>&gt;<i>
+</I>&gt;<i> In particular: fetchmail (without -v) will not generate any warning for a
+</I>&gt;<i> self-signed certificate where the CN is correct. However, if you have a
+</I>&gt;<i> valid signed certificate from a known CA, but the hostname does not match,
+</I>&gt;<i> you get the warning (three times in my case).
+</I>&gt;<i>
+</I>&gt;<i> Both are violations of the SSL trust model. In the latter case, you know
+</I>&gt;<i> that the server admin did at least manage to persuade a known and trusted CA
+</I>&gt;<i> to sign a certificate, albeit for a different hostname. Whereas, in the
+</I>&gt;<i> first case you could be the subject of a man-in-the-middle attack, and you
+</I>&gt;<i> get no warning at all.
+</I>&gt;<i>
+</I>&gt;<i> That's why my preferred solution was to silence this message without -v or
+</I>&gt;<i> sslcertck: because more serious messages are already silenced.
+</I>
+I see you have some understanding of the SSL certificate/trust model and
+verification process.
+
+May I ask you to come up with a small patch that fixes _all_ violations
+of the trust model in a first round, so that we _unconditionally_ print
+all warnings, self-signed certificates, common name mismatches and so
+on. These _are_ important warnings, if they are shown only in verbose
+mode, that is a serious bug. For this first round, all problems should
+always print a warning regardless of verbosity or logging
+settings. sslcertck should make any validation failure an error that
+aborts the connection to that server and skips to the next.
+
+A second step (longer-term than the next release), i. e. after the next
+official release, should then make strict checking the default and offer
+the user options to relax checking for the case when the configuration
+(client or server) cannot be fixed on short notice.
+
+The whole point of SSL is avoiding the credentials to be revealed to
+anything but the &quot;real&quot; server, and lax checks that do not prevent MITM
+attacks defeat the whole purpose of SSL. I'd think creating a false
+sense of security is worse than not offering security.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000177.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+	<LI>Next message: <A HREF="000179.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#178">[ date ]</a>
+              <a href="thread.html#178">[ thread ]</a>
+              <a href="subject.html#178">[ subject ]</a>
+              <a href="author.html#178">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

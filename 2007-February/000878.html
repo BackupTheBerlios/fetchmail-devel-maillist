@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] RFC: support --smtphost for bounces
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RFC%3A%20support%20--smtphost%20for%20bounces&In-Reply-To=%3C20070221114813.GA8554%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000876.html">
+   <LINK REL="Next"  HREF="000879.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] RFC: support --smtphost for bounces</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RFC%3A%20support%20--smtphost%20for%20bounces&In-Reply-To=%3C20070221114813.GA8554%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] RFC: support --smtphost for bounces">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Feb 21 12:48:13 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000876.html">[fetchmail-devel] RFC: support --smtphost for bounces
+</A></li>
+        <LI>Next message: <A HREF="000879.html">[fetchmail-devel] RFC: support --smtphost for bounces
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#878">[ date ]</a>
+              <a href="thread.html#878">[ thread ]</a>
+              <a href="subject.html#878">[ subject ]</a>
+              <a href="author.html#878">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Mon, Feb 19, 2007:
+&gt;<i> how about the attached patch to fix the &quot;bounces are always
+</I>&gt;<i> SMTP-injected to localhost without regard to the --smtphost&quot;?
+</I>&gt;<i> &lt;<A HREF="http://bugs.debian.org/150137">http://bugs.debian.org/150137</A>&gt;
+</I>&gt;<i> 
+</I>&gt;<i> It's not perfect, and I don't know how to handle cases where --smtphost
+</I>&gt;<i> contains LMTP hosts exclusively or is switched to LMTP by --lmtp -
+</I>&gt;<i> suggestions?
+</I>
+A lot more work will be required for this.
+
+Here I am assuming that smtphost is not localhost and requires
+authentication for relaying the bounce message. The code currently
+does not do that because localhost (by default) allows relaying of the
+bounce message without authentication.
+
+For using smtphost as a relay server for the bounce message, fetchmail
+will have to authenticate using esmtpname. For that, fetchmail will
+have to send EHLO, save the response, and parse it. For that, separate
+structure will have to be maintained per smtp connection. All the smtp
+variables which are currently global/static will have to be part of
+that structure.
+
+There will also be a compatibility problem if the user has not
+specified any esmtpname. This is not a problem for the incoming mail
+as the mail is (presumably) being delivered locally on the smtphost.
+However, for the bounce message, authentication is a must as the
+smtphost is now going to act as a relay server. So, smtphost should be
+automatically used only if the user has specified an esmtpname.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000876.html">[fetchmail-devel] RFC: support --smtphost for bounces
+</A></li>
+	<LI>Next message: <A HREF="000879.html">[fetchmail-devel] RFC: support --smtphost for bounces
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#878">[ date ]</a>
+              <a href="thread.html#878">[ thread ]</a>
+              <a href="subject.html#878">[ subject ]</a>
+              <a href="author.html#878">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2316000%5D%20fetchmail%20should%20support%20multiple%0A%09sslfingerprint%27s&In-Reply-To=%3C200907161302.n6GD29w9001449%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001124.html">
+   <LINK REL="Next"  HREF="001126.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2316000%5D%20fetchmail%20should%20support%20multiple%0A%09sslfingerprint%27s&In-Reply-To=%3C200907161302.n6GD29w9001449%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's">admin at berlios.de
+       </A><BR>
+    <I>Thu Jul 16 15:02:09 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001124.html">[fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's
+</A></li>
+        <LI>Next message: <A HREF="001126.html">[fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1125">[ date ]</a>
+              <a href="thread.html#1125">[ thread ]</a>
+              <a href="subject.html#1125">[ subject ]</a>
+              <a href="author.html#1125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #16000, was updated on 2009-Jul-16 10:40
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Closed
+Resolution: Invalid
+Bug Group: None
+Priority: 5
+Submitted by: jw9
+Assigned to : none
+Summary: fetchmail should support multiple sslfingerprint's
+
+Details: Some mail servers, such as pop3.live.com, have multiple hosts available at a single IP address (currently pop3.live.com appears to have two hosts behind that one IP address).
+
+Other mail servers, such as imap.gmail.com, resolve to rotating IP addresses.
+
+It should be possible to specify multiple 'sslfingerprint' entries so that any one of those fingerprints can match.
+
+
+Follow-Ups:
+
+Date: 2009-Jul-16 23:02
+By: jw9
+
+Comment:
+I can determine the proper fingerprint from any other server on any other network that I have access to.  I don't have to ask any &quot;ISP&quot; to provide fingerprints through another channel because I am quite able to do that myself.
+
+So, as you state, it does add extra security.  Especially in today's world where most people have access to more than one &quot;ISP&quot; or network (eg your workplace if you have one, and most people do!).
+
+In which case you should allow a set of sslfingerprints to be specified.
+
+Otherwise, to be consistent with your argument (that sslfingerprint is unnecessary), you should completely remove the sslfingerprint option.
+
+Fix it or lose it.
+
+-------------------------------------------------------
+
+Date: 2009-Jul-16 22:35
+By: m-a
+
+Comment:
+Two things:
+
+1a. sslfingerprint is unnecessary in &quot;--sslcertck --sslproto tls1&quot; and in &quot;--sslcertck --sslproto ssl3 --ssl&quot; configurations, and shouldn't be used. It doesn't add security unless your ISP provides you with the finger prints through a separate channel (such as your walking up to the site and fetching a sheet with finger prints).
+
+The assumption is that the MITM (=attacker) cannot forge the signature of the certification authorities you trust. He may forge the server's certificate, but he'll hardly be able to forge the root signing certificate from Equifax, Verisign, or whoever. sslcertck is sufficient unless you follow stupid guides that suggest capturing and saving the server certificate (while that works to shut up complaints about certificates, it doesn't add protection against MITM attacks: you might already download the counterfeit certificate that you save as trusted, if you're already under attack at the time).
+
+1b. sslfingerprint, as you observed, isn't useful with certain load balancing setups, when servers have individual certificates that are signed by a common CA.
+
+2. for complaints about the newest-first ordering of the comments, please file a support request against BerliOS itself, not against individual projects.
+-------------------------------------------------------
+
+Date: 2009-Jul-16 21:09
+By: jw9
+
+Comment:
+It would appear that additional comments appear in a push-down stack order.  This makes it very hard to follow the natural order of things.  This is very strange.
+
+Here in the western world we are used to reading left-to-right and top-to-bottom.  We certainly don't expect to have to read from bottom-to-top.
+
+I suppose I can turn my monitor upside down and then they might follow in a proper order.  But wait, that would make the characters appear upside-down!
+
+In any case, if one is to be able to check the sslfingerprint of a server to protect against man-in-the-middle attacks, and if the fingerprint does actually change randomly (and not because of a man-in-the-middle attack), then we need to be able to specify a set of fingerprints and only require that at least one of them matches.
+
+-------------------------------------------------------
+
+Date: 2009-Jul-16 21:03
+By: jw9
+
+Comment:
+Why do comments appear in such a strange place (after my original submission)?  Shouldn't additional comments follow in a logical order after other people's followup comments?  Very strange!
+
+-------------------------------------------------------
+
+Date: 2009-Jul-16 21:00
+By: jw9
+
+Comment:
+II think you misunderstand.  The sslfingerprint is used to verify the identity of the server and to protect against man-in-the-middle attacks.  The configuration also has proper certificate and &quot;ssslcertck&quot; and &quot;sslcertpath&quot; settings.
+
+To protect again man-in-the-middle attacks one needs to be able to ensure that the fingerprint of the server hasn't changed.
+
+-------------------------------------------------------
+
+Date: 2009-Jul-16 20:33
+By: m-a
+
+Comment:
+I don't think fetchmail should do that.
+
+sslfingerprints are just a convenience shortcut, and closely resemble stuffing the server's certificate into the directory of trusted certification authority certificates, usually /usr/ssl/certs, /etc/ssl/certs (and running c_rehash afterwards), or similar.
+
+The canonical way is to install the GTE CyberTrust Global Root (for Microsoft/live.com) or the Equifax Secure Certificate Authority (for Google Mail) and use certificate-based authentication.
+
+See also:
+<A HREF="http://gagravarr.org/writing/openssl-certs/others.shtml">http://gagravarr.org/writing/openssl-certs/others.shtml</A>
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=16000&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=16000&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001124.html">[fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's
+</A></li>
+	<LI>Next message: <A HREF="001126.html">[fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1125">[ date ]</a>
+              <a href="thread.html#1125">[ thread ]</a>
+              <a href="subject.html#1125">[ subject ]</a>
+              <a href="author.html#1125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

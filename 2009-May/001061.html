@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] recent format string fixes (was: r5291 -	branches/BRANCH_6-3)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20recent%20format%20string%20fixes%20%28was%3A%20r5291%20-%0A%09branches/BRANCH_6-3%29&In-Reply-To=%3Cop.utfglfam1e62zd%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001062.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] recent format string fixes (was: r5291 -	branches/BRANCH_6-3)</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20recent%20format%20string%20fixes%20%28was%3A%20r5291%20-%0A%09branches/BRANCH_6-3%29&In-Reply-To=%3Cop.utfglfam1e62zd%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] recent format string fixes (was: r5291 -	branches/BRANCH_6-3)">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue May  5 00:54:41 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001062.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.9-rc3.es.po'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1061">[ date ]</a>
+              <a href="thread.html#1061">[ thread ]</a>
+              <a href="subject.html#1061">[ subject ]</a>
+              <a href="author.html#1061">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 05.05.2009, 00:00 Uhr, schrieb &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">svn at mknod.org</A>&gt;:
+
+&gt;<i> Author: m-a
+</I>&gt;<i> Date: 2009-05-04 17:00:18 -0500 (Mon, 04 May 2009)
+</I>&gt;<i> New Revision: 5291
+</I>&gt;<i>
+</I>&gt;<i> Modified:
+</I>&gt;<i>    branches/BRANCH_6-3/pop3.c
+</I>&gt;<i>    branches/BRANCH_6-3/report.c
+</I>&gt;<i>    branches/BRANCH_6-3/smtp.c
+</I>&gt;<i> Log:
+</I>&gt;<i> Fix format string bugs.
+</I>
+Note that these are uncritical, meaning they cannot be exploited to mount  
+attacks on fetchmail. Analysis:
+
+pop3.c uses generated data of the TOP 12345 1 form =&gt; no % here =&gt; safe.
+
+smtp.c uses report() to print string literals without placeholders,  
+possibly translated through gettext. The English strings do not contain %  
+fields. =&gt; safe. Even if a translation introduced %-strings, gettext()  
+would reject such fuzzy translations and use the English text instead.
+
+report.c was sort-of-unsafe, but the bug was visible only for around 8  
+minutes, and never part of a release. Nevermind.
+
+&gt;<i> Modified: branches/BRANCH_6-3/pop3.c
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- branches/BRANCH_6-3/pop3.c	2009-05-04 21:52:32 UTC (rev 5290)
+</I>&gt;<i> +++ branches/BRANCH_6-3/pop3.c	2009-05-04 22:00:18 UTC (rev 5291)
+</I>&gt;<i> @@ -771,7 +771,7 @@
+</I>&gt;<i>      int got_it;
+</I>&gt;<i>      char buf [POPBUFSIZE+1];
+</I>&gt;<i>      snprintf(buf, sizeof(buf), &quot;TOP %d 1&quot;, num);
+</I>&gt;<i> -    if ((ok = gen_transact(sock, buf )) != 0)
+</I>&gt;<i> +    if ((ok = gen_transact(sock, &quot;%s&quot;, buf)) != 0)
+</I>&gt;<i>         return ok;
+</I>&gt;<i>      got_it = 0;
+</I>&gt;<i>      while ((ok = gen_recv(sock, buf, sizeof(buf))) == 0)
+</I>&gt;<i>
+</I>&gt;<i> Modified: branches/BRANCH_6-3/report.c
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- branches/BRANCH_6-3/report.c	2009-05-04 21:52:32 UTC (rev 5290)
+</I>&gt;<i> +++ branches/BRANCH_6-3/report.c	2009-05-04 22:00:18 UTC (rev 5291)
+</I>&gt;<i> @@ -274,7 +274,7 @@
+</I>&gt;<i>      if (partial_message_size_used != 0)
+</I>&gt;<i>      {
+</I>&gt;<i>  	partial_message_size_used = 0;
+</I>&gt;<i> -	report(errfp, partial_message);
+</I>&gt;<i> +	report(errfp, &quot;%s&quot;, partial_message);
+</I>&gt;<i>  	partial_suppress_tag = 1;
+</I>&gt;<i>      }
+</I>&gt;<i>  }
+</I>&gt;<i>
+</I>&gt;<i> Modified: branches/BRANCH_6-3/smtp.c
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- branches/BRANCH_6-3/smtp.c	2009-05-04 21:52:32 UTC (rev 5290)
+</I>&gt;<i> +++ branches/BRANCH_6-3/smtp.c	2009-05-04 22:00:18 UTC (rev 5291)
+</I>&gt;<i> @@ -55,7 +55,7 @@
+</I>&gt;<i>  {
+</I>&gt;<i>      SockPrintf(sock, &quot;*\r\n&quot;);
+</I>&gt;<i>      SockRead(sock, smtp_response, sizeof(smtp_response) - 1);
+</I>&gt;<i> -    if (outlevel &gt;= O_MONITOR) report(stdout, msg);
+</I>&gt;<i> +    if (outlevel &gt;= O_MONITOR) report(stdout, &quot;%s&quot;, msg);
+</I>&gt;<i>  }
+</I>&gt;<i> static void SMTP_auth(int sock, char smtp_mode, char *username, char  
+</I>&gt;<i> *password, char *buf)
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> fetchmail-svn mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-svn at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-svn">https://lists.berlios.de/mailman/listinfo/fetchmail-svn</A>
+</I>
+
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001062.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.9-rc3.es.po'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1061">[ date ]</a>
+              <a href="thread.html#1061">[ thread ]</a>
+              <a href="subject.html#1061">[ subject ]</a>
+              <a href="author.html#1061">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

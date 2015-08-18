@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] broken behavior in Exchange Server 2003 IMAP4rev1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20broken%20behavior%20in%20Exchange%20Server%202003%20IMAP4rev1&In-Reply-To=%3C20071102010611.GR19374%40cisco.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000963.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] broken behavior in Exchange Server 2003 IMAP4rev1</H1>
+    <B>Adam Simpkins</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20broken%20behavior%20in%20Exchange%20Server%202003%20IMAP4rev1&In-Reply-To=%3C20071102010611.GR19374%40cisco.com%3E"
+       TITLE="[fetchmail-devel] broken behavior in Exchange Server 2003 IMAP4rev1">simpkins at cisco.com
+       </A><BR>
+    <I>Fri Nov  2 02:06:11 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000963.html">[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#962">[ date ]</a>
+              <a href="thread.html#962">[ thread ]</a>
+              <a href="subject.html#962">[ subject ]</a>
+              <a href="author.html#962">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+I use fetchmail to grab my mail over IMAP from an Exchange server.
+I've noticed that a number of multipart MIME messages become broken
+after being downloaded by fetchmail.  The messages look fine when I
+point my mail client directly at the IMAP server.  However, once
+they've been downloaded by fetchmail, the boundary used in the message
+body doesn't match the one in the Content-Type header.
+
+I tracked down the problem, and it occurs because the Exchange server
+is rewriting the MIME boundary before sending it to the IMAP client.
+It rewrites the boundary differently (using a different randomly
+generated string) for each IMAP request.  Because fetchmail downloads
+the headers and body separately, this results in a different boundary
+in the Content-Type header than in the message body.
+
+This only happens for messages with a Content-Transfer-Encoding of
+&quot;binary&quot;.  Messages with a transfer encoding of &quot;7bit&quot; and &quot;8bit&quot; seem
+to work just fine.
+
+
+This looks like the same problem described with Lotus Domino 5 servers
+in section X6 of the FAQ.  This message seems to indicate that you are
+reluctant to modify fetchmail to work around this broken behavior:
+
+  <A HREF="../2006-August/000760.html">http://lists.berlios.de/pipermail/fetchmail-devel/2006-August/000760.html</A>
+
+I don't suppose I can convince you to reconsider?  (I somehow doubt
+I'll have much luck convincing Microsoft to fix exchange.)
+
+
+In case it helps, my IMAP server reports itself as:
+  Microsoft Exchange Server 2003 IMAP4rev1 server version 6.5.7638.1
+
+-- 
+Adam Simpkins
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000963.html">[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#962">[ date ]</a>
+              <a href="thread.html#962">[ thread ]</a>
+              <a href="subject.html#962">[ subject ]</a>
+              <a href="author.html#962">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Continuation%20of%20%22Domino%20IMAP%20and%20missing%0A%09Content-Transfer-Encoding%22&In-Reply-To=%3C44D7C8B7.8060705%40raytheon.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000760.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;</H1>
+    <B>Jason Ostermann</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Continuation%20of%20%22Domino%20IMAP%20and%20missing%0A%09Content-Transfer-Encoding%22&In-Reply-To=%3C44D7C8B7.8060705%40raytheon.com%3E"
+       TITLE="[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;">josterm at raytheon.com
+       </A><BR>
+    <I>Tue Aug  8 01:11:51 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000760.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#759">[ date ]</a>
+              <a href="thread.html#759">[ thread ]</a>
+              <a href="subject.html#759">[ subject ]</a>
+              <a href="author.html#759">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I am experiencing similar problems reported in March by Anthony Kim. See 
+old thread here:
+<A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2006-March/010015.html">http://lists.ccil.org/pipermail/fetchmail-friends/2006-March/010015.html</A>
+
+In this case, I'm using fetchmail 6.4.3 with and without Debian patches, 
+and am subjected to Lotus 6.5.4.
+
+Anthony's fix (changing the Lotus mail format) does not work in our 
+configuration. In fact, the &quot;Keep in Sender's format&quot; is still the 
+default here for all users. We see mutilated emails regularly. They are 
+generally from the Lotus webmail system or Lotus notes. Attachments from 
+those are almost always mangled. Internet emails are seldom broken.
+
+We have seen the Content-Transfer-Encoding and Content-Type headers not 
+reported by the server in response to the FETCH RFC822.HEADER command. 
+The server also tends to report bogus header sizes, although that didn't 
+seem to phase fetchmail.
+
+I've done a few hours hacking away at the server and fetchmail and can 
+only conclude that separate header and body retrieval must be abandoned 
+for the very broken actions of Lotus. In digging through fetchmail, it 
+appears that the only way to &quot;cleanly&quot; (I use that loosely) accomplish 
+this is to make a new protocol. &quot;LotusIMAP&quot; maybe?
+
+I did manage a very quick and very very ugly hack to accomplish this, 
+and it now works! I can finally abandon my bastardization MDA that 
+attempts to figure out what those headers should be and add them. As you 
+can guess, that approach didn't work very well.
+
+Some mention was made in the old thread to adding the single retrieval 
+as an option. Is there an easy way to do that? I do have time to provide 
+small modifications.
+
+Thanks!
+Jason
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000760.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#759">[ date ]</a>
+              <a href="thread.html#759">[ thread ]</a>
+              <a href="subject.html#759">[ subject ]</a>
+              <a href="author.html#759">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

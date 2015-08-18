@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] 24h comparison of old and new UID handling	code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%2024h%20comparison%20of%20old%20and%20new%20UID%20handling%0A%09code&In-Reply-To=%3C87eigwz84k.fsf%40fever.mssgmbh.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001382.html">
+   <LINK REL="Next"  HREF="001384.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] 24h comparison of old and new UID handling	code</H1>
+    <B>Rainer Weikusat</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%2024h%20comparison%20of%20old%20and%20new%20UID%20handling%0A%09code&In-Reply-To=%3C87eigwz84k.fsf%40fever.mssgmbh.com%3E"
+       TITLE="[fetchmail-devel] 24h comparison of old and new UID handling	code">rweikusat at mssgmbh.com
+       </A><BR>
+    <I>Fri May 28 11:30:03 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001382.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+        <LI>Next message: <A HREF="001384.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1383">[ date ]</a>
+              <a href="thread.html#1383">[ thread ]</a>
+              <a href="subject.html#1383">[ subject ]</a>
+              <a href="author.html#1383">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+&gt;<i> Am 28.05.2010, 02:34 Uhr, schrieb Rainer Weikusat:
+</I>&gt;<i>
+</I>&gt;&gt;<i> The numbers contained in this mail come from two 24h 'observations' of
+</I>&gt;&gt;<i> the old and new UID handling code done via oprofile. They are based on
+</I>&gt;&gt;<i> querying 119 POP3 accounts. Some statistics about the .fetchids files
+</I>&gt;&gt;<i> (everything in lines):
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 	total:		35004
+</I>&gt;&gt;<i>         max:		8019
+</I>&gt;&gt;<i>         min:		1
+</I>&gt;&gt;<i>        average:	294.15
+</I>&gt;&gt;<i>         median:		46
+</I>&gt;&gt;<i>         std. dev:	823.87
+</I>&gt;<i>
+</I>&gt;<i> D'oh. A std dev' that's thrice the average. There's a considerable
+</I>&gt;<i> chance  for a negative number. :-}
+</I>
+It is conceivable that I am miscalculating the number. But this really
+just communicates that the distribution is very asymmetric. 
+
+&gt;&gt;<i> UID handling is still the dominant operation (processor-time wise)
+</I>&gt;&gt;<i> performed by fetchmail.
+</I>&gt;<i>
+</I>&gt;<i> No it's not, see below -- you're not grouping other code properly. If
+</I>&gt;<i> oprofile samples call stacks so that it can cumulate per caller (like
+</I>&gt;<i> du(1) does) you'll see it's not. Otherwise, we'll resort to the
+</I>&gt;<i> preclusion  reasoning below.
+</I>
+This seems to be a disagreement about the meaning of the term
+'dominant'. It may well have some defined meaning I am not aware of.
+I am not a repurposed physicist or person with any other kind of
+degree , just a programmer and even this just because I spent
+something like twenty years learning about this stuff whatever I could
+gather from sources available to me.
+
+[...]
+
+&gt;&gt;<i> I hope to be able to produce something like a final patch at some time
+</I>&gt;&gt;<i> late evening tomorrow.
+</I>&gt;<i>
+</I>&gt;<i> No urge here, I'm not sure if I'll have the time to merge that stuff
+</I>&gt;<i> over  the week-end. May well turn mid to end of next week before I get
+</I>&gt;<i> to it.
+</I>
+I will nevertheless do that since it is a fairly simple operation,
+which I can put into a few idle minutes in my (presently) usual 10h+
+workdays and something I can absolutely not do is put much more effort
+into this, except maybe two o'clock in the morning after working for
+ten hours. Since the code exists, works and (as far as I could
+determine) mitigates the problem it was supposed to mitigate, any
+justification I could conceivable use to explain to my boss why I am
+even looking at this during the time I am neither eating nor sleeping
+is gone :-(.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001382.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+	<LI>Next message: <A HREF="001384.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1383">[ date ]</a>
+              <a href="thread.html#1383">[ thread ]</a>
+              <a href="subject.html#1383">[ subject ]</a>
+              <a href="author.html#1383">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

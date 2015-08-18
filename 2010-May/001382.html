@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] 24h comparison of old and new UID handling	code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%2024h%20comparison%20of%20old%20and%20new%20UID%20handling%0A%09code&In-Reply-To=%3Cop.vdd8zkqb1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001381.html">
+   <LINK REL="Next"  HREF="001383.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] 24h comparison of old and new UID handling	code</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%2024h%20comparison%20of%20old%20and%20new%20UID%20handling%0A%09code&In-Reply-To=%3Cop.vdd8zkqb1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] 24h comparison of old and new UID handling	code">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri May 28 04:24:46 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001381.html">[fetchmail-devel] 24h comparison of old and new UID handling code
+</A></li>
+        <LI>Next message: <A HREF="001383.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1382">[ date ]</a>
+              <a href="thread.html#1382">[ thread ]</a>
+              <a href="subject.html#1382">[ subject ]</a>
+              <a href="author.html#1382">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 28.05.2010, 02:34 Uhr, schrieb Rainer Weikusat:
+
+&gt;<i> The numbers contained in this mail come from two 24h 'observations' of
+</I>&gt;<i> the old and new UID handling code done via oprofile. They are based on
+</I>&gt;<i> querying 119 POP3 accounts. Some statistics about the .fetchids files
+</I>&gt;<i> (everything in lines):
+</I>&gt;<i>
+</I>&gt;<i> 	total:		35004
+</I>&gt;<i>         max:		8019
+</I>&gt;<i>         min:		1
+</I>&gt;<i>        average:	294.15
+</I>&gt;<i>         median:		46
+</I>&gt;<i>         std. dev:	823.87
+</I>
+D'oh. A std dev' that's thrice the average. There's a considerable chance  
+for a negative number. :-}
+The actual problem is that the model doesn't fit, you don't have a Normal  
+distribution here, confirmed by the table I'm not quoting.
+
+&gt;<i> UID handling is still the dominant operation (processor-time wise)
+</I>&gt;<i> performed by fetchmail.
+</I>
+No it's not, see below -- you're not grouping other code properly. If  
+oprofile samples call stacks so that it can cumulate per caller (like  
+du(1) does) you'll see it's not. Otherwise, we'll resort to the preclusion  
+reasoning below.
+
+&gt;<i> The relative amount of time is down from
+</I>&gt;<i> 93.46% to 34.36%. During the measurement interval, 1,540,732 event
+</I>&gt;<i> samples were collected for the old code and 63,092 for the new
+</I>&gt;<i> code: The trie/ array-based UID db has used about 4.09% of the CPU
+</I>&gt;<i> time the list-based one did use.
+</I>
+The relative times of the functions among themselves are hard to  
+interpret, particularly if you don't group the other functions properly.
+
+The total sample count is far more interesting, and there you're down from  
+1.52 million samples (out of 1.65 million) to 0.07 million (out of 0.18  
+million), where the other stuff remains more or less the same. IOW, there  
+is a base amount of ~0.12 million samples NOT related to UID handling.  
+Where the old code in your load scenario was more than 12x that of the  
+other code (i. e. &quot;dominated&quot;), it's now roughly half the effort, which is  
+no longer &quot;dominating&quot;.
+
+&gt;<i> I hope to be able to produce something like a final patch at some time
+</I>&gt;<i> late evening tomorrow.
+</I>
+No urge here, I'm not sure if I'll have the time to merge that stuff over  
+the week-end. May well turn mid to end of next week before I get to it.
+
+Thank you.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001381.html">[fetchmail-devel] 24h comparison of old and new UID handling code
+</A></li>
+	<LI>Next message: <A HREF="001383.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1382">[ date ]</a>
+              <a href="thread.html#1382">[ thread ]</a>
+              <a href="subject.html#1382">[ subject ]</a>
+              <a href="author.html#1382">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

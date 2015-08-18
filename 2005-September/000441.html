@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: deleting oversized messages
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3Cm3psrt2ouw.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000442.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: deleting oversized messages</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3Cm3psrt2ouw.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: deleting oversized messages">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Sep  1 10:07:03 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000442.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#441">[ date ]</a>
+              <a href="thread.html#441">[ thread ]</a>
+              <a href="subject.html#441">[ subject ]</a>
+              <a href="author.html#441">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;<i> Rather well put. However, this is not the only thing I am after.
+</I>&gt;<i>
+</I>&gt;<i> Please check the revision r4173 which attempts to fix Debian Bug
+</I>&gt;<i> #212240. This fix actually encourages the use of the 'flush'
+</I>&gt;<i> option.
+</I>&gt;<i>
+</I>&gt;<i> It is contradictory to say that
+</I>&gt;<i>
+</I>&gt;<i> $ fetchmail --flush
+</I>&gt;<i>
+</I>&gt;<i> is dangerous, but 
+</I>&gt;<i>
+</I>&gt;<i> $ fetchmail --daemon 0 --limit 100000 --flush
+</I>&gt;<i>
+</I>&gt;<i> is ok. In both cases, mails read through another email client are
+</I>&gt;<i> going to get deleted. Thus, both the above usages of 'flush' are
+</I>&gt;<i> eqaually dangerous.
+</I>&gt;<i>
+</I>&gt;<i> What I want us to do:
+</I>&gt;<i>
+</I>&gt;<i> - reverse the commit in r4173: this will break the link between
+</I>&gt;<i>   'flush' and 'limit'.
+</I>&gt;<i>
+</I>&gt;<i> - add a FAQ item which tells that 'flush' option cannot be overloaded
+</I>&gt;<i>   to delete oversized mails as 'flush' is dangerous (with or without
+</I>&gt;<i>   the overloading) when one is using another email client to check
+</I>&gt;<i>   one's mailbox and that 'flush' should be immediately removed from
+</I>&gt;<i>   the rc file.
+</I>&gt;<i>
+</I>&gt;<i> - treat Debian Bug #212240 as a new feature request, not a bug.
+</I>&gt;<i>
+</I>&gt;<i> - decide whether this request should should be implemented before
+</I>&gt;<i>   6.3.0.
+</I>
+&gt;<i> In case, it is decided to implement now:
+</I>&gt;<i>
+</I>&gt;<i> - add a new option which will delete only oversized mails. The patch I
+</I>&gt;<i>   had mentioned earlier did exactly that.
+</I>
+&gt;<i> - update the FAQ item mentioned above.
+</I>
+Thinking about the options (yet another would be to ignore --flush for
+all configurations except POP3 UIDL), all are more or less ugly, even a
+flushoversized option or however you called it in your patch (haven't
+had time yet to look at it). Some people may want to delete oversized
+messages depending on mailbox size, some depending on age...
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000442.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#441">[ date ]</a>
+              <a href="thread.html#441">[ thread ]</a>
+              <a href="subject.html#441">[ subject ]</a>
+              <a href="author.html#441">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

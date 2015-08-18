@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH 2] Re: mail delivery via smtp broken
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%202%5D%20Re%3A%20mail%20delivery%20via%20smtp%20broken&In-Reply-To=%3C20051111134740.GA16519%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000508.html">
+   <LINK REL="Next"  HREF="000515.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH 2] Re: mail delivery via smtp broken</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%202%5D%20Re%3A%20mail%20delivery%20via%20smtp%20broken&In-Reply-To=%3C20051111134740.GA16519%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH 2] Re: mail delivery via smtp broken">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Fri Nov 11 14:47:40 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000508.html">[fetchmail-devel] Re: mail delivery via smtp broken
+</A></li>
+        <LI>Next message: <A HREF="000515.html">[fetchmail-devel] [PATCH 2] Re: mail delivery via smtp broken
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#509">[ date ]</a>
+              <a href="thread.html#509">[ thread ]</a>
+              <a href="subject.html#509">[ subject ]</a>
+              <a href="author.html#509">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Thu, Nov 10, 2005 at 11:28:28AM +0100:
+&gt;<i> Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;<i> &gt; Right. So we'll have -rc9 without this &quot;fetchmailhost for smtphost&quot;
+</I>&gt;<i> &gt; behavior and another documentation update.
+</I>&gt;<i> 
+</I>&gt;<i> Find below the patch I have just committed to SVN.
+</I>&gt;<i> It is against 6.2.9-rc8.
+</I>
+The man page documentation part is inconsistent. While fixing it, I
+had a look at the smtpaddress code and found potential memory leaks
+and bugs in sink.c.
+
+1. parsed_host is not freed in some cases. This happens when the first
+smtp server is down in this setup:
+
+poll mailserver
+    ...
+    smtphost &quot;smtpserver1&quot; &quot;smtpserver2&quot;
+    ...
+
+2. parsed_host is being initialized for UNIX socket also. For UNIX
+socket, parsed_host should be NULL.
+
+3. If EHLO fails on a UNIX socket, it tries HELO on a network socket!
+
+4. ctl-&gt;destaddr is allocated memory in two cases. This memory is
+never freed.
+
+5. ctl-&gt;destaddr was being assigned in a very convoluted manner.
+Since, parsed_host is already set correctly now, it can be used
+directly.
+
+Please find a patch attached to fix the documentation and the above
+issues.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/fetchmail.h
+===================================================================
+--- fetchmail/fetchmail.h	(revision 4410)
++++ fetchmail/fetchmail.h	(working copy)
+@@ -337,7 +337,7 @@
+ 
+     /* internal use -- per-poll state */
+     flag active;		/* should we actually poll this server? */
+-    const char *destaddr;	/* destination host for this query */
++    char *destaddr;		/* destination host for this query */
+     int errcount;		/* count transient errors in last pass */
+     int authfailcount;		/* count of authorization failures */
+     int wehaveauthed;		/* We've managed to logon at least once! */
+Index: fetchmail/fetchmail.man
+===================================================================
+--- fetchmail/fetchmail.man	(revision 4410)
++++ fetchmail/fetchmail.man	(working copy)
+@@ -435,15 +435,13 @@
+ (Keyword: smtp[host])
+ Specify a hunt list of hosts to forward mail to (one or more
+ hostnames, comma-separated). Hosts are tried in list order; the first
+-one that is up becomes the forwarding target for the current run.
+-The default depends on the authentication methods and protocols used on
+-the active servers. If this option is not specified, 'localhost' is used
+-as a default.  Each hostname may have a port number following the host
+-name.  The port number is separated from the host name by a slash; the
+-default port is 25 (or &quot;smtp&quot; under IPv6).  If you specify an absolute
+-path name (beginning with a /), it will be interpreted as the name of a
+-UNIX socket accepting LMTP connections (such as is supported by the
+-Cyrus IMAP daemon)
++one that is up becomes the forwarding target for the current run.  If
++this option is not specified, 'localhost' is used as the default.
++Each hostname may have a port number following the host name.  The
++port number is separated from the host name by a slash; the default
++port is &quot;smtp&quot;.  If you specify an absolute path name (beginning with
++a /), it will be interpreted as the name of a UNIX socket accepting
++LMTP connections (such as is supported by the Cyrus IMAP daemon)
+ Example:
+ .sp
+ .nf
+@@ -462,8 +460,9 @@
+ .TP
+ .B \-D &lt;domain&gt; | \-\-smtpaddress &lt;domain&gt;
+ (Keyword: smtpaddress) Specify the domain to be appended to addresses
+-in RCPT TO lines shipped to SMTP. The name of the SMTP server (as
+-specified by --smtphost, which see) is used when this is not specified.
++in RCPT TO lines shipped to SMTP. When this is not specified, the name
++of the SMTP server (as specified by --smtphost) is used for SMTP/LMTP
++and 'localhost' is used for UNIX socket/BSMTP.
+ .TP
+ .B \-\-smtpname &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">user at domain</A>&gt;
+ (Keyword: smtpname)
+Index: fetchmail/sink.c
+===================================================================
+--- fetchmail/sink.c	(revision 4410)
++++ fetchmail/sink.c	(working copy)
+@@ -127,21 +127,28 @@
+ 	    if(ctl-&gt;smtphost[0]=='/')
+ 		ctl-&gt;listener = LMTP_MODE;
+ 
+-	    parsed_host = xstrdup(idp-&gt;id);
+-
+-	    if ((cp = strrchr(parsed_host, '/')))
++	    if (ctl-&gt;smtphost[0]=='/')
+ 	    {
+-		*cp++ = 0;
+-		portnum = cp;
+-	    }
+-
+-	    if (ctl-&gt;smtphost[0]=='/'){
++		parsed_host = NULL;
+ 		if ((ctl-&gt;smtp_socket = UnixOpen(ctl-&gt;smtphost))==-1)
+ 		    continue;
+-	    } else
++	    }
++	    else
++	    {
++		parsed_host = xstrdup(idp-&gt;id);
++		if ((cp = strrchr(parsed_host, '/')))
++		{
++		    *cp++ = 0;
++		    if (cp[0])
++			portnum = cp;
++		}
+ 		if ((ctl-&gt;smtp_socket = SockOpen(parsed_host,portnum,
+ 					     ctl-&gt;server.plugout)) == -1)
++		{
++		    xfree(parsed_host);
+ 		    continue;
++		}
++	    }
+ 
+ 	    /* return immediately for ODMR */
+ 	    if (ctl-&gt;server.protocol == P_ODMR)
+@@ -169,9 +176,20 @@
+ 	    smtp_close(ctl, 0);
+ 
+ 	    /* if opening for ESMTP failed, try SMTP */
+-	    if ((ctl-&gt;smtp_socket = SockOpen(parsed_host,portnum,
++	    if (ctl-&gt;smtphost[0]=='/')
++	    {
++		if ((ctl-&gt;smtp_socket = UnixOpen(ctl-&gt;smtphost))==-1)
++		    continue;
++	    }
++	    else
++	    {
++		if ((ctl-&gt;smtp_socket = SockOpen(parsed_host,portnum,
+ 					     ctl-&gt;server.plugout)) == -1)
+-		continue;
++		{
++		    xfree(parsed_host);
++		    continue;
++		}
++	    }
+ 
+ 	    if (SMTP_ok(ctl-&gt;smtp_socket) == SM_OK &amp;&amp; 
+ 		    SMTP_helo(ctl-&gt;smtp_socket, id_me) == SM_OK)
+@@ -189,50 +207,17 @@
+      * or MX but not a CNAME.  Some listeners (like exim)
+      * enforce this.  Now that we have the actual hostname,
+      * compute what we should canonicalize with.
+-     * 
+-     * make sure we do not forget to drop the /port if
+-     * using LMTP (hmh)
+      */
+-    if (ctl-&gt;listener == LMTP_MODE &amp;&amp; !ctl-&gt;smtpaddress) 
+-    {
+-	if (parsed_host &amp;&amp; parsed_host[0] != 0)
+-		ctl-&gt;destaddr = xstrdup(parsed_host);
+-	else 
+-		ctl-&gt;destaddr = (ctl-&gt;smtphost &amp;&amp; ctl-&gt;smtphost[0] != '/') ? ctl-&gt;smtphost : &quot;localhost&quot;;
+-    } 
+-    else 
+-      {
+-	/* 
+-	 * Here we try to find a correct domain name part for the RCPT
+-	 * TO address.  If smtpaddress is set, no need to guestimate
+-	 * it.  Otherwise, using ctl-&gt;smtphost as a base is a good
+-	 * base, although we may have to strip any port appended to
+-	 * communicate with SMTP servers that do not listen on the
+-	 * SMTP port.  (benj) */
+-	if (ctl-&gt;smtpaddress)
+-	  ctl-&gt;destaddr = ctl-&gt;smtpaddress;
+-	else if (ctl-&gt;smtphost &amp;&amp; ctl-&gt;smtphost[0] != '/')
+-	  {
+-	    char * cp;
+-	    if ((cp = strchr (ctl-&gt;smtphost, '/')))
+-	    {
+-	      /* As an alternate port for smtphost is specified, we
+-		 need to strip it from domain name. */
+-	      char *smtpname = xmalloc(cp - ctl-&gt;smtphost + 1);
+-	      strncpy(smtpname, ctl-&gt;smtphost, cp - ctl-&gt;smtphost +1);
+-	      cp = strchr(smtpname, '/');
+-	      *cp = 0;
+-	      ctl-&gt;destaddr = smtpname;
+-	    }
+-	    else
+-	      /* No need to strip port, domain name is smtphost. */
+-	      ctl-&gt;destaddr = ctl-&gt;smtphost;
+-	  }
+-	/* No smtphost is specified or it is a UNIX socket, then use
+-	   localhost as a domain part. */
+-	else
+-	  ctl-&gt;destaddr = &quot;localhost&quot;;
+-      }
++    xfree(ctl-&gt;destaddr);
++    if (ctl-&gt;smtpaddress)
++	ctl-&gt;destaddr = xstrdup(ctl-&gt;smtpaddress);
++    /* parsed_host is smtphost without the /port */
++    else if (parsed_host &amp;&amp; parsed_host[0] != 0)
++	ctl-&gt;destaddr = xstrdup(parsed_host);
++    /* No smtphost is specified or it is a UNIX socket, then use
++       localhost as a domain part. */
++    else
++	ctl-&gt;destaddr = xstrdup(&quot;localhost&quot;);
+ 
+     if (outlevel &gt;= O_DEBUG &amp;&amp; ctl-&gt;smtp_socket != -1)
+ 	report(stdout, GT_(&quot;forwarding to %s\n&quot;), ctl-&gt;smtphost);
+@@ -748,7 +733,8 @@
+      * enforce this.  Now that we have the actual hostname,
+      * compute what we should canonicalize with.
+      */
+-    ctl-&gt;destaddr = ctl-&gt;smtpaddress ? ctl-&gt;smtpaddress : &quot;localhost&quot;;
++    xfree(ctl-&gt;destaddr);
++    ctl-&gt;destaddr = xstrdup(ctl-&gt;smtpaddress ? ctl-&gt;smtpaddress : &quot;localhost&quot;);
+ 
+     *bad_addresses = 0;
+     for (idp = msg-&gt;recipients; idp; idp = idp-&gt;next)
+@@ -1081,7 +1067,8 @@
+     int	length = 0, fromlen = 0, nameslen = 0;
+     char	*names = NULL, *before, *after, *from = NULL;
+ 
+-    ctl-&gt;destaddr = &quot;localhost&quot;;
++    xfree(ctl-&gt;destaddr);
++    ctl-&gt;destaddr = xstrdup(&quot;localhost&quot;);
+ 
+     for (idp = msg-&gt;recipients; idp; idp = idp-&gt;next)
+ 	if (idp-&gt;val.status.mark == XMIT_ACCEPT)
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000508.html">[fetchmail-devel] Re: mail delivery via smtp broken
+</A></li>
+	<LI>Next message: <A HREF="000515.html">[fetchmail-devel] [PATCH 2] Re: mail delivery via smtp broken
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#509">[ date ]</a>
+              <a href="thread.html#509">[ thread ]</a>
+              <a href="subject.html#509">[ subject ]</a>
+              <a href="author.html#509">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

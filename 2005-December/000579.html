@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: fetchmail segfault on 'empty' mail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20fetchmail%20segfault%20on%20%27empty%27%20mail&In-Reply-To=%3C4396CDF9.1050302%40gentoo.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000577.html">
+   <LINK REL="Next"  HREF="000585.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: fetchmail segfault on 'empty' mail</H1>
+    <B>Daniel Drake</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20fetchmail%20segfault%20on%20%27empty%27%20mail&In-Reply-To=%3C4396CDF9.1050302%40gentoo.org%3E"
+       TITLE="[fetchmail-devel] Re: fetchmail segfault on 'empty' mail">dsd at gentoo.org
+       </A><BR>
+    <I>Wed Dec  7 12:56:41 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000577.html">[fetchmail-devel] Re: fetchmail segfault on 'empty' mail
+</A></li>
+        <LI>Next message: <A HREF="000585.html">[fetchmail-devel] [PATCH] Re: fetchmail segfault on 'empty' mail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#579">[ date ]</a>
+              <a href="thread.html#579">[ thread ]</a>
+              <a href="subject.html#579">[ subject ]</a>
+              <a href="author.html#579">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Sunil,
+
+Sunil Shetye wrote:
+&gt;<i> Please send the output of &quot;fetchmail -v&quot; before and after the patch
+</I>&gt;<i> when you have an empty mail in your mailbox. This will show that the
+</I>&gt;<i> patch indeed works correctly and only that empty mail is getting
+</I>&gt;<i> properly deleted when you have multiple mails in your mailbox.
+</I>
+I don't have any more of these mails right now, so this is fairly fabricated, 
+but more or less accurate.
+
+Before:
+
+fetchmail: 6.2.5.2 querying aap.businessserve.co.uk (protocol POP3) at Wed, 07 
+Dec 2005 13:20:02 +0000 (GMT): poll started
+fetchmail: POP3&lt; +OK &lt;..&gt;
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; -ERR authorization first
+fetchmail: authorization first
+fetchmail: Repoll immediately on xxx
+fetchmail: POP3&lt; +OK &lt;..&gt;
+fetchmail: POP3&gt; USER xxx
+fetchmail: POP3&lt; +OK
+fetchmail: POP3&gt; PASS *
+fetchmail: POP3&lt; +OK
+fetchmail: POP3&gt; STAT
+fetchmail: POP3&lt; +OK 26 82969
+fetchmail: POP3&gt; LIST 1
+fetchmail: POP3&lt; +OK 1 1329
+fetchmail: POP3&gt; RETR 1
+fetchmail: POP3&lt; +OK 1329 octets follow.
+reading message xyz:1 of 26 (1329 octets)
+Segmentation fault
+
+After:
+
+fetchmail: 6.2.5.2 querying aap.businessserve.co.uk (protocol POP3) at Wed, 07 
+Dec 2005 13:20:02 +0000 (GMT): poll started
+fetchmail: POP3&lt; +OK &lt;..&gt;
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; -ERR authorization first
+fetchmail: authorization first
+fetchmail: Repoll immediately on xxx
+fetchmail: POP3&lt; +OK &lt;..&gt;
+fetchmail: POP3&gt; USER xxx
+fetchmail: POP3&lt; +OK
+fetchmail: POP3&gt; PASS *
+fetchmail: POP3&lt; +OK
+fetchmail: POP3&gt; STAT
+fetchmail: POP3&lt; +OK 26 82969
+fetchmail: POP3&gt; LIST 1
+fetchmail: POP3&lt; +OK 1 1329
+fetchmail: POP3&gt; RETR 1
+fetchmail: POP3&lt; +OK 1329 octets follow.
+reading message xyz:1 of 26 (1329 octets)
+***** message delimiter found while scanning headers
+flushed
+fetchmail: POP3&gt; LIST 2
+...
+
+&gt;<i> Do you keep on getting such empty mails frequently? Or, did that
+</I>&gt;<i> happen only once?
+</I>
+This system has been running fetchmail for about a year, and this is the first 
+time I have seen this. 5 of these mails were received in a short space of time.
+
+Daniel
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000577.html">[fetchmail-devel] Re: fetchmail segfault on 'empty' mail
+</A></li>
+	<LI>Next message: <A HREF="000585.html">[fetchmail-devel] [PATCH] Re: fetchmail segfault on 'empty' mail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#579">[ date ]</a>
+              <a href="thread.html#579">[ thread ]</a>
+              <a href="subject.html#579">[ subject ]</a>
+              <a href="author.html#579">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

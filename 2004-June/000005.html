@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail%5Dfetchmail%20loaded%20into%20berlios%20svn%20repository%3B%20mailing%20lists&In-Reply-To=%3C200406111436.36126.rfunk%40funknet.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000004.html">
+   <LINK REL="Next"  HREF="000006.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists</H1>
+    <B>Rob Funk</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail%5Dfetchmail%20loaded%20into%20berlios%20svn%20repository%3B%20mailing%20lists&In-Reply-To=%3C200406111436.36126.rfunk%40funknet.net%3E"
+       TITLE="[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists">rfunk at funknet.net
+       </A><BR>
+    <I>Fri Jun 11 20:36:36 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000004.html">[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists
+</A></li>
+        <LI>Next message: <A HREF="000006.html">[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+&gt;<i> - in pop3_getpartialsizes, we may return uninitialized data iff first &gt;
+</I>&gt;<i> last (I don't know if this can happen, but I'd like to make the function
+</I>&gt;<i> itself surprise free.)
+</I>
+Good plan.
+
+&gt;<i> - in po/POTFILES.in we're effectively listing rcfile_y.c a second
+</I>&gt;<i>   time. It is in Makefile.in.in with proper path (top_builddir) and in
+</I>&gt;<i>   POTFILES.in again, which makes gettext's makefile prepend top_srcdir -
+</I>&gt;<i>   which fails, because rcfile_y.c is generated and hence in builddir.
+</I>
+Odd.  I wonder how got that way and how (if) it ever worked properly.  
+There's no RCS history on either of those files, but they were like that 
+in 6.2.5.
+
+Will the rcfile_y strings be properly translated if you do this?
+
+Wait a minute.... every other file listed in POTFILES.in already exists.  
+So I'm not sure that this is the proper fix....
+
+&gt;<i>  To reproduce the problem:
+</I>&gt;<i>  make distclean
+</I>&gt;<i>  mkdir build
+</I>&gt;<i>  cd build
+</I>&gt;<i>  ../configure
+</I>&gt;<i>  make
+</I>
+I can't get past the ../configure -- it keeps telling me I need to make 
+distclean in the source directory, even though I did.
+
+Argh.  autoconf is great for the user, but quite a pain for the developer.
+
+&gt;<i> The rest is just word flipping to shut up GCC 3.4.
+</I>
+Definitely a good thing.
+
+&gt;<i> Is this OK to commit?
+</I>
+I generally prefer that separate issues be committed separately, but other 
+than POTFILES.in, this stuff looks good to me.  I'm still trying to figure 
+out the autoconf and gettext stuff so I can even see the rcfiles_y 
+problem.
+
+
+BTW, the uni-dortmund address you sent this from isn't subscribed to 
+fetchmail-devel so I had to approve the message there.
+-- 
+==============================|   &quot;A microscope locked in on one point
+ Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; |Never sees what kind of room that it's in&quot;
+ <A HREF="http://www.funknet.net/rfunk">http://www.funknet.net/rfunk</A> |    -- Chris Mars, &quot;Stuck in Rewind&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000004.html">[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists
+</A></li>
+	<LI>Next message: <A HREF="000006.html">[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

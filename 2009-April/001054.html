@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [patch] Drop privileges
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%20Drop%20privileges&In-Reply-To=%3C49EF4461.7080404%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001053.html">
+   <LINK REL="Next"  HREF="001057.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [patch] Drop privileges</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bpatch%5D%20Drop%20privileges&In-Reply-To=%3C49EF4461.7080404%40gmx.de%3E"
+       TITLE="[fetchmail-devel] [patch] Drop privileges">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Apr 22 18:22:57 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001053.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+        <LI>Next message: <A HREF="001057.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1054">[ date ]</a>
+              <a href="thread.html#1054">[ thread ]</a>
+              <a href="subject.html#1054">[ subject ]</a>
+              <a href="author.html#1054">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thomas Jarosch schrieb:
+&gt;<i> Hello together,
+</I>&gt;<i> 
+</I>&gt;<i> attached is a patch which allows fetchmail to drop root privileges
+</I>&gt;<i> and run inside a chroot. The idea is to read the config file as root (as it 
+</I>&gt;<i> contains passwords) and setup the logging. The root privileges get dropped 
+</I>&gt;<i> after initialization.
+</I>&gt;<i> 
+</I>&gt;<i> All new features are optional. This will leave a stale lockfile after
+</I>&gt;<i> the fetchmail run (not enough privileges to write to /var/run or even
+</I>&gt;<i> not accessible inside the chroot), fetchmail perfectly
+</I>&gt;<i> handles that on the next invocation.
+</I>&gt;<i> 
+</I>&gt;<i> Upstream integration or feedback is welcome :-)
+</I>&gt;<i> The patch is against fetchmail 6.3.9.
+</I>&gt;<i> 
+</I>&gt;<i> Have a nice weekend,
+</I>&gt;<i> Thomas
+</I>
+Hi Thomas,
+
+sorry for not giving immediate feedback - I've been busy with other things,
+among them real life and also leafnode releases...
+
+At first glance, the patch looks sound, thanks a lot.
+There's some point in integrating such functionality inside fetchmail, i.
+e. keeping sensitive data outside fetchmail's accessible area.
+
+We'd probably need more detailed instructions of what doesn't work inside
+chroots (you mentioned /var/run -- and this may require revising the stale
+lock detection and/or logging), and what needs to be inside the chroot
+because it's re-read at run-time, for instance, the resolver is
+re-initialized frequently in daemon mode, so we need some libs and config
+files inside the chroot, and depending on how much caching the libc does,
+we may need f. i. /etc/services... unfortunately, this is highly OS and
+version dependent.
+
+I still need to think how to integrate all this, since 6.3.X is supposed to
+be a bug-fix branch... it seems I need to revive the bit-rotten 6.4.X
+branch for new features, mark 6.3 &quot;regression fixes only&quot; and move on...
+
+I'm also pondering whether fetchmail needs a split-process model some day,
+which might then solve issues such as the /var/run (PID file) removal
+problem you mentioned and perhaps allow for a pool of concurrent fetch
+children - useful with multiple accounts. That's certainly for later...
+
+Best
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001053.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+	<LI>Next message: <A HREF="001057.html">[fetchmail-devel] [patch] Drop privileges
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1054">[ date ]</a>
+              <a href="thread.html#1054">[ thread ]</a>
+              <a href="subject.html#1054">[ subject ]</a>
+              <a href="author.html#1054">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

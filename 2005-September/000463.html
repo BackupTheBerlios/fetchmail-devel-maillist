@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] imap expunge problems
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20imap%20expunge%20problems&In-Reply-To=%3C20050920113618.GA5228%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000462.html">
+   <LINK REL="Next"  HREF="000464.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] imap expunge problems</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20imap%20expunge%20problems&In-Reply-To=%3C20050920113618.GA5228%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] imap expunge problems">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Tue Sep 20 13:36:18 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000462.html">[fetchmail-devel] Contents of file `fetchmail-6.2.9-rc3.ru.po'
+</A></li>
+        <LI>Next message: <A HREF="000464.html">[fetchmail-devel] [PATCH] imap expunge problems
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#463">[ date ]</a>
+              <a href="thread.html#463">[ thread ]</a>
+              <a href="subject.html#463">[ subject ]</a>
+              <a href="author.html#463">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+The fixes to recentcount and count (r3938) is interpreting the
+response from imap server to EXPUNGE wrongly.
+
+IMAP&gt; A0448 EXPUNGE
+IMAP&lt; * 20 EXPUNGE
+IMAP&lt; * 20 EXPUNGE
+IMAP&lt; * 20 EXPUNGE
+IMAP&lt; A0448 OK EXPUNGE completed
+
+means that just three mails have been deleted, not 60! Of course, in
+the typical response:
+
+IMAP&gt; A0455 EXPUNGE
+IMAP&lt; * 1 EXPUNGE
+IMAP&lt; * 1 EXPUNGE
+IMAP&lt; * 1 EXPUNGE
+IMAP&lt; * 1 EXPUNGE
+IMAP&lt; A0455 OK EXPUNGE completed
+
+the wrong interpretation works out correctly. The attached patch fixes
+this problem.
+
+This patch also fixes another problem related to a missing expunge
+between separate folders. In this configuration:
+
+poll server
+    protocol imap
+    folders &quot;INBOX&quot; &quot;INBOX.test&quot;
+    expunge 100
+
+deleted mails from &quot;INBOX&quot; do not get expunged just before
+&quot;INBOX.test&quot; is selected.
+
+The attached patch fixes both the problems.
+
+-- 
+Sunil Shetye.
+-------------- next part --------------
+Index: fetchmail/pop3.c
+===================================================================
+--- fetchmail/pop3.c	(revision 4299)
++++ fetchmail/pop3.c	(working copy)
+@@ -1250,6 +1250,7 @@
+     NULL,		/* no message trailer */
+     pop3_delete,	/* how to delete a message */
+     pop3_mark_seen,	/* how to mark a message as seen */
++    NULL,		/* no action at end of mailbox */
+     pop3_logout,	/* log out, we're done */
+     FALSE,		/* no, we can't re-poll */
+ };
+Index: fetchmail/odmr.c
+===================================================================
+--- fetchmail/odmr.c	(revision 4299)
++++ fetchmail/odmr.c	(working copy)
+@@ -226,6 +226,7 @@
+     NULL,		/* no message trailer */
+     NULL,		/* how to delete a message */
+     NULL,		/* how to mark a message as seen */
++    NULL,		/* no mailbox support */
+     odmr_logout,	/* log out, we're done */
+     FALSE,		/* no, we can't re-poll */
+ };
+Index: fetchmail/fetchmail.h
+===================================================================
+--- fetchmail/fetchmail.h	(revision 4299)
++++ fetchmail/fetchmail.h	(working copy)
+@@ -221,6 +221,8 @@
+ 				/* delete method */
+     int (*mark_seen)(int, struct query *, int);
+ 				/* mark as seen method */
++    int (*end_mailbox_poll)(int, struct query *);
++				/* end-of-mailbox processing */
+     int (*logout_cmd)(int, struct query *);
+ 				/* logout command */
+     flag retry;			/* can getrange poll for new messages? */
+Index: fetchmail/driver.c
+===================================================================
+--- fetchmail/driver.c	(revision 4299)
++++ fetchmail/driver.c	(working copy)
+@@ -1424,6 +1424,14 @@
+ 			send_size_warnings(ctl);
+ 		    }
+ 		}
++
++		/* end-of-mailbox processing before we repoll or switch to another one */
++		if (ctl-&gt;server.base_protocol-&gt;end_mailbox_poll)
++		{
++		    err = (ctl-&gt;server.base_protocol-&gt;end_mailbox_poll)(mailserver_socket, ctl);
++		    if (err)
++			goto cleanUp;
++		}
+ 	    } while
+ 		  /*
+ 		   * Only re-poll if we either had some actual forwards and 
+Index: fetchmail/etrn.c
+===================================================================
+--- fetchmail/etrn.c	(revision 4299)
++++ fetchmail/etrn.c	(working copy)
+@@ -137,6 +137,7 @@
+     NULL,		/* no message trailer */
+     NULL,		/* how to delete a message */
+     NULL,		/* how to mark a message as seen */
++    NULL,		/* no mailbox support */
+     etrn_logout,	/* log out, we're done */
+     FALSE,		/* no, we can't re-poll */
+ };
+Index: fetchmail/imap.c
+===================================================================
+--- fetchmail/imap.c	(revision 4299)
++++ fetchmail/imap.c	(working copy)
+@@ -101,7 +101,10 @@
+ 	}
+         else if (strstr(buf, &quot;EXPUNGE&quot;) &amp;&amp; !strstr(buf, &quot;OK&quot;))
+         {
+-            count -= atoi(buf+2);
++	    /* the response &quot;* 10 EXPUNGE&quot; means that the currently
++	     * tenth (i.e. only one) message has been deleted */
++	    if (atoi(buf+2) &gt; 0)
++		count--;
+             if (count &lt; 0)
+                 count = 0;
+         }
+@@ -639,29 +642,14 @@
+ 
+     if (pass &gt; 1)
+     {
+-	/* 
+-	 * We have to have an expunge here, otherwise the re-poll will
+-	 * infinite-loop picking up un-expunged messages -- unless the
+-	 * expunge period is one and we've been nuking each message 
+-	 * just after deletion.
+-	 */
+-	ok = 0;
+-	if (deletions) {
+-	    ok = internal_expunge(sock);
+-	    if (ok)
+-	    {
+-		report(stderr, GT_(&quot;expunge failed\n&quot;));
+-		return(ok);
+-	    }
+-	}
+-
+-	/*
++	/* deleted mails have already been expunged by
++	 * end_mailbox_poll().
++	 *
+ 	 * recentcount is already set here by the last imap command which
+ 	 * returned RECENT on detecting new mail. if recentcount is 0, wait
+ 	 * for new mail.
+-	 */
+-
+-	/* this is a while loop because imap_idle() might return on other
++	 *
++	 * this is a while loop because imap_idle() might return on other
+ 	 * mailbox changes also */
+ 	while (recentcount == 0 &amp;&amp; do_idle) {
+ 	    smtp_close(ctl, 1);
+@@ -792,7 +780,6 @@
+ 	unseen = -1;
+ 
+     *newp = unseen;
+-    count = 0;
+     expunged = 0;
+     deletions = 0;
+ 
+@@ -1108,6 +1095,14 @@
+ 	number));
+ }
+ 
++static int imap_end_mailbox_poll(int sock, struct query *ctl)
++/* cleanup mailbox before we idle or switch to another one */
++{
++    if (deletions)
++	internal_expunge(sock);
++    return(PS_SUCCESS);
++}
++
+ static int imap_logout(int sock, struct query *ctl)
+ /* send logout command */
+ {
+@@ -1142,6 +1137,7 @@
+     imap_trail,		/* eat message trailer */
+     imap_delete,	/* delete the message */
+     imap_mark_seen,	/* how to mark a message as seen */
++    imap_end_mailbox_poll,	/* end-of-mailbox processing */
+     imap_logout,	/* expunge and exit */
+     TRUE,		/* yes, we can re-poll */
+ };
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000462.html">[fetchmail-devel] Contents of file `fetchmail-6.2.9-rc3.ru.po'
+</A></li>
+	<LI>Next message: <A HREF="000464.html">[fetchmail-devel] [PATCH] imap expunge problems
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#463">[ date ]</a>
+              <a href="thread.html#463">[ thread ]</a>
+              <a href="subject.html#463">[ subject ]</a>
+              <a href="author.html#463">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Downloading remote server certificate for a TLS session?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Downloading%20remote%20server%20certificate%20for%20a%0A%20TLS%20session%3F&In-Reply-To=%3C46CD50A7.1060306%40plonk.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000946.html">
+   <LINK REL="Next"  HREF="000949.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Downloading remote server certificate for a TLS session?</H1>
+    <B>Jakob Hirsch</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Downloading%20remote%20server%20certificate%20for%20a%0A%20TLS%20session%3F&In-Reply-To=%3C46CD50A7.1060306%40plonk.de%3E"
+       TITLE="[fetchmail-devel] Downloading remote server certificate for a TLS session?">jh at plonk.de
+       </A><BR>
+    <I>Thu Aug 23 11:17:27 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000946.html">[fetchmail-devel] Downloading remote server certificate for a	TLS session?
+</A></li>
+        <LI>Next message: <A HREF="000949.html">[fetchmail-devel] Downloading remote server certificate for a	TLS session?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#948">[ date ]</a>
+              <a href="thread.html#948">[ thread ]</a>
+              <a href="subject.html#948">[ subject ]</a>
+              <a href="author.html#948">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting Rob MacGregor:
+
+&gt;&gt;<i> I don't know anything about your server, but it works fine here:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> $ openssl s_client -connect koi:pop3 -starttls pop3
+</I>&gt;&gt;<i> CONNECTED(00000003)
+</I>&gt;&gt;<i> ...
+</I>&gt;&gt;<i> +OK Dovecot ready. &lt;...&gt;
+</I>&gt;<i> Ok, I've just tried it on another host and it works there, just not on
+</I>&gt;<i> my main host - which works fine with fetchmail's TLS support.
+</I>
+The message &quot;connect: Connection refused&quot; you got with openssl sounds 
+more like it couldn't even connect to the server. It may be worth 
+tracing this problem with strace and tcpdump.
+Is your main server publically reachable?
+
+&gt;&gt;<i> Right, but I don't hink that fetchmail is the right tool for that. On
+</I>&gt;&gt;<i> the other hand, it's not that hard to print the certificate.
+</I>&gt;<i> From my results above it looks like the s_client functionality isn't
+</I>&gt;<i> 100%, and it's use relies on people having the very latest version for
+</I>&gt;<i> IMAP support (from your comment below).
+</I>
+0.9.8e is 6 months old, so I guess (or hope) it will be absorbed in the 
+next version of $DISTRIBUTION.
+
+&gt;<i> History on the -users mailing list suggests that we really need to
+</I>&gt;<i> make it easy for people to solve these problems.  If it's simple
+</I>&gt;<i> enough to provide all the required information from within fetchmail
+</I>&gt;<i> then that's got to make their lives (and by extension mine :&gt;) easier.
+</I>
+As Matthias pointed out, the fingerprint is suitable for that.
+Don't get me wrong, I'm not against a &quot;dump the server's cert&quot; feature 
+in fetchmail, it could be handy. But I'm not sure that what you want to 
+do with it is The Right Thing. But then again, I didn't follow the 
+discussion which lead you to start this thread.
+
+&gt;<i> It does however assume that everybody is using at least 0.9.8e :)  I
+</I>&gt;<i> suppose I'm mostly concerned about the poor souls who're using RPM
+</I>&gt;<i> based distributions.  It isn't always possible to upgrade one package
+</I>
+Sure, even Fedora 7 uses 0.9.8b. But the same applies to fetchmail. Most 
+people use the distribution's package, I guess. But upgrading fetchmail 
+is admittedly quite easier, because of much less dependencies (if any).
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000946.html">[fetchmail-devel] Downloading remote server certificate for a	TLS session?
+</A></li>
+	<LI>Next message: <A HREF="000949.html">[fetchmail-devel] Downloading remote server certificate for a	TLS session?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#948">[ date ]</a>
+              <a href="thread.html#948">[ thread ]</a>
+              <a href="subject.html#948">[ subject ]</a>
+              <a href="author.html#948">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

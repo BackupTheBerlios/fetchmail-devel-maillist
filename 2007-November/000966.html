@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20broken%20behavior%20in%20Exchange%20Server%0A%092003%09IMAP4rev1&In-Reply-To=%3C1194255462.8300.4.camel%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000965.html">
+   <LINK REL="Next"  HREF="000968.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20broken%20behavior%20in%20Exchange%20Server%0A%092003%09IMAP4rev1&In-Reply-To=%3C1194255462.8300.4.camel%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] broken behavior in Exchange Server	2003	IMAP4rev1">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Nov  5 10:37:42 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000965.html">[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+</A></li>
+        <LI>Next message: <A HREF="000968.html">[fetchmail-devel] populate .fetchids
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#966">[ date ]</a>
+              <a href="thread.html#966">[ thread ]</a>
+              <a href="subject.html#966">[ subject ]</a>
+              <a href="author.html#966">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sorry, this message was meant to be public. Resending to list, Adam - sorry for the dupe.
+
+Am Sonntag, den 04.11.2007, 12:26 -0800 schrieb Adam Simpkins:
+
+&gt;<i> If I have the time later, I might create a patch for this on my own.
+</I>&gt;<i> Would you consider accepting the patch if I came up with one?  It
+</I>&gt;<i> looks like I should probably just create a new method struct identical
+</I>&gt;<i> to the current &quot;imap&quot; one, but with a single fetch method that gets
+</I>&gt;<i> everthing, and fetch_body set to NULL.  Is that the preferred
+</I>&gt;<i> approach, or did you have something else in mind?
+</I>
+I will consider the patch, yes.
+
+I think an command line option to switch existing IMAP behavior to
+&quot;fetch whole message&quot; is more useful, in order to avoid code duplication
+and user irritation at configuration time.
+
+It's already _very_ confusing to have APOP and KPOP as &quot;protocols&quot; when
+they are in fact just authentication variants of POP3. Let's not add to
+that for IMAP.
+
+New options need to be added to the manpage, the lexer and parser
+(the .l and .y files) and to options.c.
+
+-- 
+Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000965.html">[fetchmail-devel] broken behavior in Exchange Server 2003	IMAP4rev1
+</A></li>
+	<LI>Next message: <A HREF="000968.html">[fetchmail-devel] populate .fetchids
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#966">[ date ]</a>
+              <a href="thread.html#966">[ thread ]</a>
+              <a href="subject.html#966">[ subject ]</a>
+              <a href="author.html#966">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,349 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] imap: introduce imapsearchmax parameter
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20imap%3A%20introduce%20imapsearchmax%20parameter&In-Reply-To=%3C1303514919-9981-1-git-send-email-righi.andrea%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001464.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] imap: introduce imapsearchmax parameter</H1>
+    <B>Andrea Righi</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20imap%3A%20introduce%20imapsearchmax%20parameter&In-Reply-To=%3C1303514919-9981-1-git-send-email-righi.andrea%40gmail.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] imap: introduce imapsearchmax parameter">righi.andrea at gmail.com
+       </A><BR>
+    <I>Sat Apr 23 01:28:39 CEST 2011</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001464.html">[fetchmail-devel] imap: introduce imapsearchmax parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1463">[ date ]</a>
+              <a href="thread.html#1463">[ thread ]</a>
+              <a href="subject.html#1463">[ subject ]</a>
+              <a href="author.html#1463">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>To retrieve new messages from a IMAP folder we use the IMAP SEARCH
+command, but we limit the messages processed by the query to 1000.
+This limit is hard-coded and it cannot be changed at runtime.
+
+This value is not the best option in some cases, especially for large
+folders, because we need to submit a query each 1000 messages.
+
+The following patch introduces a new option (imapsearchmax) that can be
+used to change this limit at runtime.
+
+So, for example this is what happens with a 3000 messages folder:
+...
+fetchmail: IMAP&lt; A0003 OK [READ-WRITE] INBOX selected. (Success)
+fetchmail: IMAP&gt; A0004 SEARCH 1:1000 UNSEEN UNDELETED
+fetchmail: IMAP&lt; * SEARCH
+fetchmail: IMAP&lt; A0004 OK SEARCH completed (Success)
+fetchmail: IMAP&gt; A0005 SEARCH 1001:2000 UNSEEN UNDELETED
+fetchmail: IMAP&lt; * SEARCH
+fetchmail: IMAP&lt; A0005 OK SEARCH completed (Success)
+fetchmail: IMAP&gt; A0006 SEARCH 2001:3000 UNSEEN UNDELETED
+...
+
+With imapsearchmax we could increase the SEARCH limit to a higher value
+(i.e., 5000) and submit a single query to the server:
+...
+fetchmail: IMAP&lt; A0003 OK [READ-WRITE] INBOX selected. (Success)
+fetchmail: IMAP&gt; A0004 SEARCH 1:5000 UNSEEN UNDELETED
+...
+
+I did some tests with my &gt;500000 messages gmail INBOX. The results are
+reported below:
+
+ - without the patch:
+
+ $ time fetchmail -s
+
+ real	7m1.338s
+ user	0m0.070s
+ sys	0m0.100s
+
+ - with the patch (using imapsearchmax=1000000)
+
+ $ time fetchmail -s --imapsearchmax=1000000
+
+ real	0m3.099s
+ user	0m0.000s
+ sys	0m0.040s
+
+Signed-off-by: Andrea Righi &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">righi.andrea at gmail.com</A>&gt;
+---
+ conf.c           |    1 +
+ fetchmail.c      |    7 +++++++
+ fetchmail.h      |    1 +
+ fetchmail.man    |    7 +++++++
+ fetchmailconf.py |    6 ++++++
+ imap.c           |   13 +++++++------
+ options.c        |    7 +++++++
+ rcfile_l.l       |    1 +
+ rcfile_y.y       |    3 ++-
+ 9 files changed, 39 insertions(+), 7 deletions(-)
+
+diff --git a/conf.c b/conf.c
+index 5758138..0f968d0 100644
+--- a/conf.c
++++ b/conf.c
+@@ -375,6 +375,7 @@ void dump_config(struct runctl *runp, struct query *querylist)
+ 	numdump(&quot;warnings&quot;, ctl-&gt;warnings);
+ 	numdump(&quot;fetchlimit&quot;, ctl-&gt;fetchlimit);
+ 	numdump(&quot;fetchsizelimit&quot;, ctl-&gt;fetchsizelimit);
++	numdump(&quot;imapsearchmax&quot;, ctl-&gt;imapsearchmax);
+ 	numdump(&quot;fastuidl&quot;, ctl-&gt;fastuidl);
+ 	numdump(&quot;batchlimit&quot;, ctl-&gt;batchlimit);
+ #ifdef SSL_ENABLE
+diff --git a/fetchmail.c b/fetchmail.c
+index fc39936..0a05bd8 100644
+--- a/fetchmail.c
++++ b/fetchmail.c
+@@ -977,6 +977,7 @@ static void optmerge(struct query *h2, struct query *h1, int force)
+     FLAG_MERGE(warnings);
+     FLAG_MERGE(fetchlimit);
+     FLAG_MERGE(fetchsizelimit);
++    FLAG_MERGE(imapsearchmax);
+     FLAG_MERGE(fastuidl);
+     FLAG_MERGE(batchlimit);
+ #ifdef	SSL_ENABLE
+@@ -1023,6 +1024,7 @@ static int load_params(int argc, char **argv, int optind)
+     def_opts.remotename = user;
+     def_opts.listener = SMTP_MODE;
+     def_opts.fetchsizelimit = 100;
++    def_opts.imapsearchmax = 1000;
+     def_opts.fastuidl = 4;
+ 
+     /* get the location of rcfile */
+@@ -1761,6 +1763,11 @@ static void dump_params (struct runctl *runp,
+ 		       ctl-&gt;fetchsizelimit, ctl-&gt;fetchsizelimit);
+ 	    else if (outlevel &gt;= O_VERBOSE)
+ 		printf(GT_(&quot;  No fetch message size limit (--fetchsizelimit 0).\n&quot;));
++	    if (NUM_NONZERO(ctl-&gt;imapsearchmax))
++		printf(GT_(&quot;   Max number of messages we can process in IMAP SEARCH response is %d (--imapsearchmax %d).\n&quot;),
++		       ctl-&gt;imapsearchmax, ctl-&gt;imapsearchmax);
++	    else if (outlevel &gt;= O_VERBOSE)
++		printf(GT_(&quot;  No max number of messages for IMAP SEARCH (--imapsearchmax 0).\n&quot;));
+ 	    if (NUM_NONZERO(ctl-&gt;fastuidl) &amp;&amp; MAILBOX_PROTOCOL(ctl))
+ 	    {
+ 		if (ctl-&gt;fastuidl == 1)
+diff --git a/fetchmail.h b/fetchmail.h
+index f6c6a4e..dce4d7d 100644
+--- a/fetchmail.h
++++ b/fetchmail.h
+@@ -360,6 +360,7 @@ struct query
+     int warnings;		/* size warning interval */
+     int	fetchlimit;		/* max # msgs to get in single poll */
+     int fetchsizelimit;		/* max # msg sizes to get in a request */
++    int imapsearchmax;		/* max # msg we can process in &quot;SEARCH&quot; response */
+     int fastuidl;		/* do binary search for new UIDLs? */
+     int fastuidlcount;		/* internal count for frequency of binary search */
+     int	batchlimit;		/* max # msgs to pass in single SMTP session */
+diff --git a/fetchmail.man b/fetchmail.man
+index 69aa887..4cca19c 100644
+--- a/fetchmail.man
++++ b/fetchmail.man
+@@ -811,6 +811,13 @@ messages are downloaded at the start.
+ This option does not work with ETRN or ODMR.  For POP3, the only valid
+ non-zero value is 1.
+ .TP
++.B \-\-imapsearchmax &lt;number&gt;
++(Keyword: imapsearchmax)
++.br
++Limit the maximum number of messages processed by the IMAP SEARCH query to an
++IMAP server.  By default, the limit is 1000. If set to 0, the IMAP SEARCH is
++applied to all the messages present in the target IMAP folder.
++.TP
+ .B \-\-fastuidl &lt;number&gt;
+ (Keyword: fastuidl)
+ .br
+diff --git a/fetchmailconf.py b/fetchmailconf.py
+index 2dc02d8..8eec6db 100755
+--- a/fetchmailconf.py
++++ b/fetchmailconf.py
+@@ -261,6 +261,7 @@ class User:
+ 	self.warnings = 3600	# Size warning interval (see tunable.h)
+ 	self.fetchlimit = 0	# Max messages fetched per batch
+ 	self.fetchsizelimit = 100	# Max message sizes fetched per transaction
++	self.imapsearchmax = 1000	# Max number of messages processed by &quot;IMAP SEARCH&quot;
+ 	self.fastuidl = 4	# Do fast uidl 3 out of 4 times
+ 	self.batchlimit = 0	# Max message forwarded per batch
+ 	self.expunge = 0	# Interval between expunges (IMAP)
+@@ -302,6 +303,7 @@ class User:
+ 	    ('warnings',    'Int'),
+ 	    ('fetchlimit',  'Int'),
+ 	    ('fetchsizelimit',	'Int'),
++	    ('imapsearchmax',	'Int'),
+ 	    ('fastuidl',    'Int'),
+ 	    ('batchlimit',  'Int'),
+ 	    ('expunge',     'Int'),
+@@ -369,6 +371,8 @@ class User:
+ 	    res = res + &quot; fetchlimit &quot; + `self.fetchlimit`
+ 	if self.fetchsizelimit != UserDefaults.fetchsizelimit:
+ 	    res = res + &quot; fetchsizelimit &quot; + `self.fetchsizelimit`
++	if self.imapsearchmax != UserDefaults.imapsearchmax:
++	    res = res + &quot; imapsearchmax &quot; + `self.imapsearchmax`
+ 	if self.fastuidl != UserDefaults.fastuidl:
+ 	    res = res + &quot; fastuidl &quot; + `self.fastuidl`
+ 	if self.batchlimit != UserDefaults.batchlimit:
+@@ -1761,6 +1765,8 @@ class UserEdit(Frame, MyWidget):
+ 		      self.fetchlimit, '30').pack(side=TOP, fill=X)
+ 	    LabeledEntry(limwin, 'Max message sizes to fetch per transaction:',
+ 		      self.fetchsizelimit, '30').pack(side=TOP, fill=X)
++	    LabeledEntry(limwin, 'Max number of messages processed by the IMAP SEARCH query:',
++		      self.imapsearchmax, '30').pack(side=TOP, fill=X)
+ 	    if self.parent.server.protocol not in ('ETRN', 'ODMR'):
+ 		LabeledEntry(limwin, 'Use fast UIDL:',
+ 			self.fastuidl, '30').pack(side=TOP, fill=X)
+diff --git a/imap.c b/imap.c
+index 1364027..9bd9221 100644
+--- a/imap.c
++++ b/imap.c
+@@ -754,14 +754,15 @@ static int imap_idle(int sock)
+     return(ok);
+ }
+ 
+-/* maximum number of numbers we can process in &quot;SEARCH&quot; response */
+-# define IMAP_SEARCH_MAX 1000
+-
+ static int imap_search(int sock, struct query *ctl, int count)
+ /* search for unseen messages */
+ {
+     int ok, first, last;
+     char buf[MSGBUFSIZE+1], *cp;
++    int stride = ctl-&gt;imapsearchmax;
++
++    if (stride &lt; 0)
++        stride = INT_MAX;
+ 
+     /* Don't count deleted messages. Enabled only for IMAP4 servers or
+      * higher and only when keeping mails. This flag will have an
+@@ -771,15 +772,15 @@ static int imap_search(int sock, struct query *ctl, int count)
+     const char *undeleted;
+ 
+     /* Skip range search if there are less than or equal to
+-     * IMAP_SEARCH_MAX mails. */
+-    flag skiprangesearch = (count &lt;= IMAP_SEARCH_MAX);
++     * imap_search_max mails. */
++    flag skiprangesearch = (count &lt;= stride);
+ 
+     /* startcount is higher than count so that if there are no
+      * unseen messages, imap_getsizes() will not need to do
+      * anything! */
+     startcount = count + 1;
+ 
+-    for (first = 1, last = IMAP_SEARCH_MAX; first &lt;= count; first += IMAP_SEARCH_MAX, last += IMAP_SEARCH_MAX)
++    for (first = 1, last = stride; first &lt;= count; first += stride, last += stride)
+     {
+ 	if (last &gt; count)
+ 	    last = count;
+diff --git a/options.c b/options.c
+index aee616b..6c7c612 100644
+--- a/options.c
++++ b/options.c
+@@ -50,6 +50,7 @@ enum {
+     LA_SSLCOMMONNAME,
+     LA_SSLFINGERPRINT,
+     LA_FETCHSIZELIMIT,
++    LA_IMAPSEARCHMAX,
+     LA_FASTUIDL,
+     LA_LIMITFLUSH,
+     LA_IDLE,
+@@ -120,6 +121,7 @@ static const struct option longoptions[] = {
+   {&quot;batchlimit&quot;,required_argument, (int *) 0, 'b' },
+   {&quot;fetchlimit&quot;,required_argument, (int *) 0, 'B' },
+   {&quot;fetchsizelimit&quot;,required_argument, (int *) 0, LA_FETCHSIZELIMIT },
++  {&quot;imapsearchmax&quot;,required_argument, (int *) 0, LA_IMAPSEARCHMAX},
+   {&quot;fastuidl&quot;,	required_argument, (int *) 0, LA_FASTUIDL },
+   {&quot;expunge&quot;,	required_argument, (int *) 0, 'e' },
+   {&quot;mda&quot;,	required_argument, (int *) 0, 'm' },
+@@ -506,6 +508,10 @@ int parsecmdline (int argc /** argument count */,
+ 	    c = xatoi(optarg, &amp;errflag);
+ 	    ctl-&gt;fetchsizelimit = NUM_VALUE_IN(c);
+ 	    break;
++	case LA_IMAPSEARCHMAX:
++	    c = xatoi(optarg, &amp;errflag);
++	    ctl-&gt;imapsearchmax = NUM_VALUE_IN(c);
++	    break;
+ 	case LA_FASTUIDL:
+ 	    c = xatoi(optarg, &amp;errflag);
+ 	    ctl-&gt;fastuidl = NUM_VALUE_IN(c);
+@@ -687,6 +693,7 @@ int parsecmdline (int argc /** argument count */,
+ 	P(GT_(&quot;  -b, --batchlimit  set batch limit for SMTP connections\n&quot;));
+ 	P(GT_(&quot;  -B, --fetchlimit  set fetch limit for server connections\n&quot;));
+ 	P(GT_(&quot;      --fetchsizelimit set fetch message size limit\n&quot;));
++	P(GT_(&quot;      --imapsearchmax set max number of imap search messages\n&quot;));
+ 	P(GT_(&quot;      --fastuidl    do a binary search for UIDLs\n&quot;));
+ 	P(GT_(&quot;  -e, --expunge     set max deletions between expunges\n&quot;));
+ 	P(GT_(&quot;  -m, --mda         set MDA to use for forwarding\n&quot;));
+diff --git a/rcfile_l.l b/rcfile_l.l
+index c7e49fe..6c80749 100644
+--- a/rcfile_l.l
++++ b/rcfile_l.l
+@@ -119,6 +119,7 @@ plugout		{ return PLUGOUT; }
+ batchlimit	{ return BATCHLIMIT; }
+ fetchlimit	{ return FETCHLIMIT; }
+ fetchsizelimit	{ return FETCHSIZELIMIT; }
++imapsearchmax   { return IMAPSEARCHMAX; }
+ fastuidl	{ return FASTUIDL; }
+ expunge		{ return EXPUNGE; }
+ properties	{ return PROPERTIES; }
+diff --git a/rcfile_y.y b/rcfile_y.y
+index b32a6b0..5ae05f8 100644
+--- a/rcfile_y.y
++++ b/rcfile_y.y
+@@ -67,7 +67,7 @@ extern char * yytext;
+ %token SMTPADDRESS SMTPNAME SPAMRESPONSE PRECONNECT POSTCONNECT LIMIT WARNINGS
+ %token INTERFACE MONITOR PLUGIN PLUGOUT
+ %token IS HERE THERE TO MAP
+-%token BATCHLIMIT FETCHLIMIT FETCHSIZELIMIT FASTUIDL EXPUNGE PROPERTIES
++%token BATCHLIMIT FETCHLIMIT FETCHSIZELIMIT IMAPSEARCHMAX FASTUIDL EXPUNGE PROPERTIES
+ %token SET LOGFILE DAEMON SYSLOG IDFILE PIDFILE INVISIBLE POSTMASTER BOUNCEMAIL
+ %token SPAMBOUNCE SOFTBOUNCE SHOWDOTS
+ %token BADHEADER ACCEPT REJECT_
+@@ -368,6 +368,7 @@ user_option	: TO mapping_list HERE
+ 		| WARNINGS NUMBER	{current.warnings    = NUM_VALUE_IN($2);}
+ 		| FETCHLIMIT NUMBER	{current.fetchlimit  = NUM_VALUE_IN($2);}
+ 		| FETCHSIZELIMIT NUMBER	{current.fetchsizelimit = NUM_VALUE_IN($2);}
++		| IMAPSEARCHMAX NUMBER	{current.imapsearchmax = NUM_VALUE_IN($2);}
+ 		| FASTUIDL NUMBER	{current.fastuidl    = NUM_VALUE_IN($2);}
+ 		| BATCHLIMIT NUMBER	{current.batchlimit  = NUM_VALUE_IN($2);}
+ 		| EXPUNGE NUMBER	{current.expunge     = NUM_VALUE_IN($2);}
+-- 
+1.7.1
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001464.html">[fetchmail-devel] imap: introduce imapsearchmax parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1463">[ date ]</a>
+              <a href="thread.html#1463">[ thread ]</a>
+              <a href="subject.html#1463">[ subject ]</a>
+              <a href="author.html#1463">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

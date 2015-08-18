@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #6985] authentication error
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%236985%5D%20authentication%20error&In-Reply-To=%3C200604050139.k351dJQv008207%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000710.html">
+   <LINK REL="Next"  HREF="000712.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #6985] authentication error</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%236985%5D%20authentication%20error&In-Reply-To=%3C200604050139.k351dJQv008207%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #6985] authentication error">admin at berlios.de
+       </A><BR>
+    <I>Wed Apr  5 03:39:19 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000710.html">[fetchmail-devel] [PATCHes] Misc. bug fixes
+</A></li>
+        <LI>Next message: <A HREF="000712.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#711">[ date ]</a>
+              <a href="thread.html#711">[ thread ]</a>
+              <a href="subject.html#711">[ subject ]</a>
+              <a href="author.html#711">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #6985, was updated on 2006-Apr-04 18:39
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: geoffleach
+Assigned to : none
+Summary: authentication error
+
+Details: On switching POP3 servers, what worked previously now gets an authentication error.  Some details. We're dealing with a satellite ISP here. What used to be Direcway is now Hughes.net. POP3 worked fine previously. Access to the account, using the same system name and password, from IE works with no problems at all. Presumably the POP3 server is using some scheme that IE knows about, but not Fetchmail.
+
+Any ideas?
+
+6.3.2 querying mail.hughes.net (protocol POP3) at Sat 01 Apr 2006 08:40:06 AM PST: poll started
+POP3&lt; +OK POP3 PROXY server ready (7.2. 066) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">42E53A8DAC706EC7C9F052F97C96EB38FCA85C55 at n049.sc0.cp.net</A>&gt;
+POP3&gt; CAPA
+POP3&lt; +OK Capability list follows
+POP3&lt; TOP
+POP3&lt; RESP-CODES
+POP3&lt; USER
+POP3&lt; SASL CRAM-MD5 DIGEST-MD5
+POP3&lt; PIPELINING
+POP3&lt; UIDL
+POP3&lt; .
+POP3&gt; AUTH CRAM-MD5
+POP3&lt; + PDFGQkNCN0FCMjEzNDk0ODI3N0JFMkM3MUY0MUE5RkJEOUUxNjc4NDRAbjA0OS5zYzAuY3AubmV0Pg==
+POP3&gt; Z2VvZmZAaHVnaGVzLm5ldCBlYjhlNzEzMDVkNDgxZTc5MjNhZThiZjFiNTYzM2NmNA==
+POP3&lt; -ERR proxy authentication failed proxy authentication failed
+POP3&gt; USER <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">geoff at hughes.net</A> Unknown login or authentication error on <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">geoff at hughes.net</A>@mail.hughes.net.criticalpath.net
+    socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">geoff at hughes.net</A>@mail.hughes.net
+6.3.2 querying mail.hughes.net (protocol POP3) at Sat 01 Apr 2006 08:40:12 AM PST: poll completed
+Query status=2 (SOCKET)
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=6985&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=6985&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000710.html">[fetchmail-devel] [PATCHes] Misc. bug fixes
+</A></li>
+	<LI>Next message: <A HREF="000712.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#711">[ date ]</a>
+              <a href="thread.html#711">[ thread ]</a>
+              <a href="subject.html#711">[ subject ]</a>
+              <a href="author.html#711">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

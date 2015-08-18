@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] FYI: Changes in SVN since 6.2.9-rc9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20FYI%3A%20Changes%20in%20SVN%20since%206.2.9-rc9&In-Reply-To=%3Cm38xvib8a7.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000540.html">
+   <LINK REL="Next"  HREF="000544.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] FYI: Changes in SVN since 6.2.9-rc9</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20FYI%3A%20Changes%20in%20SVN%20since%206.2.9-rc9&In-Reply-To=%3Cm38xvib8a7.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] FYI: Changes in SVN since 6.2.9-rc9">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Nov 21 11:32:48 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000540.html">[fetchmail-devel] [PATCH 2] Re: Tried to install 6.2.9-rc8 --with-ssl
+</A></li>
+        <LI>Next message: <A HREF="000544.html">[fetchmail-devel] FYI: Changes in SVN since 6.2.9-rc9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#541">[ date ]</a>
+              <a href="thread.html#541">[ thread ]</a>
+              <a href="subject.html#541">[ subject ]</a>
+              <a href="author.html#541">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Greetings, 
+
+to bring everybody up to date WRT the latest SVN changes, these are the
+changes to the SVN trunk since 6.2.9-rc9 was released.
+
+This was generated with: env TZ=UTC LC_ALL=C svn log -vrHEAD:4461
+
+------------------------------------------------------------------------
+r4471 | m-a | 2005-11-21 10:29:21 +0000 (Mon, 21 Nov 2005) | 8 lines
+Changed paths:
+   M /trunk/specgen.sh
+
+Major overhaul:
+- drop the bogus email address calculation (it didn't work on NIS or
+  LDAP clients anyways), hardcode fetchmail-devel mailing list at
+  lists.berlios.de
+- add some magic so that RPMs can be built from -rc versions (or other
+  versions that contain a MINUS character)
+- drop --enable-inet6, no longer needed and no longer supported
+
+------------------------------------------------------------------------
+r4470 | m-a | 2005-11-21 10:27:06 +0000 (Mon, 21 Nov 2005) | 2 lines
+Changed paths:
+   M /trunk/Makefile.am
+
+Take care to ship a complete tarball even if PYTHON isn't installed.
+Clean up HAVE_PYTHON magic.
+------------------------------------------------------------------------
+r4469 | m-a | 2005-11-21 09:54:12 +0000 (Mon, 21 Nov 2005) | 1 line
+Changed paths:
+   M /trunk/specgen.sh
+
+Cleanup. Sunil Shetye.
+------------------------------------------------------------------------
+r4468 | m-a | 2005-11-21 09:54:05 +0000 (Mon, 21 Nov 2005) | 1 line
+Changed paths:
+   M /trunk/configure.ac
+
+Revise without-python check to print a readable warning. Sunil Shetye.
+------------------------------------------------------------------------
+r4467 | m-a | 2005-11-19 13:24:49 +0000 (Sat, 19 Nov 2005) | 1 line
+Changed paths:
+   M /trunk/configure.ac
+
+Bump version to 6.2.9-rc10.
+------------------------------------------------------------------------
+r4466 | m-a | 2005-11-19 12:39:14 +0000 (Sat, 19 Nov 2005) | 1 line
+Changed paths:
+   M /trunk/Makefile.am
+   M /trunk/NEWS
+   M /trunk/configure.ac
+   M /trunk/specgen.sh
+
+Fix installation without Python. Sunil Shetye, reported by Peter Church.
+------------------------------------------------------------------------
+r4461 | m-a | 2005-11-19 03:03:56 +0000 (Sat, 19 Nov 2005) | 1 line
+Changed paths:
+   M /trunk/po/pl.po
+   M /trunk/po/sq.po
+
+Update sq/pl (Albanian/Polish) translations to 6.2.9-rc9.
+------------------------------------------------------------------------
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000540.html">[fetchmail-devel] [PATCH 2] Re: Tried to install 6.2.9-rc8 --with-ssl
+</A></li>
+	<LI>Next message: <A HREF="000544.html">[fetchmail-devel] FYI: Changes in SVN since 6.2.9-rc9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#541">[ date ]</a>
+              <a href="thread.html#541">[ thread ]</a>
+              <a href="subject.html#541">[ subject ]</a>
+              <a href="author.html#541">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

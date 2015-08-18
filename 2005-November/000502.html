@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] mail delivery via smtp broken
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20mail%20delivery%20via%20smtp%20broken&In-Reply-To=%3Cm38xvxffua.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000501.html">
+   <LINK REL="Next"  HREF="000506.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] mail delivery via smtp broken</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20mail%20delivery%20via%20smtp%20broken&In-Reply-To=%3Cm38xvxffua.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [PATCH] mail delivery via smtp broken">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Nov 10 02:31:57 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000501.html">[fetchmail-devel] [PATCH] mail delivery via smtp broken
+</A></li>
+        <LI>Next message: <A HREF="000506.html">[fetchmail-devel] Re: mail delivery via smtp broken
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#502">[ date ]</a>
+              <a href="thread.html#502">[ thread ]</a>
+              <a href="subject.html#502">[ subject ]</a>
+              <a href="author.html#502">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+
+&gt;<i> Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+</I>&gt;<i>
+</I>&gt;&gt;<i> smtp servers (on all non-server machines) listen on the loopback
+</I>&gt;&gt;<i> interface (i.e. 127.0.0.1) only. However, fetchmail release 6.2.9-rc7,
+</I>&gt;&gt;<i> by default, attempts to connect to the IP address obtained from
+</I>&gt;&gt;<i> gethostname(), which typically points to the external interface. Thus,
+</I>&gt;&gt;<i> fetchmail is no longer able to deliver mails by default!
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> The problem is that fetchmailhost is overloaded to contain the
+</I>&gt;&gt;<i> domainname to be used for HELO/EHLO and for rcpt address and also to
+</I>&gt;&gt;<i> contain the default SMTP host. Previously, it was localhost, but
+</I>&gt;&gt;<i> after changes in r4382, it became the actual hostname. For smtp
+</I>&gt;&gt;<i> servers listening on localhost only, mail delivery consequently fails.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> This patch should fix this broken behaviour.
+</I>&gt;<i>
+</I>&gt;<i> Thanks, applied for upcoming -rc8.
+</I>
+Actually we need to set fetchmailhost when Kerberos is used, to match
+documentation somewhat, so I'll use this:
+
+Index: fetchmail.c
+===================================================================
+--- fetchmail.c	(Revision 4390)
++++ fetchmail.c	(Arbeitskopie)
+@@ -922,7 +922,7 @@
+  *         - false if servers found on the command line */
+ static int load_params(int argc, char **argv, int optind)
+ {
+-    int	implicitmode, st;
++    int	implicitmode, st, use_kerberos;
+     struct passwd *pw;
+     struct query def_opts, *ctl;
+     struct stat rcstat;
+@@ -1070,18 +1070,20 @@
+      * If we're using Kerberos for authentication, we need 
+      * the FQDN in order to generate capability keys.
+      */
++    use_kerberos = 0;
++    /* use_kerberos is saved until later to properly set the invisible
++     * --smtphost (aka. smtphunt) default */
+     for (ctl = querylist; ctl; ctl = ctl-&gt;next)
+ 	if (ctl-&gt;active &amp;&amp; 
+ 		(ctl-&gt;server.protocol==P_ETRN || ctl-&gt;server.protocol==P_ODMR
+ 		 || ctl-&gt;server.authenticate == A_KERBEROS_V4
+ 		 || ctl-&gt;server.authenticate == A_KERBEROS_V5))
+ 	{
+-	    fetchmailhost = host_fqdn(1);
++	    use_kerberos = 1;
+ 	    break;
+ 	}
+ 
+-    if (!ctl) /* list exhausted */
+-	fetchmailhost = host_fqdn(0);
++    fetchmailhost = host_fqdn(use_kerberos);
+ 
+     /* this code enables flags to be turned off */
+ #define DEFAULT(flag, dflt)	if (flag == FLAG_TRUE)\
+@@ -1156,7 +1158,7 @@
+ 	     * Make sure we have a nonempty host list to forward to.
+ 	     */
+ 	    if (!ctl-&gt;smtphunt)
+-		save_str(&amp;ctl-&gt;smtphunt, fetchmailhost, FALSE);
++		save_str(&amp;ctl-&gt;smtphunt, use_kerberos ? fetchmailhost : &quot;localhost&quot;, FALSE);
+ 
+ 	    /*
+ 	     * Make sure we have a nonempty list of domains to fetch from.
+
+
+The manual page is outdated, it maunders something about invisible
+defaults, but I haven't seen those in the code, it's a regular
+default. And it does not only apply to Kerberos auth but also to
+ODMR/ETRN polls... so I'll revise the manual page to match this
+ODMR/ETRN code.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000501.html">[fetchmail-devel] [PATCH] mail delivery via smtp broken
+</A></li>
+	<LI>Next message: <A HREF="000506.html">[fetchmail-devel] Re: mail delivery via smtp broken
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#502">[ date ]</a>
+              <a href="thread.html#502">[ thread ]</a>
+              <a href="subject.html#502">[ subject ]</a>
+              <a href="author.html#502">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: r4000 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r4000%20-%20trunk&In-Reply-To=%3C20041112181309.GA20564%40quux.local%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000201.html">
+   <LINK REL="Next"  HREF="000192.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: r4000 - trunk</H1>
+    <B>Graham Wilson</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r4000%20-%20trunk&In-Reply-To=%3C20041112181309.GA20564%40quux.local%3E"
+       TITLE="[fetchmail-devel] Re: r4000 - trunk">graham at mknod.org
+       </A><BR>
+    <I>Fri Nov 12 19:13:09 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000201.html">[fetchmail-devel] Re: quick overview of branching and tagging in SVN
+</A></li>
+        <LI>Next message: <A HREF="000192.html">[fetchmail-devel] Re: r4000 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wed, Nov 10, 2004 at 02:38:11PM -0600, <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">svn at decoy.wox.org</A> wrote:
+&gt;<i> Modified: trunk/lock.c
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/lock.c	2004-11-10 20:14:18 UTC (rev 3999)
+</I>&gt;<i> +++ trunk/lock.c	2004-11-10 20:38:06 UTC (rev 4000)
+</I>&gt;<i> @@ -32,7 +32,9 @@
+</I>&gt;<i>      if (getuid() == ROOT_UID) {
+</I>&gt;<i>  	lockfile = (char *)xmalloc(
+</I>&gt;<i>  		sizeof(PID_DIR) + sizeof(FETCHMAIL_PIDFILE) + 1);
+</I>&gt;<i> -	sprintf(lockfile, &quot;%s/%s&quot;, PID_DIR, FETCHMAIL_PIDFILE);
+</I>&gt;<i> +	strcpy(lockfile, PID_DIR);
+</I>&gt;<i> +	strcat(lockfile, &quot;/&quot;);
+</I>&gt;<i> +	strcat(lockfile, FETCHMAIL_PIDFILE);
+</I>&gt;<i>      } else {
+</I>&gt;<i>  	lockfile = (char *)xmalloc(strlen(fmhome)+sizeof(FETCHMAIL_PIDFILE)+2);
+</I>&gt;<i>  	strcpy(lockfile, fmhome);
+</I>
+Why did you switch to strcat (which doesn't check bounds) instead of
+snprintf? I would think we should just change that sprintf call to
+snprintf.
+
+&gt;<i> Modified: trunk/unmime.c
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/unmime.c	2004-11-10 20:14:18 UTC (rev 3999)
+</I>&gt;<i> +++ trunk/unmime.c	2004-11-10 20:38:06 UTC (rev 4000)
+</I>&gt;<i> @@ -669,9 +669,9 @@
+</I>&gt;<i>    char fnam[100];
+</I>&gt;<i>  
+</I>&gt;<i>    pid = getpid();
+</I>&gt;<i> -  sprintf(fnam, &quot;/tmp/i_unmime.%x&quot;, pid);
+</I>&gt;<i> +  sprintf(fnam, &quot;/tmp/i_unmime.%lx&quot;, (long)pid);
+</I>&gt;<i>    fd_orig = fopen(fnam, &quot;w&quot;);
+</I>&gt;<i> -  sprintf(fnam, &quot;/tmp/o_unmime.%x&quot;, pid);
+</I>&gt;<i> +  sprintf(fnam, &quot;/tmp/o_unmime.%lx&quot;, (long)pid);
+</I>&gt;<i>    fd_conv = fopen(fnam, &quot;w&quot;);
+</I>&gt;<i>  #endif
+</I>
+These should be changed to snprintf as well I assume?
+
+-- 
+gram
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000201.html">[fetchmail-devel] Re: quick overview of branching and tagging in SVN
+</A></li>
+	<LI>Next message: <A HREF="000192.html">[fetchmail-devel] Re: r4000 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

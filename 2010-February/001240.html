@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] HEADS UP: fetchmail repository converted and moved
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20HEADS%20UP%3A%20fetchmail%20repository%20converted%20and%0A%20moved&In-Reply-To=%3C20100210024422.GA14075%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001235.html">
+   <LINK REL="Next"  HREF="001236.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] HEADS UP: fetchmail repository converted and moved</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20HEADS%20UP%3A%20fetchmail%20repository%20converted%20and%0A%20moved&In-Reply-To=%3C20100210024422.GA14075%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] HEADS UP: fetchmail repository converted and moved">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Feb 10 03:44:22 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001235.html">[fetchmail-devel] HEADS UP: fetchmail repository converted and moved
+</A></li>
+        <LI>Next message: <A HREF="001236.html">[fetchmail-devel] New Polish PO file for 'fetchmail' (version	6.3.14)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1240">[ date ]</a>
+              <a href="thread.html#1240">[ thread ]</a>
+              <a href="subject.html#1240">[ subject ]</a>
+              <a href="author.html#1240">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree schrieb am 2010-02-08:
+
+&gt;<i> I have converted the fetchmail source code repository to Git[1] and moved  
+</I>&gt;<i> it to a new host[2] in Norway.
+</I>&gt;<i> 
+</I>&gt;<i> [1] <A HREF="http://git-scm.com/">http://git-scm.com/</A>
+</I>&gt;<i> 
+</I>&gt;<i> [2] <A HREF="http://gitorious.org/fetchmail/">http://gitorious.org/fetchmail/</A>
+</I>&gt;<i> 
+</I>&gt;<i> The latter offers access for git clone (through Git and HTTP protocols)  
+</I>&gt;<i> and an online repository browser, and the site runs free software.
+</I>
+Note that I have force-rebased the BRANCH_MAPI branch so it now hinges
+on RELEASE_6-3-8, rather than dangle in mid air as it used to. This was
+done to provide proper ancestry for BRANCH_MAPI so as to ease later
+merging, and to avoid the use of graftpoints that would have to be
+created manually after checkout.
+
+I know that this practice is being frowned upon, but I think it's
+warranted in this case to fix this SVN conversion error as soon as
+possible.
+
+If you haven't changed anything on BRANCH_MAPI, just force the next git
+fetch or git pull.
+
+If you have changed things on BRANCH_MAPI, please stash your changes
+first, before pulling/fetching with --force.
+
+If you have changes committed locally, please contact me.
+
+Best regards
+Matthias
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 198 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20100210/edfbdabc/attachment.pgp">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20100210/edfbdabc/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001235.html">[fetchmail-devel] HEADS UP: fetchmail repository converted and moved
+</A></li>
+	<LI>Next message: <A HREF="001236.html">[fetchmail-devel] New Polish PO file for 'fetchmail' (version	6.3.14)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1240">[ date ]</a>
+              <a href="thread.html#1240">[ thread ]</a>
+              <a href="subject.html#1240">[ subject ]</a>
+              <a href="author.html#1240">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

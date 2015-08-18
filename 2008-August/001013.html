@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Feature #4277] COMSAT-support in fetchmail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BFeature%20%234277%5D%20COMSAT-support%20in%20fetchmail&In-Reply-To=%3C200808220815.m7M8FDf1028861%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Feature #4277] COMSAT-support in fetchmail</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BFeature%20%234277%5D%20COMSAT-support%20in%20fetchmail&In-Reply-To=%3C200808220815.m7M8FDf1028861%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Feature #4277] COMSAT-support in fetchmail">admin at berlios.de
+       </A><BR>
+    <I>Fri Aug 22 10:15:13 CEST 2008</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1013">[ date ]</a>
+              <a href="thread.html#1013">[ thread ]</a>
+              <a href="subject.html#1013">[ subject ]</a>
+              <a href="author.html#1013">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Feature Request #4277, was updated on 2008-Aug-22 10:15
+You can respond by visiting: 
+<A HREF="http://developer.berlios.de/feature/?func=detailfeature&amp;feature_id=4277&amp;group_id=1824">http://developer.berlios.de/feature/?func=detailfeature&amp;feature_id=4277&amp;group_id=1824</A>
+
+Category: None
+Status: Open
+Priority: 5
+Summary: COMSAT-support in fetchmail 
+
+By: jhagg
+Date: 2008-Aug-22 10:15
+
+Message:
+Logged In: YES 
+user_id=47514
+Browser: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.1) Gecko/2008071420 Iceweasel/3.0.1 (Debian-3.0.1-1)
+
+This would really be nice to have.
+
+I have procmail to do final delivery on my mail server,
+and it sends
+a COMSAT message to my desktop (where I read my mail)
+which runs fetchmail against the mail server
+to download my mail locally. (Yes, I want to download
+my mail, not store
+it on the server. :-)
+
+I know that fetchmail can be awakened by SIGUSR1 and I
+have written
+a short perl script that listens on the COMSAT port and
+kicks
+fetchmail whenever a new mail arrives.
+
+This makes e-mail delivery almost instantenous, I don't
+have to wait
+for fetchmail to time out.
+
+So, would it be possible to make fetchmail listen on
+the COMSAT port directly?
+Then I would'nt need an extra process to manage. :-)
+
+
+
+----------------------------------------------------------------------
+You can respond by visiting: 
+<A HREF="http://developer.berlios.de/feature/?func=detailfeature&amp;feature_id=4277&amp;group_id=1824">http://developer.berlios.de/feature/?func=detailfeature&amp;feature_id=4277&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1013">[ date ]</a>
+              <a href="thread.html#1013">[ thread ]</a>
+              <a href="subject.html#1013">[ subject ]</a>
+              <a href="author.html#1013">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

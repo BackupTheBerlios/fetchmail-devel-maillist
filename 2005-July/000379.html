@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] dropping fetchmailconf?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20dropping%20fetchmailconf%3F&In-Reply-To=%3C20050720130718.GA3132%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000377.html">
+   <LINK REL="Next"  HREF="000385.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] dropping fetchmailconf?</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20dropping%20fetchmailconf%3F&In-Reply-To=%3C20050720130718.GA3132%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] dropping fetchmailconf?">B.Candler at pobox.com
+       </A><BR>
+    <I>Wed Jul 20 15:07:18 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000377.html">[fetchmail-devel] dropping fetchmailconf?
+</A></li>
+        <LI>Next message: <A HREF="000385.html">[fetchmail-devel] dropping fetchmailconf?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#379">[ date ]</a>
+              <a href="thread.html#379">[ thread ]</a>
+              <a href="subject.html#379">[ subject ]</a>
+              <a href="author.html#379">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wed, Jul 20, 2005 at 02:22:32PM +0200, Nico Golde wrote:
+&gt;<i> is there really a use for fetchmailconf? I mean are there
+</I>&gt;<i> users who use it? Most people who use fetchmail are familar
+</I>&gt;<i> with mta's procmail etc. and do they really need such a
+</I>&gt;<i> script?
+</I>&gt;<i> What about dropping it (don't flame me :)
+</I>
+I think that firstly fetchmail's configuration file should be made much more
+logical and self-consistent.
+
+I've had difficultly wrapping my head around this before; if I
+understand correctly, there are:
+- global options
+- per-server options
+- per-account options
+
+but (a) these are not clearly demarked, and (b) there seems to be little
+logic as to which option is where. Yet try to use an option in the wrong
+place at it bombs out.
+
+For example, &quot;ssl&quot; and &quot;sslcertck&quot; are per-account options; but &quot;protocol&quot;
+and the multidrop options like &quot;dns&quot; and &quot;aka&quot; are per-server options. This
+has caused me a great deal of grief in the past trying to make a valid
+configuration. Once I discovered '--configdump' I ended up using that to
+work out what went where.
+
+Furthermore, some things can be set on the command-line using flags, e.g.
+&quot;-S&quot; for &quot;smtphost&quot; which makes it look like a global setting, when in fact
+it is a per-account setting.
+
+ISTM that a sensible approach would be to have an inheritance tree: e.g.
+
+  global props =&gt; server props =&gt; account props
+
+A setting can be put at whichever level makes sense, and overridden at a
+lower level. For example, the &quot;sslcertpath&quot; option almost certainly makes
+sense at a global level; you will very often use the same set of ssl certs
+across all servers. Or you might want to specify it for a server, and have
+it used by all accounts you fetch from there. Being able to set 'smtphost'
+globally would also be useful in many cases.
+
+If we're going that route, I don't see why the hierarchy has to be fixed,
+because ultimately all that's going to happen is separate POP3/IMAP
+connections for each account. For example, a very simple configuration (one
+account) might have
+
+  server+account
+
+The next level would be
+
+  global =&gt; server+account
+
+and a more complex one might have
+
+  global =&gt; servergroup =&gt; server =&gt; account
+
+One other thing. I would like to be able to name my accounts; at the moment
+if I have
+
+skip pop3.example.com
+  .. account 1 ..
+
+skip pop3.example.com
+  .. account 2 ..
+
+then I don't have a way of polling one or other account individually. My
+workaround is to try and find two different hostnames which map to the same
+IP address (ugh).
+
+Now, I'm not going to assert what this config *should* look like, but here's
+an example which at least meets my goals:
+
+---- 8&lt; ----------------------------------------
+poll_interval: 0
+sslcertpath: /etc/ssl/certs
+smtphost: 127.0.0.1
+uidl: true
+to: brian
+
+(
+  account: test1
+  smtphost: smtp.example.net
+  hostname: pop3.example.com
+  remote: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">foo at example.com</A>
+  password: xyzzy
+  active: false
+  protocol: pop3
+  to: *
+)
+
+(
+  hostname: pop.example.net
+  protocol: pop3
+  (
+    account: test2
+    remote: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">bar at example.net</A>
+    password: wibble
+    ssl: true
+  )
+  ( 
+    account: test3
+    remote: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">baz at example.net</A>
+    password: bibble
+  )
+)
+---- 8&lt; ----------------------------------------
+
+That is:
+
+   fetchmail test2
+
+would find 'account: test2', and use the settings directly associated with
+that account (remote, password, ssl), plus the ones in the enclosing levels
+(hostname, protocol; poll_interval, sslcertpath, smtphost, uidl, to). Then
+any settings on the command line acting as global defaults above that, and
+finally there would be hard-coded defaults (e.g. active: true)
+
+I hope this makes sense. Please, nobody suggest XML :-)
+
+Regards,
+
+Brian.
+
+P.S. Perhaps Python-style indenting would be more readable?
+
+---- 8&lt; ----------------------------------------
+poll_interval: 0
+sslcertpath: /etc/ssl/certs
+smtphost: 127.0.0.1
+uidl: true
+to: brian
+
+account: test1
+  smtphost: smtp.example.net
+  hostname: pop3.example.com
+  remote: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">foo at example.com</A>
+  password: xyzzy
+  active: false
+  protocol: pop3
+  to: *
+
+group: foo
+  hostname: pop.example.net
+  protocol: pop3
+  account: test2
+    remote: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">bar at example.net</A>
+    password: wibble
+    ssl: true
+  account: test3
+    remote: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">baz at example.net</A>
+    password: bibble
+
+---- 8&lt; ----------------------------------------
+
+(By naming the group, 'fetchmail foo' would be the same as 'fetchmail test2
+test3')
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000377.html">[fetchmail-devel] dropping fetchmailconf?
+</A></li>
+	<LI>Next message: <A HREF="000385.html">[fetchmail-devel] dropping fetchmailconf?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#379">[ date ]</a>
+              <a href="thread.html#379">[ thread ]</a>
+              <a href="subject.html#379">[ subject ]</a>
+              <a href="author.html#379">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] 6.2.6 fails where 6.2.5 was OK
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%206.2.6%20fails%20where%206.2.5%20was%20OK&In-Reply-To=%3Cm3ll8jrbhz.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000226.html">
+   <LINK REL="Next"  HREF="000224.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] 6.2.6 fails where 6.2.5 was OK</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%206.2.6%20fails%20where%206.2.5%20was%20OK&In-Reply-To=%3Cm3ll8jrbhz.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] 6.2.6 fails where 6.2.5 was OK">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sat Mar 19 14:50:00 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000226.html">[PATCH] Re: [fetchmail-devel] Re: 6.2.6 fails where 6.2.5 was OK
+</A></li>
+        <LI>Next message: <A HREF="000224.html">[PATCH] Re: [fetchmail-devel] Re: 6.2.6 fails where 6.2.5 was OK
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#225">[ date ]</a>
+              <a href="thread.html#225">[ thread ]</a>
+              <a href="subject.html#225">[ subject ]</a>
+              <a href="author.html#225">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>[[
+CC: Nalin Dahyabai
+
+Nalin, as the list archives are down currently:
+
+David Greaves originally reported that your patch that Eric S. Raymond
+merged as &quot;Nalin Dahyabai's fix for POP3 strong authentication&quot; after
+fetchmail-6.2.5 caused fetchmail to go into an unterminated loop when
+the server rejected the CAPA command. If you can shed any light on your
+patch that changed pop3.c like this, please do -- if this wasn't your
+patch, ESR would take the blame for coalescing several patches under a
+bogus comment.
+
+--- pop3.c      (Revision 3872)
++++ pop3.c      (Revision 3873)
+@@ -365,7 +365,12 @@
+         * These authentication methods are blessed by RFC1734,
+         * describing the POP3 AUTHentication command.
+         */
+-       if (ctl-&gt;server.authenticate == A_ANY)
++       if ((ctl-&gt;use_ssl != FLAG_FALSE) ||
++           (ctl-&gt;server.authenticate == A_ANY) ||
++           (ctl-&gt;server.authenticate == A_GSSAPI) ||
++           (ctl-&gt;server.authenticate == A_KERBEROS_V4) ||
++           (ctl-&gt;server.authenticate == A_OTP) ||
++           (ctl-&gt;server.authenticate == A_CRAM_MD5))
+...
+]]
+
+[[
+Rob,
+I made inofficial snapshots from Subversion for testing on
+2004-11-10, named fetchmail 6.2.6, and
+2005-03-01, named fetchmail 6.2.5.991, for the translation project
+These revealed the regression.
+
+BTW, I have not yet heard back from the translation project :-((
+]]
+
+David Greaves &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A>&gt; writes:
+
+&gt;<i> I'm upgrading from 6.2.5 to 6.2.6 and I've encountered a possible bug 
+</I>&gt;<i> where 6.2.6 resends a CAPA challenge even when the server doesn't 
+</I>&gt;<i> understand it. The ISP is a major UK one.
+</I>
+The problem is really that fetchmail replaces the server.authenticate
+member, but the use_ssl flag overrides this. Besides that, FLAG_FALSE is
+not a state that we can be in at this time, as the DEFAULT() macro in
+fetchmail.c will have replaced it by FALSE at this time.
+
+I don't currently see why an SSL-wrapped connection alone would require
+CAPA, so I'll just remove this bogus check.
+
+OTOH, this (code with patch) may still not be flawed because
+falling back to USER/PASS when the user has configured a
+more secure authentication mechanism is bogus and a security risk.
+
+If the user configures something strong and it fails, so be it. I don't
+see why we would use CAPA for anything but the _ANY, and I don't find
+Nalin's post that got sent to ESR somewhen before January 2004, so I
+presume the patch was sent privately.
+
+
+Please try this band-aid patch:
+
+Index: pop3.c
+===================================================================
+--- pop3.c	(Revision 4024)
++++ pop3.c	(Arbeitskopie)
+@@ -361,8 +361,7 @@
+ 	 * These authentication methods are blessed by RFC1734,
+ 	 * describing the POP3 AUTHentication command.
+ 	 */
+-	if ((ctl-&gt;use_ssl != FLAG_FALSE) ||
+-	    (ctl-&gt;server.authenticate == A_ANY) ||
++	if ((ctl-&gt;server.authenticate == A_ANY) ||
+ 	    (ctl-&gt;server.authenticate == A_GSSAPI) ||
+ 	    (ctl-&gt;server.authenticate == A_KERBEROS_V4) ||
+ 	    (ctl-&gt;server.authenticate == A_OTP) ||
+
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000226.html">[PATCH] Re: [fetchmail-devel] Re: 6.2.6 fails where 6.2.5 was OK
+</A></li>
+	<LI>Next message: <A HREF="000224.html">[PATCH] Re: [fetchmail-devel] Re: 6.2.6 fails where 6.2.5 was OK
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#225">[ date ]</a>
+              <a href="thread.html#225">[ thread ]</a>
+              <a href="subject.html#225">[ subject ]</a>
+              <a href="author.html#225">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

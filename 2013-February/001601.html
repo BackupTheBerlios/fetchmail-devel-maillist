@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Future of fetchmail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2013-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Future%20of%20fetchmail&In-Reply-To=%3C5122AF4B.5020706%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001596.html">
+   <LINK REL="Next"  HREF="001597.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Future of fetchmail</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Future%20of%20fetchmail&In-Reply-To=%3C5122AF4B.5020706%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Future of fetchmail">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Feb 18 23:46:35 CET 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001596.html">[fetchmail-devel] Future of fetchmail
+</A></li>
+        <LI>Next message: <A HREF="001597.html">[fetchmail-devel] minor bug fixes for socket.c
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1601">[ date ]</a>
+              <a href="thread.html#1601">[ thread ]</a>
+              <a href="subject.html#1601">[ subject ]</a>
+              <a href="author.html#1601">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Am 06.02.2013 20:14, schrieb John N Rayner:
+&gt;<i> I have been following the development of version 7.0 of fetchmail and
+</I>&gt;<i> was very sorry to see the latest message by Matthias.  I, for one, would
+</I>&gt;<i> use it.  Has anyone done a survey of potential users?  From recent
+</I>&gt;<i> surveys by Linux Journal there are still a large number of pine (Alpine)
+</I>&gt;<i> and mutt users.  Presumably their email servers are using IMAP and pop.
+</I>&gt;<i> I hope someone will pick up the maintainer's job.  How about rfunk?
+</I>&gt;<i> That's Robert, isn't it?   John
+</I>
+John,
+
+I believe there is a misunderstanding, and due to a past vacation that
+was quite enjoyable, I have seen your concernful message only today.
+
+To clarify: I have no plans to discontinue maintaining fetchmail.
+
+I am, however, inclined to drop the MAPI support that never made an
+official release.  I have never been able to test it, the response from
+the contributor and another interested developer was too low to count on
+them, and because there was virtually zero user interest.  I have, in
+spite of repeated calls for test accounts, never received an Exchange
+account to test against, and for these reasons, I have never really
+integrated MAPI.
+
+Note that MAPI (a Microsoft specific) is not to be confused with IMAP 4
+(the IETF standard protocol).
+
+POP3 and IMAP4rev1 will continue to be supported by fetchmail.
+
+I will at some point in the not so distant future also cease development
+of the 6.3.X versions, and only see to 7.0 and newer versions that may
+break some compatibility (especially by removing support for systems and
+protocols that got obsoleted more than a decade ago) so that fetchmail
+can be made easier to use, in particular with respect to SSL/TLS.
+
+For the majority of users, these plans should not cause any disruptions.
+My dropping a feature that has never been part of an official release
+has no impact at all, and removing corner cases and making the default
+configuration more transparent and secure should help, rather than
+impair, use of fetchmail.
+
+Hope that resolves concerns.
+
+Best regards,
+Matthias
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with undefined - <A HREF="http://www.enigmail.net/">http://www.enigmail.net/</A>
+
+iEYEARECAAYFAlEir0cACgkQvmGDOQUufZX3WACg0RiMZnHfEWUAv6AHD9Em7Cb1
+yRgAnROjzpzjBdSLlnXjGNTZCIgZFp+I
+=C0UP
+-----END PGP SIGNATURE-----
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001596.html">[fetchmail-devel] Future of fetchmail
+</A></li>
+	<LI>Next message: <A HREF="001597.html">[fetchmail-devel] minor bug fixes for socket.c
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1601">[ date ]</a>
+              <a href="thread.html#1601">[ thread ]</a>
+              <a href="subject.html#1601">[ subject ]</a>
+              <a href="author.html#1601">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

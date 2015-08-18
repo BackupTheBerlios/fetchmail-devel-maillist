@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] mapi again
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20mapi%20again&In-Reply-To=%3Cop.uzbzn0wb1e62zd%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001167.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] mapi again</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20mapi%20again&In-Reply-To=%3Cop.uzbzn0wb1e62zd%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] mapi again">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Aug 27 19:17:50 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001167.html">[fetchmail-devel] mapi again
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1168">[ date ]</a>
+              <a href="thread.html#1168">[ thread ]</a>
+              <a href="subject.html#1168">[ subject ]</a>
+              <a href="author.html#1168">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Mojmir,
+
+and thanks for your continued care of the MAPI function.
+
+&gt;<i> hello again,
+</I>&gt;<i> i have few things on my mind:
+</I>&gt;<i>
+</I>&gt;<i> 1. portability of fetchmail
+</I>&gt;<i> - what all platforms do you support/want to support?
+</I>&gt;<i> 	(i've seen some linuxes, bsds, are there more?)
+</I>
+I usually care about Linux (Debian, Fedora, openSUSE), FreeBSD and  
+Solaris. Not breaking Cygwin and the other mainstream BSDs would be nice.  
+I don't care if you break BeOS or EMX or if Red Hat Linux 5.2 won't work.
+
+I think current versions of Linux, BSD, Solaris/openSolaris (as  
+representative for the SysV systems), Cygwin. That should cover the  
+important ones. If obscure or obsolete OSes break with MAPI support, never  
+mind.
+
+&gt;<i> - same about compilers?
+</I>&gt;<i> 	(gcc.. what about the bunch of others?)
+</I>
+GCC 3.4 and 4.3 are a must, 3.3 - 4.4 would be nice. In doubt, try  
+&quot;-pedantic&quot; :)
+
+&gt;<i> - are there any restrictions about C language used in fetchmail?
+</I>&gt;<i> 	(variadic macros for example etc)
+</I>
+I'm undecided, I don't want to break older systems deliberately, so avoid  
+if you can for now.
+If it's used only for MAPI, use whatever suits your purpose. Note that  
+macros defeat type checking, so use functions if you can.
+
+&gt;<i> - any crucial advice concerning fetchmail development?
+</I>
+* Don't introduce security holes, avoid static buffers, and avoid  
+unbounded access (array subscripts/indexes, non-length-limiting string  
+functions) at all cost, particularly for statically sized buffers these  
+are a must.
+
+* Where it makes sense to translate strings, please mark them  
+translatable, and - I probably don't need to tell you - if there are  
+various plural forms, please use the NGT_() macro, not just GT_(). Please  
+don't assemble translated strings with fragments of English phrases.
+
+&gt;<i> 2. mapi
+</I>&gt;<i> i have found the problem with the overwrite of address, but
+</I>&gt;<i> have no fix yet. the problem occurs when value of tag
+</I>&gt;<i> PR_SENT_REPRESENTING_NAME does not contain FQDN (fully qualified
+</I>&gt;<i> domain name... is that the name?), because it gets scrambled
+</I>&gt;<i> by the reply_hack function from transact.c
+</I>&gt;<i>
+</I>&gt;<i> this can be fixed by using PR_SENDER_EMAIL_ADDRESS, but it's
+</I>&gt;<i> not perfect, since it contains weird stuff like
+</I>&gt;<i>
+</I>&gt;<i> 	From:  
+</I>&gt;<i> /O=TAKE-TWOINTERACTIVE/OU=2KGB/CN=RECIPIENTS/CN=<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">AAA.BBB at 2kgbrn.2kgames.t2.corp</A>
+</I>
+Looks like ITU-T X.500 series stuff, which isn't overly weird, it's just  
+that you're usually interested in the CN field (common name). Depending on  
+how openMAPI gets this information to you, take care of escaping and  
+continuation lines. LDIF for instance has rather unusual (in my personal  
+perspetion) line continuation format... just chop, insert LF and blank...
+
+&gt;<i> 3. documentation for mapi...
+</I>&gt;<i> ...would be great. do you have any, please?
+</I>
+I don't - OpenChange perhaps? Otherwise ask Jelmer Vernooi if he wants to  
+help (he mentored Yang-Yan Li last year) or the openchange lists.
+
+&gt;<i> 4. mapi todo
+</I>&gt;<i> - the problem above
+</I>&gt;<i> - AND the same problem applying to To: and Cc: fields
+</I>&gt;<i> - threading of messages does not work
+</I>
+Is the cause known yet? Incomplete headers, such as In-Reply-To: or  
+References:?
+
+&gt;<i> - valgrind reporting some memory stuff (reads beyond etc)
+</I>
+If they're in OpenSSL, disregard. If they're in OpenChange, they'll  
+probably want to know...
+
+&gt;<i> - fetching messages is quite slow
+</I>
+Too bad. I'd say postpone this. If it works slowly, than that's better  
+than &quot;not at all&quot; :)
+
+&gt;<i> - when &gt; 1000 messages, fetchmail says it cannot open MDA
+</I>&gt;<i>   with some IO error. it fails in sink.c:open_mda_sink after
+</I>&gt;<i>   the popen.
+</I>&gt;<i> 	  report(stderr, GT_(&quot;MDA open failed\n&quot;));
+</I>&gt;<i>   perhaps some descriptor leak? do you have any ideas, please?
+</I>
+Try running with -vvv and see if you still get the &quot;about to deliver  
+with:&quot; message, and please show it to me.
+Can I also see your mda option's argument? In doubt, report the usual  
+stuff I ask users to report,  
+<A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#G3">http://www.fetchmail.info/fetchmail-FAQ.html#G3</A>
+
+WRT descriptor leaks: Try &quot;lsof -c fetchmail&quot; in a separate console while  
+fetchmail is fetching and short before it fails, i. e. after say 500 or  
+700 messages. If it's a descriptor leak, you'll get to know. Otherwise,  
+strace or truss could help. You could also grep &quot;ps ax&quot; or &quot;ps -ef&quot; output  
+for hints of process table exhaustion (grep for your MDA software).
+
+&gt;<i> - flushing messages is also quite slow
+</I>&gt;<i> - messages like:
+</I>&gt;<i> 	- xxx:54 was not the expected length (1032 actual != 4863 expected)
+</I>
+Probably similar artifacts to  
+&lt;<A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#S2">http://www.fetchmail.info/fetchmail-FAQ.html#S2</A>&gt; - does it help to fiddle  
+with the Exchange registry?
+
+HTH
+
+Best regards
+Matthias
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001167.html">[fetchmail-devel] mapi again
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1168">[ date ]</a>
+              <a href="thread.html#1168">[ thread ]</a>
+              <a href="subject.html#1168">[ subject ]</a>
+              <a href="author.html#1168">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

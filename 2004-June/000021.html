@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] automake migration
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20automake%20migration&In-Reply-To=%3C200406181730.29190.rfunk%40funknet.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000019.html">
+   <LINK REL="Next"  HREF="000024.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] automake migration</H1>
+    <B>Rob Funk</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20automake%20migration&In-Reply-To=%3C200406181730.29190.rfunk%40funknet.net%3E"
+       TITLE="[fetchmail-devel] automake migration">rfunk at funknet.net
+       </A><BR>
+    <I>Fri Jun 18 23:30:29 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000019.html">[fetchmail-devel] automake migration
+</A></li>
+        <LI>Next message: <A HREF="000024.html">[fetchmail-devel] automake migration
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+&gt;<i> I've automake-ified fetchmail,
+</I>
+Sounds scary, but it's something that crossed my mind last night.
+
+&gt;<i> but haven't commited the (huge!) change
+</I>&gt;<i> set yet. The reason I've done this before 6.2.6 is that I have been
+</I>&gt;<i> unable to compile the current intl/ stuff on Solaris and FreeBSD, and
+</I>&gt;<i> haven't been able to fix this. So I was fed up, upgraded gettext,
+</I>&gt;<i> switched to automake and voil&#224; it works on SuSE Linux 8.2 x86 (with GCC
+</I>&gt;<i> 3.4 and ICC 8.0), on Solaris 8 SPARC (with GCC 3.4 and Sun Workshop) and
+</I>&gt;<i> on FreeBSD 4.10 i386.
+</I>
+Awesome!
+
+&gt;<i> A bug the commit would also fix is the generation of text from HTML,
+</I>&gt;<i> which can currently create empty files if lynx isn't installed.
+</I>
+I was actually wondering about moving that generation out of the makefile 
+and into the makerelease script.  Not sure though.  That was mainly 
+prompted by the conversion of the man page to HTML, which requires some 
+infrastructure that we're not only not distributing, but isn't all that 
+common.  (Mainly the manServer.pl script I added to the dist-tools 
+directory.  Note that I don't intend for dist-tools to be included in the 
+release, and I hope to move a bunch of Eric's release scripts into there.) 
+I figured that if that conversion doesn't work with the distributed 
+tarball, it's worth thinking about the same situation with the rest of the 
+HTML generation.
+
+&gt;<i> Rob, does this get your OK?
+</I>
+The general idea sounds good, especially the fact that you've tested on 
+multiple platforms.  The number of files touched is a bit scary, and I 
+have minor reservations about some fringes of the process, but I think we 
+can work those out later.
+
+&gt;<i> If you can tell me how to fork a branch and
+</I>&gt;<i> commit that stuff to a branch, I'll do that,
+</I>
+Heh, that's an area of svn I haven't explored yet.  Check here for that 
+info:  <A HREF="http://svnbook.red-bean.com/">http://svnbook.red-bean.com/</A>
+(I'm eagerly awaiting the print release of the book, which should get 
+shipped to me when it comes out.)
+
+Unfortunately I'm going on an 8-day camping trip in a couple days and don't 
+have time to look closely at this before I go.  So I'll just suggest that 
+you go ahead and commit it, but try to commit in coherent chunks if 
+possible.  That is, see if you can separate the automake stuff, the HTML 
+generation, and the gettext stuff.  I understand if that's not really 
+possible though.
+
+Meanwhile, be sure to test actually running the result.  (Argh, I still 
+have to figure out how to deal with the torturetest server list, with its 
+unpublishable passwords.)
+
+And I encourage everyone else to test building and running too.
+
+&gt;<i> Building it after &quot;autoreconf -is&quot; with the software mentioned below
+</I>&gt;<i> works for me:
+</I>&gt;<i>
+</I>&gt;<i> This is what the new README.svn file reads:
+</I>&gt;<i> | In order to be able to build from the subversion repository (working
+</I>&gt;<i> | directory), some files need to be (re-)generated.
+</I>
+It might be good to create a &quot;bootstrap&quot; script that removes that cache 
+directory and does the autoreconf.  And then change the makerelease script 
+to call that instead of &quot;aclocal &amp;&amp; autoconf&quot;.
+
+&gt;<i> A      dist-tools/Makefile.am
+</I>
+I wouldn't think we'd need a makefile there.
+
+&gt;<i> D      intl/ChangeLog
+</I>&gt;<i> D      intl/Makefile.in
+</I>&gt;<i> D      intl/VERSION
+</I>&gt;<i> D      intl/bindtextdom.c
+</I>.... and so on
+
+Where's this intl functionality now?
+
+-- 
+==============================|   &quot;A microscope locked in on one point
+ Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; |Never sees what kind of room that it's in&quot;
+ <A HREF="http://www.funknet.net/rfunk">http://www.funknet.net/rfunk</A> |    -- Chris Mars, &quot;Stuck in Rewind&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000019.html">[fetchmail-devel] automake migration
+</A></li>
+	<LI>Next message: <A HREF="000024.html">[fetchmail-devel] automake migration
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

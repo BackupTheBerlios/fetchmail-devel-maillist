@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail%5Dfetchmail%20loaded%20into%20berlios%20svn%20repository%3B%0A%20mailing%20lists&In-Reply-To=%3Cm33c52xk3r.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000001.html">
+   <LINK REL="Next"  HREF="000005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail%5Dfetchmail%20loaded%20into%20berlios%20svn%20repository%3B%0A%20mailing%20lists&In-Reply-To=%3Cm33c52xk3r.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Fri Jun 11 16:08:56 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000001.html">[fetchmail-devel] fetchmail loaded into berlios svn repository; mailing lists
+</A></li>
+        <LI>Next message: <A HREF="000005.html">[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>NB: please CC: all replies to this mail.
+
+Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; writes:
+
+&gt;<i> 3. Eric's release scripts include lots of things that were intended for his 
+</I>&gt;<i> environment but will not work at all in the new environment.  This is the 
+</I>&gt;<i> first thing that will need to be fixed.  After this is fixed, we should be 
+</I>&gt;<i> about ready for a 6.2.6 release.
+</I>
+I have some patches I'd like to commit before 6.2.6, two important, the rest
+trivial and cosmetic to reduce screen scatter (compiler warnings) a bit.
+
+The important ones are: 
+
+- in pop3_getpartialsizes, we may return uninitialized data iff first &gt;
+last (I don't know if this can happen, but I'd like to make the function
+itself surprise free.)
+
+- in po/POTFILES.in we're effectively listing rcfile_y.c a second
+  time. It is in Makefile.in.in with proper path (top_builddir) and in
+  POTFILES.in again, which makes gettext's makefile prepend top_srcdir -
+  which fails, because rcfile_y.c is generated and hence in builddir.
+
+  To reproduce the problem:
+  make distclean
+  mkdir build
+  cd build
+  ../configure
+  make
+
+The rest is just word flipping to shut up GCC 3.4.
+
+Is this OK to commit?
+
+Index: getpass.c
+===================================================================
+--- getpass.c	(revision 3881)
++++ getpass.c	(working copy)
+@@ -56,9 +56,9 @@
+ #endif
+ #endif
+ 
+-void static save_tty_state(void);
+-void static disable_tty_echo(void);
+-void static restore_tty_state(void);
++static void save_tty_state(void);
++static void disable_tty_echo(void);
++static void restore_tty_state(void);
+ static RETSIGTYPE sigint_handler(int);
+ 
+ char *fm_getpassword(prompt)
+Index: pop3.c
+===================================================================
+--- pop3.c	(revision 3881)
++++ pop3.c	(working copy)
+@@ -219,7 +219,7 @@
+ 
+ 
+ 
+-static int capa_probe(sock)
++static int capa_probe(int sock)
+ /* probe the capabilities of the remote server */
+ {
+     int	ok;
+@@ -916,7 +916,7 @@
+ static int pop3_getpartialsizes(int sock, int first, int last, int *sizes)
+ /* capture the size of message #first */
+ {
+-    int	ok, i;
++    int	ok = 0, i;
+     char buf [POPBUFSIZE+1];
+     unsigned int num, size;
+ 
+@@ -1179,7 +1179,7 @@
+     return(ok);
+ }
+ 
+-const static struct method pop3 =
++static const struct method pop3 =
+ {
+     &quot;POP3&quot;,		/* Post Office Protocol v3 */
+ #if INET6_ENABLE
+Index: etrn.c
+===================================================================
+--- etrn.c	(revision 3881)
++++ etrn.c	(working copy)
+@@ -119,7 +119,7 @@
+     return(gen_transact(sock, &quot;QUIT&quot;));
+ }
+ 
+-const static struct method etrn =
++static const struct method etrn =
+ {
+     &quot;ETRN&quot;,		/* ESMTP ETRN extension */
+ #if INET6_ENABLE
+Index: imap.c
+===================================================================
+--- imap.c	(revision 3881)
++++ imap.c	(working copy)
+@@ -1110,7 +1110,7 @@
+     return(gen_transact(sock, &quot;LOGOUT&quot;));
+ }
+ 
+-const static struct method imap =
++static const struct method imap =
+ {
+     &quot;IMAP&quot;,		/* Internet Message Access Protocol */
+ #if INET6_ENABLE
+Index: odmr.c
+===================================================================
+--- odmr.c	(revision 3881)
++++ odmr.c	(working copy)
+@@ -207,7 +207,7 @@
+        return(PS_SUCCESS);
+ }
+ 
+-const static struct method odmr =
++static const struct method odmr =
+ {
+     &quot;ODMR&quot;,		/* ODMR protocol */
+ #if INET6_ENABLE
+Index: driver.c
+===================================================================
+--- driver.c	(revision 3881)
++++ driver.c	(working copy)
+@@ -69,8 +69,8 @@
+ flag peek_capable;	/* can we peek for better error recovery? */
+ int mailserver_socket_temp = -1;	/* socket to free if connect timeout */ 
+ 
+-volatile static int timeoutcount = 0;	/* count consecutive timeouts */
+-volatile static int idletimeout = 0;	/* timeout occured in idle stage? */
++static volatile int timeoutcount = 0;	/* count consecutive timeouts */
++static volatile int idletimeout = 0;	/* timeout occured in idle stage? */
+ 
+ static jmp_buf	restart;
+ 
+Index: po/POTFILES.in
+===================================================================
+--- po/POTFILES.in	(revision 3881)
++++ po/POTFILES.in	(working copy)
+@@ -18,7 +18,6 @@
+ opie.c
+ options.c
+ pop3.c
+-rcfile_y.c
+ report.c
+ rfc822.c
+ rpa.c
+
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000001.html">[fetchmail-devel] fetchmail loaded into berlios svn repository; mailing lists
+</A></li>
+	<LI>Next message: <A HREF="000005.html">[fetchmail-devel] Re: [fetchmail]fetchmail loaded into berlios svn repository; mailing lists
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

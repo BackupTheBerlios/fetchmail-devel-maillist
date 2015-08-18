@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] printf ( #ifdef ... #endif ... )
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20printf%20%28%20%23ifdef%20...%20%23endif%20...%20%29&In-Reply-To=%3Cm3wtn5gx27.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000417.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] printf ( #ifdef ... #endif ... )</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20printf%20%28%20%23ifdef%20...%20%23endif%20...%20%29&In-Reply-To=%3Cm3wtn5gx27.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [PATCH] printf ( #ifdef ... #endif ... )">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Aug  1 23:35:28 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000417.html">[fetchmail-devel] [PATCH] printf ( #ifdef ... #endif ... )
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#416">[ date ]</a>
+              <a href="thread.html#416">[ thread ]</a>
+              <a href="subject.html#416">[ subject ]</a>
+              <a href="author.html#416">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Miloslav Trmac &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mitr at redhat.com</A>&gt; writes:
+
+&gt;<i> Hello,
+</I>&gt;<i> recently some code changed in svn from
+</I>&gt;<i> | #if ...
+</I>&gt;<i> | printf(...);
+</I>&gt;<i> | #endif
+</I>&gt;<i> to
+</I>&gt;<i> | printf(...
+</I>&gt;<i> | #if ...
+</I>&gt;<i> |        ...
+</I>&gt;<i> | #endif
+</I>&gt;<i> |           );
+</I>&gt;<i>
+</I>&gt;<i> printf () may be a macro (and it actually is a macro e.g. with recent
+</I>&gt;<i> glibc and -D_FORTIFY_SOURCE=2) and preprocessor directives within
+</I>&gt;<i> macros are not permitted.
+</I>
+What is this _FORTIFY_SOURCE about?  I have it in my include files, but
+ZERO documentation, and all I found out is that it remaps to ominuous
+builtins. So there must be recent gcc as well as it appears.
+
+If this is supposed to be a security helper/feature/whatever and it's
+not documented, it's useless.
+
+&gt;<i> gcc currently compiles the code, but it complains loudly
+</I>&gt;<i> and it seems prudent to fix it before gcc tightens the rules again ;)
+</I>&gt;<i> The attached patch does that.
+</I>
+Thanks for reporting the problem.
+
+I have modified your patch a little bit, mostly to maintain consistency
+with the rest of the code (fputs rather than puts).
+
+I think I'll be doing -pre9 shortly to have other cleanups and fixups
+tested that I cannot test in my setup.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000417.html">[fetchmail-devel] [PATCH] printf ( #ifdef ... #endif ... )
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#416">[ date ]</a>
+              <a href="thread.html#416">[ thread ]</a>
+              <a href="subject.html#416">[ subject ]</a>
+              <a href="author.html#416">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

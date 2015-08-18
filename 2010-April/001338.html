@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] save_str problems.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3Cop.vbml80m81e62zd%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001344.html">
+   <LINK REL="Next"  HREF="001333.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] save_str problems.</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3Cop.vbml80m81e62zd%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] save_str problems.">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Apr 23 18:44:50 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001344.html">[fetchmail-devel] save_str problems.
+</A></li>
+        <LI>Next message: <A HREF="001333.html">[fetchmail-devel] &quot;set invisible&quot; bug in fetchmailconf.py
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1338">[ date ]</a>
+              <a href="thread.html#1338">[ thread ]</a>
+              <a href="subject.html#1338">[ subject ]</a>
+              <a href="author.html#1338">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rainer Weikusat wrote on 2010-04-21:
+
+&gt;<i> Hello.
+</I>&gt;<i>
+</I>&gt;<i> The company I work for uses fetchmail to download mails from various
+</I>&gt;<i> POP- and IMAP-servers in order to offer an anti-spam/ anti-virus
+</I>&gt;<i> scanning service for smartphone owners. Below is an oprofile excerpt
+</I>&gt;<i> from the 'download server' regarding fetchmail:
+</I>
+[whoops, I meant to store a draft when I figured it wasn't a 2 minute  
+reply, but figured that the message was sent out rather than stored as  
+draft, sorry for that]
+
+Hi Rainer,
+
+thanks for the analysis.  You've bumped into a (known) design flaw of  
+fetchmail's UID handling.  It has been on the TODO list for ~2 years, but  
+since it's not a functional bug, the bug fixes always got priority.
+
+Basically the whole uid.c outfit is using the wrong data structures for  
+its purpose. The whole stuff - I guess you figured as much - is meant to  
+figure if a certain UID was seen, i. e. is in a set or not, and read/write  
+that set from/to disk. We don't need order, only uniqueness, but we do  
+need quick access, and the size is dynamic.
+
+uid.c currently uses a linear list of n elements, and iterates over it  
+roughly 1.5n times, i. e. we get O(n^2) complexity (without constant  
+factors).
+
+Your patch, albeit it helps a bit in that it shaves save_str down to O(n),  
+does not fix the fundamental complexity problem: the id_find() stuff and  
+with it the whole UID setup, still remains O(n^2) the way we're using it,  
+only reduced by a constant factor of, guessing optimistially, 2-3.
+
+I have some ideas for a proper solution:
+
+(a) blunt: instead of the list, use an array with realloc, qsort and  
+bsearch.  Ugly, but probably portable to anything that can compile  
+fetchmail today.
+
+(b) halfway: depend on &lt;search.h&gt;, use tsearch(3).  Not the ultimate in  
+performance, but easy to use and down to O(n log n) complexity, which  
+helps quite a bit already.  (hcreate(3) has a fixed size and supports only  
+one table per process, which are showstoppers.)  Deemed safe for fetchmail  
+6.3.
+
+Even better options:
+
+(c) Use C++ and optionally Boost with unordered_set. Fallback options are  
+hash_set and set. Recent 6.3 versions are already intelligible as C and  
+C++, so it's a gradual move with one initial bump that pulls in the  
+dependencies and switches to C++.
+
+(d) use a disk-based hashed or btree database.  I don't know the optimal  
+library though, I've been through this in bogofilter.  sqlite3 pulls in  
+SQL overhead (it's not that bad, but still) we don't need, but otherwise  
+quite robust. Berkeley DB has decent documentation, STL API and is bullet  
+proof -- but there are two nukes that kill it: (1) users messing with the  
+files and removing log files, (2) distributions upgrading libdb and  
+application without telling the user. It's also a nightmare to  
+autodetect.  TokyoCabinet might be a candidate, but its API is pretty raw  
+on the bits and I trust its future less than all other databases.
+
+
+I am very inclined to go for (c) or (d) in fetchmail 6.4 and I think I'm  
+determined to go for C++ as that allows much conciser code.
+
+I am loathe to change 6.3 uid.c at all, as basically it's beyond repair  
+and needs to be redone from scratch - which is not adequate for a &quot;stable&quot;  
+version.
+
+6.4 should split .fetchids to per-account files (we used to have patches  
+but never deployed them in baseline code), which greatly simplifies uid  
+list handling. See patches at &lt;<A HREF="http://home.pages.de/~mandree/fetchmail/">http://home.pages.de/~mandree/fetchmail/</A>&gt;.
+
+&gt;<i> I am aware that the 'split append' (save_str + explicit adjustment of
+</I>&gt;<i> savedend-pointer) isn't exactly beautiful but it is a reasonably
+</I>&gt;<i> simple change with a significant positive impact for POP3 mailboxes
+</I>&gt;<i> containing lots of ('kept on server') messages.
+</I>
+If a constant factor of - best case guess - 3 is &quot;significant&quot;, then yes -  
+but it still doesn't scale and your gain is lost again if you increase the  
+number of messages by 40 - 80 %.
+
+The moment I saw your patch I immediately thought of AmigaOS (Kickstart)  
+exec.library &quot;struct List&quot; and &quot;struct Node&quot; (AROS equivalent at [1])  
+which would solve this problem in a beautiful way -- albeit without fixing  
+the fundamental performance problem.
+
+I hope you're not too disappointed that I'm loathe to take your patch and  
+that you can understand my reasoning.
+
+Best regards
+Matthias
+
+[1]  
+&lt;<A HREF="http://aros.sourceforge.net/documentation/developers/app-dev/exec-library.php#list-manipulating-functions">http://aros.sourceforge.net/documentation/developers/app-dev/exec-library.php#list-manipulating-functions</A>&gt;
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001344.html">[fetchmail-devel] save_str problems.
+</A></li>
+	<LI>Next message: <A HREF="001333.html">[fetchmail-devel] &quot;set invisible&quot; bug in fetchmailconf.py
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1338">[ date ]</a>
+              <a href="thread.html#1338">[ thread ]</a>
+              <a href="subject.html#1338">[ subject ]</a>
+              <a href="author.html#1338">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

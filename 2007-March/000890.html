@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Security vulnerability in APOP authentication
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Security%20vulnerability%20in%20APOP%20authentication&In-Reply-To=%3Cqlk7itfgzu1.fsf%40clipper.ens.fr%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000889.html">
+   <LINK REL="Next"  HREF="000891.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Security vulnerability in APOP authentication</H1>
+    <B>Ga&#235;tan LEURENT</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Security%20vulnerability%20in%20APOP%20authentication&In-Reply-To=%3Cqlk7itfgzu1.fsf%40clipper.ens.fr%3E"
+       TITLE="[fetchmail-devel] Security vulnerability in APOP authentication">gaetan.leurent at ens.fr
+       </A><BR>
+    <I>Sun Mar 18 01:28:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000889.html">[fetchmail-devel] Security vulnerability in APOP authentication
+</A></li>
+        <LI>Next message: <A HREF="000891.html">[fetchmail-devel] Security vulnerability in APOP authentication
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#890">[ date ]</a>
+              <a href="thread.html#890">[ thread ]</a>
+              <a href="subject.html#890">[ subject ]</a>
+              <a href="author.html#890">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Matthias Andree wrote on 18 Mar 2007 00:03:55 +0100:
+
+&gt;<i> How does this work in detail? Recover character by character? Are
+</I>&gt;<i> specially-crafted challenges required to provoke weak messages in MD5,
+</I>&gt;<i> if there are any?
+</I>
+Yes, it uses specially-crafted challenges to recover the password
+character by character.  It is not really a matter of weak messages, but
+of pair of colliding messages.
+
+The idea of this attack is to create a collision, and replace a part of
+the collision with an unknown password character; therefore, if it still
+collides the chances are that the password character is the same than
+the one in the original collision.
+
+&gt;<i> What's the state of the MD5 cracking art WRT unknown plaintext, how big
+</I>&gt;<i> is the effort to brute force the 85^5 space from the 1,000 hashes thus
+</I>&gt;<i> collected?
+</I>
+Well OpenSSL does something like 2^31 MD5 per hour, and 85^5 is about
+2^32.  So you should be able to bruteforce 5 characters in 2
+hours...
+
+&gt;&gt;<i> However, using the current techniques available to attack MD5, the
+</I>&gt;&gt;<i> msg-ids sent by the server can easily be distinguished from genuine ones
+</I>&gt;&gt;<i> as they will not respect the RFC specification.
+</I>&gt;<i>
+</I>&gt;<i> How long until these colliding messages ASCII and RFC-822 message-id format
+</I>
+I have no idea...  I think APOP should already be considered insecure,
+but as you said it is sometimes the best authentication available, so
+it's better to try to make it as resistant as possible...  Anyway,
+restricting the space of possible message-ids will at least make the
+attack somewhat harder if it becomes possible.
+
+&gt;&gt;<i> In particular, they
+</I>&gt;&gt;<i> will contain non-ASCII characters.  Therefore, as a security
+</I>&gt;&gt;<i> countermeasure, I think fetchmail should reject msg-ids that does not
+</I>&gt;&gt;<i> conform to the RFC.
+</I>&gt;<i>
+</I>&gt;<i> That is certainly feasible to implement, I wonder though if that helps
+</I>&gt;<i> us out for long.
+</I>
+Well I don't know.  That's up to you to choose if it's worth...
+
+&gt;&gt;<i> The details of the attack and the new results against MD5 needed to
+</I>&gt;&gt;<i> build it will be presented in the Fast Software Encryption conference on
+</I>&gt;&gt;<i> March 28.  I can send you some more details if needed.
+</I>&gt;<i>
+</I>&gt;<i> That would certainly be interesting - who will present the attack at the
+</I>&gt;<i> conference? Is the paper available for download or will it be after the
+</I>&gt;<i> conference?
+</I>
+I will present it :-)  I send you a copy of the paper.
+
+-- 
+Ga&#235;tan LEURENT
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000889.html">[fetchmail-devel] Security vulnerability in APOP authentication
+</A></li>
+	<LI>Next message: <A HREF="000891.html">[fetchmail-devel] Security vulnerability in APOP authentication
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#890">[ date ]</a>
+              <a href="thread.html#890">[ thread ]</a>
+              <a href="subject.html#890">[ subject ]</a>
+              <a href="author.html#890">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

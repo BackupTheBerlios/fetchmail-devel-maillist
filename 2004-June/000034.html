@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] FYI: recovered SVN repository
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20FYI%3A%20recovered%20SVN%20repository&In-Reply-To=%3Cm3smcscswx.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000033.html">
+   <LINK REL="Next"  HREF="000035.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] FYI: recovered SVN repository</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20FYI%3A%20recovered%20SVN%20repository&In-Reply-To=%3Cm3smcscswx.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] FYI: recovered SVN repository">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Sat Jun 19 02:06:54 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000033.html">[fetchmail-devel] FYI: recovered SVN repository
+</A></li>
+        <LI>Next message: <A HREF="000035.html">[fetchmail-devel] FYI: recovered SVN repository
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#34">[ date ]</a>
+              <a href="thread.html#34">[ thread ]</a>
+              <a href="subject.html#34">[ subject ]</a>
+              <a href="author.html#34">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; writes:
+
+&gt;<i> Matthias Andree wrote:
+</I>&gt;&gt;<i> Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; writes:
+</I>&gt;&gt;<i> &gt; Yeah, I've had to do that once or twice before.  It's a bit disturbing
+</I>&gt;&gt;<i> &gt; that it happens though.  I wish I knew why.  Luckily recovery seems to
+</I>&gt;&gt;<i> &gt; be pretty easy.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> All it takes is an unclean shutdown of some server software.
+</I>&gt;<i>
+</I>&gt;<i> Hmm, that means we can blame Berlios sysadmins?  Seems like a bad
+</I>&gt;<i> sign.
+</I>
+I don't know what caused it. I aborted a commit that would have been too
+broad, if this cause the SVN server stuff to die from SIGPIPE or
+something, that might explain it - but I have no idea how to reproduce
+this.
+
+&gt;&gt;<i> &gt; I'm really looking forward to sitting down with the subversion
+</I>&gt;&gt;<i> &gt; book....
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> That's inherited from Berkeley DB.
+</I>&gt;<i>
+</I>&gt;<i> Ah, in that case I have a book on that to sit down with.  It's changed a 
+</I>&gt;<i> lot since I last worked with it.
+</I>
+SVN uses the &quot;transactional&quot; store so it can recover from write errors
+or application crashes or server crashes. This stuff dates back to at
+least Berkeley DB 3.2.
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000033.html">[fetchmail-devel] FYI: recovered SVN repository
+</A></li>
+	<LI>Next message: <A HREF="000035.html">[fetchmail-devel] FYI: recovered SVN repository
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#34">[ date ]</a>
+              <a href="thread.html#34">[ thread ]</a>
+              <a href="subject.html#34">[ subject ]</a>
+              <a href="author.html#34">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

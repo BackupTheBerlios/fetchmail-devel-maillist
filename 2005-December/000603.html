@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20RFC%3A%20Patch%20to%20fix%20Berlios%20Bug%20%235849&In-Reply-To=%3C20051214081609.GB3208%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000601.html">
+   <LINK REL="Next"  HREF="000609.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20RFC%3A%20Patch%20to%20fix%20Berlios%20Bug%20%235849&In-Reply-To=%3C20051214081609.GB3208%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Dec 14 09:16:09 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000601.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+        <LI>Next message: <A HREF="000609.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#603">[ date ]</a>
+              <a href="thread.html#603">[ thread ]</a>
+              <a href="subject.html#603">[ subject ]</a>
+              <a href="author.html#603">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Tue, Dec 13, 2005:
+&gt;<i> Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;<i> &gt; $ fetchmail -v --lmtp --smtphost localhost/port,/this/socket/is/up
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; where localhost is indeed meant to be an LMTP server.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The situation gets worse if fetchmail sends a bounce message in
+</I>&gt;<i> &gt; between!
+</I>&gt;<i> 
+</I>&gt;<i> One more thing: the whole LMTP implementation is a mess. Why would the
+</I>&gt;<i> kind of socket (UNIX vs. INET) determine if SMTP or LMTP is spoken by
+</I>&gt;<i> the service?
+</I>
+It looks like it is assumed that there are no SMTP UNIX sockets.
+
+I think, it is even more complex to give the port and type with every
+inet host and type with every unix socket. And there is no way of
+specifying different smtp options (esmtpname, esmtppassword) per
+smtphost.
+
+This should be a TODO.
+
+Any ideas, comments on this?
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000601.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+	<LI>Next message: <A HREF="000609.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#603">[ date ]</a>
+              <a href="thread.html#603">[ thread ]</a>
+              <a href="subject.html#603">[ subject ]</a>
+              <a href="author.html#603">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

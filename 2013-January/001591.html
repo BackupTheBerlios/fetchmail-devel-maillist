@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #18853] IMAP IDLE + SSL: Error: re-poll	failed
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2013-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2318853%5D%20IMAP%20IDLE%20%2B%20SSL%3A%20Error%3A%20re-poll%0A%09failed&In-Reply-To=%3C201301062143.r06LhXWg011309%40www.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001590.html">
+   <LINK REL="Next"  HREF="001592.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #18853] IMAP IDLE + SSL: Error: re-poll	failed</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2318853%5D%20IMAP%20IDLE%20%2B%20SSL%3A%20Error%3A%20re-poll%0A%09failed&In-Reply-To=%3C201301062143.r06LhXWg011309%40www.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #18853] IMAP IDLE + SSL: Error: re-poll	failed">admin at berlios.de
+       </A><BR>
+    <I>Sun Jan  6 22:43:33 CET 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001590.html">[fetchmail-devel] [Bug #18853] IMAP IDLE + SSL: Error: re-poll	failed
+</A></li>
+        <LI>Next message: <A HREF="001592.html">[fetchmail-devel] [Bug #18863] fetchmail 6.3.24 ignores	LOGINDISABLED
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1591">[ date ]</a>
+              <a href="thread.html#1591">[ thread ]</a>
+              <a href="subject.html#1591">[ subject ]</a>
+              <a href="author.html#1591">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #18853, was updated on 2013-Jan-03 22:49
+Here is a current snapshot of the bug.
+
+Project: fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 4
+Submitted by: w-f
+Assigned to : none
+Summary: IMAP IDLE + SSL: Error: re-poll failed
+
+Details: I use fetchmail with SSL and IMAP IDLE. The IMAP connection freezes after some time and the re-poll failed after 28 min. It looks like there is a ssl socket timeout before a IMAP IDLE re-poll is issued.
+
+-----
+Jan  3 20:31:35 mini2 fetchmail[14842]: IMAP&gt; A0005 IDLE
+Jan  3 20:31:35 mini2 fetchmail[14842]: IMAP&lt; + OK
+Jan  3 20:59:35 mini2 fetchmail[14842]: IMAP&gt; DONE
+Jan  3 20:59:35 mini2 fetchmail[14842]: re-poll failed
+Jan  3 20:59:35 mini2 fetchmail[14842]: socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">webmaster at fischer-wolfgang.de</A>@imap.strato.de
+Jan  3 20:59:35 mini2 fetchmail[14842]: 6.3.24 querying imap.strato.de (protocol IMAP) at Thu, 03 Jan 2013 20:59:35 +0100 (CET): poll completed
+Jan  3 20:59:35 mini2 fetchmail[14842]: Query status=2 (SOCKET)
+-----
+
+The re-poll does not fail, when the idle timeout is reduced from 28 min to 10 minutes. This should also fulfil the RFC 2177, because the RFC suggests to re-issue a IDLE command at LEAST every 29 minutes.
+
+RFC 2177 
+
+   &quot;The server MAY consider a client inactive if it has an IDLE command
+   running, and if such a server has an inactivity timeout it MAY log
+   the client off implicitly at the end of its timeout period.  Because
+   of that, clients using IDLE are advised to terminate the IDLE and
+   re-issue it at least every 29 minutes to avoid being logged off.
+   This still allows a client to receive immediate mailbox updates even
+   though it need only &quot;poll&quot; at half hour intervals.&quot;
+
+Other IMAP Clients uses a shorter IDLE re-poll timer or issues a NOOP Command.
+Microsoft Outlook:  10 min
+Apple Mail:  IMAP NOOP every 1 minute (RFC 3501: &quot;The NOOP command can also be used to reset any inactivity autologout timer on the server.&quot;)
+
+------
+Patch (Reduce  idle_timeout  to 600)
+diff fetchmail-6.3.24-patched/imap.c fetchmail-6.3.24/imap.c 
+718,719c718
+&lt; 	/* mytimeout = idle_timeout = 1680; */ /* 28 min */
+&lt;         mytimeout = idle_timeout = 600;  /* reduce to 10 min to prevent ssl socket timeout */
+---
+&gt;<i> 	mytimeout = idle_timeout = 1680; /* 28 min */
+</I>
+
+Enviroment:
+fetchmail 6.3.24
+OS:  Mac OS 10.7.5
+IMAP Server:  Provider Strato (imap.strato.de)
+
+---
+Best regards,
+Wolfgang
+
+
+Follow-Ups:
+
+Date: 2013-Jan-06 22:43
+By: w-f
+
+Comment:
+Hello Matthias,
+
+I did a dtrace for the SSL case and non-SSL case. In both variants the  TCP KeepAlive is enabled.
+
+199552      20     14 socket(0x2, 0x1, 0x6)		 = 5 0
+199559       8      2 setsockopt(0x5, 0xFFFF, 0x8)		 = 0 0
+199634   21589     72 connect(0x5, 0x7FAF0AC01320, 0x10)		 = 0 0
+
+But there is an other difference:
+The non-ssl socket uses the system call recvfrom to wait for data from the imap server during the idle time. The ssl socket uses the system call &quot;read&quot; to wait for data from the imap server during the idle time. The tcp stack sends no KeepAlive Packets during the system call read.
+
+You can download  the complete dtrace files for both variants from <A HREF="https://www.hidrive.strato.com/lnk/RBTrVUhJ">https://www.hidrive.strato.com/lnk/RBTrVUhJ</A>
+
+Best regards,
+Wolfgang
+-------------------------------------------------------
+
+Date: 2013-Jan-06 13:29
+By: m-a
+
+Comment:
+Wolfgang,
+
+could you dtrace setsockopt and/or all socket option, for (1) the SSL case, (2) the non-SSL case?  I unconditionally enable SO_KEEPALIVE after the socket has been opened, and never see them disabled - perhaps your OpenSSL library behaves differently.
+
+Best regards,
+Matthias
+-------------------------------------------------------
+
+Date: 2013-Jan-06 13:20
+By: m-a
+
+Comment:
+Thanks for the detailed information.
+
+However, this pretty much looks like a networking issue. The server just hung up, but there was no FIN|ACK handshake from closing down the connection, so fetchmail was not informed of the shutdown or close until it tried to send the next packet.
+
+This pretty much looks like a networking issue, broken router or NAT or Masquerading. I'll grant that TCP keepalives might help.
+
+Unfortunately, strato does not appear to support STARTTLS, so we cannot test that.
+-------------------------------------------------------
+
+Date: 2013-Jan-05 19:50
+By: w-f
+
+Comment:
+The issue is not an server imap timeout. There are no problems when using an unencrypted imap session.
+
+The dtruss  shows no activity during the idle time:
+22867/0xaf6c4:    629137      33     24 write(0x5, &quot;\027\003\0&quot;, 0x25)		 = 37 0
+22867/0xaf6c4:    629147       9      3 __sysctl(0x7FFF60CF8FE8, 0x2, 0x7FFF60CF8FFF)		 = 0 0
+22867/0xaf6c4:    629150       5      0 getuid(0x0, 0x7FFF60CF8C58, 0x0)		 = 273 0
+22867/0xaf6c4:    629152       5      0 getgid(0x0, 0x7FFF60CF8C58, 0x0)		 = 1 0
+22867/0xaf6c4:    629184       9      3 setitimer(0x0, 0x7FFF60CF7E00, 0x0)		 = 0 0
+
+dtrace: error on enabled probe ID 1791 (ID 778: syscall::read:return): out of scratch space in action #13 at DIF offset 44
+dtrace: error on enabled probe ID 1791 (ID 778: syscall::read:return): out of scratch space in action #13 at DIF offset 44
+dtrace: error on enabled probe ID 1789 (ID 780: syscall::write:return): out of scratch space in action #13 at DIF offset 44
+22867/0xaf6c4:    629354     343     20 sigreturn(0x7FFF60CF7B50, 0x1E, 0x7FFF60CF7B50)		 = 0 Err#-2
+22867/0xaf6c4:    629358       8      0 __pthread_canceled(0x0, 0x7FE06C015000, 0x7FFF60CF7C08)		 = -1 Err#22
+22867/0xaf6c4:    629372       8      1 setitimer(0x0, 0x7FFF60CF7E00, 0x0)		 = 0 0
+22867/0xaf6c4:    629454      66     58 write(0x5, &quot;\027\003\0&quot;, 0x1F)		 = 31 0
+22867/0xaf6c4:    629481      15      8 __sysctl(0x7FFF60CFB0F8, 0x2, 0x7FFF60CFB10F)		 = 0 0
+22867/0xaf6c4:    629485       6      0 getuid(0x0, 0x7FFF60CFAD68, 0x0)		 = 273 0
+22867/0xaf6c4:    629487       6      0 getgid(0x0, 0x7FFF60CFAD68, 0x0)		 = 1 0
+22867/0xaf6c4:    629533      10      4 setitimer(0x0, 0x7FFF60CF9F30, 0x0)		 = 0 0
+22867/0xaf6c4:    629566      13      1 setitimer(0x0, 0x7FFF60CF9F30, 0x0)		 = 0 0
+22867/0xaf6c4:    629569       5      0 setitimer(0x0, 0x7FFF60CFBFD0, 0x0)		 = 0 0
+22867/0xaf6c4:    629596      14      7 __sysctl(0x7FFF60CFB118, 0x2, 0x7FFF60CFB12F)		 = 0 0
+22867/0xaf6c4:    629600       5      0 getuid(0x0, 0x7FFF60CFAD88, 0x0)		 = 273 0
+22867/0xaf6c4:    629602       5      0 getgid(0x0, 0x7FFF60CFAD88, 0x0)		 = 1 0
+22867/0xaf6c4:    629648      10      2 sigaction(0xE, 0x7FFF60D00098, 0x7FFF60D000C0)		 = 0 0
+22867/0xaf6c4:    629653       8      2 setitimer(0x0, 0x7FFF60D00278, 0x0)		 = 0 0
+22867/0xaf6c4:    629849      18      9 close(0x5)		 = 0 0
+22867/0xaf6c4:    629852       6      1 setitimer(0x0, 0x7FFF60D00298, 0x0)		 = 0 0
+22867/0xaf6c4:    629854       6      0 sigaction(0xE, 0x7FFF60D00098, 0x7FFF60D000C0)		 = 0 0
+22867/0xaf6c4:    629867       9      3 __sysctl(0x7FFF60CFF1E8, 0x2, 0x7FFF60CFF1FF)		 = 0 0
+
+Also there is no network traffic during the idle time.  And the response for first packet TCP Push from fetchmail to the imap server is a Reset. 
+
+tcp dump IMAPS Session:
+------
+18:42:48.547781 IP (tos 0x0, ttl 64, id 25398, offset 0, flags [DF], proto TCP (6), length 77)
+    mini2.home.fischer-net.net.60975 &gt; imap.strato.de.imaps: Flags [P.], cksum 0x4c5f (incorrect -&gt; 0x2baf), seq 743:780, ack 4504, win 33396, length 37
+18:42:48.568631 IP (tos 0x0, ttl 248, id 36786, offset 0, flags [DF], proto TCP (6), length 71)
+    imap.strato.de.imaps &gt; mini2.home.fischer-net.net.60975: Flags [P.], cksum 0x5a30 (correct), seq 4504:4535, ack 780, win 5135, length 31
+18:42:48.568693 IP (tos 0x0, ttl 64, id 64318, offset 0, flags [DF], proto TCP (6), length 40)
+    mini2.home.fischer-net.net.60975 &gt; imap.strato.de.imaps: Flags [.], cksum 0x4c3a (incorrect -&gt; 0xd50a), seq 780, ack 4535, win 33380, length 0
+
+19:10:48.624932 IP (tos 0x0, ttl 64, id 12889, offset 0, flags [DF], proto TCP (6), length 71)
+    mini2.home.fischer-net.net.60975 &gt; imap.strato.de.imaps: Flags [P.], cksum 0x4c59 (incorrect -&gt; 0xfd06), seq 780:811, ack 4535, win 33396, length 31
+19:10:48.646571 IP (tos 0x0, ttl 248, id 18517, offset 0, flags [DF], proto TCP (6), length 40)
+    imap.strato.de.imaps &gt; mini2.home.fischer-net.net.60975: Flags [R.], cksum 0x574c (correct), seq 4535, ack 811, win 0, length 0
+
+19:11:49.041641 IP (tos 0x0, ttl 64, id 1235, offset 0, flags [DF], proto TCP (6), length 64)
+    mini2.home.fischer-net.net.61035 &gt; imap.strato.de.imaps: Flags [S], cksum 0x4c52 (incorrect -&gt; 0x0b3e), seq 771336041, win 65535, options [mss 1460,nop,wscale 1,nop,nop,TS val 1029692052 ecr 0,sackOK,eol], length 0
+19:11:49.063272 IP (tos 0x0, ttl 248, id 26043, offset 0, flags [DF], proto TCP (6), length 52)
+    imap.strato.de.imaps &gt; mini2.home.fischer-net.net.61035: Flags [S.], cksum 0x1718 (correct), seq 2700448559, ack 771336042, win 4356, options [mss 1452,nop,wscale 0,sackOK,eol], length 0
+-----
+
+Now for me looks like the issue is, fetchmail opens the Socket for the SSL Session without a TCP KeepAlive.
+  
+When I use an unencrypted imap session, the TCP KeepAlive is active. The tcpdump shows the TCP KeepAlive packets during the imap idle time.
+
+Best Regards,
+Wolfgang
+-------------------------------------------------------
+
+Date: 2013-Jan-03 23:02
+By: m-a
+
+Comment:
+Have Strato fix their server timeouts instead, the 30 minute timer is a &quot;MUST&quot; clause in RFC-3501 section 5.4, see <A HREF="http://tools.ietf.org/html/rfc3501#section-5.4">http://tools.ietf.org/html/rfc3501#section-5.4</A>
+
+If there is a socket timeout, I'd like to see an strace or truss trace proving it, and possibly an accompanying tcpdump or wireshark/tshark dump of the protocol with timestamps, to see when the connection gets closed. Chances are that there is a problem on your end - are you using IPv4 NAT or Masquerading?
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18853&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18853&amp;group_id=1824</A>
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001590.html">[fetchmail-devel] [Bug #18853] IMAP IDLE + SSL: Error: re-poll	failed
+</A></li>
+	<LI>Next message: <A HREF="001592.html">[fetchmail-devel] [Bug #18863] fetchmail 6.3.24 ignores	LOGINDISABLED
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1591">[ date ]</a>
+              <a href="thread.html#1591">[ thread ]</a>
+              <a href="subject.html#1591">[ subject ]</a>
+              <a href="author.html#1591">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

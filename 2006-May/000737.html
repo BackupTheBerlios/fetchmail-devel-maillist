@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Workaround%20for%20unavoidable%20SSL%20CommonName%20mismatch%3F&In-Reply-To=%3Cm3r73d5pea.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000736.html">
+   <LINK REL="Next"  HREF="000738.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Workaround%20for%20unavoidable%20SSL%20CommonName%20mismatch%3F&In-Reply-To=%3Cm3r73d5pea.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue May  2 00:52:29 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000736.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+        <LI>Next message: <A HREF="000738.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#737">[ date ]</a>
+              <a href="thread.html#737">[ thread ]</a>
+              <a href="subject.html#737">[ subject ]</a>
+              <a href="author.html#737">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&quot;Daniel Richard G.&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">skunk at iSKUNK.ORG</A>&gt; writes:
+
+&gt;<i> I've gone ahead and put together a preliminary patch, against the SVN code. 
+</I>&gt;<i> This implements a new keyword: &quot;sslcommonname&quot;. (Forget my earlier 
+</I>&gt;<i> suggestion of &quot;sslalternate&quot;---I wasn't thinking straight when I made it :]
+</I>&gt;<i>
+</I>&gt;<i> The approach I took was basically to find all instances of 
+</I>&gt;<i> &quot;sslfingerprint&quot;, and implement the new keyword similarly at each turn
+</I>&gt;<i> (which turned out to be quite easy). On the downside, you can only specify 
+</I>&gt;<i> one CommonName, whereas I had originally envisioned allowing many.
+</I>
+Well, there are string list functions inside fetchmail, and these can
+help with the implementation. I wonder if that's useful though - that
+would mean servers behind a load balancer use different common names.
+
+&gt;<i> You'll notice that the critical bits are in driver.c, imap.c and pop3.c, 
+</I>&gt;<i> before and when the call to SSLOpen() is made. Everything else is 
+</I>&gt;<i> supporting boilerplate.
+</I>&gt;<i>
+</I>&gt;<i> Please let me know how this patch looks, and if it looks good, I'll flesh 
+</I>&gt;<i> it out (with deltas on the man page and documentation) for submission.
+</I>
+Looks good to me (I haven't applied and tested it though yet).
+
+A tiny bit, the &quot;cname&quot; variables might better be renamed (perhaps to
+&quot;comname&quot; or sslcommonname) to avoid someone (like myself) from assuming
+it might have to do with the DNS CNAME resource record (canonical name).
+
+Thanks for your work!
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000736.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+	<LI>Next message: <A HREF="000738.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#737">[ date ]</a>
+              <a href="thread.html#737">[ thread ]</a>
+              <a href="subject.html#737">[ subject ]</a>
+              <a href="author.html#737">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

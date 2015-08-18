@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2318794%5D%20BUG%20in%20libdispatch%20client%20-%20OSX%20ML%0A%0910.8.2&In-Reply-To=%3C201211290748.qAT7mWJT020017%40www.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001574.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2318794%5D%20BUG%20in%20libdispatch%20client%20-%20OSX%20ML%0A%0910.8.2&In-Reply-To=%3C201211290748.qAT7mWJT020017%40www.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2">admin at berlios.de
+       </A><BR>
+    <I>Thu Nov 29 08:48:32 CET 2012</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001574.html">[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1575">[ date ]</a>
+              <a href="thread.html#1575">[ thread ]</a>
+              <a href="subject.html#1575">[ subject ]</a>
+              <a href="author.html#1575">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #18794, was updated on 2012-Nov-14 11:12
+Here is a current snapshot of the bug.
+
+Project: fetchmail
+Category: None
+Status: Closed
+Resolution: Invalid
+Bug Group: None
+Priority: 5
+Submitted by: madman1234
+Assigned to : m-a
+Summary: BUG in libdispatch client - OSX ML 10.8.2
+
+Details: I installed fetchmail using mac ports. But everytime I start fetchmail (SSL included), I receive the following message in /var/log/mail.log
+
+[...]
+BUG in libdispatch client: Do not close random Unix descriptors
+[...]
+
+I have compiled the latest fetchmail version by myself, but I receive the same message. 
+
+Fetchmail itself works, but what does it means? 
+
+If I should ran any debugs, just let me know :)
+
+Thanks
+Soeren
+
+Follow-Ups:
+
+Date: 2012-Nov-29 08:48
+By: m-a
+
+Comment:
+I am closing this bug report, as it turns out, ./configure --disable-nls avoids the pollution of fetchmail with GCD on (Mac)OS X, per <A HREF="http://trac.macports.org/ticket/36984#comment:12">http://trac.macports.org/ticket/36984#comment:12</A> - should there be evidence that something fetchmail does with libintl cause this, please reopen this ticket; otherwise I will assume that libintl/gettext on MacOS X have to be fixed, rather than fetchmail.
+
+-------------------------------------------------------
+
+Date: 2012-Nov-22 00:19
+By: m-a
+
+Comment:
+I will keep the libintl issue out of this bug, it is separate and unrelated, and possibly an issue with LD_LIBRARY_PATH lacking a pointer to the /opt... directory that contains libintl.
+
+Now, I am unfamiliar with Apple MacOS X specialties, do not have access to a sufficiently new MacOS X system, and I do not care for them, so I need your help:
+
+1. is there a way to avoid libdispatch being linked in and/or its manager started automatically? What triggers it? I don't need nor want it.
+
+2. is there any documentation on what special file descriptors need to be kept open, and how I can identify them? Why does libc need to open special file descriptors at all?
+
+3. what triggers libdispatch to open file descriptors I did not ask for?
+
+Note that closing file descriptors that fetchmail has not opened and are non-standard (a) is a security feature (against exploitation), (b) is required in several situations in order to actually let fetchmail detach into the background.
+
+I am very much inclined to declare this an operating system bug that the OS injects a file descriptor into my application, and especially that it crashes when I try to close it -- the POSIX standard mandates that close() return -1 after setting errno = EBADF, and does not specify that aborting the program were in order.
+
+It will only occur in daemon mode, so running fetchmail from cron, and setting -d0 on the command line will avoid the problem.
+
+Note: This does not happen on Linux, NetBSD, FreeBSD, or Cygwin, and none of the web pages I found describing your bug contain any solution, other than potential file system corruption, for instance: <A HREF="https://bugs.freedesktop.org/show_bug.cgi?id=56286#c2">https://bugs.freedesktop.org/show_bug.cgi?id=56286#c2</A>
+
+-------------------------------------------------------
+
+Date: 2012-Nov-19 22:58
+By: madman1234
+
+Comment:
+I found this on my Diagnostic Log:
+
+
+Process:         fetchmail [8149]
+Path:            /Users/USER/fetchmail
+Identifier:      fetchmail
+Version:         0
+Code Type:       X86-64 (Native)
+Parent Process:  bash [1175]
+User ID:         501
+
+Date/Time:       2012-11-16 21:08:14.727 +0100
+OS Version:      Mac OS X 10.8.2 (12C60)
+Report Version:  10
+
+Crashed Thread:  0
+
+Exception Type:  EXC_BREAKPOINT (SIGTRAP)
+Exception Codes: 0x0000000000000002, 0x0000000000000000
+
+Application Specific Information:
+dyld: launch, loading dependent libraries
+
+Dyld Error Message:
+  Library not loaded: /opt/local/lib/libintl.8.dylib
+  Referenced from: /Users/USER/*/fetchmail
+  Reason: image not found
+
+Binary Images:
+       0x10bebe000 -        0x10bef6fef +fetchmail (0) &lt;EB15E071-F57F-36BA-9B82-B3D1E6F14A9C&gt; /Users/USER/fetchmail
+    0x7fff6babe000 -     0x7fff6baf293f  dyld (210.2.3) &lt;A40597AA-5529-3337-8C09-D8A014EB1578&gt; /usr/lib/dyld
+
+-------------------------------------------------------
+
+Date: 2012-Nov-19 11:58
+By: madman1234
+
+Comment:
+1. What is libdispatch?
+Libdispatch is part of the OS. It's linked into virtually every program,
+as you can see from:
+ {{{
+ otool -L /usr/lib/libc.dylib
+ }}}
+
+2. Why is fetchmail on macports linking to it?
+It is done by default from OSX. Macports is here not involved.
+
+3. Why does libdispatch require an application to keep random file descriptors open?
+I don't know.
+
+4. If fetchmail spams the logs due to macports specific, why do the macports involved people believe this bug should be reported upstream?
+It is not macports specific, it seems to be a standard behavior by default (OSX)
+
+Note #1: Fetchmail deliberately closes unneeded file descriptors in a tradition of daemonizing (going to background and detaching from the controlling TTY/terminal) with a clean environment, so as to leave as few attack vectors as possible - closing foreign file descriptors fetchmail may have inherited from the invoking process avoids collateral damage in the case that a bug were to be discovered that let fetchmail write to a random file descriptor (no such bug is known in the latest release version at this time), and it also avoids an incomplete detachment.
+The error message appears only once, after fetchmail tries to fetch mail via POP3 SSL. If there is no POP3 Server configured, then there is no error message on startup.
+
+Note #2: fetchmail is single-threaded, so if libdispatch is about multithreading, macports should not be using it.
+I have compiled fetchmail by myself, wihtout macports, and the same issue occurs. 
+
+Note #3, referring to the macports bug: getmail does not (can not, due to missing features in the Python library that getmail is using) detect man in the middle attacks on SSL/TLS connections. fetchmail does, if used with --sslcertck.
+I don't want to use getmail. Fetchmail is verfy stable and I like it a lot.
+
+5. As a workaround, please try and see if running fetchmail with &quot;-d 0&quot; avoids the problem.
+With -d 0 there is no error message. 
+
+
+I am running fetchmail now on my OSX 10.8.2 Server. The error message appears when fetchmail starts, the program itself runs for 2 days now. All E-Mails are delivered correctly.
+-------------------------------------------------------
+
+Date: 2012-Nov-15 08:08
+By: m-a
+
+Comment:
+Some questions and notes:
+
+1. What is libdispatch?
+
+2. Why is fetchmail on macports linking to it?
+
+3. Why does libdispatch require an application to keep random file descriptors open?
+
+4. If fetchmail spams the logs due to macports specific, why do the macports involved people believe this bug should be reported upstream?
+
+Note #1: Fetchmail deliberately closes unneeded file descriptors in a tradition of daemonizing (going to background and detaching from the controlling TTY/terminal) with a clean environment, so as to leave as few attack vectors as possible - closing foreign file descriptors fetchmail may have inherited from the invoking process avoids collateral damage in the case that a bug were to be discovered that let fetchmail write to a random file descriptor (no such bug is known in the latest release version at this time), and it also avoids an incomplete detachment.
+
+Note #2: fetchmail is single-threaded, so if libdispatch is about multithreading, macports should not be using it.
+
+Note #3, referring to the macports bug: getmail does not (can not, due to missing features in the Python library that getmail is using) detect man in the middle attacks on SSL/TLS connections. fetchmail does, if used with --sslcertck.
+
+5. As a workaround, please try and see if running fetchmail with &quot;-d 0&quot; avoids the problem.
+
+Please report back with answers to these four questions, and possibly with macports statements to the notes.
+-------------------------------------------------------
+
+Date: 2012-Nov-14 11:27
+By: madman1234
+
+Comment:
+Here is the answer from macports:
+
+[...]
+<A HREF="http://trac.macports.org/ticket/36984#comment:3">http://trac.macports.org/ticket/36984#comment:3</A>
+
+This message is printed by libdispatch (and is thus Apple-specific). Apparently fetchmail closes file descriptors that are used by libdispatch, which terminates the process using this message when this happens. I guess one would have to attach a debugger, see where the file descriptor is closed and see whether this actually is a &quot;random&quot; file descriptor and what can be done about it. The maintainer might also consider forwarding this to upstream fetchmail. 
+[...]
+
+Do you have such a debug script? 
+
+Thanks
+
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18794&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18794&amp;group_id=1824</A>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001574.html">[fetchmail-devel] [Bug #18794] BUG in libdispatch client - OSX ML	10.8.2
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1575">[ date ]</a>
+              <a href="thread.html#1575">[ thread ]</a>
+              <a href="subject.html#1575">[ subject ]</a>
+              <a href="author.html#1575">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

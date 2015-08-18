@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Workaround%20for%20unavoidable%20SSL%20CommonName%20mismatch%3F&In-Reply-To=%3C20060423073042.GA5858%40mail.iSKUNK.ORG%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000723.html">
+   <LINK REL="Next"  HREF="000726.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?</H1>
+    <B>Daniel Richard G.</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Workaround%20for%20unavoidable%20SSL%20CommonName%20mismatch%3F&In-Reply-To=%3C20060423073042.GA5858%40mail.iSKUNK.ORG%3E"
+       TITLE="[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?">skunk at iSKUNK.ORG
+       </A><BR>
+    <I>Sun Apr 23 09:30:42 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000723.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+        <LI>Next message: <A HREF="000726.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#724">[ date ]</a>
+              <a href="thread.html#724">[ thread ]</a>
+              <a href="subject.html#724">[ subject ]</a>
+              <a href="author.html#724">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I'm using fetchmail to download mail via SSL-secured POP3 from 
+mail.mydomain.com, a server maintained by webhost.com.
+
+This server is not dedicated to my domain; it is an alias for one of a 
+handful of mega-mail servers run by webhost.com.
+
+The SSL certificate on mail.mydomain.com (and all the other mail servers) 
+is actually for mail.webhost.com. I can't connect to mail.webhost.com, 
+however, because it is not the same mega-server as the one for my domain; 
+it doesn't recognize my username/password.
+
+(I fully concede that webhost.com, to put it mildly, could manage their SSL 
+services better. They've been following this practice for a long time, 
+unfortunately, and it's quite unlikely that they'll go to the trouble of 
+changing it.)
+
+It would be very helpful to be able to say, &quot;connect to server A, but for 
+the purposes of SSL, pretend it's called B.&quot; Right now, there is no way to 
+specify this.
+
+I think that there wouldn't even be a need to introduce a new keyword; 
+this semantic could reasonably be stuffed into &quot;aka&quot;. So that, for the 
+above-described scenario, I could say
+
+	poll mail.mydomain.com aka mail.webhost.com protocol pop3
+		username ... password ... ssl fetchall
+
+and have everything work dandily.
+
+I'm not sure about how the implementation would go, however. The CommonName 
+matching takes place in SSL_verify_callback(), which takes an 
+X509_STORE_CTX and two ints as parameters. The arguments for &quot;aka&quot;, 
+however, go into a (struct query)-&gt;(struct hostdata)-&gt;akalist field, and 
+there doesn't seem to be a way to get to that from the callback.
+
+Would appreciate any thoughts/insight on this....
+
+
+--Daniel
+
+
+-- 
+NAME   = Daniel Richard G.       ##  Remember, skunks       _\|/_  meef?
+EMAIL1 = <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">skunk at iskunk.org</A>        ##  don't smell bad---    (/o|o\) /
+EMAIL2 = <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">skunk at alum.mit.edu</A>      ##  it's the people who   &lt; (^),&gt;
+WWW    = <A HREF="http://www.******.org/">http://www.******.org/</A>  ##  annoy them that do!    /   \
+--
+(****** = site not yet online)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000723.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+	<LI>Next message: <A HREF="000726.html">[fetchmail-devel] Workaround for unavoidable SSL CommonName mismatch?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#724">[ date ]</a>
+              <a href="thread.html#724">[ thread ]</a>
+              <a href="subject.html#724">[ subject ]</a>
+              <a href="author.html#724">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

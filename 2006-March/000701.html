@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3Cm3y7zdc8lu.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000700.html">
+   <LINK REL="Next"  HREF="000702.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3Cm3y7zdc8lu.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Mar 14 17:08:13 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000700.html">[fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000702.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#701">[ date ]</a>
+              <a href="thread.html#701">[ thread ]</a>
+              <a href="subject.html#701">[ subject ]</a>
+              <a href="author.html#701">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;<i> Quoting from Matthias Andree's mail on Tue, Mar 14, 2006:
+</I>&gt;&gt;<i> &gt; One option is to change the default to a lower value from the current
+</I>&gt;&gt;<i> &gt; value of 10. The lowest practical value is 2, which will use linear
+</I>&gt;&gt;<i> &gt; search in alternate polls.
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> The algorithm tries to find the first unused UIDL with a binary search,
+</I>&gt;&gt;<i> on the assumption that all new messages were at the end of the
+</I>&gt;&gt;<i> list. This doesn't work for Fr?d?ric's server and others.
+</I>&gt;<i>
+</I>&gt;<i> Imagine the worst-case scenario: Frederic's mailbox has 2000 mails on
+</I>&gt;<i> this server and it has to be accessed on a slow dialup line which is
+</I>&gt;<i> prone to disconnection. Even if the assumption doesn't work, it will
+</I>&gt;<i> still download a few mails. Going back to linear search will probably
+</I>&gt;<i> fetch even less mails due to the overheads.
+</I>
+If it confuses the user, it needs to be fixed. If the connection is too
+flakey to regularly provide the full UIDL connection (which will usually
+compress well with V.42bis or MNP5), then the user should re-think if he
+needs &quot;keep messages on server&quot; setups. Usually there are better
+alternatives, such as *copying* new messages from INBOX to a second IMAP
+folder which is then downloaded in nokeep mode, so that there is no need
+to download UID lists.
+
+&gt;<i> The question is not just of keeping in memory or database. The
+</I>&gt;<i> question is: What should be done if a mismatch is found? If the only
+</I>&gt;<i> solution is to go back to downloading all UIDs at one go, then I would
+</I>&gt;<i> prefer continuing with the incorrect assumption.
+</I>
+Well, I'd rather download full UID lists to get rid of bogus
+assumptions. Missing messages because of false UIDL assumptions delays
+messages far more than connection drops (which are usually noticed
+quickly) does, and that causes certainly more reports than long UIDL
+downloads.
+
+A RANGES extension for POP3 that allowed UIDL n- or UIDL n-m would help
+a lot.
+
+&gt;&gt;<i> Well. Should I lower the default to 4 for the nonce or wait for a patch? :)
+</I>&gt;<i>
+</I>&gt;<i> Here it is:
+</I>
+I thought about a sanity checking patch that detects when slowuidl is
+needed, but I'm taking this for the nonce, too.
+
+My basic idea is: say we have u UIDLs stored, and the server has m
+messages. Then, send &quot;UIDL&quot; u+1 &quot;UIDL&quot; u+2 ... &quot;UIDL&quot; m pipelined
+(non-blocking) (or, on future RANGE capable POP3 servers, &quot;UIDL&quot; u+1 &quot;-&quot;
+m), and if ANY seen message is in that range, do slow UIDL. No binary
+search with many round trips. Of course, this needs to track deletions
+properly and if another client client deletes messages, needs to back
+down and fetch the whole list. Perhaps sanity checking the last known
+UIDL helps detecting third-party deletions on the assumption that the
+likelyhood of the server recycling a UID is low.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000700.html">[fetchmail-devel] [PATCH] Re: Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000702.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#701">[ date ]</a>
+              <a href="thread.html#701">[ thread ]</a>
+              <a href="subject.html#701">[ subject ]</a>
+              <a href="author.html#701">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

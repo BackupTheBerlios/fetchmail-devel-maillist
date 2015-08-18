@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: [fetchmail-svn] r4166 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail-svn%5D%20r4166%20-%20trunk&In-Reply-To=%3Cm364v1nij8.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000405.html">
+   <LINK REL="Next"  HREF="000409.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: [fetchmail-svn] r4166 - trunk</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail-svn%5D%20r4166%20-%20trunk&In-Reply-To=%3Cm364v1nij8.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: [fetchmail-svn] r4166 - trunk">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun Jul 24 02:40:11 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000405.html">[fetchmail-devel] Re: [fetchmail-svn] r4166 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000409.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#406">[ date ]</a>
+              <a href="thread.html#406">[ thread ]</a>
+              <a href="subject.html#406">[ subject ]</a>
+              <a href="author.html#406">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; writes:
+
+&gt;&gt;<i> --- trunk/driver.c	2005-07-22 10:47:44 UTC (rev 4165)
+</I>&gt;&gt;<i> +++ trunk/driver.c	2005-07-23 14:47:27 UTC (rev 4166)
+</I>&gt;&gt;<i> @@ -772,6 +772,12 @@
+</I>&gt;&gt;<i>  	else if (ctl-&gt;server.base_protocol-&gt;delete
+</I>&gt;&gt;<i>  		 &amp;&amp; !suppress_delete
+</I>&gt;&gt;<i>  		 &amp;&amp; ((msgcode &gt;= 0 &amp;&amp; !ctl-&gt;keep)
+</I>&gt;&gt;<i> +		     /* XXX FIXME: Debian's patch uses here:
+</I>&gt;&gt;<i> +		      *
+</I>&gt;&gt;<i> +		      * (msgcode == MSGLEN_OLD || msgcode ==
+</I>&gt;&gt;<i> +		      * MSGLEN_TOOLARGE) &amp;&amp; ctl-&gt;flush
+</I>&gt;&gt;<i> +		      *
+</I>&gt;&gt;<i> +		      * do we want to flush oversized messages? */
+</I>&gt;&gt;<i>  		     || (msgcode == MSGLEN_OLD &amp;&amp; ctl-&gt;flush)))
+</I>&gt;<i>
+</I>&gt;<i> Hmm, could that Debian patch have been the response to Debian bug #212240?
+</I>
+That's one half. The other half is earlier in the file, from current SVN
+i. e. after my changes:
+
+   541          if (msgcode &lt; 0)
+   542          {
+   543              if ((msgcode == MSGLEN_TOOLARGE) &amp;&amp; !check_only)
+   544              {
+   545                  mark_oversized(ctl, num, msgsize);
+   546                  /* we do not want to delete oversized messages in daemon   
+   547                   * mode, but allow deletions in single-pass mode. */
+   548                  if (run.poll_interval)
+   549                      suppress_delete = TRUE;
+   550              }
+
+It used to be an unconditional suppress_delete = TRUE.
+
+I have the nasty feeling that the logic for these flush and limit
+options is spread out over too large an area in driver.c.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000405.html">[fetchmail-devel] Re: [fetchmail-svn] r4166 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000409.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#406">[ date ]</a>
+              <a href="thread.html#406">[ thread ]</a>
+              <a href="subject.html#406">[ subject ]</a>
+              <a href="author.html#406">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

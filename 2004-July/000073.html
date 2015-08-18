@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: m4 directories?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20m4%20directories%3F&In-Reply-To=%3Cm3y8m4m6qv.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000074.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: m4 directories?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20m4%20directories%3F&In-Reply-To=%3Cm3y8m4m6qv.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: m4 directories?">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Thu Jul  1 11:11:52 CEST 2004</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000074.html">[fetchmail-devel] Re: Can this stuff be removed?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#73">[ date ]</a>
+              <a href="thread.html#73">[ thread ]</a>
+              <a href="subject.html#73">[ subject ]</a>
+              <a href="author.html#73">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">bob at decoy.wox.org</A>&gt; writes:
+
+&gt;<i> However, if Rob is alright with having the automake changes in 6.2.6,
+</I>&gt;<i> I'll withdraw my criticisms.
+</I>&gt;<i>
+</I>&gt;<i> Did 6.2.5 work on Solaris?
+</I>
+It didn't compile with default options:
+
+|<i> cd intl; make
+</I>|<i> make[1]: Entering directory `/var/tmp/fetchmail-6.2.5/intl'
+</I>|<i> make[1]: *** No rule to make target `<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">libintl. at l</A>@a', needed by `all-yes'.  Stop.
+</I>|<i> make[1]: Leaving directory `/var/tmp/fetchmail-6.2.5/intl'
+</I>|<i> make: *** [@INTLDEPS@] Error 2
+</I>
+The workaround was --disable-nls.
+
+The current fetchmail version from SVN compiles fine and passes a simple
+smoke test (i. e. fetch local mail with IMAP, IMAP+SSL or POP3+SSL) on
+the same machine.
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000074.html">[fetchmail-devel] Re: Can this stuff be removed?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#73">[ date ]</a>
+              <a href="thread.html#73">[ thread ]</a>
+              <a href="subject.html#73">[ subject ]</a>
+              <a href="author.html#73">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

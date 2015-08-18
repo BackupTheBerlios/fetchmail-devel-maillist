@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Patches continued... includes call for testing
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Patches%20continued...%20includes%20call%20for%20testing&In-Reply-To=%3Cm3k6tvehfw.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000149.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Patches continued... includes call for testing</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Patches%20continued...%20includes%20call%20for%20testing&In-Reply-To=%3Cm3k6tvehfw.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Patches continued... includes call for testing">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Tue Oct 12 23:48:35 CEST 2004</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000149.html">[fetchmail-devel] Not Yet Reviewed Queue is Empty!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#148">[ date ]</a>
+              <a href="thread.html#148">[ thread ]</a>
+              <a href="subject.html#148">[ subject ]</a>
+              <a href="author.html#148">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>...it's been silent for a while, and I've been looking at some more
+patches.
+
+I have committed  2003-10-23-6.2.5-mauermann-bounce.diff  with a minor
+change (i. e. I dropped the hunk that changed logging in sink.c:361
+(version 3939)) because it looked sane, but I do not have a setup that
+allows me to test these bounces, can someone of you check if bounces
+after SMTP delivery failed still work?
+
+
+I have also moved Sunil's  2003-10-11-6.2.4-shetye-limitflush.diff
+to the &quot;post 6.2.6&quot; list as it adds a new feature.
+
+
+I don't know how to proceed WRT
+2003-10-29-6.2.4-norman-fix_config_reload.diff, it doesn't apply.
+
+
+The patch reads:
+-    /* avoid parsing the config file if all we're doing is killing a daemon */ 
+-    if (!quitmode &amp;&amp; !pid)
++    /*
++     * Avoid parsing the config file if all we're doing is killing a daemon,
++     * unless this appears to be a self-restarted instance because we detected an 
++     * &quot;under-our-noses&quot; configuration file change, in which case we definitely want
++     * to reload the config file.
++     */
++    if ( ( !quitmode &amp;&amp; !pid ) || pid == getpid() )
+
+The code now reads:
+
+    /* avoid parsing the config file if all we're doing is killing a daemon */ 
+    if (!(quitmode &amp;&amp; argc == 2))
+        implicitmode = load_params(argc, argv, optind);
+
+I wonder if the current shape is correct, and doubt it - assuming we're
+just killing a daemon based on -q and just one argument is
+bold. Opinions solicited.
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000149.html">[fetchmail-devel] Not Yet Reviewed Queue is Empty!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#148">[ date ]</a>
+              <a href="thread.html#148">[ thread ]</a>
+              <a href="subject.html#148">[ subject ]</a>
+              <a href="author.html#148">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

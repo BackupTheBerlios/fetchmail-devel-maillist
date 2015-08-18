@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20RFC%3A%20Patch%20to%20fix%20Berlios%20Bug%20%235849&In-Reply-To=%3Cm34q59c3rx.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000604.html">
+   <LINK REL="Next"  HREF="000601.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20RFC%3A%20Patch%20to%20fix%20Berlios%20Bug%20%235849&In-Reply-To=%3Cm34q59c3rx.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Dec 16 00:57:22 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000604.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+        <LI>Next message: <A HREF="000601.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#605">[ date ]</a>
+              <a href="thread.html#605">[ thread ]</a>
+              <a href="subject.html#605">[ subject ]</a>
+              <a href="author.html#605">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;<i> One thing that had stumped me then was the FALLBACK_MDA feature. After
+</I>&gt;<i> splitting, implementing FALLBACK_MDA would be difficult (but not
+</I>&gt;<i> impossible). Should this feature be continued to be supported?
+</I>
+I don't like this feature, and ESR agreed to change the default to be
+&quot;none&quot; when I urged in that direction, so we've been without default
+fallback for a while now.
+
+Such fallback layers are rarely tested thoroughly and will often behave
+differently enough from the &quot;first attempt&quot; code that I'd call such
+fallback layers &quot;nondeterministic&quot; (for practical purposes), and I'd
+rather suggest that people make sure their primary delivery target, be
+it SMTP, LMTP, BSMTP or MDA, is reliable.  The last thing I want is that
+people search for their mail because some fallback layer delivered it to
+another place that the user has long forgotten about.
+
+In short: I have no problem with removing the fallback code altogether.
+
+&gt;<i> Once splitting is completed, making MDA work in multidrop should not
+</I>&gt;<i> be a problem.
+</I>&gt;<i>
+</I>&gt;<i> Here would be the aim of this development:
+</I>&gt;<i>
+</I>&gt;<i> - Split sink.c into sink-smtp.c, sink-bsmtp.c, sink-mda.c (and
+</I>&gt;<i>   possibly, sink-lmtp.c).
+</I>
+I'm not sure if sink-smtp.c, sink-bsmtp.c and sink-lmtp.c are
+sufficiently different to warrant three separate modules. They share
+quite a lot of code with some minor differences, but in the end it's
+always an SMTP dialect. If the differences between these can be factored
+out with common code shared, that'll be good. For instance, BSMTP and
+SMTP are quite similar, we'll just replace a backend writer function (or
+file/socket descriptor) and pretend all incoming response codes had been
+the proper OK code for the respective stage (20X, 250, 354). LMTP is
+also quite similar to ESMTP so that shared code is probably more
+maintainable in the long run.
+
+If C++ is of advantage (class inheritance), I don't mind either, we'll
+slap &quot;7.0.0&quot; (rather than 6.4.0) on the new code then.
+
+&gt;<i> - Make a structure (similar to struct method) to handle the sending of
+</I>&gt;<i>   messages.
+</I>&gt;<i> - Make the mda code handle the exit code in accordance with
+</I>&gt;<i>   &lt;sysexits.h&gt;.
+</I>&gt;<i> - Make the mda code work in multidrop mode.
+</I>&gt;<i> - Make the parser accept options per sink.
+</I>&gt;<i> - Make all sink options (like esmtpname) per sink.
+</I>
+&gt;<i> - Make FALLBACK_MDA work.
+</I>&gt;<i>
+</I>&gt;<i> Potential issues involved:
+</I>&gt;<i> - Cross platform:
+</I>&gt;<i>   * Does &lt;sysexits.h&gt; exists on all platforms?
+</I>
+Ah well... it's mail system specific, originated AFAICS in BSD4.3 and
+was also present in System V.  It should therefore be fairly portable,
+but we might want to peek at Postfix's source code to see if sysexits.h
+specific workarounds are there.
+
+&gt;<i>   * Do all platforms have at least EX_OK, EX__BASE, EX__MAX?
+</I>&gt;<i>   * Do all platforms have the common exit codes that need to be
+</I>&gt;<i>     handled specially (like EX_NOUSER)?
+</I>&gt;<i> - How to specify options per smtphost?
+</I>
+Well, a configuration system with inheritance was already suggested, but
+would be a somewhat larger change, too.
+
+&gt;<i> - Any other issues?
+</I>
+How to bounce (or what is other good non-bounce behavior) in MDA mode?
+
+&gt;<i> Any comments on this?
+</I>
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000604.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+	<LI>Next message: <A HREF="000601.html">[fetchmail-devel] Re: RFC: Patch to fix Berlios Bug #5849
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#605">[ date ]</a>
+              <a href="thread.html#605">[ thread ]</a>
+              <a href="subject.html#605">[ subject ]</a>
+              <a href="author.html#605">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

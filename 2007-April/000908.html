@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #10841] fetchmail (all versions incl 6.3.8)	hangs on certain mails.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2310841%5D%20fetchmail%20%28all%20versions%20incl%206.3.8%29%0A%09hangs%20on%20certain%20mails.&In-Reply-To=%3C200704101216.l3ACG2u2010628%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000907.html">
+   <LINK REL="Next"  HREF="000909.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #10841] fetchmail (all versions incl 6.3.8)	hangs on certain mails.</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2310841%5D%20fetchmail%20%28all%20versions%20incl%206.3.8%29%0A%09hangs%20on%20certain%20mails.&In-Reply-To=%3C200704101216.l3ACG2u2010628%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #10841] fetchmail (all versions incl 6.3.8)	hangs on certain mails.">admin at berlios.de
+       </A><BR>
+    <I>Tue Apr 10 14:16:02 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000907.html">[fetchmail-devel] fetchmail 6.3.8 security fix release
+</A></li>
+        <LI>Next message: <A HREF="000909.html">[fetchmail-devel] [Bug #10841] fetchmail (all versions incl	6.3.8) hangs on certain mails.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#908">[ date ]</a>
+              <a href="thread.html#908">[ thread ]</a>
+              <a href="subject.html#908">[ subject ]</a>
+              <a href="author.html#908">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #10841, was updated on 2007-Apr-10 04:16
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: acni
+Assigned to : none
+Summary: fetchmail (all versions incl 6.3.8) hangs on certain mails.
+
+Details: 
+About 2-3 times a year, fetchmail hangs while fetching certain
+messages (mostly probably misformatted spam or bounces),
+preventing ever fetching the rest of the mail. This happend
+again today. Like always, I upgraded (to fetchmail-6.3.8)
+but the problem persists.
+
+Reproducing seems difficult because I can not artificially
+create that condition on the server. But when it happens
+with a certain email, fetchmail will reproducably fail whatever
+you do.
+Other mail clients have no difficulty (not even reading the
+possibly faulty message) - neither should fetchmail.
+
+Fetchmail should be more tolerant accepting misformatted
+messages (or maybe resulting protocol deviations?)
+from the server, because if one of these mails is present,
+also all email after the faulty mail can never be fetched.
+Another client has then to be used (even old Versions of
+Netscape 4.7 etc work), to remove the offending message,
+but access with this other mail client then messes up the
+&quot;Seen&quot; flags etc, so that after that &quot;fetchmail --all&quot; has to
+be used and redundant mail deleted. Most inconvenient,
+and very annoying in daemon mode (one such message
+blocks further delivery of all mails, until returning from
+holidays and fixing the problem manually, as outlined above).
+
+It is independent of the timeout used (30 seconds used below,
+but even 1 hr doesn't change anything).
+
+The problem looks like this:
+ 
+% fetchmail
+Enter password for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxx at xpop</A>: 
+8 messages for I0016733 at xpop (folder Inbox).
+reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">I0016733 at ggwia.insel.ch</A>:1 of 8 (568 header octets) (51604 body octets)..................................................fetchmail: timeout after 30 seconds.
+fetchmail: socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxx at xpop</A>
+fetchmail: Query status=2 (SOCKET)
+
+or, with &quot;verbose&quot; on:
+
+... Recipient ok
+fetchmail: SMTP&gt; DATA
+fetchmail: SMTP&lt; 354 Enter mail, end with &quot;.&quot; on a line by itself
+#
+fetchmail: IMAP&lt; )
+fetchmail: IMAP&lt; A0007 OK FETCH completed
+fetchmail: IMAP&gt; A0008 FETCH 1 BODY.PEEK[TEXT]
+fetchmail: IMAP&lt; * 1 FETCH (BODY[TEXT] {51647}
+ (51647 body octets)*******************************.***************************.********************************.************************************.***********************************.****************.*****************.****************.****************.****************.**********************.********************.*****************************.****************.*****************.****************.*****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.****************.*****************.*****************.****************.***********
+fetchmail: timeout after 30 seconds waiting for server xpop.
+fetchmail: socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxx at xpop</A>
+fetchmail: 6.3.8 querying xpop (protocol IMAP) at Tue, 10 Apr 2007 10:21:22 +0200 (MET DST): poll completed
+fetchmail: Query status=2 (SOCKET)
+fetchmail: normal termination, status 2
+
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10841&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10841&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000907.html">[fetchmail-devel] fetchmail 6.3.8 security fix release
+</A></li>
+	<LI>Next message: <A HREF="000909.html">[fetchmail-devel] [Bug #10841] fetchmail (all versions incl	6.3.8) hangs on certain mails.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#908">[ date ]</a>
+              <a href="thread.html#908">[ thread ]</a>
+              <a href="subject.html#908">[ subject ]</a>
+              <a href="author.html#908">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

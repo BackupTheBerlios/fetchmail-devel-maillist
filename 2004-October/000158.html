@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Rodolfo's hang (from fetchmail-friends)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Rodolfo%27s%20hang%20%28from%20fetchmail-friends%29&In-Reply-To=%3C20041015093823.GA61290%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000157.html">
+   <LINK REL="Next"  HREF="000159.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Rodolfo's hang (from fetchmail-friends)</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Rodolfo%27s%20hang%20%28from%20fetchmail-friends%29&In-Reply-To=%3C20041015093823.GA61290%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] Rodolfo's hang (from fetchmail-friends)">B.Candler at pobox.com
+       </A><BR>
+    <I>Fri Oct 15 11:38:23 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000157.html">[fetchmail-devel] Rodolfo's hang (from fetchmail-friends)
+</A></li>
+        <LI>Next message: <A HREF="000159.html">[fetchmail-devel] Rodolfo's hang (from fetchmail-friends)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#158">[ date ]</a>
+              <a href="thread.html#158">[ thread ]</a>
+              <a href="subject.html#158">[ subject ]</a>
+              <a href="author.html#158">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Fri, Oct 15, 2004 at 11:20:28AM +0200, Matthias Andree wrote:
+&gt;<i> re-reading Rodolfo's fetchmail hang, it appears as though his POP3
+</I>&gt;<i> server is at fault.
+</I>&gt;<i> 
+</I>&gt;<i> I've looked into the reliability of the SIZE information given by POP3
+</I>&gt;<i> servers, and the first one I checked, qmail-pop3d, failed horribly by
+</I>&gt;<i> giving a size that is too short - we cannot use SIZE in POP3 to
+</I>&gt;<i> determine how many bytes to read lest we risk reading only part of the
+</I>&gt;<i> mail.
+</I>
+... and therefore losing command/response synchronisation.
+
+The end of a message in POP3 is determined by the sequence &quot;CR LF . CR LF&quot;
+and only by that. You are not permitted to perform &quot;LIST n&quot;, look at the
+size returned, enter &quot;RETR n&quot;, read exactly that number of bytes, and expect
+to be back in sync with the server at that point.
+
+qmail-pop3d gives a wrong size because it doesn't count end-of-line as two
+bytes; however using the size would not work anyway even if it did, because
+lines which start with the termination character use byte-stuffing but don't
+count it twice in the size (see RFC1939, section 11)
+
+line on server        abcd\n
+RFC1939 size          6 (a b c d \r \n)
+Actual octets sent    6 (a b c d \r \n)
+
+line on server        .abc\n
+RFC1939 size          6 (. a b c \r \n)
+Actual octets sent    7 (. . a b c \r \n)
+
+Regards,
+
+Brian.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000157.html">[fetchmail-devel] Rodolfo's hang (from fetchmail-friends)
+</A></li>
+	<LI>Next message: <A HREF="000159.html">[fetchmail-devel] Rodolfo's hang (from fetchmail-friends)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#158">[ date ]</a>
+              <a href="thread.html#158">[ thread ]</a>
+              <a href="subject.html#158">[ subject ]</a>
+              <a href="author.html#158">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

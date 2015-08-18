@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] Allow &quot;Delivered-To&quot; to be used as envelope header
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Allow%20%22Delivered-To%22%20to%20be%20used%20as%0A%20envelope%20header&In-Reply-To=%3C4331F896.2030503%40siriushk.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000465.html">
+   <LINK REL="Next"  HREF="000470.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] Allow &quot;Delivered-To&quot; to be used as envelope header</H1>
+    <B>Timothy Lee</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20Allow%20%22Delivered-To%22%20to%20be%20used%20as%0A%20envelope%20header&In-Reply-To=%3C4331F896.2030503%40siriushk.com%3E"
+       TITLE="[fetchmail-devel] [PATCH] Allow &quot;Delivered-To&quot; to be used as envelope header">timothy.lee at siriushk.com
+       </A><BR>
+    <I>Thu Sep 22 02:19:34 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000465.html">[fetchmail-devel] [PATCH] Allow &quot;Delivered-To&quot; to be used as envelope header
+</A></li>
+        <LI>Next message: <A HREF="000470.html">[fetchmail-devel] [PATCH] Allow &quot;Delivered-To&quot; to be used as envelope header
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#467">[ date ]</a>
+              <a href="thread.html#467">[ thread ]</a>
+              <a href="subject.html#467">[ subject ]</a>
+              <a href="author.html#467">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Dear Matthias,
+
+I discovered the need for this patch under the follownig circumstances:
+
+    * ISP uses postfix for mail delivery
+    * ISP mail server delivers all e-mails to &quot;catchall&quot; mailbox. 
+      Postfix prepends two &quot;Delivered-To&quot; headers to the e-mail, like so:
+
+          Delivered-To: catchall
+          Delivered-To: actual-recipient
+
+    * In order to use multidrop with fetchmail, the following line in
+      fetchmailrc is used to obtain actual recipient for incoming e-mail:
+
+          envelope 1 &quot;Delivered-To&quot;
+
+    * The original handling of &quot;Delivered-To&quot; in transact.c discards all
+      &quot;Delivered-To&quot; lines, so the actual recipient is never found.
+
+
+Regards,
+Timothy Lee
+
+
+Matthias Andree wrote:
+
+&gt;<i>Timothy Lee &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">timothy.lee at siriushk.com</A>&gt; writes:
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;&gt;<i>Current version of fetchmail fails to extract the recipient address if 
+</I>&gt;&gt;<i>&quot;Delivered-To&quot; is used as envelope header.  This patch fixes the
+</I>&gt;&gt;<i>problem.
+</I>&gt;&gt;<i>    
+</I>&gt;&gt;<i>
+</I>&gt;<i>Can anyone please demonstrate or describe in detail the problem that is
+</I>&gt;<i>supposed to be fixed with this patch?
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;&gt;<i>diff -Naur fetchmail-6.2.5/transact.c fetchmail-6.2.5.new/transact.c
+</I>&gt;&gt;<i>--- fetchmail-6.2.5/transact.c	2003-10-11 04:55:05.000000000 +0800
+</I>&gt;&gt;<i>+++ fetchmail-6.2.5.new/transact.c	2005-03-02 16:41:50.000000000 +0800
+</I>&gt;&gt;<i>@@ -380,6 +380,7 @@
+</I>&gt;&gt;<i>     char		*received_for, *rcv, *cp;
+</I>&gt;&gt;<i>     static char		*delivered_to = NULL;
+</I>&gt;&gt;<i>     int 		n, linelen, oldlen, ch, remaining, skipcount;
+</I>&gt;&gt;<i>+    int			delivered_to_count;
+</I>&gt;&gt;<i>     struct idlist 	*idp;
+</I>&gt;&gt;<i>     flag		no_local_matches = FALSE;
+</I>&gt;&gt;<i>     flag		has_nuls;
+</I>&gt;&gt;<i>@@ -416,6 +417,7 @@
+</I>&gt;&gt;<i>     oldlen = 0;
+</I>&gt;&gt;<i>     msgblk.msglen = 0;
+</I>&gt;&gt;<i>     skipcount = 0;
+</I>&gt;&gt;<i>+    delivered_to_count = 0;
+</I>&gt;&gt;<i>     ctl-&gt;mimemsg = 0;
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i>     for (remaining = fetchlen; remaining &gt; 0 || protocol-&gt;delimited; )
+</I>&gt;&gt;<i>@@ -665,10 +667,15 @@
+</I>&gt;&gt;<i> 	 */
+</I>&gt;&gt;<i> 	if (ctl-&gt;dropdelivered &amp;&amp; !strncasecmp(line, &quot;Delivered-To:&quot;, 13)) 
+</I>&gt;&gt;<i> 	{
+</I>&gt;&gt;<i>-	    if (delivered_to)
+</I>&gt;&gt;<i>+	    if (delivered_to ||
+</I>&gt;&gt;<i>+	    	ctl-&gt;server.envelope == STRING_DISABLED ||
+</I>&gt;&gt;<i>+		!ctl-&gt;server.envelope ||
+</I>&gt;&gt;<i>+		strcasecmp(ctl-&gt;server.envelope, &quot;Delivered-To&quot;) ||
+</I>&gt;&gt;<i>+		delivered_to_count != ctl-&gt;server.envskip)
+</I>&gt;&gt;<i> 		free(line);
+</I>&gt;&gt;<i> 	    else 
+</I>&gt;&gt;<i> 		delivered_to = line;
+</I>&gt;&gt;<i>+	    delivered_to_count++;
+</I>&gt;&gt;<i> 	    continue;
+</I>&gt;&gt;<i> 	}
+</I>&gt;&gt;<i>    
+</I>&gt;&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000465.html">[fetchmail-devel] [PATCH] Allow &quot;Delivered-To&quot; to be used as envelope header
+</A></li>
+	<LI>Next message: <A HREF="000470.html">[fetchmail-devel] [PATCH] Allow &quot;Delivered-To&quot; to be used as envelope header
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#467">[ date ]</a>
+              <a href="thread.html#467">[ thread ]</a>
+              <a href="subject.html#467">[ subject ]</a>
+              <a href="author.html#467">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

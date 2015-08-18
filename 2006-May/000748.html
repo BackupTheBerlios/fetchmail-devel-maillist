@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail test harness
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20test%20harness&In-Reply-To=%3Cm3y7wrwvbq.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000747.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail test harness</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20test%20harness&In-Reply-To=%3Cm3y7wrwvbq.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] fetchmail test harness">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed May 24 12:50:17 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000747.html">[fetchmail-devel] fetchmail test harness
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#748">[ date ]</a>
+              <a href="thread.html#748">[ thread ]</a>
+              <a href="subject.html#748">[ subject ]</a>
+              <a href="author.html#748">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Martin Mrazik &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mmrazik at suse.cz</A>&gt; writes:
+
+&gt;<i> On the official fetchmail website there is a short note about a test
+</I>&gt;<i> harness being run before each release.
+</I>
+It's essentially trying to mail some messages to test accounts and
+trying to retrieve them. It's a python script accompanied by
+confidential test account data. Unfortunately, most of the test sites
+are dead, accounts removed, so it's mostly worthless.
+
+I am manually using Josefsson's autobuild to run compile tests on the
+SourceForge.net compile farm and am running the simplest of all tests,
+&quot;make check&quot; which only runs t.smoke:
+
+|<i> #! /bin/sh
+</I>|<i> 
+</I>|<i> # This is a rudimentary tests to see if fetchmail can parse a trivial
+</I>|<i> # configuration and dump it in human-readable and machine-readable form.
+</I>|<i> 
+</I>|<i> set -e
+</I>|<i> trap 'rm -f t.rc.$$' 0
+</I>|<i> cp &quot;${srcdir}/t.rc&quot; t.rc.$$
+</I>|<i> chmod 0400 t.rc.$$
+</I>|<i> ./fetchmail -V -f t.rc.$$ &gt;/dev/null
+</I>|<i> ./fetchmail --configdump -f t.rc.$$ &gt;/dev/null
+</I>
+with this t.rc:
+
+|<i> skip mail.example.org
+</I>
+&gt;<i> Since I'm currently trying to automate some fetchmail tests I'm
+</I>&gt;<i> curious if this test harness is available somewhere. I would like to
+</I>&gt;<i> have a look and possibly add some tests (or maybe improve it).  Would
+</I>&gt;<i> it be possible?
+</I>
+The publicly accessible data is in the SVN repository, use
+
+  svn co <A HREF="http://mknod.org/svn/fetchmail/branches/BRANCH_6-3">http://mknod.org/svn/fetchmail/branches/BRANCH_6-3</A> fetchmail-6-3
+
+to check out, then see the &quot;dist-tools/test/&quot; directory.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000747.html">[fetchmail-devel] fetchmail test harness
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#748">[ date ]</a>
+              <a href="thread.html#748">[ thread ]</a>
+              <a href="subject.html#748">[ subject ]</a>
+              <a href="author.html#748">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] i18n fixes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20i18n%20fixes&In-Reply-To=%3C20050703153337.GD2815%40amilo.ms.mff.cuni.cz%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000328.html">
+   <LINK REL="Next"  HREF="000308.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] i18n fixes</H1>
+    <B>Miloslav Trmac</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20i18n%20fixes&In-Reply-To=%3C20050703153337.GD2815%40amilo.ms.mff.cuni.cz%3E"
+       TITLE="[fetchmail-devel] i18n fixes">mitr at redhat.com
+       </A><BR>
+    <I>Sun Jul  3 17:33:37 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000328.html">[fetchmail-devel] Minor typo in the NEWS file
+</A></li>
+        <LI>Next message: <A HREF="000308.html">[fetchmail-devel] i18n fixes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#302">[ date ]</a>
+              <a href="thread.html#302">[ thread ]</a>
+              <a href="subject.html#302">[ subject ]</a>
+              <a href="author.html#302">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+attached is a patch to avoid sentence pasting from separately
+translated segments and to use ngettext () more; an updated Czech
+translation against fetchmail with this patch is at
+<A HREF="http://carolina.mff.cuni.cz/~trmac/fetchmail-6.2.6.alpha1.po">http://carolina.mff.cuni.cz/~trmac/fetchmail-6.2.6.alpha1.po</A>
+
+The patch doesn't add ngettext () usage to all the &quot;(%d octets&quot;)
+sentences because it isn't necessary for Czech (assuming there are
+at least 5 octets); it might be necessary for other languages.
+
+I'm not sure whether it would be better to put this in now and
+either wait for updated translations or ship with obsolete
+translations, or to wait after the release and send a prerelease
+with these changes to the Translation Project immediately afterwards.
+	Mirek
+-------------- next part --------------
+diff -ur fetchmail-6.2.6.alpha1/driver.c fetchmail-6.2.6.alpha1.po/driver.c
+--- fetchmail-6.2.6.alpha1/driver.c	2005-02-27 21:19:36.000000000 +0100
++++ fetchmail-6.2.6.alpha1.po/driver.c	2005-07-03 02:14:18.000000000 +0200
+@@ -602,12 +602,9 @@
+ 			     ctl-&gt;remotename, ctl-&gt;server.truename,
+ 			     num, count);
+ 
+-		/* XXX FIXME: the gettext stuff needs to list &quot;octets&quot; or
+-		 * &quot;header octets&quot; as a unit, and also provide for
+-		 * proper plural form */
+ 		if (len &gt; 0)
+-		    report_build(stdout, GT_(&quot; (%d %soctets)&quot;),
+-				 len, wholesize ? &quot;&quot; : GT_(&quot;header &quot;));
++		    report_build(stdout, wholesize ? GT_(&quot; (%d octets)&quot;)
++				 : GT_(&quot; (%d header octets)&quot;), len);
+ 		if (outlevel &gt;= O_VERBOSE)
+ 		    report_complete(stdout, &quot;\n&quot;);
+ 		else
+@@ -810,7 +807,9 @@
+ 	/* perhaps this as many as we're ready to handle */
+ 	if (maxfetch &amp;&amp; maxfetch &lt;= *fetches &amp;&amp; num &lt; count)
+ 	{
+-	    report(stdout, GT_(&quot;fetchlimit %d reached; %d messages left on server %s account %s\n&quot;),
++	    report(stdout,
++		   ngettext(&quot;fetchlimit %d reached; %d message left on server %s account %s\n&quot;,
++			    &quot;fetchlimit %d reached; %d messages left on server %s account %s\n&quot;, count - *fetches),
+ 		   maxfetch, count - *fetches, ctl-&gt;server.truename, ctl-&gt;remotename);
+ 	    return(PS_MAXFETCH);
+ 	}
+diff -ur fetchmail-6.2.6.alpha1/fetchmail.c fetchmail-6.2.6.alpha1.po/fetchmail.c
+--- fetchmail-6.2.6.alpha1/fetchmail.c	2005-04-27 20:47:13.000000000 +0200
++++ fetchmail-6.2.6.alpha1.po/fetchmail.c	2005-07-03 02:57:00.000000000 +0200
+@@ -1502,13 +1502,15 @@
+ 	    printf(GT_(&quot;  Mail will be retrieved via %s\n&quot;), ctl-&gt;server.via);
+ 
+ 	if (ctl-&gt;server.interval)
+-	    printf(GT_(&quot;  Poll of this server will occur every %d intervals.\n&quot;),
+-		   ctl-&gt;server.interval);
++	    printf(ngettext(&quot;  Poll of this server will occur every %d interval.\n&quot;,
++			    &quot;  Poll of this server will occur every %d intervals.\n&quot;,
++			    ctl-&gt;server.interval), ctl-&gt;server.interval);
+ 	if (ctl-&gt;server.truename)
+ 	    printf(GT_(&quot;  True name of server is %s.\n&quot;), ctl-&gt;server.truename);
+ 	if (ctl-&gt;server.skip || outlevel &gt;= O_VERBOSE)
+-	    printf(GT_(&quot;  This host %s be queried when no host is specified.\n&quot;),
+-		   ctl-&gt;server.skip ? GT_(&quot;will not&quot;) : GT_(&quot;will&quot;));
++	    printf(ctl-&gt;server.skip
++		   ? GT_(&quot;  This host will not be queried when no host is specified.\n&quot;)
++		   : GT_(&quot;  This host will be queried when no host is specified.\n&quot;));
+ 	if (!NO_PASSWORD(ctl))
+ 	{
+ 	    if (!ctl-&gt;password)
+@@ -1619,40 +1621,39 @@
+ 		    printf(&quot; %s&quot;, (char *)idp-&gt;id);
+ 		printf(&quot;\n&quot;);
+ 	    }
+-	    printf(GT_(&quot;  %s messages will be retrieved (--all %s).\n&quot;),
+-		   ctl-&gt;fetchall ? GT_(&quot;All&quot;) : GT_(&quot;Only new&quot;),
+-		   ctl-&gt;fetchall ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  Fetched messages %s be kept on the server (--keep %s).\n&quot;),
+-		   ctl-&gt;keep ? GT_(&quot;will&quot;) : GT_(&quot;will not&quot;),
+-		   ctl-&gt;keep ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  Old messages %s be flushed before message retrieval (--flush %s).\n&quot;),
+-		   ctl-&gt;flush ? GT_(&quot;will&quot;) : GT_(&quot;will not&quot;),
+-		   ctl-&gt;flush ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  Rewrite of server-local addresses is %s (--norewrite %s).\n&quot;),
+-		   ctl-&gt;rewrite ? GT_(&quot;enabled&quot;) : GT_(&quot;disabled&quot;),
+-		   ctl-&gt;rewrite ? &quot;off&quot; : &quot;on&quot;);
+-	    printf(GT_(&quot;  Carriage-return stripping is %s (stripcr %s).\n&quot;),
+-		   ctl-&gt;stripcr ? GT_(&quot;enabled&quot;) : GT_(&quot;disabled&quot;),
+-		   ctl-&gt;stripcr ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  Carriage-return forcing is %s (forcecr %s).\n&quot;),
+-		   ctl-&gt;forcecr ? GT_(&quot;enabled&quot;) : GT_(&quot;disabled&quot;),
+-		   ctl-&gt;forcecr ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  Interpretation of Content-Transfer-Encoding is %s (pass8bits %s).\n&quot;),
+-		   ctl-&gt;pass8bits ? GT_(&quot;disabled&quot;) : GT_(&quot;enabled&quot;),
+-		   ctl-&gt;pass8bits ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  MIME decoding is %s (mimedecode %s).\n&quot;),
+-		   ctl-&gt;mimedecode ? GT_(&quot;enabled&quot;) : GT_(&quot;disabled&quot;),
+-		   ctl-&gt;mimedecode ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  Idle after poll is %s (idle %s).\n&quot;),
+-		   ctl-&gt;idle ? GT_(&quot;enabled&quot;) : GT_(&quot;disabled&quot;),
+-		   ctl-&gt;idle ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  Nonempty Status lines will be %s (dropstatus %s)\n&quot;),
+-		   ctl-&gt;dropstatus ? GT_(&quot;discarded&quot;) : GT_(&quot;kept&quot;),
+-		   ctl-&gt;dropstatus ? &quot;on&quot; : &quot;off&quot;);
+-	    printf(GT_(&quot;  Delivered-To lines will be %s (dropdelivered %s)\n&quot;),
+-		   ctl-&gt;dropdelivered ? GT_(&quot;discarded&quot;) : GT_(&quot;kept&quot;),
+-		   ctl-&gt;dropdelivered ? &quot;on&quot; : &quot;off&quot;);
+-	    if (NUM_NONZERO(ctl-&gt;limit))
++	    printf(ctl-&gt;fetchall
++		   ? GT_(&quot;  All messages will be retrieved (--all on).\n&quot;)
++		   : GT_(&quot;  Only new messages will be retrieved (--all off).\n&quot;));
++	    printf(ctl-&gt;keep
++		   ? GT_(&quot;  Fetched messages will be kept on the server (--keep on).\n&quot;)
++		   : GT_(&quot;  Fetched messages will not be kept on the server (--keep off).\n&quot;));
++	    printf(ctl-&gt;flush
++		   ? GT_(&quot;  Old messages will be flushed before message retrieval (--flush on).\n&quot;)
++		   : GT_(&quot;  Old messages will not be flushed before message retrieval (--flush off).\n&quot;));
++	    printf(ctl-&gt;rewrite
++		   ? GT_(&quot;  Rewrite of server-local addresses is enabled (--norewrite off).\n&quot;)
++		   : GT_(&quot;  Rewrite of server-local addresses is disabled (--norewrite on).\n&quot;));
++	    printf(ctl-&gt;stripcr
++		   ? GT_(&quot;  Carriage-return stripping is enabled (stripcr on).\n&quot;)
++		   : GT_(&quot;  Carriage-return stripping is disabled (stripcr off).\n&quot;));
++	    printf(ctl-&gt;forcecr
++		   ? GT_(&quot;  Carriage-return forcing is enabled (forcecr on).\n&quot;)
++		   : GT_(&quot;  Carriage-return forcing is disabled (forcecr off).\n&quot;));
++	    printf(ctl-&gt;pass8bits
++		   ? GT_(&quot;  Interpretation of Content-Transfer-Encoding is disabled (pass8bits on).\n&quot;)
++		   : GT_(&quot;  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).\n&quot;));
++	    printf(ctl-&gt;mimedecode
++		   ? GT_(&quot;  MIME decoding is enabled (mimedecode on).\n&quot;)
++		   : GT_(&quot;  MIME decoding is disabled (mimedecode off).\n&quot;));
++	    printf(ctl-&gt;idle
++		   ? GT_(&quot;  Idle after poll is enabled (idle on).\n&quot;)
++		   : GT_(&quot;  Idle after poll is diabled (idle off).\n&quot;));
++	    printf(ctl-&gt;dropstatus
++		   ? GT_(&quot;  Nonempty Status lines will be discarded (dropstatus on)\n&quot;)
++		   : GT_(&quot;  Nonempty Status lines will be kept (dropstatus off)\n&quot;));
++	    printf(ctl-&gt;dropdelivered
++		   ? GT_(&quot;  Delivered-To lines will be discarded (dropdelivered on)\n&quot;)
++		   : GT_(&quot;  Delivered-To lines will be kept (dropdelivered off)\n&quot;));	    if (NUM_NONZERO(ctl-&gt;limit))
+ 	    {
+ 		if (NUM_NONZERO(ctl-&gt;limit))
+ 		    printf(GT_(&quot;  Message size limit is %d octets (--limit %d).\n&quot;), 
+@@ -1790,15 +1791,15 @@
+ 
+ 		    if (count &gt; 1 || ctl-&gt;wildcard)
+ 		    {
+-			printf(GT_(&quot;  DNS lookup for multidrop addresses is %s.\n&quot;),
+-			       ctl-&gt;server.dns ? GT_(&quot;enabled&quot;) : GT_(&quot;disabled&quot;));
++			printf(ctl-&gt;server.dns
++			       ? GT_(&quot;  DNS lookup for multidrop addresses is enabled.\n&quot;)
++			       : GT_(&quot;  DNS lookup for multidrop addresses is disabled.\n&quot;));
+ 			if (ctl-&gt;server.dns)
+ 			{
+-			    printf(GT_(&quot;  Server aliases will be compared with multidrop addresses by &quot;));
+ 	       		    if (ctl-&gt;server.checkalias)
+-				printf(GT_(&quot;IP address.\n&quot;));
++				printf(GT_(&quot;  Server aliases will be compared with multidrop addresses by IP address.\n&quot;));
+ 			    else
+-				printf(GT_(&quot;name.\n&quot;));
++				printf(GT_(&quot;  Server aliases will be compared with multidrop addresses by name.\n&quot;));
+ 			}
+ 			if (ctl-&gt;server.envelope == STRING_DISABLED)
+ 			    printf(GT_(&quot;  Envelope-address routing is disabled\n&quot;));
+diff -ur fetchmail-6.2.6.alpha1/imap.c fetchmail-6.2.6.alpha1.po/imap.c
+--- fetchmail-6.2.6.alpha1/imap.c	2005-02-27 21:19:36.000000000 +0100
++++ fetchmail-6.2.6.alpha1.po/imap.c	2005-07-03 03:06:45.000000000 +0200
+@@ -667,7 +667,9 @@
+ 	if (recentcount == 0)
+ 		count = 0;
+ 	if (outlevel &gt;= O_DEBUG)
+-	    report(stdout, GT_(&quot;%d messages waiting after re-poll\n&quot;), count);
++	    report(stdout, ngettext(&quot;%d message waiting after re-poll\n&quot;,
++				    &quot;%d messages waiting after re-poll\n&quot;,
++				    count), count);
+     }
+     else
+     {
+@@ -681,7 +683,9 @@
+ 	    return(ok);
+ 	}
+ 	else if (outlevel &gt;= O_DEBUG)
+-	    report(stdout, GT_(&quot;%d messages waiting after first poll\n&quot;), count);
++	    report(stdout, ngettext(&quot;%d message waiting after first poll\n&quot;,
++				    &quot;%d messages waiting after first poll\n&quot;,
++				    count), count);
+ 
+ 	/* no messages?  then we may need to idle until we get some */
+ 	while (count == 0 &amp;&amp; do_idle) {
+@@ -707,7 +711,9 @@
+ 		return(ok);
+ 	    }
+ 	    if (outlevel &gt;= O_DEBUG)
+-		report(stdout, GT_(&quot;%d messages waiting after expunge\n&quot;), count);
++		report(stdout, ngettext(&quot;%d message waiting after expunge\n&quot;,
++					&quot;%d messages waiting after expunge\n&quot;,
++					count), count);
+ 	}
+     }
+ 
+diff -ur fetchmail-6.2.6.alpha1/po/LINGUAS fetchmail-6.2.6.alpha1.po/po/LINGUAS
+--- fetchmail-6.2.6.alpha1/po/LINGUAS	2005-04-25 19:21:14.000000000 +0200
++++ fetchmail-6.2.6.alpha1.po/po/LINGUAS	2005-07-03 02:01:36.000000000 +0200
+@@ -1,4 +1,4 @@
+ # available languages
+-ca da de el es fr ja pl sq tr
++ca cs da de el es fr ja pl sq tr
+ # these are just too incomplete (lack more than 50 translations)
+-# cs gl pt_BR sk
++# gl pt_BR sk
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000328.html">[fetchmail-devel] Minor typo in the NEWS file
+</A></li>
+	<LI>Next message: <A HREF="000308.html">[fetchmail-devel] i18n fixes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#302">[ date ]</a>
+              <a href="thread.html#302">[ thread ]</a>
+              <a href="subject.html#302">[ subject ]</a>
+              <a href="author.html#302">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

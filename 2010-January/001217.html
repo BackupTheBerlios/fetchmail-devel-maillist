@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH-3%5D%20Re%3A%20fetchmail%20IMAP%20bug%20-%20causes%0A%20some%20mails%20to%20not%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3Cop.u6vxxsjh1e62zd%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001216.html">
+   <LINK REL="Next"  HREF="001218.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH-3%5D%20Re%3A%20fetchmail%20IMAP%20bug%20-%20causes%0A%20some%20mails%20to%20not%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3Cop.u6vxxsjh1e62zd%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Jan 21 14:47:42 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001216.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+        <LI>Next message: <A HREF="001218.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1217">[ date ]</a>
+              <a href="thread.html#1217">[ thread ]</a>
+              <a href="subject.html#1217">[ subject ]</a>
+              <a href="author.html#1217">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 21.01.2010, 12:51 Uhr, schrieb Matt Doran &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matt.doran at papercut.com</A>&gt;:
+
+&gt;<i> On 19/01/2010 2:13 PM, Matt Doran wrote:
+</I>&gt;&gt;<i> Sunil Shetye wrote:
+</I>&gt;&gt;&gt;<i> Quoting from Matthias Andree's mail on Thu, Jan 14, 2010:
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Perhaps a separate imap_untagged_parse() function would be more  
+</I>&gt;&gt;&gt;&gt;<i> suitable here,
+</I>&gt;&gt;&gt;&gt;<i> and possibly called from inside imap_ok()? See below.
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Ok, I have made a separate imap_untagged_response() to parse the
+</I>&gt;&gt;&gt;<i> untagged response. Other key changes:
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> - use  stage == STAGE_GETAUTH&amp;&amp;  !strncmp(buf, &quot;* CAPABILITY&quot;, 12)
+</I>&gt;&gt;&gt;<i>    - instead of  strstr(buf, &quot; CAPABILITY&quot;)
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> - use  stage == STAGE_GETAUTH&amp;&amp;  !strncmp(buf, &quot;* PREAUTH&quot;, 9)
+</I>&gt;&gt;&gt;<i>    - instead of  strstr(buf, &quot; PREAUTH&quot;)
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> - use  stage == STAGE_GETRANGE&amp;&amp;  !check_only&amp;&amp;  strstr(buf,  
+</I>&gt;&gt;&gt;<i> &quot;[READ-ONLY]&quot;)
+</I>&gt;&gt;&gt;<i>    - instead of  !check_only&amp;&amp;  strstr(buf, &quot;[READ-ONLY]&quot;)
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> - log  &quot;* BYE&quot;  message
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> These changes should save a lot of string comparisons during runtime.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Which raises another question: does it make sense to have  
+</I>&gt;&gt;&gt;&gt;<i> caller-specific
+</I>&gt;&gt;&gt;&gt;<i> parsers for untagged replies? Perhaps those functions that need them  
+</I>&gt;&gt;&gt;&gt;<i> - for
+</I>&gt;&gt;&gt;&gt;<i> instance for * SEARCH, should call some new imap_ok_with_untagged()  
+</I>&gt;&gt;&gt;&gt;<i> function
+</I>&gt;&gt;&gt;&gt;<i> instead, and the normal imap_ok handles all untagged implicitly (we  
+</I>&gt;&gt;&gt;&gt;<i> can rename
+</I>&gt;&gt;&gt;&gt;<i> imap_ok, and uses dummy functions that just pass in an additional  
+</I>&gt;&gt;&gt;&gt;<i> argument
+</I>&gt;&gt;&gt;&gt;<i> whether or not returning PS_UNTAGGED is requested).
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> In order to address this, I have made one more intermediate function
+</I>&gt;&gt;&gt;<i> imap_response(). Caller-specific parsers will call imap_response() in
+</I>&gt;&gt;&gt;<i> a loop and others will continue calling imap_ok().
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> On reading the RFCs, it looks like the [READ-ONLY] flag is actually
+</I>&gt;&gt;&gt;<i> part of a tagged response. Should the [READ-ONLY] check be moved to
+</I>&gt;&gt;&gt;<i> imap_response()?
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Functions cleaned up:
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> imap_getrange()
+</I>&gt;&gt;&gt;<i> imap_getpartialsizes()
+</I>&gt;&gt;&gt;<i> imap_trail()
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> I think (unless I'm mistaken) we need to deal with asynchronous  
+</I>&gt;&gt;&gt;&gt;<i> (non-requested)
+</I>&gt;&gt;&gt;&gt;<i> untagged messages anyways, so perhaps all of the untagged logic needs  
+</I>&gt;&gt;&gt;&gt;<i> to be in
+</I>&gt;&gt;&gt;&gt;<i> imap_ok, but I'm not sure about that.  Since I haven't looked at the  
+</I>&gt;&gt;&gt;&gt;<i> imap.c code
+</I>&gt;&gt;&gt;&gt;<i> lately, please only consider this brainstorming or &quot;thinking aloud&quot;  
+</I>&gt;&gt;&gt;&gt;<i> and not a
+</I>&gt;&gt;&gt;&gt;<i> plea or request to do things in a certain way.  Design it the way you  
+</I>&gt;&gt;&gt;&gt;<i> think fits
+</I>&gt;&gt;&gt;&gt;<i> the needs best.
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Please check if this patch addresses all the issues raised.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;<i> OK, tested and it looks good.   See -v -v output attached.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Just letting you know I've been running this for a few days now with no
+</I>&gt;<i> problems.
+</I>
+Hi Matt,
+
+thanks for the continued testing of this new feature, and helping us  
+proceed with the work.
+
+Dear Sunil,
+
+thanks a lot for your work on this. I hope to audit and possibly commit  
+the patch tonight.
+
+Best regards
+Matthias
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001216.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+	<LI>Next message: <A HREF="001218.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1217">[ date ]</a>
+              <a href="thread.html#1217">[ thread ]</a>
+              <a href="subject.html#1217">[ subject ]</a>
+              <a href="author.html#1217">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

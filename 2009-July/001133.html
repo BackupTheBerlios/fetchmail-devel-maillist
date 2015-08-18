@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Tracking pending POP3 deletes to solve some	problems
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Tracking%20pending%20POP3%20deletes%20to%20solve%20some%0A%09problems&In-Reply-To=%3C20090722162038.GA14743%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001132.html">
+   <LINK REL="Next"  HREF="001134.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Tracking pending POP3 deletes to solve some	problems</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Tracking%20pending%20POP3%20deletes%20to%20solve%20some%0A%09problems&In-Reply-To=%3C20090722162038.GA14743%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Tracking pending POP3 deletes to solve some	problems">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Jul 22 18:20:38 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001132.html">[fetchmail-devel] Tracking pending POP3 deletes to solve some	problems
+</A></li>
+        <LI>Next message: <A HREF="001134.html">[fetchmail-devel] Tracking pending POP3 deletes to solve some problems
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1133">[ date ]</a>
+              <a href="thread.html#1133">[ thread ]</a>
+              <a href="subject.html#1133">[ subject ]</a>
+              <a href="author.html#1133">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Dear Matthias,
+
+Quoting from Matthias Andree's mail on Wed, Jul 22, 2009:
+&gt;<i> There seems to be a general issue with fetchmail around fetching large  
+</I>&gt;<i> messages, spam filtering, timeouts and thereabouts.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Some three years ago I made a foray into tracking pending DELEtes that we  
+</I>&gt;<i> could no longer issue or that were reverted by POP3 servers through socket  
+</I>&gt;<i> errors (often timeouts or network failures, not too clear to me at the  
+</I>&gt;<i> time), for reference, see
+</I>&gt;<i> 
+</I>&gt;<i>   - <A HREF="https://lists.berlios.de/pipermail/fetchmail-users/2006-May/000409.html">https://lists.berlios.de/pipermail/fetchmail-users/2006-May/000409.html</A>
+</I>&gt;<i> 
+</I>&gt;<i> and followups. At the time, we discussed several concerns around this  
+</I>&gt;<i> issue and I eventually shelved a solution for lack of ideas and time.
+</I>
+...
+
+&gt;<i> It seems the problem has two faces:
+</I>&gt;<i> 
+</I>&gt;<i> 1. Timeout on the server we're fetching from, because the SMTP server or  
+</I>&gt;<i> MDA takes too long.
+</I>
+There are actually two possibilities where the delay could be
+occurring.
+
+====================================================================
+Case 1: After fetchmail has sent the initial MAIL FROM: to the SMTP
+server/invoked the MDA with %F substitution:
+
+I am assuming here that the SMTP server/MDA is doing a DNS
+lookup/basic spam testing on the sender address. 
+
+So, in the SMTP server case, fetchmail is waiting for a response from
+the server after sending the initial MAIL FROM: while the SMTP server
+is doing the DNS lookup/basic spam testing.
+
+In the MDA case, fetchmail goes ahead with popen() and starts writing
+the body to the MDA. As the MDA is still doing the DNS lookup/basic
+spam testing and has not yet started reading the body, the pipe buffer
+will get full and fetchmail will get blocked on an fwrite() later.
+
+While fetchmail is blocked, the POP3 mailserver is waiting for
+fetchmail to read the entire mail body.
+
+Note that the write() timeout for the POP3 mailserver may be shorter
+than the read() timeout. This means that the POP3 mailserver is more
+likely to timeout faster if it finds that the body is not getting
+drained at all in a reasonable amount of time.
+====================================================================
+Case 2: After fetchmail has sent the entire mail to the SMTP server/MDA:
+
+Here, the remote mailserver is waiting for a command from fetchmail,
+while fetchmail is waiting for a response from the SMTP server/exit
+code from the MDA.
+
+As mentioned above, the read() timeout may be longer for the POP3
+mailserver and so it may not mind waiting for the next command.
+====================================================================
+
+Of course, a combination of the above two cases is also possible.
+
+&gt;<i> Generally, I see several approaches to 1:
+</I>&gt;<i> 
+</I>&gt;<i> a. queue downloaded messages before handing them off for delivery. This  
+</I>&gt;<i> avoids timeouts that originate in the SMTP/LMTP server or MDA that  
+</I>&gt;<i> fetchmail forwards to.
+</I>
+This should work. Of course, fetchmail will have to work entirely with
+UIDs as it will have to reconnect later and mark delivered mails for
+deletion.
+
+&gt;<i> b. Alternatively, we could try making fetchmail multithreaded and keeping  
+</I>&gt;<i> the POP3 server happy by spamming it with NOOP. I'm not sure how good this  
+</I>&gt;<i> works, how many POP3 servers implement NOOP, how many NOOP in sequence  
+</I>&gt;<i> they tolerate. Given fetchmail's design, it's very intrusive and amounts  
+</I>&gt;<i> to a rewrite of several major parts. It would have other benefits, but  
+</I>&gt;<i> it's a major effort.
+</I>
+This will not work in Case 1. There, the POP3 mailserver is obviously
+in no mood for NOOPs and may even treat it as a protocol error if it
+gets a command even though the complete body has not been sent.
+
+&gt;<i> c. Alternatively, we could try to reconnect after loss of connection -  
+</I>&gt;<i> however, we may lose prior DELE commands when we don't send QUIT, so  
+</I>&gt;<i> again, we need to bundle DELE requests at the end or for a separate  
+</I>&gt;<i> transaction.  Given that many sites (including hotmail, where Tony had his  
+</I>&gt;<i> problem) limit the number of logins per unit of time, often to once per 15  
+</I>&gt;<i> minutes, we can't preventively send QUIT so as not to lock ourselves out.  
+</I>&gt;<i> Anyways, the solution means we would do 2.
+</I>
+In Case 1 above, the POP3 mailserver may have timed out before sending
+the entire body. If this is happening repeatedly, fetchmail will
+always fail on the same mail.
+
+&gt;<i> Fixing 2 is sort of a requisite for solving 1 in way a or c - we need to  
+</I>&gt;<i> track more state. This does entail changing the .fetchids format as  
+</I>&gt;<i> discussed in 2006, but the UID parser appeared very tolerant even at that  
+</I>&gt;<i> time, so that an extension would be possible and backwards compatible. I  
+</I>&gt;<i> would feel more comfortable checking that again, but I think I checked  
+</I>&gt;<i> thoroughly in 2006 already. Even if we must change the .fetchids  
+</I>&gt;<i> format/layout, I'm open to it.
+</I>
+Well, changing the .fetchids format is anyway a must. If you can
+incorporate the UID parser, it will be great. If I remember correctly,
+the UID parser also had an option to mark bad mails. This would be
+used in such cases where there is a repeated delivery failure on the
+same mail. Once a certain bad count is reached, fetchmail will stop
+attempting to download the mail.
+
+&gt;<i> Functionally, we'd probably need to bundle DELEs into a bulk operation of  
+</I>&gt;<i> &quot;DELE n1 DELE n2 DELE n3 ... DELE nm QUIT&quot; so that we have a reasonable  
+</I>&gt;<i> chance that the server isn't going away from boredom between the first  
+</I>&gt;<i> DELE and the QUIT, and we have more chances to avoid UID reassignment and  
+</I>&gt;<i> &quot;delete wrong message&quot; issues that happen in the race Sunil described, i.  
+</I>&gt;<i> e. if the network dies if the server executes QUIT but fetchmail doesn't  
+</I>&gt;<i> see the +OK response.
+</I>
+This should be possible.
+
+I have not gone through the cases you have mentioned yet, but it would
+be better to categorize them as Case 1 or Case 2 (or both!) first
+before deciding the course of action. For SMTP server, it will be
+simple as the time between the SMTP transactions will give a clear
+indication in syslog. For MDA, this will probably require an strace
+output.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001132.html">[fetchmail-devel] Tracking pending POP3 deletes to solve some	problems
+</A></li>
+	<LI>Next message: <A HREF="001134.html">[fetchmail-devel] Tracking pending POP3 deletes to solve some problems
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1133">[ date ]</a>
+              <a href="thread.html#1133">[ thread ]</a>
+              <a href="subject.html#1133">[ subject ]</a>
+              <a href="author.html#1133">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] save_str problems.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3Cop.vbmgi3zj1e62zd%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001335.html">
+   <LINK REL="Next"  HREF="001337.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] save_str problems.</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3Cop.vbmgi3zj1e62zd%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] save_str problems.">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Apr 23 16:41:17 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001335.html">[fetchmail-devel] save_str problems.
+</A></li>
+        <LI>Next message: <A HREF="001337.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1336">[ date ]</a>
+              <a href="thread.html#1336">[ thread ]</a>
+              <a href="subject.html#1336">[ subject ]</a>
+              <a href="author.html#1336">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rainer Weikusat wrote on 2010-04-21:
+
+&gt;<i> Hello.
+</I>&gt;<i>
+</I>&gt;<i> The company I work for uses fetchmail to download mails from various
+</I>&gt;<i> POP- and IMAP-servers in order to offer an anti-spam/ anti-virus
+</I>&gt;<i> scanning service for smartphone owners. Below is an oprofile excerpt
+</I>&gt;<i> from the 'download server' regarding fetchmail:
+</I>
+Hi Rainer,
+
+thanks for the analysis.  You've bumped into a design flaw of fetchmail's  
+UID handling. It has been on my TODO list for long (and using fetchmail  
+with just 500 kept messages was painful), but it was a non-functional  
+improvement, and the functional improvements (bug fixes) always &quot;jumped  
+the queue&quot; :)
+
+Basically the whole uid.c outfit is using the wrong data structures for  
+its purpose. It uses a linear list of n elements, and iterates over it  
+1.5n times, i. e. we get O(n^2) complexity (without constants).
+
+The whole stuff - I guess you figured as much - is meant to figure if a  
+certain UID is in a set or not, and read/write that set to disk. We don't  
+need order, only uniqueness.
+
+If we were being blunt and wanted a quick fix, we'd kill the list and use  
+a vector (array) and realloc(), a flag &quot;vector is sorted&quot;, and qsort and  
+bsearch. That would bring things to O(n log n)
+
+If we were to be decent, we'd use the right structure for our purpose, and  
+that's a hash table (in C++/STL i'd use a hash_set where available and a  
+set where unavailable). We might want to keep things in a database on  
+disk, rather than load/write the table for every run.
+
+Your patch effort is much appreicated, but however I have serious doubts  
+about taking it. save_str and id_find are used together and basically  
+O(n^2) complexity. Even if your patch shaves save_str down to O(n),  
+id_find usage pattern itself remains O(n^2).
+
+&gt;<i>
+</I>&gt;<i> ,----
+</I>&gt;<i> | CPU: Core 2, speed 2393.92 MHz (estimated)
+</I>&gt;<i> | Counted CPU_CLK_UNHALTED events (Clock cycles when not halted) [...]
+</I>&gt;<i> | samples  %        image name               symbol name
+</I>&gt;<i> | 25110    51.5035  fetchmail                save_str
+</I>&gt;<i> | 11399    23.3806  fetchmail                id_find
+</I>&gt;<i> | 5851     12.0011  fetchmail                str_in_list
+</I>&gt;<i> | 912       1.8706  fetchmail                yylex
+</I>&gt;<i> | 558       1.1445  fetchmail                initialize_saved_lists
+</I>&gt;<i> | 493       1.0112  fetchmail                do_session
+</I>&gt;<i> `----
+</I>&gt;<i>
+</I>&gt;<i> According to this, the program spent most of its time (51.5%) with
+</I>&gt;<i> executing the save_str-routine (uid.c). This routine appends a new
+</I>&gt;<i> item to a linked list of structures by traversing the list in order to
+</I>&gt;<i> find the last node and then adding the new one. It is [mostly] called
+</I>&gt;<i> in a couple of places in pop3.c to update the 'newsaved' and
+</I>&gt;<i> 'oldsaved' lists of message UIDs (UIDL). The query structure defined
+</I>&gt;<i> in fetchmail.h actually even contains a member which was supposed to
+</I>&gt;<i> track the end of the oldsaved list (oldsavedend) but that is only
+</I>&gt;<i> initialized (in initialize_saved_lists/ uid.c) and never really used
+</I>&gt;<i> for anything. The patch included below changes the code to actually
+</I>&gt;<i> track the end of the oldsaved list and introduces a newsavedend struct
+</I>&gt;<i> query member in order to do the same for the newsaved list. With this
+</I>&gt;<i> change, the save_str-routines now only accounts for 0.4% of the CPU
+</I>&gt;<i> time used by the program:
+</I>&gt;<i>
+</I>&gt;<i> ,----
+</I>&gt;<i> | CPU: Core 2, speed 2393.92 MHz (estimated)
+</I>&gt;<i> | Counted CPU_CLK_UNHALTED events (Clock cycles when not halted) [...]
+</I>&gt;<i> | samples  %        image name               symbol name
+</I>&gt;<i> | 19146    48.1588  fetchmail                id_find
+</I>&gt;<i> | 9416     23.6845  fetchmail                str_in_list
+</I>&gt;<i> | 1452      3.6523  fetchmail                yylex
+</I>&gt;<i> | 860       2.1632  fetchmail                initialize_saved_lists
+</I>&gt;<i> | 810       2.0374  fetchmail                do_session
+</I>&gt;<i> |
+</I>&gt;<i> | [...]
+</I>&gt;<i> |
+</I>&gt;<i> | 167       0.4201  fetchmail                save_str
+</I>&gt;<i> | 157       0.3949  fetchmail                parsecmdline
+</I>&gt;<i> | 145       0.3647  fetchmail                readheaders
+</I>&gt;<i> `----
+</I>&gt;<i>
+</I>&gt;<i> I am aware that the 'split append' (save_str + explicit adjustment of
+</I>&gt;<i> savedend-pointer) isn't exactly beautiful but it is a reasonably
+</I>&gt;<i> simple change with a significant positive impact for POP3 mailboxes
+</I>&gt;<i> containing lots of ('kept on server') messages.
+</I>&gt;<i>
+</I>&gt;<i> ----------
+</I>&gt;<i> --- fetchmail/fetchmail.h	16 Apr 2010 14:45:15 -0000	1.1.1.3
+</I>&gt;<i> +++ fetchmail/fetchmail.h	21 Apr 2010 16:31:34 -0000	1.1.1.3.2.1
+</I>&gt;<i> @@ -378,7 +378,7 @@
+</I>&gt;<i>      unsigned int uid;		/* UID of user to deliver to */
+</I>&gt;<i>      struct idlist *skipped;	/* messages skipped on the mail server */
+</I>&gt;<i>      struct idlist *oldsaved, *newsaved;
+</I>&gt;<i> -    struct idlist **oldsavedend;
+</I>&gt;<i> +    struct idlist **oldsavedend, **newsavedend;
+</I>&gt;<i>      char lastdigest[DIGESTLEN];	/* last MD5 hash seen on this  
+</I>&gt;<i> connection */
+</I>&gt;<i>      char *folder;		/* folder currently being polled */
+</I>&gt;<i> --- fetchmail/pop3.c	16 Apr 2010 17:27:18 -0000	1.1.1.3
+</I>&gt;<i> +++ fetchmail/pop3.c	21 Apr 2010 16:31:34 -0000	1.1.1.3.2.1
+</I>&gt;<i> @@ -881,8 +881,10 @@
+</I>&gt;<i>  	    last_nr = try_nr;
+</I>&gt;<i> 	    /* save it */
+</I>&gt;<i> -	    newl = save_str(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
+</I>&gt;<i> +	    newl = save_str(ctl-&gt;oldsavedend, id, UID_UNSEEN);
+</I>&gt;<i>  	    newl-&gt;val.status.num = try_nr;
+</I>&gt;<i> +
+</I>&gt;<i> +	    ctl-&gt;oldsavedend = &amp;newl-&gt;next;
+</I>&gt;<i>  	}
+</I>&gt;<i>      }
+</I>&gt;<i>      if (outlevel &gt;= O_DEBUG &amp;&amp; last_nr &lt;= count)
+</I>&gt;<i> @@ -970,15 +972,18 @@
+</I>&gt;<i>      /* the first try_id messages are known -&gt; copy them to the newsaved  
+</I>&gt;<i> list */
+</I>&gt;<i>      for( num = first_nr; num &lt; list_len; num++ )
+</I>&gt;<i>      {
+</I>&gt;<i> -	struct idlist	*newl = save_str(&amp;ctl-&gt;newsaved,
+</I>&gt;<i> +	struct idlist	*newl = save_str(ctl-&gt;newsavedend,
+</I>&gt;<i>  				str_from_nr_list(&amp;ctl-&gt;oldsaved, num),
+</I>&gt;<i>  				UID_UNSEEN);
+</I>&gt;<i>  	newl-&gt;val.status.num = num - first_nr + 1;
+</I>&gt;<i> +
+</I>&gt;<i> +	ctl-&gt;newsavedend = &amp;newl-&gt;next;
+</I>&gt;<i>      }
+</I>&gt;<i>     if( nolinear ) {
+</I>&gt;<i>  	free_str_list(&amp;ctl-&gt;oldsaved);
+</I>&gt;<i>  	ctl-&gt;oldsaved = 0;
+</I>&gt;<i> +	ctl-&gt;oldsavedend = &amp;ctl-&gt;oldsaved;
+</I>&gt;<i>  	last = try_id;
+</I>&gt;<i>      }
+</I>&gt;<i> @@ -998,6 +1003,7 @@
+</I>&gt;<i>      (void)folder;
+</I>&gt;<i>      /* Ensure that the new list is properly empty */
+</I>&gt;<i>      ctl-&gt;newsaved = (struct idlist *)NULL;
+</I>&gt;<i> +    ctl-&gt;newsavedend = &amp;ctl-&gt;newsaved;
+</I>&gt;<i> #ifdef MBOX
+</I>&gt;<i>      /* Alain Knaff suggests this, but it's not RFC standard */
+</I>&gt;<i> @@ -1089,9 +1095,11 @@
+</I>&gt;<i>  		    {
+</I>&gt;<i>  			struct idlist	*old, *newl;
+</I>&gt;<i> -			newl = save_str(&amp;ctl-&gt;newsaved, id, UID_UNSEEN);
+</I>&gt;<i> +			newl = save_str(ctl-&gt;newsavedend, id, UID_UNSEEN);
+</I>&gt;<i>  			newl-&gt;val.status.num = unum;
+</I>&gt;<i> +			ctl-&gt;newsavedend = &amp;newl-&gt;next;
+</I>&gt;<i> +
+</I>&gt;<i>  			if ((old = str_in_list(&amp;ctl-&gt;oldsaved, id, FALSE)))
+</I>&gt;<i>  			{
+</I>&gt;<i>  			    flag mark = old-&gt;val.status.mark;
+</I>&gt;<i> @@ -1123,7 +1131,8 @@
+</I>&gt;<i>  			     * swap the lists (say, due to socket error),
+</I>&gt;<i>  			     * the same mail will not be downloaded again.
+</I>&gt;<i>  			     */
+</I>&gt;<i> -			    old = save_str(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
+</I>&gt;<i> +			    old = save_str(ctl-&gt;oldsavedend, id, UID_UNSEEN);
+</I>&gt;<i> +			    ctl-&gt;oldsavedend = &amp;old-&gt;next;
+</I>&gt;<i>  			}
+</I>&gt;<i>  			/* save the number */
+</I>&gt;<i>  			old-&gt;val.status.num = unum;
+</I>&gt;<i> @@ -1224,8 +1233,10 @@
+</I>&gt;<i>  	}
+</I>&gt;<i> 	/* save it */
+</I>&gt;<i> -	newl = save_str(&amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
+</I>&gt;<i> +	newl = save_str(ctl-&gt;oldsavedend, id, UID_UNSEEN);
+</I>&gt;<i>  	newl-&gt;val.status.num = num;
+</I>&gt;<i> +
+</I>&gt;<i> +	ctl-&gt;oldsavedend = &amp;newl-&gt;next;
+</I>&gt;<i>  	return(FALSE);
+</I>&gt;<i>      }
+</I>&gt;<i>      else
+</I>&gt;<i> --- fetchmail/transact.c	16 Apr 2010 14:45:18 -0000	1.1.1.2
+</I>&gt;<i> +++ fetchmail/transact.c	21 Apr 2010 16:31:34 -0000	1.1.1.2.2.1
+</I>&gt;<i> @@ -882,8 +882,10 @@
+</I>&gt;<i>   		sscanf(line+12, &quot;%s&quot;, id);
+</I>&gt;<i>   	        if (!str_find( &amp;ctl-&gt;newsaved, num))
+</I>&gt;<i>  		{
+</I>&gt;<i> - 		    struct idlist *newl = save_str(&amp;ctl-&gt;newsaved,id,UID_SEEN);
+</I>&gt;<i> + 		    struct idlist *newl = save_str(ctl-&gt;newsavedend,id,UID_SEEN);
+</I>&gt;<i>  		    newl-&gt;val.status.num = num;
+</I>&gt;<i> +
+</I>&gt;<i> +		    ctl-&gt;newsavedend = &amp;newl-&gt;next;
+</I>&gt;<i>  		}
+</I>&gt;<i>   	    }
+</I>&gt;<i>   	}
+</I>&gt;<i> --- fetchmail/uid.c	17 Aug 2009 10:47:46 -0000	1.1.1.1
+</I>&gt;<i> +++ fetchmail/uid.c	21 Apr 2010 16:31:34 -0000	1.1.1.1.2.1
+</I>&gt;<i> @@ -119,6 +119,7 @@
+</I>&gt;<i>  	ctl-&gt;oldsaved = (struct idlist *)NULL;
+</I>&gt;<i>  	ctl-&gt;newsaved = (struct idlist *)NULL;
+</I>&gt;<i>  	ctl-&gt;oldsavedend = &amp;ctl-&gt;oldsaved;
+</I>&gt;<i> +	ctl-&gt;newsavedend = &amp;ctl-&gt;newsaved;
+</I>&gt;<i>      }
+</I>&gt;<i>     errno = 0;
+</I>&gt;<i> @@ -151,6 +152,7 @@
+</I>&gt;<i>  	char saveddelim1;
+</I>&gt;<i>  	char *delimp2;
+</I>&gt;<i>  	char saveddelim2 = '\0';	/* pacify -Wall */
+</I>&gt;<i> +	struct idlist *old;
+</I>&gt;<i> 	while (fgets(buf, POPBUFSIZE, tmpfp) != (char *)NULL)
+</I>&gt;<i>  	{
+</I>&gt;<i> @@ -215,7 +217,8 @@
+</I>&gt;<i>  		for (ctl = hostlist; ctl; ctl = ctl-&gt;next) {
+</I>&gt;<i>  		    if (strcasecmp(host, ctl-&gt;server.queryname) == 0
+</I>&gt;<i>  			    &amp;&amp; strcasecmp(user, ctl-&gt;remotename) == 0) {
+</I>&gt;<i> -			save_str(&amp;ctl-&gt;oldsaved, id, UID_SEEN);
+</I>&gt;<i> +			old = save_str(ctl-&gt;oldsavedend, id, UID_SEEN);
+</I>&gt;<i> +			ctl-&gt;oldsavedend = &amp;old-&gt;next;
+</I>&gt;<i>  			break;
+</I>&gt;<i>  		    }
+</I>&gt;<i>  		}
+</I>&gt;<i> @@ -547,7 +550,9 @@
+</I>&gt;<i>  	if (outlevel &gt;= O_DEBUG)
+</I>&gt;<i>  	    report(stdout, GT_(&quot;swapping UID lists\n&quot;));
+</I>&gt;<i>  	ctl-&gt;oldsaved = ctl-&gt;newsaved;
+</I>&gt;<i> +	ctl-&gt;oldsavedend = ctl-&gt;newsavedend;
+</I>&gt;<i>  	ctl-&gt;newsaved = (struct idlist *) NULL;
+</I>&gt;<i> +	ctl-&gt;newsavedend = &amp;ctl-&gt;newsaved;
+</I>&gt;<i>  	free_str_list(&amp;temp);
+</I>&gt;<i>      }
+</I>&gt;<i>      /* in fast uidl, there is no need to swap lists: the old state of
+</I>&gt;<i> @@ -581,6 +586,7 @@
+</I>&gt;<i>  	    report(stdout, GT_(&quot;discarding new UID list\n&quot;));
+</I>&gt;<i>  	free_str_list(&amp;ctl-&gt;newsaved);
+</I>&gt;<i>  	ctl-&gt;newsaved = (struct idlist *) NULL;
+</I>&gt;<i> +	ctl-&gt;newsavedend = &amp;ctl-&gt;newsaved;
+</I>&gt;<i>      }
+</I>&gt;<i>  }
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> fetchmail-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">https://lists.berlios.de/mailman/listinfo/fetchmail-devel</A>
+</I>
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001335.html">[fetchmail-devel] save_str problems.
+</A></li>
+	<LI>Next message: <A HREF="001337.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1336">[ date ]</a>
+              <a href="thread.html#1336">[ thread ]</a>
+              <a href="subject.html#1336">[ subject ]</a>
+              <a href="author.html#1336">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

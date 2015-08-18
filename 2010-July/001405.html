@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] timeout not working for TLS
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20timeout%20not%20working%20for%20TLS&In-Reply-To=%3C4C5075BE.1030508%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001404.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] timeout not working for TLS</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20timeout%20not%20working%20for%20TLS&In-Reply-To=%3C4C5075BE.1030508%40gmx.de%3E"
+       TITLE="[fetchmail-devel] timeout not working for TLS">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Jul 28 20:23:58 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001404.html">[fetchmail-devel] timeout not working for TLS
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1405">[ date ]</a>
+              <a href="thread.html#1405">[ thread ]</a>
+              <a href="subject.html#1405">[ subject ]</a>
+              <a href="author.html#1405">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 28.07.2010 19:04, schrieb R P Herrold:
+&gt;<i> On Wed, 28 Jul 2010, Matthias Andree wrote:
+</I>&gt;<i> 
+</I>&gt;&gt;<i> Don't. fetchmail in most modes suppresses writing core files 
+</I>&gt;&gt;<i> with setrlimit(), to avoid passwords hitting the disk 
+</I>&gt;&gt;<i> outside the .netrc or .fetchmailrc files.
+</I>&gt;<i> 
+</I>&gt;<i> goodness -- I recall reporting that matter to ESR and getting 
+</I>&gt;<i> the patch, probably a decade ago
+</I>
+Hi there,
+
+just for our edification, with grep &amp; git gui blame, it took me only a couple of
+seconds to figure this out:
+
+It's been 12 years minus 5 days that ESR committed this code to fetchmail.c:
+
+&gt;<i>     /*
+</I>&gt;<i>      * Before getting passwords, disable core dumps unless -v -d0 mode is on.
+</I>&gt;<i>      * Core dumps could otherwise contain passwords to be scavenged by a
+</I>&gt;<i>      * cracker.
+</I>&gt;<i>      */
+</I>&gt;<i>     if (outlevel &lt; O_VERBOSE || run.poll_interval &gt; 0)
+</I>&gt;<i>     {
+</I>&gt;<i>         struct rlimit corelimit;
+</I>&gt;<i>         corelimit.rlim_cur = 0;
+</I>&gt;<i>         corelimit.rlim_max = 0;
+</I>&gt;<i>         setrlimit(RLIMIT_CORE, &amp;corelimit);
+</I>&gt;<i>     }
+</I>
+(I'm pasting from a future development branch that has lost the #ifdef
+HAVE_SETRLIMIT guards.)
+
+Now, after two repository conversions (CVS-&gt;SVN and SVN-&gt;Git),
+we can still figure when he did that:
+
+&gt;<i> commit 1587e4153763fab493acf2deee9028e24e1da57f
+</I>&gt;<i> Author: Eric S. Raymond &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">esr at thyrsus.com</A>&gt;
+</I>&gt;<i> Date:   Sun Aug 2 16:30:25 1998 +0000
+</I>&gt;<i> 
+</I>&gt;<i>     Improved security.
+</I>&gt;<i> 
+</I>&gt;<i>     svn path=/trunk/; revision=2032
+</I>
+&gt;<i>From OLDNEWS:
+</I>
+&gt;<i> fetchmail-4.5.5 (Mon Aug  3 16:08:14 EDT 1998), 15286 lines:
+</I>...
+&gt;<i> * Added setrlimit call to inhibit core dumps unless debugging is on.
+</I>...
+
+This also states how Thomas can enable core dumps: always run with -vd0 (which
+spams the logs or cron output quite a bit). I had - long ago - read there was
+such code, but lacked the time to dig deeper earlier today.
+
+Now that I got this pointer, here we go... :)
+
+Best regards
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001404.html">[fetchmail-devel] timeout not working for TLS
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1405">[ date ]</a>
+              <a href="thread.html#1405">[ thread ]</a>
+              <a href="subject.html#1405">[ subject ]</a>
+              <a href="author.html#1405">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

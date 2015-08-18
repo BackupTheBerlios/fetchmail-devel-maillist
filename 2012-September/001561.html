@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] PATCH: Clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20PATCH%3A%20Clear%0A%20SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS%20without%20SSL_CTX_clear_options%28%29&In-Reply-To=%3C50451555.9000609%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001559.html">
+   <LINK REL="Next"  HREF="001562.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] PATCH: Clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20PATCH%3A%20Clear%0A%20SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS%20without%20SSL_CTX_clear_options%28%29&In-Reply-To=%3C50451555.9000609%40gmx.de%3E"
+       TITLE="[fetchmail-devel] PATCH: Clear SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Sep  3 22:38:45 CEST 2012</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001559.html">[fetchmail-devel] PATCH: Clear	SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+</A></li>
+        <LI>Next message: <A HREF="001562.html">[fetchmail-devel] PATCH: Clear	SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1561">[ date ]</a>
+              <a href="thread.html#1561">[ thread ]</a>
+              <a href="subject.html#1561">[ subject ]</a>
+              <a href="author.html#1561">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 03.09.2012 21:43, schrieb Earl Chew:
+&gt;<i> Matthias,
+</I>&gt;<i> 
+</I>&gt;&gt;<i> The question I am asking myself is: What use is there in supporting
+</I>&gt;&gt;<i> &quot;older implementations&quot; (meaning before 0.9.8m)?  How many systems are
+</I>&gt;&gt;<i> affected (and I would tend to ignore enterprise distributions - they
+</I>&gt;&gt;<i> ought to patch OpenSSL instead).  I suppose those older implementations
+</I>&gt;&gt;<i> would likely also be vulnerable to several other attacks, which might
+</I>&gt;&gt;<i> subvert the effort of closing this (minor) hole.
+</I>&gt;<i> 
+</I>&gt;<i> Yes, a reasonable question to ask.
+</I>&gt;<i> 
+</I>&gt;<i> I think that there are two separate considerations:
+</I>&gt;<i> 
+</I>&gt;<i> a. The absence/presence of SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
+</I>&gt;<i> b. The absence/presence of SSL_CTX_clear_options()
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> My reading is that (a) is the key to closing the vulnerability. The availability of SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
+</I>&gt;<i> indicates that the vulnerability is closed and it is important that SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS
+</I>&gt;<i> is _not_ set in this scenario (except when overridden by FETCHMAIL_DISABLE_CBC_IV_COUNTERMEASURE).
+</I>
+Earl,
+
+we agree on the assessment of how to close the vulnerability, and on
+ways to leave the flag unset, assuming that OpenSSL defaults to &quot;off&quot;
+(which it does for official 0.9.8 and 1.0.0 releases, and probably
+future releases).
+
+The SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS feature dates back to 2002, so we
+can check that list item off.
+
+Perhaps I can reword my question on how wide-spread the issue is a
+little bit: are there open-source distributions that are still supported
+by their &quot;vendor&quot; where this is a real-world problem, rather than just
+continued use of an unsupported version?
+
+&gt;<i> The patch I submitted keeps the vulnerability closed, but does not require SSL_CTX_clear_options().
+</I>
+That we also agree on - providing that nobody hacked the SSL defaults.
+
+&gt;<i> As you have probably figured out, one of the OpenSSL installations that I have (1.0.0-0.10.beta3.fc12) supports
+</I>&gt;<i> SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS but does not support SSL_CTX_clear_options().
+</I>
+The &quot;0.10.beta3&quot; and &quot;fc12&quot; labels reveal that your package is from a
+distribution (Fedora 12 &quot;Constantine&quot;) that went unsupported almost two
+years ago (*), and as such is not supported by fetchmail either.
+
+Fedora 12 was using a pre-1.0.0 beta release of OpenSSL, and went out of
+support before OpenSSL 1.0.0 got released.
+
+I will queue your patch in Git now that it is there and that it fixes a
+regression, but whether there will be a fetchmail 6.3.23 release is open.
+
+(*)
+&lt;<A HREF="https://lists.fedoraproject.org/pipermail/announce/2010-December/002895.html">https://lists.fedoraproject.org/pipermail/announce/2010-December/002895.html</A>&gt;
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001559.html">[fetchmail-devel] PATCH: Clear	SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+</A></li>
+	<LI>Next message: <A HREF="001562.html">[fetchmail-devel] PATCH: Clear	SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS without SSL_CTX_clear_options()
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1561">[ date ]</a>
+              <a href="thread.html#1561">[ thread ]</a>
+              <a href="subject.html#1561">[ subject ]</a>
+              <a href="author.html#1561">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

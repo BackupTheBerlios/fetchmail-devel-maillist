@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail fix coordination and future planning
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20fix%20coordination%20and%20future%20planning&In-Reply-To=%3C680266.33195.qm%40web95715.mail.in.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001484.html">
+   <LINK REL="Next"  HREF="001486.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail fix coordination and future planning</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20fix%20coordination%20and%20future%20planning&In-Reply-To=%3C680266.33195.qm%40web95715.mail.in.yahoo.com%3E"
+       TITLE="[fetchmail-devel] fetchmail fix coordination and future planning">sunilshetye at rocketmail.com
+       </A><BR>
+    <I>Wed May  4 08:46:34 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001484.html">[fetchmail-devel] fetchmail fix coordination and future	planning
+</A></li>
+        <LI>Next message: <A HREF="001486.html">[fetchmail-devel] fetchmail fix coordination and future planning
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1485">[ date ]</a>
+              <a href="thread.html#1485">[ thread ]</a>
+              <a href="subject.html#1485">[ subject ]</a>
+              <a href="author.html#1485">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>----- Original Message -----
+
+&gt;<i> Observations:
+</I>&gt;<i> 
+</I>&gt;<i> - the patch makes an undocumented assumption that the buffer for a
+</I>&gt;<i> second call to gen_recv_split is always large enough to copy the
+</I>&gt;<i> remainder. If it isn't, you lose data.&#160; Doesn't happen in fetchmail now,
+</I>&gt;<i> but is a maintenance concern, so I'll add an assert() for now.
+</I>&gt;<i> 
+</I>&gt;<i> - you don't guard the prefix length - I've added that.
+</I>&gt;<i> 
+</I>&gt;<i> - you don't check if the data-to-be-cached fits into the rs structure -
+</I>&gt;<i> I've added that.
+</I>
+Good. All required.
+
+&gt;<i> - /** foo */ isn't a typo, but a marker for Doxygen so it actually looks
+</I>&gt;<i> at the comment for documentation, and extracts it. Also note the
+</I>&gt;<i> ordering of these comments versus the comma; alternatively you can write
+</I>&gt;<i> /**&lt; foo */ to document the PREVIOUS argument in a prototype.
+</I>
+Okay. Note that the prototype was just copied from gen_recv() and a parameter was added later.
+
+&gt;<i> &#160; &#160; Fixup: match prefix caseblind, add some guards, streamline phase
+</I>&gt;<i> handling.
+</I>
+Required.
+
+&gt;<i> &#160; &#160; Add a few asserts to catch abuse, and use strlcpy/strlcat rather than
+</I>&gt;<i> &#160; &#160; snprintf because some implementations of the latter are unsuitable for
+</I>&gt;<i> &#160; &#160; detecting buffer exhaustion.
+</I>
+Required.
+
+&gt;<i> &#160; &#160; Fixup: remove unused variables.
+</I>
+How did I miss that?
+
+Thanks for the review.
+
+-- 
+Sunil Shetye.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001484.html">[fetchmail-devel] fetchmail fix coordination and future	planning
+</A></li>
+	<LI>Next message: <A HREF="001486.html">[fetchmail-devel] fetchmail fix coordination and future planning
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1485">[ date ]</a>
+              <a href="thread.html#1485">[ thread ]</a>
+              <a href="subject.html#1485">[ subject ]</a>
+              <a href="author.html#1485">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

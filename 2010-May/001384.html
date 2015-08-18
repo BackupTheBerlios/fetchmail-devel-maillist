@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] 24h comparison of old and new UID handling	code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%2024h%20comparison%20of%20old%20and%20new%20UID%20handling%0A%09code&In-Reply-To=%3Cop.vdfd9a0p1e62zd%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001383.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] 24h comparison of old and new UID handling	code</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%2024h%20comparison%20of%20old%20and%20new%20UID%20handling%0A%09code&In-Reply-To=%3Cop.vdfd9a0p1e62zd%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] 24h comparison of old and new UID handling	code">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri May 28 19:16:12 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001383.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1384">[ date ]</a>
+              <a href="thread.html#1384">[ thread ]</a>
+              <a href="subject.html#1384">[ subject ]</a>
+              <a href="author.html#1384">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rainer Weikusat wrote on 2010-05-28:
+
+&gt;<i> &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>
+&gt;&gt;<i> D'oh. A std dev' that's thrice the average. There's a considerable
+</I>&gt;&gt;<i> chance  for a negative number. :-}
+</I>&gt;<i>
+</I>&gt;<i> It is conceivable that I am miscalculating the number. But this really
+</I>&gt;<i> just communicates that the distribution is very asymmetric.
+</I>
+I'd rather trust your numerics than the underlying assumption it were  
+normally distributed data :-)
+(Normalverteilung/Gauss'sche). Ok, there's always room to miss out on a  
+&quot;2&quot; in an exponent and inadvertently confuse variance and standard  
+deviation, but still why would the count of messages in the mailboxes be  
+normally distributed?  There isn't a single reason I could see, and this  
+voids all chances that the arith. average were in 1-sigma, 2-sigma,  
+3-sigma confidence intervals, or anywhere near the expected value.
+
+&gt;&gt;&gt;<i> UID handling is still the dominant operation (processor-time wise)
+</I>&gt;&gt;&gt;<i> performed by fetchmail.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> No it's not, see below -- you're not grouping other code properly. If
+</I>&gt;&gt;<i> oprofile samples call stacks so that it can cumulate per caller (like
+</I>&gt;&gt;<i> du(1) does) you'll see it's not. Otherwise, we'll resort to the
+</I>&gt;&gt;<i> preclusion  reasoning below.
+</I>&gt;<i>
+</I>&gt;<i> This seems to be a disagreement about the meaning of the term
+</I>&gt;<i> 'dominant'. It may well have some defined meaning I am not aware of.
+</I>&gt;<i> I am not a repurposed physicist or person with any other kind of
+</I>&gt;<i> degree , just a programmer and even this just because I spent
+</I>&gt;<i> something like twenty years learning about this stuff whatever I could
+</I>&gt;<i> gather from sources available to me.
+</I>
+I'm not sure if there is a formal definiton, but I'd say it's &quot;dominant&quot;  
+if you can neglect other terms in a sum, for instance. Or if you'd write  
+the &gt;&gt; or &lt;&lt; relation operators, often considered as possible with one  
+order of magnitude in between. That we don't have after your fix.
+
+That doesn't make your fix less useful, however. As written for my 16,000  
+message inbox, fetchmail starts fetching immediately, whereas the  
+unpatched fetchmail ponders UIDL more than a minute.
+
+&gt;<i> I will nevertheless do that since it is a fairly simple operation,
+</I>&gt;<i> which I can put into a few idle minutes in my (presently) usual 10h+
+</I>&gt;<i> workdays and something I can absolutely not do is put much more effort
+</I>&gt;<i> into this, except maybe two o'clock in the morning after working for
+</I>&gt;<i> ten hours. Since the code exists, works and (as far as I could
+</I>&gt;<i> determine) mitigates the problem it was supposed to mitigate, any
+</I>&gt;<i> justification I could conceivable use to explain to my boss why I am
+</I>&gt;<i> even looking at this during the time I am neither eating nor sleeping
+</I>&gt;<i> is gone :-(.
+</I>
+Which is good enough. I've always been meaning to do that, but there was  
+always something else more important to do, so your final patch will be  
+most welcome. I expect to make minor changes to fix compiler warnings and  
+add side comments to NEWS and thereabouts (it's always interesting to see  
+what you get when you compile on different Linux flavours, Solaris,  
+NetBSD, FreeBSD, MacOS X), but from what I've seen so far, not much will  
+be needed.
+
+Possibly the merge with my existing advance development branch (not yet  
+published) for 6.4.0 or 6.5.0 may take another hour - I don't think I'll  
+put this feature in a 6.3.X release. This 6.3 branch was originally just a  
+drop-in compatible stopgap branch so nobody had an excuse to sidestep the  
+&gt;<i>100 fixes between 6.2.5 and 6.3.0, but as we all know, makeshift  
+</I>arrangements often prove to be long-lived. I would never have expected it  
+to spawn 18 nontrivial releases to date, and 6.3.18 would appear, too.
+
+The fetchmail code however really needs updating and leave compatibility  
+with pre-2000 operating systems (with before C-89, before-POSIX2001)  
+behind - especially the way it's sprayed all over the source with a  
+gazillion of #ifdef makes maintaining the code a time-consuming and  
+error-prone process, and my experience is if you don't have good  
+improvements as selling points users will just stick to the old versions  
+that you've left behind long ago.  I know I may disappoint some users that  
+way, but in the end I need to see to real life -- which means I'm not  
+pampering up systems where vendor support ceased years ago.
+
+Efficiency improvements that users can see are one such selling point to  
+motivate a migration... :)
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001383.html">[fetchmail-devel] 24h comparison of old and new UID handling	code
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1384">[ date ]</a>
+              <a href="thread.html#1384">[ thread ]</a>
+              <a href="subject.html#1384">[ subject ]</a>
+              <a href="author.html#1384">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

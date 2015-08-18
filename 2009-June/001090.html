@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail and mapi
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi&In-Reply-To=%3Cop.uviakpmo1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001088.html">
+   <LINK REL="Next"  HREF="001089.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail and mapi</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi&In-Reply-To=%3Cop.uviakpmo1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] fetchmail and mapi">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun Jun 14 10:44:39 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001088.html">[fetchmail-devel] fetchmail and mapi
+</A></li>
+        <LI>Next message: <A HREF="001089.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1090">[ date ]</a>
+              <a href="thread.html#1090">[ thread ]</a>
+              <a href="subject.html#1090">[ subject ]</a>
+              <a href="author.html#1090">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 09.06.2009, 13:27 Uhr, schrieb mojmir svoboda  
+&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mojmir.svoboda at 2kczech.com</A>&gt;:
+
+&gt;<i> hello dear developpers,
+</I>&gt;<i>
+</I>&gt;<i> first i'd like to appologize if there is anything wrong with this email.
+</I>&gt;<i>
+</I>&gt;<i> i was using classic fetchmail | procmail | mutt | ssmtp toolchain until
+</I>&gt;<i> the evil begun to spread from the mordor realm. yes, this company
+</I>&gt;<i> switched to mordor's exchange and mapi protocol so i found that there
+</I>&gt;<i> is BRANCH_MAPI already in the repository.
+</I>&gt;<i> i've compiled, installed and configured this branch, but i have few
+</I>&gt;<i> notes and questions:
+</I>
+Hi Mojmir,
+
+&gt;<i> 1. when it will be merged to trunk?
+</I>
+As soon as I have the time to look at the code and resolved unsafe  
+programming practices and required updates in that code (see your findings  
+(3) and (4) below), and tested against an Exchange server (I don't have  
+one).
+
+&gt;<i> 2. is there any work in progress? do you accept patches?
+</I>
+I'm not aware that the branch is being worked on. I will accept patches -  
+please document them so I can understand what they are trying to do.
+
+&gt;<i> 3. the branch seems not to compile without touching OpenMsg and GetGAL
+</I>&gt;<i> because session argument is missing
+</I>
+Has there been a new OpenConnect release since then?
+
+&gt;<i> 4. the branch contains few buffer overflows in openchange-tools.c
+</I>&gt;<i> i can supply more info, if you want.
+</I>
+Yes, please do.
+
+&gt;<i> 5. fetchmail -k works successfully, but fetchmail -K does not.
+</I>&gt;<i> i have to find more yet.
+</I>
+Please let me know what you find.
+
+&gt;<i> 6. mordor's exchange server seems to append this funny ^M to each line
+</I>&gt;<i> in the body. is it the job of fetchmail to remove this, or some procmail
+</I>&gt;<i> tool for example (OT: do you know how to code the rule, please?)
+</I>
+That's not only MAPI, but some other protocols are also CRLF terminated.  
+It's fetchmail's job to normalize line endings to whatever the destination  
+protocol requires. MDA =&gt; LF, SMTP =&gt; CRLF, for instance.
+
+&gt;<i> 7. (perhaps OT) i wonder how to send back an email via mapi, but i guess
+</I>&gt;<i> this is not really a job of fetchmail.
+</I>
+Indeed that's not fetchmail's job, we'll have to check.
+
+Thanks for looking at the code and pointing out there are issues.  
+BRANCH_MAPI was a Google Summer of Code project.
+
+Best regards
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001088.html">[fetchmail-devel] fetchmail and mapi
+</A></li>
+	<LI>Next message: <A HREF="001089.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1090">[ date ]</a>
+              <a href="thread.html#1090">[ thread ]</a>
+              <a href="subject.html#1090">[ subject ]</a>
+              <a href="author.html#1090">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

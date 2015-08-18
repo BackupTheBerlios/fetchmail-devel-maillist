@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: [fetchmail]multi-hop ssh
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail%5Dmulti-hop%20ssh&In-Reply-To=%3Cm38xvp9sv9.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000524.html">
+   <LINK REL="Next"  HREF="000518.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: [fetchmail]multi-hop ssh</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail%5Dmulti-hop%20ssh&In-Reply-To=%3Cm38xvp9sv9.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: [fetchmail]multi-hop ssh">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Nov 16 04:25:14 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000524.html">[fetchmail-devel] Re: imap trail broken
+</A></li>
+        <LI>Next message: <A HREF="000518.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#517">[ date ]</a>
+              <a href="thread.html#517">[ thread ]</a>
+              <a href="subject.html#517">[ subject ]</a>
+              <a href="author.html#517">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Derek Broughton &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">auspex at pointerstop.ca</A>&gt; writes:
+
+&gt;<i> Due to &quot;issues&quot; with the $%^*!@#  firewall at my client's site, I can't get
+</I>&gt;<i> out to my mailbox, directly.  So, I'm trying to use fetchmail via ssh in
+</I>&gt;<i> two hops. This works from home:
+</I>&gt;<i>   poll pointerstop.ca with proto imap 
+</I>&gt;<i>     plugin &quot;ssh pointers@%h /usr/sbin/imapd&quot; auth ssh
+</I>&gt;<i>     user &quot;pointers&quot; 
+</I>&gt;<i>
+</I>&gt;<i> and this works (as user fetchmail)  from the client's site:
+</I>&gt;<i>   ssh  <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">derek at io.acad.athabascau.ca</A> \
+</I>&gt;<i>     'ssh <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">pointers at pointerstop.ca</A> /usr/sbin/imapd'
+</I>&gt;<i> and seems to meet the criteria for a plugin: I can give it imap commands on
+</I>&gt;<i> stdin and get results on stdout.  The ssh keys are configured correctly so
+</I>&gt;<i> that no passwords are requested.
+</I>&gt;<i>
+</I>&gt;<i> But this  doesn't:
+</I>&gt;<i>   poll pointerstop.ca with proto imap 
+</I>&gt;<i>     plugin &quot;ssh <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">derek at io.acad.athabascau.ca</A> \
+</I>&gt;<i>       'ssh  <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">pointers at pointerstop.ca</A> /usr/sbin/imapd'&quot;
+</I>&gt;<i>       auth ssh
+</I>&gt;<i>     user &quot;pointers&quot; 
+</I>&gt;<i>
+</I>&gt;<i> Syslog shows:
+</I>&gt;<i>   socket error while fetching from pointerstop.ca
+</I>&gt;<i>
+</I>&gt;<i> What am I doing wrong?  Is there some really good reason why I can't
+</I>&gt;<i> do it?
+</I>
+Yes. Line breaks within strings are evil, regardless of the backslash.
+I'd say you have hit a bug in fetchmail's configuration file parser.
+
+You can see this when running &quot;fetchmail --configdump | grep -w plugin&quot;
+and I bet io.acad... doesn't like \n for a command.
+
+For the nonce, write the plugin command on a single line and it should
+work (I hope your mailer doesn't wrap this..., it's one line for poll,
+one for plugin, one for auth, one for user, totalling four (4)).
+
+  poll pointerstop.ca with proto imap 
+    plugin &quot;ssh <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">derek at io.acad.athabascau.ca</A> 'ssh <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">pointers at pointerstop.ca</A> /usr/sbin/imapd'&quot;
+    auth ssh
+    user &quot;pointers&quot; 
+
+And this is the --configdump excerpt as shown above:
+
+Original (the version you posted):
+            &quot;plugin&quot;:&quot;ssh <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">derek at io.acad.athabascau.ca</A> \n      'ssh  <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">pointers at pointerstop.ca</A> /usr/sbin/imapd'&quot;,
+                                                     ====
+
+Revised (my version):
+            &quot;plugin&quot;:&quot;ssh <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">derek at io.acad.athabascau.ca</A> 'ssh  <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">pointers at pointerstop.ca</A> /usr/sbin/imapd'&quot;,
+
+This may come as a surprise, and is inconsistent with parsing outside
+strings where the backslash at the very end of a line will be silently
+ignored, and line feeds can be embedded with \n anyhow, so I'll change
+this for fetchmail 6.3.0.
+
+(Cc:ing fetchmail-devel so that Sunil can comment :-)
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000524.html">[fetchmail-devel] Re: imap trail broken
+</A></li>
+	<LI>Next message: <A HREF="000518.html">[fetchmail-devel] New PO Template file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#517">[ date ]</a>
+              <a href="thread.html#517">[ thread ]</a>
+              <a href="subject.html#517">[ subject ]</a>
+              <a href="author.html#517">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

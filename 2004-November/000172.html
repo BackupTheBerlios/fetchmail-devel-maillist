@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] issues pending before 6.2.6 -- IANA vs. UNIX character/coding set
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20issues%20pending%20before%206.2.6%20--%20IANA%20vs.%20UNIX%0A%20character/coding%20set&In-Reply-To=%3C418E30A9.4010502%40dgreaves.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000171.html">
+   <LINK REL="Next"  HREF="000173.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] issues pending before 6.2.6 -- IANA vs. UNIX character/coding set</H1>
+    <B>David Greaves</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20issues%20pending%20before%206.2.6%20--%20IANA%20vs.%20UNIX%0A%20character/coding%20set&In-Reply-To=%3C418E30A9.4010502%40dgreaves.com%3E"
+       TITLE="[fetchmail-devel] issues pending before 6.2.6 -- IANA vs. UNIX character/coding set">david at dgreaves.com
+       </A><BR>
+    <I>Sun Nov  7 15:26:49 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000171.html">[fetchmail-devel] issues pending before 6.2.6 -- IANA vs. UNIX character/coding set
+</A></li>
+        <LI>Next message: <A HREF="000173.html">[fetchmail-devel] warning message charset fix: progress indicator 3/3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Since you ask :)
+
+I submitted a bug report on 13/10/04:
+[fetchmail-devel] [BUG] fetchmail hangs during pop3 pull after a mail 
+with a null char
+(I assume you'll have a copy - yell if I should resend it)
+
+I'd previously submitted it to fetchmail-friends where Rob MacGregor 
+suggested I send it here.
+
+This problem is still occuring and I now have expunge 1 all the time :(
+
+I'd like to help fix it if I could.
+
+David
+
+
+Matthias Andree wrote:
+
+&gt;<i>Greetings!
+</I>&gt;<i>
+</I>&gt;<i>What is our current TODO list WRT a 6.2.6 release other than
+</I>&gt;<i>
+</I>&gt;<i>1. potentially mapping local character sets onto IANA character sets for
+</I>&gt;<i>warning mails that we send out [*]
+</I>&gt;<i>
+</I>&gt;<i>2. Rob setting up and running the regression tests?
+</I>&gt;<i>
+</I>&gt;<i>It seems there hasn't been a fetchmail release in over a year now, and
+</I>&gt;<i>I'd think it's about time that we get 6.2.6 out, even if not all pending
+</I>&gt;<i>issues are fixed, as long as the pending issues aren't avoidable or
+</I>&gt;<i>easily fixable regressions since 6.2.0 or 6.2.5.
+</I>&gt;<i>
+</I>&gt;<i>[*] I'll probably just copy in
+</I>&gt;<i><A HREF="http://www.cl.cam.ac.uk/~mgk25/ucs/langinfo.c">http://www.cl.cam.ac.uk/~mgk25/ucs/langinfo.c</A>
+</I>&gt;<i><A HREF="http://www.cl.cam.ac.uk/~mgk25/ucs/norm_charmap.c">http://www.cl.cam.ac.uk/~mgk25/ucs/norm_charmap.c</A>
+</I>&gt;<i>
+</I>&gt;<i>Further reading:
+</I>&gt;<i><A HREF="http://mail-index.netbsd.org/tech-userlevel/2003/01/24/0006.html">http://mail-index.netbsd.org/tech-userlevel/2003/01/24/0006.html</A>
+</I>&gt;<i><A HREF="http://mail.nl.linux.org/linux-utf8/2000-05/msg00041.html">http://mail.nl.linux.org/linux-utf8/2000-05/msg00041.html</A>
+</I>&gt;<i><A HREF="http://freedesktop.org/cgi-bin/viewcvs.cgi/xc/registry?rev=HEAD&amp;root=xorg">http://freedesktop.org/cgi-bin/viewcvs.cgi/xc/registry?rev=HEAD&amp;root=xorg</A>
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000171.html">[fetchmail-devel] issues pending before 6.2.6 -- IANA vs. UNIX character/coding set
+</A></li>
+	<LI>Next message: <A HREF="000173.html">[fetchmail-devel] warning message charset fix: progress indicator 3/3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Downloading remote server certificate for a	TLS session?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Downloading%20remote%20server%20certificate%20for%20a%0A%09TLS%20session%3F&In-Reply-To=%3C43ea8d070708230050q3082ef2vfc2c2142a68fe0bb%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000942.html">
+   <LINK REL="Next"  HREF="000948.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Downloading remote server certificate for a	TLS session?</H1>
+    <B>Rob MacGregor</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Downloading%20remote%20server%20certificate%20for%20a%0A%09TLS%20session%3F&In-Reply-To=%3C43ea8d070708230050q3082ef2vfc2c2142a68fe0bb%40mail.gmail.com%3E"
+       TITLE="[fetchmail-devel] Downloading remote server certificate for a	TLS session?">rob.macgregor at gmail.com
+       </A><BR>
+    <I>Thu Aug 23 09:50:27 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000942.html">[fetchmail-devel] Downloading remote server certificate for	a	TLS session?
+</A></li>
+        <LI>Next message: <A HREF="000948.html">[fetchmail-devel] Downloading remote server certificate for a TLS session?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#946">[ date ]</a>
+              <a href="thread.html#946">[ thread ]</a>
+              <a href="subject.html#946">[ subject ]</a>
+              <a href="author.html#946">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 8/23/07, Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; wrote:
+&gt;<i>
+</I>&gt;<i> Yes, older openssl s_client versions don't support as many protocols.
+</I>
+Even 0.9.8e, the most recent, appears to be less than 100% - it won't
+talk TLS to my domain host's IMAP/POP servers (but fetchmail will).
+
+&lt;---SNIP---&gt;
+&gt;<i> Generally, there are two approaches of trusting the server's
+</I>&gt;<i> certificate:
+</I>&gt;<i>
+</I>&gt;<i> 1. The canonical and recommended one: verify the recognized
+</I>&gt;<i>    Certification Authority's signature on the server certificate (that
+</I>&gt;<i>    works for major CAs as their certificates are usually shipped with
+</I>&gt;<i>    the OS or available as add-on, for instance, in FreeBSD's ca-roots
+</I>&gt;<i>    port).  /etc/ssl/certs contains certificates of CAs we trust
+</I>&gt;<i>    (recognize) and is thus the configuration directory for the &quot;trusted
+</I>&gt;<i>    CAs&quot;.
+</I>&gt;<i>
+</I>&gt;<i>    That is the usual way of doing things, and reasonable sites using
+</I>&gt;<i>    self-signed certificates provide their root CA certificates for
+</I>&gt;<i>    download with a web browser and usually offer a phone number you can
+</I>&gt;<i>    call to verify the fingerprint.
+</I>&gt;<i>    At least that's how my former and current universities and the DFN
+</I>&gt;<i>    (at a very coarse look, they provide the Internet backbone to German
+</I>&gt;<i>    Universities) do that.
+</I>
+Sadly, not all do.  I'll need to check, but I'm pretty sure one of my
+current mail hosts uses a self signed certificate and no way of
+downloading the CA certificate.
+
+&gt;<i> 2. The less durable one: verify the server's certificate instead.
+</I>&gt;<i>
+</I>&gt;<i>    The recommendation of downloading the certificate and stuffing it
+</I>&gt;<i>    into /etc/ssl/certs however is just a very cumbersome alternative of
+</I>&gt;<i>    specifying the sslfingerprint which fetchmail already prints at -v
+</I>&gt;<i>    verbose level. Let's not tell users to use openssl s_client to
+</I>&gt;<i>    download certificates, but let's just point them to the
+</I>&gt;<i>    sslfingerprint option and tell them that they need a recent fetchmail.
+</I>&gt;<i>
+</I>&gt;<i>    The only technical difference is we're using a hash of the
+</I>&gt;<i>    certificate and are currently relying on MD5, but I'm not aware that
+</I>&gt;<i>    attacks are publicly known to generate a message with a specific hash
+</I>&gt;<i>    in a reasonable amount of time.
+</I>
+I'm not aware of any easy way of generating a matching MD5, with valid
+content, easily.
+
+I suppose this raises a feature request then - when a certificate
+fails to verify fetchmail should email the user specified in the poll
+command (or the postmaster if multiple users are listed) to tell them.
+
+&gt;<i> The wording above is perhaps not as clear as it could be if I revised
+</I>&gt;<i> this text several times, but let's just see where it's unclear and
+</I>&gt;<i> revise the critical parts. (And if that's going to evolve into a &quot;SSL
+</I>&gt;<i> certificate management for fetchmail&quot; section, that's exactly what I'm
+</I>&gt;<i> aiming at :-))
+</I>
+I don't have any problems understanding it, but then I have a
+reasonable understanding of how SSL works :)  I'll come back to it
+later and have another read to see if I can spot anything the average
+user of fetchmail may not understand.
+
+-- 
+                 Please keep list traffic on the list.
+
+Rob MacGregor
+      Whoever fights monsters should see to it that in the process he
+        doesn't become a monster.                  Friedrich Nietzsche
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000942.html">[fetchmail-devel] Downloading remote server certificate for	a	TLS session?
+</A></li>
+	<LI>Next message: <A HREF="000948.html">[fetchmail-devel] Downloading remote server certificate for a TLS session?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#946">[ date ]</a>
+              <a href="thread.html#946">[ thread ]</a>
+              <a href="subject.html#946">[ subject ]</a>
+              <a href="author.html#946">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

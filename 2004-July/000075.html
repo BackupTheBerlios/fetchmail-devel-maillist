@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Can this stuff be removed?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Can%20this%20stuff%20be%20removed%3F&In-Reply-To=%3C200407040044.44187.rfunk%40funknet.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000074.html">
+   <LINK REL="Next"  HREF="000076.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Can this stuff be removed?</H1>
+    <B>Rob Funk</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Can%20this%20stuff%20be%20removed%3F&In-Reply-To=%3C200407040044.44187.rfunk%40funknet.net%3E"
+       TITLE="[fetchmail-devel] Re: Can this stuff be removed?">rfunk at funknet.net
+       </A><BR>
+    <I>Sun Jul  4 06:44:44 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000074.html">[fetchmail-devel] Re: Can this stuff be removed?
+</A></li>
+        <LI>Next message: <A HREF="000076.html">[fetchmail-devel] Code quality - signedness
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Graham Wilson wrote:
+&gt;<i> Would the webpage stuff be released in tarballs?
+</I>
+I wouldn't think so.
+
+&gt;<i> Should I just move stuff now, and we can fix the scripts up as we use
+</I>&gt;<i> them, or the other way around?
+</I>
+I think it's fine to move stuff first.
+
+&gt;<i> &gt; If the libntlm and mime64 contents are not used in the actual fetchmail
+</I>&gt;<i> &gt; code, we can probably get rid of them.  On the other hand, README.NTLM
+</I>&gt;<i> &gt; seems to go with the copies of the libntlm files that we're actually
+</I>&gt;<i> &gt; distributing, so should probably stay.
+</I>&gt;<i>
+</I>&gt;<i> I figured we could delete README.NTLM along with libntlm. README.NTLM
+</I>&gt;<i> was distributed with tarballs, whereas libtlm wasn't, at least that I
+</I>&gt;<i> can tell.
+</I>
+Err, I'm confused here.  README.NTLM was distributed.  libntlm files were 
+distributed (not in the libntlm directory).  Why delete README.NTLM?
+
+&gt;<i> &gt; OPTIONS seems to belong in some sort of historical archive.
+</I>&gt;<i>
+</I>&gt;<i> Unless we plan on using it, I think we should delete it. Should we need
+</I>&gt;<i> it, the file will always be in the older version on version control.
+</I>
+True.
+
+&gt;<i> &gt; RFC/ could go in a document archive area (alongside OPTIONS?), or could
+</I>&gt;<i> &gt; be considered redundant.  If deleted, I'd prefer to replace it with an
+</I>&gt;<i> &gt; HTML file of links to canonical locations of the same documents.
+</I>&gt;<i>
+</I>&gt;<i> I would think we could just get rid of it outright; I doesn't seem that
+</I>&gt;<i> esr ever shipped it with tarballs, but rather only had it around for
+</I>&gt;<i> personal use.
+</I>
+Actually he did at one point ship RFCs, though there was never any point in 
+putting them in version control.
+
+Anyway, I think there's value in tracking which RFCs are relevant, even if 
+we don't keep the text of them ourselves.
+
+&gt;<i> &gt; Isn't rh-config/ necessary for building the rpm?
+</I>&gt;<i>
+</I>&gt;<i> I wouldn't know. :)
+</I>
+Me either.
+
+-- 
+==============================| &quot;A slice of life isn't the whole cake
+ Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; | One tooth will never make a full grin&quot;
+ <A HREF="http://www.funknet.net/rfunk">http://www.funknet.net/rfunk</A> |    -- Chris Mars, &quot;Stuck in Rewind&quot;
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000074.html">[fetchmail-devel] Re: Can this stuff be removed?
+</A></li>
+	<LI>Next message: <A HREF="000076.html">[fetchmail-devel] Code quality - signedness
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

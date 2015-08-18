@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] NO messages
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20NO%20messages&In-Reply-To=%3C115009.94263.qm%40web52306.mail.re2.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001129.html">
+   <LINK REL="Next"  HREF="001131.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] NO messages</H1>
+    <B>ml41782</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20NO%20messages&In-Reply-To=%3C115009.94263.qm%40web52306.mail.re2.yahoo.com%3E"
+       TITLE="[fetchmail-devel] NO messages">ml41782 at yahoo.com
+       </A><BR>
+    <I>Sun Jul 19 01:11:57 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001129.html">[fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's
+</A></li>
+        <LI>Next message: <A HREF="001131.html">[fetchmail-devel] NO messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1130">[ date ]</a>
+              <a href="thread.html#1130">[ thread ]</a>
+              <a href="subject.html#1130">[ subject ]</a>
+              <a href="author.html#1130">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+
+I'm setup to fetch messages from my ISP to my linux box. Ubuntu 9.04
+I'm not seeing any messages on my box. So I started logging. 
+
+
+
+
+fetchmail: reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mlussierZ at vab1.com</A>@mail.emailsrvr.com:1 of 42 (1534 octets) (log message incomplete)fetchmail: SMTP connect to localhost failed
+fetchmail: SMTP transaction error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mlussierZ at vab1.com</A>@mail.vab1.com and delivering to SMTP host localhost
+fetchmail: Query status=10 (SMTP)
+fetchmail: sleeping at Sat 18 Jul 2009 06:51:04 PM EDT for 240 seconds
+fetchmail: terminated with signal 15
+fetchmail: starting fetchmail 6.3.9-rc2 daemon 
+fetchmail: 42 messages for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mlussierZ at vab1.com</A> at secure.emailsrvr.com (66848 octets).
+fetchmail: reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mlussierZ at vab1.com</A>@secure.emailsrvr.com:1 of 42 (1534 octets) (log message incomplete)fetchmail: terminated with signal 15
+fetchmail: starting fetchmail 6.3.9-rc2 daemon 
+fetchmail: 42 messages for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mlussierZ at vab1.com</A> at secure.emailsrvr.com (66848 octets).
+
+
+here is my .fetchmailrc file
+
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">otg1017 at Webserver</A>:~$ cat .fetchmailrc&#160;&#160; permissions are set to 600
+set logfile /home/otg1017/tmp/fetchmail.log
+set daemon 240
+poll &quot;secure.emailsrvr.com&quot;
+protocol pop3
+user '<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mlussierZ at vab1.com</A>' there with password 'ABCXYZ123' is 'otg1017' here
+keep
+
+
+Keep is set because if I dont then my messages are gone. 
+
+
+      
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20090718/62a7f51c/attachment.html">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20090718/62a7f51c/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001129.html">[fetchmail-devel] [Bug #16000] fetchmail should support multiple	sslfingerprint's
+</A></li>
+	<LI>Next message: <A HREF="001131.html">[fetchmail-devel] NO messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1130">[ date ]</a>
+              <a href="thread.html#1130">[ thread ]</a>
+              <a href="subject.html#1130">[ subject ]</a>
+              <a href="author.html#1130">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

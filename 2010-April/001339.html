@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] save_str problems.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3Cop.vbmm5bo51e62zd%40balu.cs.uni-paderborn.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001337.html">
+   <LINK REL="Next"  HREF="001340.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] save_str problems.</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3Cop.vbmm5bo51e62zd%40balu.cs.uni-paderborn.de%3E"
+       TITLE="[fetchmail-devel] save_str problems.">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Apr 23 19:04:13 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001337.html">[fetchmail-devel] save_str problems.
+</A></li>
+        <LI>Next message: <A HREF="001340.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1339">[ date ]</a>
+              <a href="thread.html#1339">[ thread ]</a>
+              <a href="subject.html#1339">[ subject ]</a>
+              <a href="author.html#1339">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rainer Weikusat wrote on 2010-04-23:
+
+&gt;<i> &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+</I>&gt;&gt;<i> Rainer Weikusat wrote on 2010-04-21:
+</I>&gt;&gt;&gt;<i> The company I work for uses fetchmail to download mails from various
+</I>&gt;&gt;&gt;<i> POP- and IMAP-servers in order to offer an anti-spam/ anti-virus
+</I>&gt;&gt;&gt;<i> scanning service for smartphone owners. Below is an oprofile excerpt
+</I>&gt;&gt;&gt;<i> from the 'download server' regarding fetchmail:
+</I>&gt;<i>
+</I>&gt;<i> [...]
+</I>&gt;<i>
+</I>&gt;&gt;<i> You've bumped into a design flaw of fetchmail's  UID handling.
+</I>&gt;<i>
+</I>&gt;<i> I assume it is rather an instance of 'Learn Lisp. It will make you a
+</I>&gt;<i> better programmer for life' :-&gt;.
+</I>
+Uh, don't tell me. I've known that when my Debian installation fit onto  
+the Conner CP30344 disk in my i486SX25.
+Tell that to Eric. And tell him LAST was an abomination and  
+defunct-upon-invention. ;)
+
+No, don't tell him. I guess he'd do it in Python today, use a dictionary,  
+and leave optimization up to the Python interpreter, and that might be  
+reasonable, unless we'd have to have SSL idiosyncrasies under control.  
+getmail (Python based) used to not complain about expired certificates,  
+and all Charles had to say was &quot;sorry, not my fault&quot;.
+
+&gt;<i> [...]
+</I>&gt;<i>
+</I>&gt;&gt;<i> If we were being blunt and wanted a quick fix, we'd kill the list and
+</I>&gt;&gt;<i> use  a vector (array) and realloc(), a flag &quot;vector is sorted&quot;, and
+</I>&gt;&gt;<i> qsort and  bsearch. That would bring things to O(n log n)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> If we were to be decent, we'd use the right structure for our purpose,
+</I>&gt;&gt;<i> and  that's a hash table (in C++/STL i'd use a hash_set where
+</I>&gt;&gt;<i> available and a  set where unavailable). We might want to keep things
+</I>&gt;&gt;<i> in a database on  disk, rather than load/write the table for every
+</I>&gt;&gt;<i> run.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Your patch effort is much appreicated, but however I have serious
+</I>&gt;&gt;<i> doubts  about taking it. save_str and id_find are used together and
+</I>&gt;&gt;<i> basically  O(n^2) complexity. Even if your patch shaves save_str down
+</I>&gt;&gt;<i> to O(n),  id_find usage pattern itself remains O(n^2).
+</I>&gt;<i>
+</I>&gt;<i> struct idlist * is quite pervasive in the code. It is also used for
+</I>&gt;<i> many 'short lists' (eg, ctl-&gt;localnames) where a linked list is at
+</I>&gt;<i> least good enough. Keeping track of the last item on the oldsaved and
+</I>&gt;<i> newsaved lists was just a reasonably non-invasive, fairly quick fix for
+</I>&gt;<i> the 'worst offender' case (and the IMHO most braindead ...) I could
+</I>&gt;<i> smuggle past my boss[*] as 'immediately useful and not that much
+</I>&gt;<i> effort'.
+</I>
+Yes. Only this is one of the makeshift solutions that is not bound to last  
+long. GMX split my INBOX when it hit 50,000 messages. Oops. I do NOT want  
+to poll that with fetchmail &lt;= 6.3.16. :)
+
+Seriously, how about this approach:
+
+1. create uid_save and uid_find wrappers around save_str and id_find and  
+provide a typedef
+
+2. change POP3 and possibly IMAP (see below) to use that =&gt; decouple from  
+the implementation
+
+3. replace uid_save/uid_find implementations by something decent?
+
+
+This way all the short lists can continue to use the save_str/id_find  
+cruft for the nonce, and the bulk can use a O(n log n) implementation.
+
+&gt;<i> 	[*] I am actually supposed to add UID-support the IMAP
+</I>&gt;<i> 	protocol driver and this case of 'walk until your shoes fall
+</I>&gt;<i> 	off' just angered me ...
+</I>
+Good to know. We have a patch in the berlios tracker [1], which is halfway  
+there, but you need to add UIDVALIDITY support [2], and probably a few  
+touch-ups because the patch ancestor and current fetchmail code have  
+diverged.
+Oh, and of course we can add your company name to the NEWS file, too.  
+Sponsored by... written by... &lt;hint, hint&gt; :)
+
+Note I'm planning to change the license to Affero GPL v3 in the not too  
+distant future.
+
+[1]  
+&lt;<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=740&amp;group_id=1824">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=740&amp;group_id=1824</A>&gt;
+     also attached
+
+[2] &lt;<A HREF="http://www.rfc-editor.org/rfc/rfc3501.txt">http://www.rfc-editor.org/rfc/rfc3501.txt</A>&gt;
+     2.3.1.1.        Unique Identifier (UID) Message Attribute
+
+Just in case BerliOS drops off the net, find the patch attached (may not  
+be available on the list).
+Note again: not ready for use!
+
+HTH
+
+-- 
+Matthias Andree
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: fetchmail-patch740.diff
+Type: application/octet-stream
+Size: 7674 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20100423/ead897c3/attachment.obj">https://lists.berlios.de/pipermail/fetchmail-devel/attachments/20100423/ead897c3/attachment.obj</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001337.html">[fetchmail-devel] save_str problems.
+</A></li>
+	<LI>Next message: <A HREF="001340.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1339">[ date ]</a>
+              <a href="thread.html#1339">[ thread ]</a>
+              <a href="subject.html#1339">[ subject ]</a>
+              <a href="author.html#1339">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

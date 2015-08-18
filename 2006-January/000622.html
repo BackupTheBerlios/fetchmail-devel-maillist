@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RFC%3A%20Workaround%20for%20comcast%20bug%20-%206.3.X%20or%206.4.X%20stuff%3F&In-Reply-To=%3Cm3bqysndog.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000621.html">
+   <LINK REL="Next"  HREF="000623.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RFC%3A%20Workaround%20for%20comcast%20bug%20-%206.3.X%20or%206.4.X%20stuff%3F&In-Reply-To=%3Cm3bqysndog.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Wed Jan  4 17:46:55 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000621.html">[fetchmail-devel] Debian Bugs 178980/166889 (truncated messages) analyzed
+</A></li>
+        <LI>Next message: <A HREF="000623.html">[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#622">[ date ]</a>
+              <a href="thread.html#622">[ thread ]</a>
+              <a href="subject.html#622">[ subject ]</a>
+              <a href="author.html#622">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Greetings,
+
+I prepared this patch in response to the many comcast (&quot;Maillennium&quot;)
+problem reports all across the net, which blacklists the POP3 TOP
+command on servers that greet us with &quot;Maillennium POP3/PROXY server&quot;.
+
+I'm asking for comments: do others think avoiding the truncation of
+messages after approx. 82 kB justifies this incompatible bug fix (it is
+incompatible because it marks messages read on the server)?
+
+Should we apply this patch on the 6.3.X branch or should it wait for
+6.4.X?
+
+I also found out that many people try to ask on random forums,
+vendor-forums such as SUSE, independent forums, rather than asking on
+the official fetchmail support lists, and apparently without checking
+the FAQ first.  How do users procure information where to post their 
+question?
+
+(I'd like to post a prominent notice referring them to our FAQ and lists.)
+
+
+This is the patch:
+
+--------------------------------------------------------------------------------
+--- pop3.c	(Revision 4585)
++++ pop3.c	(Arbeitskopie)
+@@ -611,6 +611,12 @@
+ #endif
+ 
+     set_peek_capable(ctl);
++    /* comcast's Maillennium POP3/PROXY is full of bugs and truncates
++     * TOP replies after c. 80 kByte, so disable TOP. */
++    if (peek_capable &amp;&amp; strstr(greeting, &quot;Maillennium POP3/PROXY server&quot;)) {
++	report(stdout, GT_(&quot;Warning: Maillennium POP3/PROXY server found, using RETR command.\n&quot;));
++	peek_capable = 0;
++    }
+ 
+     /* we're approved */
+     return(PS_SUCCESS);
+--- NEWS	(Revision 4597)
++++ NEWS	(Arbeitskopie)
+@@ -24,6 +24,17 @@
+ 
+ fetchmail 6.3.2 (to be released):
+ 
++# INCOMPATIBLE CHANGE:
++* Automatically disable the POP3 TOP command if the greeting string contains
++  &quot;Maillennium POP3/PROXY server&quot;, which is used by comcast and known to
++  truncate messages after 80 kByte. Fall back to RETR, and complain if we had
++  used TOP otherwise.  Suggested by Ed Wilts.
++  *Note* that this means messages are marked read on these servers, which is a
++  deviation from how 6.3.1 behaved, but we have no alternative, comcast haven't
++  fixed this bug in years.  Preventing the loss of the remainder of the message
++  justifies this incompatible fix.  Matthias Andree
++
++# BUG FIXES:
+ * SMTP/LMTP cleanup to fix these two bugs:
+   - switch back to SMTP after having tried LMTP hosts (multiple smtphost hosts)
+   - switch back to LMTP after sending a bounce.
+--- fetchmail-FAQ.html	(Revision 4585)
++++ fetchmail-FAQ.html	(Arbeitskopie)
+@@ -2004,13 +2004,19 @@
+ &lt;h2&gt;&lt;a id=&quot;I8&quot; name=&quot;I8&quot;&gt;I8. How can I use fetchmail with comcast.net?&lt;/a&gt;&lt;/h2&gt;
+ 
+ &lt;p&gt;Stock fetchmail will work with a comcast.net server...&lt;em&gt;but&lt;/em&gt;
+-the Maillennium POP3 server comcat uses seems to have an 80K limit on
++the Maillennium POP3 server comcast use seems to have an 80&nbsp;kB limit on
+ the length of downloaded messages if you use POP3 TOP to retrieve.
+ Anything larger is silently truncated.  Don't mistake this for a
+ fetchmail bug. (Reported July 2003.)&lt;/p&gt;
+ 
+-&lt;p&gt;Workaround: use the &lt;tt&gt;fetchall&lt;/tt&gt; option.&lt;/p&gt;
++&lt;p&gt;Beginning with version 6.3.2,
++fetchmail will fall back to the RETR command if the greeting string
++contains &quot;Maillennium POP3/PROXY server&quot;. This means however that
++fetchmail has no means to prevent the &quot;seen&quot; flag from being set on the
++server.&lt;/p&gt;
+ 
++&lt;p&gt;Workaround for older versions: use the &lt;tt&gt;fetchall&lt;/tt&gt; option.&lt;/p&gt;
++
+ &lt;hr/&gt;
+ &lt;h1&gt;How to set up well-known security and authentication
+ methods&lt;/h1&gt;
+--------------------------------------------------------------------------------
+
+Thanks,
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000621.html">[fetchmail-devel] Debian Bugs 178980/166889 (truncated messages) analyzed
+</A></li>
+	<LI>Next message: <A HREF="000623.html">[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#622">[ date ]</a>
+              <a href="thread.html#622">[ thread ]</a>
+              <a href="subject.html#622">[ subject ]</a>
+              <a href="author.html#622">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

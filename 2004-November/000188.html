@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: r3995 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r3995%20-%20trunk&In-Reply-To=%3Cm3oei5cvgy.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000185.html">
+   <LINK REL="Next"  HREF="000189.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: r3995 - trunk</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r3995%20-%20trunk&In-Reply-To=%3Cm3oei5cvgy.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: r3995 - trunk">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Wed Nov 10 21:14:37 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000185.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000189.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#188">[ date ]</a>
+              <a href="thread.html#188">[ thread ]</a>
+              <a href="subject.html#188">[ subject ]</a>
+              <a href="author.html#188">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">graham at mknod.org</A>&gt; writes:
+
+&gt;<i> On Wed, Nov 10, 2004 at 01:04:34PM -0600, <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">svn at decoy.wox.org</A> wrote:
+</I>&gt;&gt;<i> Added:
+</I>&gt;&gt;<i>    trunk/trio/
+</I>&gt;&gt;<i> Log:
+</I>&gt;&gt;<i> Import Trio 1.10 into fetchmail's trunk.
+</I>&gt;<i>
+</I>&gt;<i> What is this and why do we need it?
+</I>
+This is the best GPL-compatible snprintf/sscanf replacement (including
+varargs variants) that I've been able to find as a separate project.
+
+The idea is to get rid of insecure and ugly coding practices such as
+using [v]sprintf or strcat on older systems that lack [v]snprintf, and
+the way we'd seen this integrated in the code was messy:
+
+#ifdef HAVE_SNPRINTF
+  snprintf(buf, sizeof buf,     /* safer */
+#else
+  sprintf(buf,                  /* unsafe */
+#endif
+     rest, of, arguments);
+
+The diffstat looks like this:
+
+ Makefile.am    |   18 ++++++++++++--
+ configure.ac   |   52 ++++++++++++++++++++++++++++++++++++++++
+ cram.c         |    4 ---
+ driver.c       |   30 +++--------------------
+ fetchmail.h    |    5 +++
+ imap.c         |    6 ----
+ interface.c    |    7 -----
+ ipv6-connect.c |   23 +++--------------
+ report.c       |   46 -----------------------------------
+ sink.c         |   59 +++++-----------------------------------------
+ smtp.c         |   34 ++++----------------------
+ socket.c       |   15 -----------
+ transact.c     |   73 ++++-----------------------------------------------------
+ 13 files changed, 103 insertions(+), 269 deletions(-)
+
+Not counting the first two files, we are now down by over 200 lines of
+half-baked C code.
+
+I'm not fixed on Trio, if you know something better, we can flush Trio
+and use something else, but I'm not willing to allow the ugly old
+structure back in.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000185.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000189.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#188">[ date ]</a>
+              <a href="thread.html#188">[ thread ]</a>
+              <a href="subject.html#188">[ subject ]</a>
+              <a href="author.html#188">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

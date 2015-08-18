@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Feature #4790] apply antispam to RCPT TO
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BFeature%20%234790%5D%20apply%20antispam%20to%20RCPT%20TO&In-Reply-To=%3C200909251841.n8PIfXdm004091%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001178.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Feature #4790] apply antispam to RCPT TO</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BFeature%20%234790%5D%20apply%20antispam%20to%20RCPT%20TO&In-Reply-To=%3C200909251841.n8PIfXdm004091%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Feature #4790] apply antispam to RCPT TO">admin at berlios.de
+       </A><BR>
+    <I>Fri Sep 25 20:41:33 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001178.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.11.zh_CN.po'
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1179">[ date ]</a>
+              <a href="thread.html#1179">[ thread ]</a>
+              <a href="subject.html#1179">[ subject ]</a>
+              <a href="author.html#1179">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Feature Request #4790, was updated on 2009-Sep-25 10:41
+You can respond by visiting: 
+<A HREF="http://developer.berlios.de/feature/?func=detailfeature&amp;feature_id=4790&amp;group_id=1824">http://developer.berlios.de/feature/?func=detailfeature&amp;feature_id=4790&amp;group_id=1824</A>
+
+Category: None
+Status: Open
+Priority: 5
+Summary: apply antispam to RCPT TO
+
+By: seanster
+Date: 2009-Sep-25 10:41
+
+Message:
+Logged In: YES 
+user_id=53384
+Browser: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.3a1pre) Gecko/20090923 (.NET CLR 3.5.30729)
+
+It appears that the antispam option only applies to
+results from MAIL FROM.
+
+It would be desirable to have it also apply to RCPT TO:
+
+The reasoning here is that the spam decision is not
+completed until I know who you want to send to.
+For example I may have a postmaster account that allows
+non-resolvable domains and allows me to help
+troubleshoot nameserver problems. All other accounts on
+my server reject non-resolvable domains.
+
+I can't imagine I am special in any way.
+
+Consider this smtp exchange between fetchmail and my
+local sendmail:
+
+SMTP&gt; MAIL FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">tenak at 123-4f47685e57d</A>&gt; BODY=7BIT SIZE=1459
+SMTP&lt; 250 2.1.0 &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">tenak at 123-4f47685e57d</A>&gt;... Sender ok
+SMTP&gt; RCPT TO:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">a_valid_user at localhost</A>&gt;
+SMTP&lt; 553 5.1.8 &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">a_valid_user at localhost</A>&gt;... Domain of
+sender address <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">tenak at 123-4f47685e57d</A> does not exist
+
+As you can see, I'm reporting that I don't like the
+sender, but only after they tell me who they want to
+send to.
+
+At the moment, to force cleaning out those dead
+messages from my pop accounts, I use the &quot;set no
+softbounce&quot; option. That's really dangerous as there's
+other possible permanent errors where I would choose to
+keep the mail in the pop account. Using antispam would
+allow me to choose.
+
+I'm not a fetchmail or sendmail guru. I realise I could
+just be doing something wrong. I'm happy to discuss
+this with anyone.
+
+
+----------------------------------------------------------------------
+You can respond by visiting: 
+<A HREF="http://developer.berlios.de/feature/?func=detailfeature&amp;feature_id=4790&amp;group_id=1824">http://developer.berlios.de/feature/?func=detailfeature&amp;feature_id=4790&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001178.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.11.zh_CN.po'
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1179">[ date ]</a>
+              <a href="thread.html#1179">[ thread ]</a>
+              <a href="subject.html#1179">[ subject ]</a>
+              <a href="author.html#1179">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

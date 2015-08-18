@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] automake migration
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20automake%20migration&In-Reply-To=%3Cm31xkceamp.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000026.html">
+   <LINK REL="Next"  HREF="000025.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] automake migration</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20automake%20migration&In-Reply-To=%3Cm31xkceamp.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] automake migration">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Sat Jun 19 00:58:54 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000026.html">[fetchmail-devel] automake migration
+</A></li>
+        <LI>Next message: <A HREF="000025.html">[fetchmail-devel] automake migration
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#32">[ date ]</a>
+              <a href="thread.html#32">[ thread ]</a>
+              <a href="subject.html#32">[ subject ]</a>
+              <a href="author.html#32">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; writes:
+
+&gt;<i> I'm OK with intermediate steps that aren't really tested. I like to be able 
+</I>&gt;<i> to see the process.  I'm not one who worries about each committed revision 
+</I>&gt;<i> being usable.
+</I>
+The process is virtually inseparable. Splitting out singular changes
+doesn't make sense, it's really one large sweep. The po/ changes require
+automake, and intl/ is just a cleanup that has to come with the po/
+update :-/
+
+&gt;<i> I'll say go ahead and commit it.  You may want to put it on an AUTOMAKE 
+</I>&gt;<i> branch, but I'll leave that up to you.   If you put it on the trunk I'd 
+</I>&gt;<i> suggest making a PRE_AUTOMAKE tag first.
+</I>
+I'll do. I'll also add a bootstrap.sh first because I found some
+peculiarities without.
+
+&gt;<i> Well, the bootstrap script I'm talking about would just codify what you're 
+</I>&gt;<i> writing into the README.svn, particularly autoreconf and the options to 
+</I>&gt;<i> use with it.  That way it's visible without looking too hard, and is 
+</I>&gt;<i> callable from things like makerelease.  If we ever need to change the 
+</I>&gt;<i> autoreconf options I only want to change it in one place.
+</I>
+OK.
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000026.html">[fetchmail-devel] automake migration
+</A></li>
+	<LI>Next message: <A HREF="000025.html">[fetchmail-devel] automake migration
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#32">[ date ]</a>
+              <a href="thread.html#32">[ thread ]</a>
+              <a href="subject.html#32">[ subject ]</a>
+              <a href="author.html#32">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

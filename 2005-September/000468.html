@@ -1,0 +1,312 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Fetchmail%2C%20NTLM%20and%20Exchange&In-Reply-To=%3CPine.LNX.4.58.0509201118260.5992%40localhost.localdomain%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000460.html">
+   <LINK REL="Next"  HREF="000469.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Fetchmail, NTLM and Exchange</H1>
+    <B>Yves Boisjoly</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Fetchmail%2C%20NTLM%20and%20Exchange&In-Reply-To=%3CPine.LNX.4.58.0509201118260.5992%40localhost.localdomain%3E"
+       TITLE="[fetchmail-devel] Re: Fetchmail, NTLM and Exchange">yves.boisjoly at cgi.com
+       </A><BR>
+    <I>Tue Sep 20 17:21:26 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000460.html">[fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+</A></li>
+        <LI>Next message: <A HREF="000469.html">[fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#468">[ date ]</a>
+              <a href="thread.html#468">[ thread ]</a>
+              <a href="subject.html#468">[ subject ]</a>
+              <a href="author.html#468">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello Andree,
+
+You confused me with this latest email...
+
+Do you mean you whant me to delete every lines beginning with the minus sign
+and add every lines with the plus sign or if there is a way to download such a
+patch?
+
+I tried to change the line 77 as per your first email. It fixed the ntlm
+authentication excepted that now the server complain with a &quot;bad user or
+password&quot; message. Same thing as when I tried to telnet the box and play with
+it manually...
+
+Yves
+
+
+
+
+
+
+
+On Tue, 20 Sep 2005, Matthias Andree wrote:
+
+MA &gt;On Mon, 19 Sep 2005, Yves Boisjoly wrote:
+MA &gt;
+MA &gt;&gt; 	fetchmail: POP3&lt; +OK Microsoft Exchange Server 2003 POP3 server version 6.5.7226.0 (&lt;the_server&gt;) ready.
+MA &gt;&gt; 	fetchmail: POP3&gt; AUTH MSN
+MA &gt;&gt; 	fetchmail: POP3&lt; -ERR The specified authentication package is not supported.
+MA &gt;
+MA &gt;Please try this patch: (Note you need to have flex or lex installed so
+MA &gt;that the configuration parser can be rebuilt.)
+MA &gt;
+MA &gt;Index: pop3.c
+MA &gt;===================================================================
+MA &gt;--- pop3.c	(revision 4284)
+MA &gt;+++ pop3.c	(working copy)
+MA &gt;@@ -69,12 +69,13 @@
+MA &gt;  * Much source (ntlm.h, smb*.c smb*.h) was borrowed from Samba.
+MA &gt;  */
+MA &gt;
+MA &gt;-static int do_pop3_ntlm(int sock, struct query *ctl)
+MA &gt;+static int do_pop3_ntlm(int sock, struct query *ctl,
+MA &gt;+	int msn_instead /** if true, send AUTH MSN, else send AUTH NTLM */)
+MA &gt; {
+MA &gt;     char msgbuf[2048];
+MA &gt;     int result,len;
+MA &gt;
+MA &gt;-    gen_send(sock, &quot;AUTH MSN&quot;);
+MA &gt;+    gen_send(sock, msn_instead ? &quot;AUTH MSN&quot; : &quot;AUTH NTLM&quot;);
+MA &gt;
+MA &gt;     if ((result = gen_recv(sock, msgbuf, sizeof msgbuf)))
+MA &gt; 	return result;
+MA &gt;@@ -318,25 +319,20 @@
+MA &gt;     if (!(ctl-&gt;server.sdps) &amp;&amp; MULTIDROP(ctl) &amp;&amp; strstr(greeting, &quot;demon.&quot;))
+MA &gt;         ctl-&gt;server.sdps = TRUE;
+MA &gt; #endif /* SDPS_ENABLE */
+MA &gt;+
+MA &gt; #ifdef NTLM_ENABLE
+MA &gt;-	/* MSN servers require the use of NTLM (MSN) authentication */
+MA &gt;-	if (!strcasecmp(ctl-&gt;server.pollname, &quot;pop3.email.msn.com&quot;) ||
+MA &gt;-	    ctl-&gt;server.authenticate == A_NTLM)
+MA &gt;-	{
+MA &gt;-	    if (!do_pop3_ntlm(sock, ctl))
+MA &gt;-	    {
+MA &gt;-		return(PS_SUCCESS);
+MA &gt;-	    }
+MA &gt;-	    else
+MA &gt;-	    {
+MA &gt;-		return(PS_AUTHFAIL);
+MA &gt;-	    }
+MA &gt;-	}
+MA &gt;+    /* MSN servers require the use of NTLM (MSN) authentication */
+MA &gt;+    if (!strcasecmp(ctl-&gt;server.pollname, &quot;pop3.email.msn.com&quot;) ||
+MA &gt;+	    ctl-&gt;server.authenticate == A_MSN)
+MA &gt;+	return (do_pop3_ntlm(sock, ctl, 1) == 0) ? PS_SUCCESS : PS_AUTHFAIL;
+MA &gt;+    if (ctl-&gt;server.authenticate == A_NTLM)
+MA &gt;+	return (do_pop3_ntlm(sock, ctl, 0) == 0) ? PS_SUCCESS : PS_AUTHFAIL;
+MA &gt; #endif
+MA &gt;
+MA &gt;     switch (ctl-&gt;server.protocol) {
+MA &gt;     case P_POP3:
+MA &gt; #ifdef RPA_ENABLE
+MA &gt;+	/* XXX FIXME: AUTH probing (RFC1734) should become global */
+MA &gt; 	/* CompuServe POP3 Servers as of 990730 want AUTH first for RPA */
+MA &gt; 	if (strstr(ctl-&gt;remotename, &quot;@compuserve.com&quot;))
+MA &gt; 	{
+MA &gt;Index: conf.c
+MA &gt;===================================================================
+MA &gt;--- conf.c	(revision 4289)
+MA &gt;+++ conf.c	(working copy)
+MA &gt;@@ -284,6 +284,8 @@
+MA &gt; 		stringdump(&quot;auth&quot;, &quot;ssh&quot;);
+MA &gt; 	    else if (ctl-&gt;server.authenticate == A_OTP)
+MA &gt; 		stringdump(&quot;auth&quot;, &quot;otp&quot;);
+MA &gt;+	    else if (ctl-&gt;server.authenticate == A_MSN)
+MA &gt;+		stringdump(&quot;auth&quot;, &quot;msn&quot;);
+MA &gt;
+MA &gt; #ifdef HAVE_RES_SEARCH
+MA &gt; 	    booldump(&quot;dns&quot;, ctl-&gt;server.dns);
+MA &gt;Index: NEWS
+MA &gt;===================================================================
+MA &gt;--- NEWS	(revision 4296)
+MA &gt;+++ NEWS	(working copy)
+MA &gt;@@ -197,6 +197,8 @@
+MA &gt;   Bug#212240. Sunil Shetye. (MA)
+MA &gt; * Fix MacOS X compilation failures in sink.c (ru_*time has incomplete type).
+MA &gt;   Berlios Bug #4725. Matthias Andree.
+MA &gt;+* Fix &quot;auth ntlm&quot; to send AUTH NTLM (rather than AUTH MSN). Add &quot;auth msn&quot;
+MA &gt;+  officially. Matthias Andree
+MA &gt;
+MA &gt; # INTERNAL CHANGES
+MA &gt; * Switched to automake. Matthias Andree.
+MA &gt;Index: fetchmail.man
+MA &gt;===================================================================
+MA &gt;--- fetchmail.man	(revision 4292)
+MA &gt;+++ fetchmail.man	(working copy)
+MA &gt;@@ -663,19 +663,21 @@
+MA &gt; AUTHENTICATION below for details).  The possible values are \fBany\fR,
+MA &gt; \&amp;\fBpassword\fR, \fBkerberos_v5\fR, \fBkerberos\fR (or, for
+MA &gt; excruciating exactness, \fBkerberos_v4\fR), \fBgssapi\fR,
+MA &gt;-\fBcram-md5\fR, \fBotp\fR, \fBntlm\fR, and \fBssh\fR.  When \fBany\fR (the
+MA &gt;-default) is specified, fetchmail tries first methods that don't
+MA &gt;-require a password (GSSAPI, KERBEROS_IV); then it looks for methods
+MA &gt;-that mask your password (CRAM-MD5, X-OTP, NTLM); and only if the server
+MA &gt;-doesn't support any of those will it ship your password en clair.
+MA &gt;+\fBcram-md5\fR, \fBotp\fR, \fBntlm\fR, \fBmsn\fR and \fBssh\fR.  When
+MA &gt;+\fBany\fR (the default) is specified, fetchmail tries first methods that
+MA &gt;+don't require a password (GSSAPI, KERBEROS\ IV, KERBEROS\ 5); then it
+MA &gt;+looks for methods that mask your password (CRAM-MD5, X-OTP - note that
+MA &gt;+NTLM and MSN are not autoprobed); and only if the
+MA &gt;+server doesn't support any of those will it ship your password en clair.
+MA &gt; Other values may be used to force various authentication methods
+MA &gt; (\fBssh\fR suppresses authentication).  Any value other than
+MA &gt;-\&amp;\fBpassword\fR, \fBcram-md5\fR, \fBntlm\fR or \fBotp\fR suppresses fetchmail's
+MA &gt;-normal inquiry for a password.  Specify \fBssh\fR when you are using
+MA &gt;-an end-to-end secure connection such as an ssh tunnel; specify
+MA &gt;-\fBgssapi\fR or \fBkerberos_v4\fR if you are using a protocol variant
+MA &gt;-that employs GSSAPI or K4.  Choosing KPOP protocol automatically
+MA &gt;-selects Kerberos authentication.  This option does not work with ETRN.
+MA &gt;+\&amp;\fBpassword\fR, \fBcram-md5\fR, \fBntlm\fR, \fBmsn\fR or \fBotp\fR
+MA &gt;+suppresses fetchmail's normal inquiry for a password.  Specify \fBssh\fR
+MA &gt;+when you are using an end-to-end secure connection such as an ssh
+MA &gt;+tunnel; specify \fBgssapi\fR or \fBkerberos_v4\fR if you are using a
+MA &gt;+protocol variant that employs GSSAPI or K4.  Choosing KPOP protocol
+MA &gt;+automatically selects Kerberos authentication.  This option does not
+MA &gt;+work with ETRN.
+MA &gt; .SS Miscellaneous Options
+MA &gt; .TP
+MA &gt; .B \-f &lt;pathname&gt; | \-\-fetchmailrc &lt;pathname&gt;
+MA &gt;Index: fetchmail.c
+MA &gt;===================================================================
+MA &gt;--- fetchmail.c	(revision 4289)
+MA &gt;+++ fetchmail.c	(working copy)
+MA &gt;@@ -1536,6 +1536,9 @@
+MA &gt; 	case A_PASSWORD:
+MA &gt; 	    printf(GT_(&quot;  Password authentication will be forced.\n&quot;));
+MA &gt; 	    break;
+MA &gt;+	case A_MSN:
+MA &gt;+	    printf(GT_(&quot;  MSN authentication will be forced.\n&quot;));
+MA &gt;+	    break;
+MA &gt; 	case A_NTLM:
+MA &gt; 	    printf(GT_(&quot;  NTLM authentication will be forced.\n&quot;));
+MA &gt; 	    break;
+MA &gt;Index: fetchmail.h
+MA &gt;===================================================================
+MA &gt;--- fetchmail.h	(revision 4289)
+MA &gt;+++ fetchmail.h	(working copy)
+MA &gt;@@ -70,9 +70,17 @@
+MA &gt; #define		A_KERBEROS_V5	6	/* authenticate w/ Kerberos V5 */
+MA &gt; #define 	A_GSSAPI	7	/* authenticate with GSSAPI */
+MA &gt; #define		A_SSH		8	/* authentication at session level */
+MA &gt;+#define		A_MSN		9	/* same as NTLM with keyword MSN */
+MA &gt;
+MA &gt;-/* some protocols (KERBEROS, GSSAPI, SSH) don't require a password */
+MA &gt;-#define NO_PASSWORD(ctl)	((ctl)-&gt;server.authenticate &gt; A_OTP || (ctl)-&gt;server.protocol == P_ETRN)
+MA &gt;+/* some protocols or authentication types (KERBEROS, GSSAPI, SSH) don't
+MA &gt;+ * require a password */
+MA &gt;+#define NO_PASSWORD(ctl) \
+MA &gt;+    ((ctl)-&gt;server.authenticate == A_OTP \
+MA &gt;+     || (ctl)-&gt;server.authenticate == A_KERBEROS_V4 \
+MA &gt;+     || (ctl)-&gt;server.authenticate == A_KERBEROS_V5 \
+MA &gt;+     || (ctl)-&gt;server.authenticate == A_GSSAPI \
+MA &gt;+     || (ctl)-&gt;server.authenticate == A_SSH \
+MA &gt;+     || (ctl)-&gt;server.protocol == P_ETRN)
+MA &gt;
+MA &gt; /*
+MA &gt;  * Definitions for buffer sizes.  We get little help on setting maxima
+MA &gt;Index: rcfile_l.l
+MA &gt;===================================================================
+MA &gt;--- rcfile_l.l	(revision 4289)
+MA &gt;+++ rcfile_l.l	(working copy)
+MA &gt;@@ -100,6 +100,7 @@
+MA &gt; ssh		{ SETSTATE(0); yylval.proto = A_SSH; return AUTHTYPE;}
+MA &gt; (otp|opie)	{ SETSTATE(0); yylval.proto = A_OTP; return AUTHTYPE;}
+MA &gt; cram(-md5)?	{ SETSTATE(0); yylval.proto = A_CRAM_MD5; return AUTHTYPE;}
+MA &gt;+msn		{ SETSTATE(0); yylval.proto = A_MSN; return AUTHTYPE;}
+MA &gt; ntlm		{ SETSTATE(0); yylval.proto = A_NTLM; return AUTHTYPE;}
+MA &gt; &lt;AUTH&gt;password	{ SETSTATE(0); yylval.proto = A_PASSWORD; return AUTHTYPE;}
+MA &gt; timeout		{ return TIMEOUT;}
+MA &gt;Index: options.c
+MA &gt;===================================================================
+MA &gt;--- options.c	(revision 4289)
+MA &gt;+++ options.c	(working copy)
+MA &gt;@@ -418,6 +418,8 @@
+MA &gt; 		ctl-&gt;server.authenticate = A_GSSAPI;
+MA &gt; 	    else if (strcmp(optarg, &quot;any&quot;) == 0)
+MA &gt; 		ctl-&gt;server.authenticate = A_ANY;
+MA &gt;+	    else if (strcmp(optarg, &quot;msn&quot;) == 0)
+MA &gt;+		ctl-&gt;server.authenticate = A_MSN;
+MA &gt; 	    else {
+MA &gt; 		fprintf(stderr,GT_(&quot;Invalid authentication `%s' specified.\n&quot;), optarg);
+MA &gt; 		errflag++;
+MA &gt;
+
+-- 
+
+=================================
+Yves Boisjoly
+Administrateur IXOS/Ariba
+CGI - services &#224; BCE
+1350, boul. Ren&#233;-L&#233;vesque,
+suite 800 bureau 8.446
+Montr&#233;al, Qu&#233;bec, H3G 1T4
+T&#233;l&#233;phone : 514-415-3000 x5510
+Urgences  : 514-540-4672
+Fax       : 514-415-3987
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">yves.boisjoly at cgi.com</A>
+---------------------------------
+
+AVIS DE CONFIDENTIALIT&#201; :
+
+Ce message peut contenir des renseignements confidentiels appartenant
+exclusivement au Groupe CGI Inc. ou &#224; ses filiales. Si vous n'&#234;tes pas le
+destinataire indiqu&#233; ou pr&#233;vu dans ce message (ou responsable de livrer ce
+message &#224; la personne indiqu&#233;e ou pr&#233;vue) ou si vous pensez que ce message
+vous a &#233;t&#233; adress&#233; par erreur, vous ne pouvez pas utiliser ou reproduire ce
+message, ni le livrer &#224; quelqu'un d'autre. Dans ce cas, vous devez le d&#233;truire
+et vous &#234;tes pri&#233; d'avertir l'exp&#233;diteur en r&#233;pondant au courriel.
+
+CONFIDENTIALITY NOTICE:
+
+Proprietary/Confidential Information belonging to CGI Group Inc. and its
+affiliates may be contained in this message. If you are not a recipient
+indicated or intended in this message or responsible for delivery of this
+message to such person), or you think for any reason that this message may
+have been addressed to you in error, you may not use or copy or deliver this
+message to anyone else.  In such case, you should destroy this message and are
+asked to notify the sender by reply e-mail.
+
+=================================
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000460.html">[fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+</A></li>
+	<LI>Next message: <A HREF="000469.html">[fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#468">[ date ]</a>
+              <a href="thread.html#468">[ thread ]</a>
+              <a href="subject.html#468">[ subject ]</a>
+              <a href="author.html#468">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

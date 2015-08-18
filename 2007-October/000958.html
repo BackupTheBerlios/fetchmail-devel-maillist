@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail socket problem
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20socket%20problem&In-Reply-To=%3C43ea8d070710251544x436f91d9rd739010c62043c5d%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000957.html">
+   <LINK REL="Next"  HREF="000959.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail socket problem</H1>
+    <B>Rob MacGregor</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20socket%20problem&In-Reply-To=%3C43ea8d070710251544x436f91d9rd739010c62043c5d%40mail.gmail.com%3E"
+       TITLE="[fetchmail-devel] fetchmail socket problem">rob.macgregor at gmail.com
+       </A><BR>
+    <I>Fri Oct 26 00:44:33 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000957.html">[fetchmail-devel] fetchmail socket problem
+</A></li>
+        <LI>Next message: <A HREF="000959.html">[fetchmail-devel] fetchmail socket problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#958">[ date ]</a>
+              <a href="thread.html#958">[ thread ]</a>
+              <a href="subject.html#958">[ subject ]</a>
+              <a href="author.html#958">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 10/25/07, aalap shah &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">aalap.shh at gmail.com</A>&gt; wrote:
+&gt;<i> hi I am using fetchmail  to fetch mails from gmail account but I am facing 2
+</I>&gt;<i> problems.
+</I>
+This would be far more appropriate to the -users mailing list.
+
+&gt;<i> The first one is that when i  try to do
+</I>&gt;<i> openssl s_client -connect smtp.gmail.com:995 -showcerts
+</I>&gt;<i> it shows
+</I>&gt;<i>  +OK Gpop ready for requests from 220.224.119.42 c25pf1139902ika
+</I>&gt;<i> where in when i saw certain configuration pages it shows that i should get
+</I>&gt;<i> something like
+</I>&gt;<i> +OK Gpop i16pf3941185wxd ready.
+</I>&gt;<i> I dont understand what is this
+</I>
+This is the greeting from the GMail POP service.
+
+&gt;<i> and secondly I tried connecting to pop.gmail.com using fetchmail i got
+</I>&gt;<i> somekind of socket error no 2, I also created the certificates and edited
+</I>&gt;<i> the .fetchmailrc file . The error it shows is
+</I>&gt;<i>
+</I>&gt;<i> fetchmail: 6.3.7 querying pop.gmail.com (protocol POP3) at Thursday 25
+</I>
+Upgrade to 6.3.8.
+
+&gt;<i> October 2007 11:32:29 PM IST: poll started
+</I>&gt;<i> Trying to connect to 66.249.91.109/995...connected.
+</I>&gt;<i> fetchmail: socket error while fetching from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">aalap.shh at pop.gmail.com</A>
+</I>&gt;<i> fetchmail: 6.3.7 querying pop.gmail.com (protocol POP3) at Thursday 25
+</I>&gt;<i> October 2007 11:33:37 PM IST: poll completed
+</I>&gt;<i> fetchmail: Query status=2 (SOCKET)
+</I>&gt;<i> fetchmail: normal termination, status 2
+</I>
+Socket errors (as has been discussed many times in the past) relate to
+a communications failure with the remote host.
+
+&gt;<i> please help
+</I>&gt;<i>
+</I>&gt;<i> the strace output after i input my password is
+</I>
+As specified in the FAQ under reporting a bug
+(<A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#G3">http://www.fetchmail.info/fetchmail-FAQ.html#G3</A>) please provide the
+output of:
+
+fetchmail --nosyslog --nodetach -vvv
+
+The content of your .fetchmailrc would also help.
+
+-- 
+                 Please keep list traffic on the list.
+
+Rob MacGregor
+      Whoever fights monsters should see to it that in the process he
+        doesn't become a monster.                  Friedrich Nietzsche
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000957.html">[fetchmail-devel] fetchmail socket problem
+</A></li>
+	<LI>Next message: <A HREF="000959.html">[fetchmail-devel] fetchmail socket problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#958">[ date ]</a>
+              <a href="thread.html#958">[ thread ]</a>
+              <a href="subject.html#958">[ subject ]</a>
+              <a href="author.html#958">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

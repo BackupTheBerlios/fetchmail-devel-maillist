@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Fetchmail 6.3.8: &quot;Invalid SSL	protocol...&quot;	Error
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Fetchmail%206.3.8%3A%20%22Invalid%20SSL%0A%09protocol...%22%09Error&In-Reply-To=%3C1256630928.1106711244041219826.JavaMail.root%40zmail05.collab.prod.int.phx2.redhat.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001085.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Fetchmail 6.3.8: &quot;Invalid SSL	protocol...&quot;	Error</H1>
+    <B>Vitezslav Crhonek</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Fetchmail%206.3.8%3A%20%22Invalid%20SSL%0A%09protocol...%22%09Error&In-Reply-To=%3C1256630928.1106711244041219826.JavaMail.root%40zmail05.collab.prod.int.phx2.redhat.com%3E"
+       TITLE="[fetchmail-devel] Fetchmail 6.3.8: &quot;Invalid SSL	protocol...&quot;	Error">vcrhonek at redhat.com
+       </A><BR>
+    <I>Wed Jun  3 17:00:19 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001085.html">[fetchmail-devel] Fetchmail 6.3.8: &quot;Invalid SSL protocol...&quot; Error
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1084">[ date ]</a>
+              <a href="thread.html#1084">[ thread ]</a>
+              <a href="subject.html#1084">[ subject ]</a>
+              <a href="author.html#1084">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+it seems that Stefano was right - the problem still exists in some circumstances. See
+<A HREF="https://bugzilla.redhat.com/show_bug.cgi?id=503881">https://bugzilla.redhat.com/show_bug.cgi?id=503881</A>
+
+Best regards,
+Vitezslav Crhonek
+
+
+----- Original Message -----
+From: &quot;Stefano&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at post-office.dyndns.org</A>&gt;
+To: &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt;
+Cc: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>
+Sent: Sunday, March 16, 2008 5:22:05 AM GMT +01:00 Amsterdam / Berlin / Bern / Rome / Stockholm / Vienna
+Subject: Re: [fetchmail-devel] Fetchmail 6.3.8: &quot;Invalid SSL protocol...&quot;	Error
+
+Evidently, I should have looked more closely at the latest development  
+code in the repository.  The particular problem I was having does  
+indeed appear to have been fixed in BRANCH_6-3 (checked it out and  
+built a few hours ago).
+
+However, is there not a chance that a similar problem will return in  
+the event that the &quot;defeat opportunistic STLS&quot; block *is* executed?   
+It seems that the only thing that was done is to avoid going through  
+that block in the particular case of a required re-poll when an  
+opportunistic STLS negotiation was not attempted.  Without changing  
+the sslproto = &quot;&quot; aspect of that block, or the handling in socket.c,  
+does the potential for the problem to return not remain?
+
+Quoting Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt;:
+
+&gt;<i> On Sat, 15 Mar 2008, Stefano wrote:
+</I>&gt;<i>
+</I>&gt;&gt;<i> I recently installed Fetchmail (6.3.8) to collect my mail from various
+</I>&gt;&gt;<i> accounts, so that they could be automatically filtered and sorted. Since
+</I>&gt;&gt;<i> installation, I had been getting the following error whenever it polled
+</I>&gt;&gt;<i> my ISP's server (POP3):
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Invalid SSL protocol '' specified, using default (SSLv23).
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> This does not happen when accessing other IMAP servers, but they don't
+</I>&gt;&gt;<i> support IMAP.  Given that I had added a cron job to check the accounts
+</I>&gt;&gt;<i> periodically, I kept receiving messages from the cron daemon with these
+</I>&gt;&gt;<i> errors; rather irritating.  Thus began my quest to track down and
+</I>&gt;&gt;<i> silence the error.
+</I>&gt;<i>
+</I>&gt;<i> Well, try the attached patch and see if it helps, it's actually simpler.
+</I>&gt;<i>
+</I>&gt;<i> If the NEWS or TODO.txt parts of the patch fail, nevermind.
+</I>&gt;<i>
+</I>&gt;&gt;<i> I had read about this problem while trying to solve it, but it didn't
+</I>&gt;&gt;<i> seem to have been fixed in the latest development code, so I took a stab
+</I>&gt;&gt;<i> at it.
+</I>&gt;<i>
+</I>&gt;<i> It should be fixed in the SVN repository though,
+</I>&gt;<i>
+</I>&gt;<i> <A HREF="http://mknod.org/svn/fetchmail/branches/BRANCH_6-3/">http://mknod.org/svn/fetchmail/branches/BRANCH_6-3/</A>
+</I>&gt;<i>
+</I>&gt;<i> (That's where my patch comes from.)
+</I>&gt;<i>
+</I>&gt;<i> If not, we'll check again how to fix this.
+</I>&gt;<i>
+</I>&gt;<i> Thanks a lot for your report and patch!
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i> Matthias Andree
+</I>&gt;<i>
+</I>
+_______________________________________________
+fetchmail-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">https://lists.berlios.de/mailman/listinfo/fetchmail-devel</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001085.html">[fetchmail-devel] Fetchmail 6.3.8: &quot;Invalid SSL protocol...&quot; Error
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1084">[ date ]</a>
+              <a href="thread.html#1084">[ thread ]</a>
+              <a href="subject.html#1084">[ subject ]</a>
+              <a href="author.html#1084">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

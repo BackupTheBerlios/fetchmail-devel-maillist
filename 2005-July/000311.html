@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: [fetchmail]user help needed: please test fetchmail 6.2.6.alpha1 snapshot
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail%5Duser%20help%20needed%3A%20please%20test%20fetchmail%206.2.6.alpha1%0A%20snapshot&In-Reply-To=%3C42C70D23.3080207%40plonk.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000299.html">
+   <LINK REL="Next"  HREF="000313.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: [fetchmail]user help needed: please test fetchmail 6.2.6.alpha1 snapshot</H1>
+    <B>Jakob Hirsch</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail%5Duser%20help%20needed%3A%20please%20test%20fetchmail%206.2.6.alpha1%0A%20snapshot&In-Reply-To=%3C42C70D23.3080207%40plonk.de%3E"
+       TITLE="[fetchmail-devel] Re: [fetchmail]user help needed: please test fetchmail 6.2.6.alpha1 snapshot">jh at plonk.de
+       </A><BR>
+    <I>Sat Jul  2 23:54:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000299.html">[fetchmail-devel] user help needed: please test fetchmail 6.2.6.alpha1 snapshot
+</A></li>
+        <LI>Next message: <A HREF="000313.html">[fetchmail-devel] Re: [fetchmail]user help needed: please test fetchmail 6.2.6.alpha1 snapshot
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+
+&gt;<i> At any rate, some work has taken place though in spite of all
+</I>&gt;<i> difficulties; over two dozen bugfixes were made, and several other
+</I>&gt;<i> changes. Details below.
+</I>
+Thanks for keeping fetchmail maintained!
+
+something with the fetchmailrc parser changed. Mine looks like this:
+
+defaults proto pop3
+   mda &quot;spamc -U /var/run/spamd/socket -x -e /usr/bin/maildrop -d %T&quot;
+
+poll mx.freenet.de user xxxxx pass xxxxxxx fetchall ssl
+poll pop.gmail.com user <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">yyyyyyy at gmail.com</A> pass yyyy fetchall ssl
+[...]
+
+which worked here fine all the time. With the alpha:
+
+$ fetchmail -v
+fetchmail: 6.2.6.alpha1 querying cip.rz.fh-offenburg.de (protocol POP3) 
+at Sat, 02 Jul 2005 23:33:19 +0200 (CEST): poll started
+[...]
+fetchmail: POP3&lt; +OK &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">10544.1120339998 at mx.freenet.de</A>&gt;
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; +OK
+fetchmail: POP3&lt; EXPIRE NEVER
+fetchmail: POP3&lt; TOP
+fetchmail: POP3&lt; UIDL
+fetchmail: POP3&lt; USER
+fetchmail: POP3&lt; XAUTHLIST
+fetchmail: POP3&lt; XSENDER
+fetchmail: POP3&lt; STLS
+fetchmail: POP3&lt; .
+fetchmail: POP3&gt; USER xxxxxxx pass
+fetchmail: POP3&lt; +OK user ok
+fetchmail: POP3&gt; PASS *
+fetchmail: POP3&lt; -ERR permission denied
+
+note the &quot;pass&quot; after &quot;USER xxxxxxx&quot;, which seems to come from fetchmailrc.
+
+And when terminating:
+
+fetchmail: Query status=3 (AUTHFAIL)
+fetchmail: Error deleting No such file or directory: &#236;
+&#255;0&#232;/&#214;&#254;&#255;&#196;
+PhZ&#255;5&#168;&#232;
+fetchmail: Error deleting No such file or directory: &#236;
+&#255;0&#232;/&#214;&#254;&#255;&#196;
+PhZ&#255;5&#168;&#232;
+
+
+Or when I press ctrl-c:
+
+fetchmail: terminated with signal 2
+fetchmail: Error deleting No such file or directory: &#236;
+&#255;0&#232;/&#214;&#254;&#255;&#196;
+PhZ&#255;5&#168;&#232;
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000299.html">[fetchmail-devel] user help needed: please test fetchmail 6.2.6.alpha1 snapshot
+</A></li>
+	<LI>Next message: <A HREF="000313.html">[fetchmail-devel] Re: [fetchmail]user help needed: please test fetchmail 6.2.6.alpha1 snapshot
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

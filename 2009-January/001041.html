@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #15103] Fetchmail	Fails	with	ASSP	(http://assp.sourceforge.net/)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2315103%5D%20Fetchmail%0A%09Fails%09with%09ASSP%09%28http%3A//assp.sourceforge.net/%29&In-Reply-To=%3C4979B1C8.8030209%40wowcompany.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001040.html">
+   <LINK REL="Next"  HREF="001045.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #15103] Fetchmail	Fails	with	ASSP	(http://assp.sourceforge.net/)</H1>
+    <B>Frederic Marchal</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2315103%5D%20Fetchmail%0A%09Fails%09with%09ASSP%09%28http%3A//assp.sourceforge.net/%29&In-Reply-To=%3C4979B1C8.8030209%40wowcompany.com%3E"
+       TITLE="[fetchmail-devel] [Bug #15103] Fetchmail	Fails	with	ASSP	(http://assp.sourceforge.net/)">frederic.marchal at wowcompany.com
+       </A><BR>
+    <I>Fri Jan 23 13:02:16 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001040.html">[fetchmail-devel] [Bug #15103] Fetchmail Fails	with	ASSP	(http://assp.sourceforge.net/)
+</A></li>
+        <LI>Next message: <A HREF="001045.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.9-rc3.vi.po'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1041">[ date ]</a>
+              <a href="thread.html#1041">[ thread ]</a>
+              <a href="subject.html#1041">[ subject ]</a>
+              <a href="author.html#1041">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree a &#233;crit :
+&gt;<i> Frederic Marchal schrieb:
+</I>&gt;<i>
+</I>&gt;<i> [in response to BerliOS Bug #15103]
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> I solved this issue by running ASSP in test mode (check option &quot;Bayesian 
+</I>&gt;&gt;<i> Test Mode&quot;) and prefixing the subject with something like [SPAM] (in 
+</I>&gt;&gt;<i> option &quot;Prepend Spam Subject&quot;). It means ASSP won't stop mails seen as 
+</I>&gt;&gt;<i> bayesian spam but will tag the subject. The mails can then be filtered 
+</I>&gt;&gt;<i> out automatically by the final recipient.
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> This, and my being bogofilter's co-maintainer (bogofilter also does
+</I>&gt;<i> Bayesian filtering), prompted me to have a glimpse at ASSP, and I must say
+</I>&gt;<i> that the promises it makes are way too bold. ASSP's self-advertising as the
+</I>&gt;<i> best tool aside, the assertion that Bayes filter were to intelligently
+</I>&gt;<i> decide is just crap. Bayes filters are making statistical decisions based
+</I>&gt;<i> on past training. &quot;Maintenance free&quot; doesn't work for them.
+</I>&gt;<i>   
+</I>ASSP's implementation of Paul Graham's algorithm is the most inefficient 
+I know but it does more than bayesian statistics and that compensate for 
+its incapacity at properly classify e-mails. In my case, I have a bunch 
+of spamtraps addresses and ASSP learns from the e-mails it nets. Since 
+spammers are sending tons of e-mails to every addresses they know, we 
+can filter them out by simple comparison between the mails received by 
+the spamtraps and the mails received by regular users. So, it does its 
+own training even though a Bayes filter is not adequate considering how 
+it performs in ASSP.
+
+Beside, ASSP sits on the SMTP port. Therefore, it sees the mails sent by 
+local users too and can whitelist the responses, preventing them from 
+being filtered out and learning hams in the process. It can also learn 
+from SMTP violations the spammers usually do and blacklist the offending 
+senders very early and for every user of the server.
+
+I don't believe ASSP is a great piece of software but it is the only one 
+I know of that can do that and it does require very little or no action 
+from the users it protect (especially no command line to run to learn 
+more spam/ham).
+
+&gt;&gt;<i> By the way, I don't advise to let ASSP delete or reject blindly bayesian 
+</I>&gt;&gt;<i> spams because, as you noticed, it doesn't take the whole mail into 
+</I>&gt;&gt;<i> account and, in general, it does a poor job at filtering spams. It tends 
+</I>&gt;&gt;<i> to have a high rate of false positives and you will loose good e-mails 
+</I>&gt;&gt;<i> if you don't keep an eye on what it does.
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> But then it seems to me that if you're using fetchmail or getmail, that
+</I>&gt;<i> integrating bogofilter, spamprobe or qsf in the mail system is more
+</I>&gt;<i> efficient than ASSP if it's prone to high resource use.
+</I>&gt;<i>
+</I>&gt;<i> At least bogofilter and SpamProbe are much faster than SpamAssassin's bayes
+</I>&gt;<i> mode. :-)
+</I>&gt;<i>   
+</I>Thanks for the advertisement :-) but my users are all windows 
+(mal-)formatted and it is impossible to get them to run a linux command 
+to classify their e-mails...
+
+Frederic
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001040.html">[fetchmail-devel] [Bug #15103] Fetchmail Fails	with	ASSP	(http://assp.sourceforge.net/)
+</A></li>
+	<LI>Next message: <A HREF="001045.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.9-rc3.vi.po'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1041">[ date ]</a>
+              <a href="thread.html#1041">[ thread ]</a>
+              <a href="subject.html#1041">[ subject ]</a>
+              <a href="author.html#1041">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: deleting oversized messages
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3C20050831064931.GA1485%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000439.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: deleting oversized messages</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3C20050831064931.GA1485%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: deleting oversized messages">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Wed Aug 31 08:49:31 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000439.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#440">[ date ]</a>
+              <a href="thread.html#440">[ thread ]</a>
+              <a href="subject.html#440">[ subject ]</a>
+              <a href="author.html#440">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Wed, Aug 31, 2005 at 01:04:04AM +0200:
+&gt;<i> Current wording, in roff man(7) format:
+</I>&gt;<i> 
+</I>&gt;<i> .TP
+</I>&gt;<i> .B \-F | \-\-flush
+</I>&gt;<i> POP3/IMAP only.  This is a dangerous option and can cause mail loss when
+</I>&gt;<i> used improperly. It deletes old (seen) messages from the mailserver
+</I>&gt;<i> before retrieving new messages.  Warning: This can cause mail loss if
+</I>&gt;<i> you check your mail with other clients than fetchmail, and cause
+</I>&gt;<i> fetchmail to delete a message it had never fetched before. Similarly, if
+</I>&gt;<i> your local MTA hangs and fetchmail is aborted, the next time you run
+</I>&gt;<i> fetchmail, it will delete mail that was never delivered to you.  You
+</I>&gt;<i> should probably not use this option in your configuration file.
+</I>&gt;<i> What you probably want is the default setting: if you don't specify
+</I>&gt;<i> '-k', then fetchmail will automatically delete messages after successful
+</I>&gt;<i> delivery. This option does not work with ETRN and ODMR.
+</I>
+Rather well put. However, this is not the only thing I am after.
+
+Please check the revision r4173 which attempts to fix Debian Bug
+#212240. This fix actually encourages the use of the 'flush'
+option.
+
+It is contradictory to say that
+
+$ fetchmail --flush
+
+is dangerous, but 
+
+$ fetchmail --daemon 0 --limit 100000 --flush
+
+is ok. In both cases, mails read through another email client are
+going to get deleted. Thus, both the above usages of 'flush' are
+eqaually dangerous.
+
+What I want us to do:
+
+- reverse the commit in r4173: this will break the link between
+  'flush' and 'limit'.
+
+- add a FAQ item which tells that 'flush' option cannot be overloaded
+  to delete oversized mails as 'flush' is dangerous (with or without
+  the overloading) when one is using another email client to check
+  one's mailbox and that 'flush' should be immediately removed from
+  the rc file.
+
+- treat Debian Bug #212240 as a new feature request, not a bug.
+
+- decide whether this request should should be implemented before
+  6.3.0.
+
+In case, it is decided to implement now:
+
+- add a new option which will delete only oversized mails. The patch I
+  had mentioned earlier did exactly that.
+
+- update the FAQ item mentioned above.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000439.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#440">[ date ]</a>
+              <a href="thread.html#440">[ thread ]</a>
+              <a href="subject.html#440">[ subject ]</a>
+              <a href="author.html#440">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

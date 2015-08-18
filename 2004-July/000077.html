@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] NTLM/POP3 authentication
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20NTLM/POP3%20authentication&In-Reply-To=%3C1089021609.5067.49.camel%40localhost%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000076.html">
+   <LINK REL="Next"  HREF="000078.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] NTLM/POP3 authentication</H1>
+    <B>Anuradha Ratnaweera</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20NTLM/POP3%20authentication&In-Reply-To=%3C1089021609.5067.49.camel%40localhost%3E"
+       TITLE="[fetchmail-devel] NTLM/POP3 authentication">ARatnaweera at virtusa.com
+       </A><BR>
+    <I>Mon Jul  5 12:00:10 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000076.html">[fetchmail-devel] Code quality - signedness
+</A></li>
+        <LI>Next message: <A HREF="000078.html">[fetchmail-devel] Subversion repository?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>(This was first posted to fetchmail-friends list.)
+
+Hi all,
+
+I was trying to authenticate against a POP3 server (running Exchange or
+whatever they call it ;-)) using NTLM using `--auth ntlm' and it failed.
+And it turned out that fetchmail sends the string `AUTH MSN' instead of
+`AUTH NTLM'.  However, changing this didn't help.  There seems to be
+other small differences.
+
+I am now trying to implement NTLM/POP3 authentication as explained in
+
+    <A HREF="http://davenport.sourceforge.net/ntlm.html">http://davenport.sourceforge.net/ntlm.html</A>
+
+What would be the best way of doing this?  I am thinking of renaming the
+present `NTLM' authentation to something else (say `--auth msn').  Any
+suggessions?
+
+	Anuradha
+
+-- 
+
+<A HREF="http://www.linux.lk/~anuradha/">http://www.linux.lk/~anuradha/</A>
+
+
+
+
+--------------------------------------------------------------------------------------------------
+This message, including any attachments, contains confidential information intended for a specific individual and purpose, and is intended for the addressee only.  Any unauthorized disclosure, use, dissemination, copying, or distribution of this message or any of its attachments or the information contained in this e-mail, or the taking of any action based on it, is strictly prohibited.  If you are not the intended recipient, please notify the sender immediately by return e-mail and delete this message. 
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000076.html">[fetchmail-devel] Code quality - signedness
+</A></li>
+	<LI>Next message: <A HREF="000078.html">[fetchmail-devel] Subversion repository?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

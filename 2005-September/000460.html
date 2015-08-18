@@ -1,0 +1,252 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Fetchmail%2C%20NTLM%20and%20Exchange&In-Reply-To=%3C20050920002148.GD21509%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000459.html">
+   <LINK REL="Next"  HREF="000468.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Fetchmail, NTLM and Exchange</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Fetchmail%2C%20NTLM%20and%20Exchange&In-Reply-To=%3C20050920002148.GD21509%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: Fetchmail, NTLM and Exchange">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Sep 20 02:21:48 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000459.html">[fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+</A></li>
+        <LI>Next message: <A HREF="000468.html">[fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#460">[ date ]</a>
+              <a href="thread.html#460">[ thread ]</a>
+              <a href="subject.html#460">[ subject ]</a>
+              <a href="author.html#460">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Mon, 19 Sep 2005, Yves Boisjoly wrote:
+
+&gt;<i> 	fetchmail: POP3&lt; +OK Microsoft Exchange Server 2003 POP3 server version 6.5.7226.0 (&lt;the_server&gt;) ready.
+</I>&gt;<i> 	fetchmail: POP3&gt; AUTH MSN
+</I>&gt;<i> 	fetchmail: POP3&lt; -ERR The specified authentication package is not supported.
+</I>
+Please try this patch: (Note you need to have flex or lex installed so
+that the configuration parser can be rebuilt.)
+
+Index: pop3.c
+===================================================================
+--- pop3.c	(revision 4284)
++++ pop3.c	(working copy)
+@@ -69,12 +69,13 @@
+  * Much source (ntlm.h, smb*.c smb*.h) was borrowed from Samba.
+  */
+ 
+-static int do_pop3_ntlm(int sock, struct query *ctl)
++static int do_pop3_ntlm(int sock, struct query *ctl,
++	int msn_instead /** if true, send AUTH MSN, else send AUTH NTLM */)
+ {
+     char msgbuf[2048];
+     int result,len;
+   
+-    gen_send(sock, &quot;AUTH MSN&quot;);
++    gen_send(sock, msn_instead ? &quot;AUTH MSN&quot; : &quot;AUTH NTLM&quot;);
+ 
+     if ((result = gen_recv(sock, msgbuf, sizeof msgbuf)))
+ 	return result;
+@@ -318,25 +319,20 @@
+     if (!(ctl-&gt;server.sdps) &amp;&amp; MULTIDROP(ctl) &amp;&amp; strstr(greeting, &quot;demon.&quot;))
+         ctl-&gt;server.sdps = TRUE;
+ #endif /* SDPS_ENABLE */
++
+ #ifdef NTLM_ENABLE
+-	/* MSN servers require the use of NTLM (MSN) authentication */
+-	if (!strcasecmp(ctl-&gt;server.pollname, &quot;pop3.email.msn.com&quot;) ||
+-	    ctl-&gt;server.authenticate == A_NTLM)
+-	{
+-	    if (!do_pop3_ntlm(sock, ctl))
+-	    {
+-		return(PS_SUCCESS);
+-	    }
+-	    else
+-	    {
+-		return(PS_AUTHFAIL);
+-	    }
+-	}
++    /* MSN servers require the use of NTLM (MSN) authentication */
++    if (!strcasecmp(ctl-&gt;server.pollname, &quot;pop3.email.msn.com&quot;) ||
++	    ctl-&gt;server.authenticate == A_MSN)
++	return (do_pop3_ntlm(sock, ctl, 1) == 0) ? PS_SUCCESS : PS_AUTHFAIL;
++    if (ctl-&gt;server.authenticate == A_NTLM)
++	return (do_pop3_ntlm(sock, ctl, 0) == 0) ? PS_SUCCESS : PS_AUTHFAIL;
+ #endif
+ 
+     switch (ctl-&gt;server.protocol) {
+     case P_POP3:
+ #ifdef RPA_ENABLE
++	/* XXX FIXME: AUTH probing (RFC1734) should become global */
+ 	/* CompuServe POP3 Servers as of 990730 want AUTH first for RPA */
+ 	if (strstr(ctl-&gt;remotename, &quot;@compuserve.com&quot;))
+ 	{
+Index: conf.c
+===================================================================
+--- conf.c	(revision 4289)
++++ conf.c	(working copy)
+@@ -284,6 +284,8 @@
+ 		stringdump(&quot;auth&quot;, &quot;ssh&quot;);
+ 	    else if (ctl-&gt;server.authenticate == A_OTP)
+ 		stringdump(&quot;auth&quot;, &quot;otp&quot;);
++	    else if (ctl-&gt;server.authenticate == A_MSN)
++		stringdump(&quot;auth&quot;, &quot;msn&quot;);
+ 
+ #ifdef HAVE_RES_SEARCH
+ 	    booldump(&quot;dns&quot;, ctl-&gt;server.dns);
+Index: NEWS
+===================================================================
+--- NEWS	(revision 4296)
++++ NEWS	(working copy)
+@@ -197,6 +197,8 @@
+   Bug#212240. Sunil Shetye. (MA)
+ * Fix MacOS X compilation failures in sink.c (ru_*time has incomplete type).
+   Berlios Bug #4725. Matthias Andree.
++* Fix &quot;auth ntlm&quot; to send AUTH NTLM (rather than AUTH MSN). Add &quot;auth msn&quot;
++  officially. Matthias Andree
+ 
+ # INTERNAL CHANGES
+ * Switched to automake. Matthias Andree.
+Index: fetchmail.man
+===================================================================
+--- fetchmail.man	(revision 4292)
++++ fetchmail.man	(working copy)
+@@ -663,19 +663,21 @@
+ AUTHENTICATION below for details).  The possible values are \fBany\fR,
+ \&amp;\fBpassword\fR, \fBkerberos_v5\fR, \fBkerberos\fR (or, for
+ excruciating exactness, \fBkerberos_v4\fR), \fBgssapi\fR,
+-\fBcram-md5\fR, \fBotp\fR, \fBntlm\fR, and \fBssh\fR.  When \fBany\fR (the
+-default) is specified, fetchmail tries first methods that don't
+-require a password (GSSAPI, KERBEROS_IV); then it looks for methods
+-that mask your password (CRAM-MD5, X-OTP, NTLM); and only if the server
+-doesn't support any of those will it ship your password en clair.
++\fBcram-md5\fR, \fBotp\fR, \fBntlm\fR, \fBmsn\fR and \fBssh\fR.  When
++\fBany\fR (the default) is specified, fetchmail tries first methods that
++don't require a password (GSSAPI, KERBEROS\ IV, KERBEROS\ 5); then it
++looks for methods that mask your password (CRAM-MD5, X-OTP - note that
++NTLM and MSN are not autoprobed); and only if the
++server doesn't support any of those will it ship your password en clair.
+ Other values may be used to force various authentication methods
+ (\fBssh\fR suppresses authentication).  Any value other than
+-\&amp;\fBpassword\fR, \fBcram-md5\fR, \fBntlm\fR or \fBotp\fR suppresses fetchmail's
+-normal inquiry for a password.  Specify \fBssh\fR when you are using
+-an end-to-end secure connection such as an ssh tunnel; specify
+-\fBgssapi\fR or \fBkerberos_v4\fR if you are using a protocol variant
+-that employs GSSAPI or K4.  Choosing KPOP protocol automatically
+-selects Kerberos authentication.  This option does not work with ETRN.
++\&amp;\fBpassword\fR, \fBcram-md5\fR, \fBntlm\fR, \fBmsn\fR or \fBotp\fR
++suppresses fetchmail's normal inquiry for a password.  Specify \fBssh\fR
++when you are using an end-to-end secure connection such as an ssh
++tunnel; specify \fBgssapi\fR or \fBkerberos_v4\fR if you are using a
++protocol variant that employs GSSAPI or K4.  Choosing KPOP protocol
++automatically selects Kerberos authentication.  This option does not
++work with ETRN.
+ .SS Miscellaneous Options
+ .TP
+ .B \-f &lt;pathname&gt; | \-\-fetchmailrc &lt;pathname&gt;
+Index: fetchmail.c
+===================================================================
+--- fetchmail.c	(revision 4289)
++++ fetchmail.c	(working copy)
+@@ -1536,6 +1536,9 @@
+ 	case A_PASSWORD:
+ 	    printf(GT_(&quot;  Password authentication will be forced.\n&quot;));
+ 	    break;
++	case A_MSN:
++	    printf(GT_(&quot;  MSN authentication will be forced.\n&quot;));
++	    break;
+ 	case A_NTLM:
+ 	    printf(GT_(&quot;  NTLM authentication will be forced.\n&quot;));
+ 	    break;
+Index: fetchmail.h
+===================================================================
+--- fetchmail.h	(revision 4289)
++++ fetchmail.h	(working copy)
+@@ -70,9 +70,17 @@
+ #define		A_KERBEROS_V5	6	/* authenticate w/ Kerberos V5 */
+ #define 	A_GSSAPI	7	/* authenticate with GSSAPI */
+ #define		A_SSH		8	/* authentication at session level */
++#define		A_MSN		9	/* same as NTLM with keyword MSN */
+ 
+-/* some protocols (KERBEROS, GSSAPI, SSH) don't require a password */
+-#define NO_PASSWORD(ctl)	((ctl)-&gt;server.authenticate &gt; A_OTP || (ctl)-&gt;server.protocol == P_ETRN)
++/* some protocols or authentication types (KERBEROS, GSSAPI, SSH) don't
++ * require a password */
++#define NO_PASSWORD(ctl) \
++    ((ctl)-&gt;server.authenticate == A_OTP \
++     || (ctl)-&gt;server.authenticate == A_KERBEROS_V4 \
++     || (ctl)-&gt;server.authenticate == A_KERBEROS_V5 \
++     || (ctl)-&gt;server.authenticate == A_GSSAPI \
++     || (ctl)-&gt;server.authenticate == A_SSH \
++     || (ctl)-&gt;server.protocol == P_ETRN)
+ 
+ /*
+  * Definitions for buffer sizes.  We get little help on setting maxima
+Index: rcfile_l.l
+===================================================================
+--- rcfile_l.l	(revision 4289)
++++ rcfile_l.l	(working copy)
+@@ -100,6 +100,7 @@
+ ssh		{ SETSTATE(0); yylval.proto = A_SSH; return AUTHTYPE;}
+ (otp|opie)	{ SETSTATE(0); yylval.proto = A_OTP; return AUTHTYPE;}
+ cram(-md5)?	{ SETSTATE(0); yylval.proto = A_CRAM_MD5; return AUTHTYPE;}
++msn		{ SETSTATE(0); yylval.proto = A_MSN; return AUTHTYPE;}
+ ntlm		{ SETSTATE(0); yylval.proto = A_NTLM; return AUTHTYPE;}
+ &lt;AUTH&gt;password	{ SETSTATE(0); yylval.proto = A_PASSWORD; return AUTHTYPE;}
+ timeout		{ return TIMEOUT;}
+Index: options.c
+===================================================================
+--- options.c	(revision 4289)
++++ options.c	(working copy)
+@@ -418,6 +418,8 @@
+ 		ctl-&gt;server.authenticate = A_GSSAPI;
+ 	    else if (strcmp(optarg, &quot;any&quot;) == 0)
+ 		ctl-&gt;server.authenticate = A_ANY;
++	    else if (strcmp(optarg, &quot;msn&quot;) == 0)
++		ctl-&gt;server.authenticate = A_MSN;
+ 	    else {
+ 		fprintf(stderr,GT_(&quot;Invalid authentication `%s' specified.\n&quot;), optarg);
+ 		errflag++;
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000459.html">[fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+</A></li>
+	<LI>Next message: <A HREF="000468.html">[fetchmail-devel] Re: Fetchmail, NTLM and Exchange
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#460">[ date ]</a>
+              <a href="thread.html#460">[ thread ]</a>
+              <a href="subject.html#460">[ subject ]</a>
+              <a href="author.html#460">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

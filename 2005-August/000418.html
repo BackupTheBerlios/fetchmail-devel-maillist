@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail 6.2.6-pre9 released - please test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.2.6-pre9%20released%20-%20please%20test&In-Reply-To=%3Cm3slxtgixw.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000417.html">
+   <LINK REL="Next"  HREF="000419.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail 6.2.6-pre9 released - please test</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.2.6-pre9%20released%20-%20please%20test&In-Reply-To=%3Cm3slxtgixw.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] fetchmail 6.2.6-pre9 released - please test">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Aug  2 04:40:27 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000417.html">[fetchmail-devel] [PATCH] printf ( #ifdef ... #endif ... )
+</A></li>
+        <LI>Next message: <A HREF="000419.html">[fetchmail-devel] New Russian PO file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#418">[ date ]</a>
+              <a href="thread.html#418">[ thread ]</a>
+              <a href="subject.html#418">[ subject ]</a>
+              <a href="author.html#418">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+I have released a new fetchmail snapshot, 6.2.6-pre9, available from:
+
+&lt;<A HREF="http://developer.berlios.de/project/showfiles.php?group_id=1824&amp;release_id=6730">http://developer.berlios.de/project/showfiles.php?group_id=1824&amp;release_id=6730</A>&gt;
+
+mirror: &lt;<A HREF="http://home.pages.de/~mandree/fetchmail/">http://home.pages.de/~mandree/fetchmail/</A>&gt;
+
+Please test, particularly if you're running a multidrop setup.
+
+Also, we still need translators, we have some old translations that need
+to be updated and aren't enabled by default, but new translations will
+also be welcome. Contact me if you're interested and fetchmail doesn't
+currently ship with a translation into your favorite language.
+
+
+Notes:
+
+This release has fairly large internal cleanups - I decided to get rid
+of the obsolete inet6_apps/inner_connect/ipv6-connect code rather than
+carrying it into a new release - the &quot;--netsec&quot; and &quot;-T&quot; options are now
+gone. The INET6_ENABLE code was also simplified, everything is now a
+&quot;service&quot; internally, port is converted into service, although this
+should be transparent.
+
+There will be some more IPv6 awareness fixes, too many places still use
+the hardcoded IPv4-only gethostbyname function, so we'll have one or two
+more releases down the road before calling out for other release
+candidates.
+
+Summarized changes:
+
+    * The multidrop code was severely broken in several places:
+
+          o a fairly fundamental RFC822 parser bug was fixed that
+            stripped the last character of bare addresses
+            i. e. addresses without &lt;&gt; angle brackets (from
+            Delivered-To: headers, for instance), responsible for many
+            unrecognized domains in multidrop mode.
+
+          o The multidrop IP address matching code was broken and
+            checked only the first address of the configured servername
+            against the aliases of the domain found in the envelope.
+
+          o The multidrop MX matching code was broken and didn't resolve
+            the MX hosts into IP addresses.
+
+    * The netsec and -T options are gone, corresponding code was
+      removed. See Notes above.
+  
+    * The gettext code (intl/ directory) was removed from the fetchmail
+      package and, if NLS is desired, needs to be installed separately
+      before fetchmail is built.
+
+    * The default distribution format has been switched to bzip2.
+
+    * The Python script is now optimized, byte-compiled and installed
+      into the Python site-packages directory.
+
+    * Some internal code shuffling and cleanups.
+
+
+- -- 
+Matthias Andree
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFC7t0hvmGDOQUufZURAkDnAKCoJ9cIoHddmqODswE9IpSEH4WWBQCaA7kF
+ld16PJwbItP+ixO+aqjrNYw=
+=Zdqo
+-----END PGP SIGNATURE-----
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000417.html">[fetchmail-devel] [PATCH] printf ( #ifdef ... #endif ... )
+</A></li>
+	<LI>Next message: <A HREF="000419.html">[fetchmail-devel] New Russian PO file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#418">[ date ]</a>
+              <a href="thread.html#418">[ thread ]</a>
+              <a href="subject.html#418">[ subject ]</a>
+              <a href="author.html#418">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

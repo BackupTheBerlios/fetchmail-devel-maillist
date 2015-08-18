@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [BUG] fetchmail hangs during pop3 pull after a mail with a null char
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBUG%5D%20fetchmail%20hangs%20during%20pop3%20pull%20after%0A%20a%20mail%20with%20a%20null%20char&In-Reply-To=%3C4408C3F6.1030405%40dgreaves.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000675.html">
+   <LINK REL="Next"  HREF="000676.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [BUG] fetchmail hangs during pop3 pull after a mail with a null char</H1>
+    <B>David Greaves</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBUG%5D%20fetchmail%20hangs%20during%20pop3%20pull%20after%0A%20a%20mail%20with%20a%20null%20char&In-Reply-To=%3C4408C3F6.1030405%40dgreaves.com%3E"
+       TITLE="[fetchmail-devel] [BUG] fetchmail hangs during pop3 pull after a mail with a null char">david at dgreaves.com
+       </A><BR>
+    <I>Fri Mar  3 23:32:22 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000675.html">[fetchmail-devel] [BUG] fetchmail hangs during pop3 pull after a mail with a null char
+</A></li>
+        <LI>Next message: <A HREF="000676.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#678">[ date ]</a>
+              <a href="thread.html#678">[ thread ]</a>
+              <a href="subject.html#678">[ subject ]</a>
+              <a href="author.html#678">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree wrote:
+
+&gt;<i>David Greaves &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">david at dgreaves.com</A>&gt; wrote, in October 2004:
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;&gt;<i>It's been working for years with these occasional hangs that have been
+</I>&gt;&gt;<i>fixed by popping the bad messages and manually filing them. I finally
+</I>&gt;&gt;<i>had a bad message arrive when I was in a position to debug!
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>Summary : fetchmail hangs during pop3 pull after a mail with a null char.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>The mail with a null char is pulled OK but then rejected by local
+</I>&gt;&gt;<i>Cyrus lmtp and bounced to postmaster via exim4.20
+</I>&gt;&gt;<i>The next pop3 pull then fails.
+</I>&gt;&gt;<i>I've made an effort to trace and I think the hang occurs due to a
+</I>&gt;&gt;<i>double call to SMTP_ok which is empty the second time. I am pretty
+</I>&gt;&gt;<i>sure the second call originates at sink.c line 1433.
+</I>&gt;&gt;<i>    
+</I>&gt;&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>David, could you try to reproduce the problem with fetchmail 6.3.2 and
+</I>&gt;<i>see if the problem is gone?  The hang might have been related to LMTP
+</I>&gt;<i>bugs or rather fetchmail 6.3.1 and older not properly talking SMTP any
+</I>&gt;<i>more after having talked LMTP, so chances are the hang no longer occurs
+</I>&gt;<i>with 6.3.2.
+</I>&gt;<i>
+</I>&gt;<i>Thanks,
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>OK
+I'm away for 2 weeks so I'll have to check when I return...
+
+David
+
+-- 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000675.html">[fetchmail-devel] [BUG] fetchmail hangs during pop3 pull after a mail with a null char
+</A></li>
+	<LI>Next message: <A HREF="000676.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#678">[ date ]</a>
+              <a href="thread.html#678">[ thread ]</a>
+              <a href="subject.html#678">[ subject ]</a>
+              <a href="author.html#678">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

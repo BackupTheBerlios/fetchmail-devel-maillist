@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060228092324.GB1087%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000661.html">
+   <LINK REL="Next"  HREF="000664.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060228092324.GB1087%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Tue Feb 28 10:23:24 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000661.html">[fetchmail-devel] BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+        <LI>Next message: <A HREF="000664.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#663">[ date ]</a>
+              <a href="thread.html#663">[ thread ]</a>
+              <a href="subject.html#663">[ subject ]</a>
+              <a href="author.html#663">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Casper Gripenberg's mail on Sun, Feb 19, 2006:
+&gt;<i> zoidberg [Sun 19 23:33] &lt;~/tmp/fetchmail-6.3.2&gt;: ./fetchmail -N -v -v
+</I>&gt;<i> fetchmail: starting fetchmail 6.3.2 daemon
+</I>&gt;<i> fetchmail: 6.3.2 querying pop.kolumbus.fi (protocol IMAP) at Sun, 19 Feb 2006 23:33:25 +0200 (EET): poll started
+</I>&gt;<i> fetchmail: IMAP&lt; * OK IMAP4 server (InterMail vM.6.01.04.01 201-2131-118-101-20041129) ready Sun, 19 Feb 2006 23:33:25 +0200 (EET)
+</I>&gt;<i> fetchmail: IMAP&gt; A0001 CAPABILITY
+</I>&gt;<i> fetchmail: IMAP&lt; * CAPABILITY IMAP4rev1 UIDPLUS NAMESPACE QUOTA
+</I>&gt;<i> fetchmail: IMAP&lt; A0001 OK CAPABILITY completed
+</I>&gt;<i> fetchmail: Protocol identified as IMAP4 rev 1
+</I>&gt;<i> fetchmail: will idle after poll
+</I>&gt;<i> fetchmail: IMAP&gt; A0002 LOGIN &quot;ea5540&quot; *
+</I>&gt;<i> fetchmail: IMAP&lt; A0002 OK LOGIN completed
+</I>&gt;<i> fetchmail: selecting or re-polling default folder
+</I>&gt;<i> fetchmail: IMAP&gt; A0003 SELECT &quot;INBOX&quot;
+</I>&gt;<i> fetchmail: IMAP&lt; * 0 EXISTS
+</I>&gt;<i> fetchmail: IMAP&lt; * OK [UIDVALIDITY 1031331700] UIDs valid
+</I>&gt;<i> fetchmail: IMAP&lt; * OK [UIDNEXT 1000] Predicted next UID
+</I>&gt;<i> fetchmail: IMAP&lt; * FLAGS (\Answered \Flagged \Deleted \Draft \Seen)
+</I>&gt;<i> fetchmail: IMAP&lt; * OK [PERMANENTFLAGS (\* \Answered \Flagged \Deleted \Draft \Seen)] Permanent flags
+</I>&gt;<i> fetchmail: IMAP&lt; * 0 RECENT
+</I>&gt;<i> fetchmail: IMAP&lt; A0003 OK [READ-WRITE] SELECT completed
+</I>&gt;<i> fetchmail: 0 messages waiting after first poll
+</I>&gt;<i> fetchmail: IMAP&gt; A0004 NOOP
+</I>&gt;<i> fetchmail: IMAP&lt; A0004 OK NOOP completed
+</I>&gt;<i> fetchmail: IMAP&gt; A0005 NOOP
+</I>&gt;<i> fetchmail: IMAP&lt; A0005 OK NOOP completed
+</I>&gt;<i> fetchmail: IMAP&lt; * 1 EXISTS
+</I>&gt;<i> fetchmail: IMAP&lt; * 2 EXISTS
+</I>&gt;<i> fetchmail: IMAP&lt; * 3 EXISTS
+</I>&gt;<i> fetchmail: IMAP&lt; * 4 EXISTS
+</I>&gt;<i> 
+</I>&gt;<i> Here fetchmail hangs..nothing happens for 300 secs (unless a new
+</I>&gt;<i> &quot;EXISTS&quot; event arrives and then the 300 secs timer resets)..it's totally
+</I>&gt;<i> dead. Sending SIGHUP doesn't help. So I enter GDB on another terminal:
+</I>
+The problem is that you are getting an EXISTS *after* NOOP. Thus, you
+are getting unsolicited response between two IMAP commands. fetchmail
+expects this kind of response:
+
+IMAP&gt; A0005 NOOP
+IMAP&lt; * 1 EXISTS
+IMAP&lt; * 1 RECENT
+IMAP&lt; A0005 OK NOOP completed
+
+Are you checking your mailbox via some other e-mail client at the same
+time when fetchmail is idling on the mailbox? This could explain the
+unsolicited EXISTS reply and the missing RECENT reply. If you are
+doing so, could you check if fetchmail works properly or send the logs
+when you are not checking mails via any other e-mail client?
+
+Here is the first patch which will solve this problem partially.
+Please test this patch:
+
+=====================================================================
+Index: fetchmail/imap.c
+===================================================================
+--- fetchmail/imap.c	(revision 4696)
++++ fetchmail/imap.c	(working copy)
+@@ -633,11 +633,12 @@
+ 	if (ok != 0 || stage != STAGE_IDLE)
+ 	    return(ok);
+ 
+-	/* wait (briefly) for an unsolicited status update */
+-	ok = imap_ok(sock, NULL);
+-	/* again, this is new mail or an error */
+-	if (ok != PS_IDLETIMEOUT)
+-	    return(ok);
++	/* we used to wait for an unsolicited status update here with
++	 * imap_ok(). However, since no command has actually been
++	 * sent, there is no &quot;tag&quot; which can be used for comparison.
++	 * Just sleep instead */
++	set_timeout(0);
++	sleep(mytimeout);
+     }
+ 
+     /* restore normal timeout value */
+=====================================================================
+
+Another patch will follow (based upon whether one previous pending
+patch has been accepted or not) which will solve this issue
+completely. Please try this patch and report the results.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000661.html">[fetchmail-devel] BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+	<LI>Next message: <A HREF="000664.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#663">[ date ]</a>
+              <a href="thread.html#663">[ thread ]</a>
+              <a href="subject.html#663">[ subject ]</a>
+              <a href="author.html#663">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

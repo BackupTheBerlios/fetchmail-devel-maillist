@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail and mapi II
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3Cop.uwnzqvl71e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001114.html">
+   <LINK REL="Next"  HREF="001117.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail and mapi II</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20and%20mapi%20II&In-Reply-To=%3Cop.uwnzqvl71e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] fetchmail and mapi II">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Jul  6 23:09:57 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001114.html">[fetchmail-devel] New Indonesian PO file for 'fetchmail' (version	6.3.10-pre2)
+</A></li>
+        <LI>Next message: <A HREF="001117.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1115">[ date ]</a>
+              <a href="thread.html#1115">[ thread ]</a>
+              <a href="subject.html#1115">[ subject ]</a>
+              <a href="author.html#1115">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 16.06.2009, 17:55 Uhr, schrieb mojmir svoboda  
+&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mojmir.svoboda at 2kczech.com</A>&gt;:
+
+&gt;<i> * <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">MatthiasAndree at 2kgbrnexg1.2kgames.t2.corp</A>  
+</I>&gt;<i> &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">MatthiasAndree at 2kgbrnexg1.2kgames.t2.corp</A>&gt; [2009-06-16 14:11:37 +0000]:
+</I>&gt;<i>
+</I>&gt;&gt;<i> &gt; as a hotfix i simply allocated lot of memory and removed the loop that
+</I>&gt;&gt;<i> &gt; did nothing. i assume you do not want that kind of solution (and  
+</I>&gt;&gt;<i> neither
+</I>&gt;&gt;<i> &gt; do i.. in long term)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Ah, ok.
+</I>&gt;<i>
+</I>&gt;<i> in attachment there is a patch fixing this (hopefuly) correctly.  still,
+</I>&gt;<i> the postscript attachment i sent myself got little bit scrambled
+</I>&gt;<i> (periodically at buffer boundaries). may be bug in stream, may be bug in
+</I>&gt;<i> ldb_base64_encode.
+</I>&gt;<i>
+</I>&gt;<i> btw: ldb_base64_encode can be removed from the source file mapi.c, as it
+</I>&gt;<i> is already present in samba4.
+</I>&gt;<i>
+</I>&gt;&gt;<i> &gt;&gt; &gt; 6. \r characters and = spread all around in mail body
+</I>&gt;&gt;<i> This looks like quoted printable encoding to me. hex is likely (i. e. I
+</I>&gt;<i>
+</I>&gt;<i> i confirm. this seems to be hardcoded in mapi.c
+</I>&gt;<i> perhaps there should be an option specifying output format? i.e. if
+</I>&gt;<i> exchange sends it in 7bit, i'm fine with it. no need for another
+</I>&gt;<i> translation.
+</I>&gt;<i>
+</I>&gt;&gt;<i> Perhaps headers do not properly declare content. Do you have an example  
+</I>&gt;&gt;<i> of
+</I>&gt;&gt;<i> such a message (inside mutt, just pipe it into &quot;cat - &gt;/tmp/msg.bin&quot;,  
+</I>&gt;&gt;<i> then
+</I>&gt;&gt;<i> mail msg.bin as application/octet-stream attachment).
+</I>&gt;<i>
+</I>&gt;<i> in attachment. it's in czech, sorry - only sample i did not deleted
+</I>&gt;<i>
+</I>&gt;&gt;<i> &gt; 	- fetchmail modifies the &quot;From: &quot; header
+</I>&gt;&gt;<i> Is it fetchmail or OpenChange or Exchange that does this?
+</I>&gt;<i>
+</I>&gt;<i> this is what i have when i look out from outlook:
+</I>&gt;<i> 	From: &quot;Matthias Andree&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at your.email</A>&gt;
+</I>&gt;<i> 	To: &quot;mojmir svoboda&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">mojmir.svoboda at my.email</A>&gt;,  
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>
+</I>&gt;<i> 	Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
+</I>&gt;<i> 	Content-Transfer-Encoding: 7bit
+</I>&gt;<i>
+</I>&gt;<i> this is what i receive after fetchmailing via mapi:
+</I>&gt;<i> 	From: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">MatthiasAndree at exchange_server_address.here</A>
+</I>&gt;<i> 	To: 2K Czech &lt;MojmirSvoboda&gt;;, <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">fetchmail-devel at lists.berlios.de</A>
+</I>&gt;<i> 	Content-Type: text/plain; charset=us-ascii
+</I>&gt;<i> 	Content-Transfer-Encoding: quoted-printable
+</I>&gt;<i>
+</I>&gt;<i> there is some header manipulation code in mapi_fetch_headers, i'd start
+</I>&gt;<i> search there.
+</I>&gt;<i>
+</I>&gt;<i> best regards,
+</I>&gt;<i> mojmir
+</I>
+Hi Mojmir,
+
+I have updated fetchmail's BRANCH_MAPI branch to release 6.3.10 including  
+the post-release updates to Spanish and Chinese translations as of  
+yesterday.
+
+I have merged your mapi2.patch (thanks), but haven't yet had the time to  
+look at the messages or other problems we discussed.
+
+I fixed an issue in rcfile_y.y where the LCID parsing for strings that  
+didn't start with 0x was utterly broken.
+
+I fixed configure.ac logic so that --disable-MAPI (or not specifying this)  
+works, and we only check for libmagic if needed.
+
+So me new issues I discovered that also need addressing:
+
+- all issues you've mentioned that haven't been addressed by your patch,  
+for instance, message corruption as observed, or duplication of base64  
+encoders.
+
+- there are warnings about broken 4th arguments to one of the openchange  
+functions
+
+- mapi.c throws a zillion of warnings of mismatched signedness in  
+comparisons, or unused variables. All have to be audited that they don't  
+trigger integer overflows or negative indexes.
+
+- the MAPI code adds quite a few if (blah.protocol != P_MAPI) ... #ifdef  
+MAPI_ENABLE ... #endif that should be abstracted away rather than copy &amp;  
+paste code...
+
+- the bug I fixed in rcfile_y.y was sort of target = sprintf(&quot;0x%04x&quot;,  
+uint32_t); - oops. sprintf takes the output variable as argument and  
+returns the length... I hope there isn't more of this bug.
+
+- more will show up as fixup and integration proceed.
+
+
+For better or for worse, the current BRANCH_MAPI code isn't currently fit  
+for integration into the trunk, but needs considerable work. With the most  
+recent commits, I can compile it on openSUSE 11.1 with the -devel packages  
+ from  
+<A HREF="http://download.opensuse.org/repositories/GNOME:/Evolution:/mapi/openSUSE_11.1">http://download.opensuse.org/repositories/GNOME:/Evolution:/mapi/openSUSE_11.1</A>  
+and with file-devel installed (that is the openSUSE package containing  
+libmagic development files), if I run
+
+./autogen.sh
+mkdir build
+cd build
+PKG_CONFIG_PATH=/usr/lib/samba4/lib/pkgconfig/ \
+../configure -C --enable-MAPI --with-ssl \
+CFLAGS=&quot;-O -pipe -ggdb3 -Wall -Wextra -W&quot; \
+&amp;&amp; make -sj4
+
+You can check out sources from  
+<A HREF="http://mknod.org/svn/fetchmail/branches/BRANCH_MAPI/">http://mknod.org/svn/fetchmail/branches/BRANCH_MAPI/</A>
+
+
+I'm not interested in doing any of the audit/cleanup/fixup work as  
+assessed in this and related threads, but I am happy to help with the  
+integration later and help with tracing the requirements.
+
+Reasons are that I personally do not have interest in MAPI support, I have  
+no Exchange server to test (Asif Iqbal offered help with testing, but I  
+think the tests should be done by those who fix up the code). If someone  
+is willing to pay pro rates, can provide an Exchange server to test  
+against, be happy with low-profile effort (5 - 20 hours per month - not  
+week!) that can start only in a few months' time, contact me off-list. No  
+promises though.
+
+So - any volunteers to audit and/or polish BRANCH_MAPI?
+
+Thanks in advance
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001114.html">[fetchmail-devel] New Indonesian PO file for 'fetchmail' (version	6.3.10-pre2)
+</A></li>
+	<LI>Next message: <A HREF="001117.html">[fetchmail-devel] fetchmail and mapi II
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1115">[ date ]</a>
+              <a href="thread.html#1115">[ thread ]</a>
+              <a href="subject.html#1115">[ subject ]</a>
+              <a href="author.html#1115">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

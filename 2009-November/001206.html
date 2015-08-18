@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [BUG] \n missing in -v output
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBUG%5D%20%5Cn%20missing%20in%20-v%20output&In-Reply-To=%3C200911131758.30139%40rk-nord.at%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001205.html">
+   <LINK REL="Next"  HREF="001207.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [BUG] \n missing in -v output</H1>
+    <B>Melchior FRANZ</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBUG%5D%20%5Cn%20missing%20in%20-v%20output&In-Reply-To=%3C200911131758.30139%40rk-nord.at%3E"
+       TITLE="[fetchmail-devel] [BUG] \n missing in -v output">melchior.franz at gmail.com
+       </A><BR>
+    <I>Fri Nov 13 17:58:29 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001205.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.12.it.po'
+</A></li>
+        <LI>Next message: <A HREF="001207.html">[fetchmail-devel] [BUG] \n missing in -v output
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1206">[ date ]</a>
+              <a href="thread.html#1206">[ thread ]</a>
+              <a href="subject.html#1206">[ subject ]</a>
+              <a href="author.html#1206">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Since I updated from openSUSE 11.1 to 11.2, fetchmail's output with one verbose
+level doesn't look right. They use fetchmail 6.3.11, but I checked out 6.3.13
+from your SVN repository and it has the same bug. (HEAD segfaults.)
+
+I get lines like these:
+
+  fetchmail: POP3&lt; +OK message follows
+  reading message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">some at address.foo</A>:2 of 9 (3429 octets) fetchmail: SMTP&gt; MAIL FROM:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">another at address.foo</A>&gt; BODY=7BIT SIZE=3429
+  fetchmail: SMTP&lt; 250 2.1.0 Ok
+
+That is: the line starting with &quot;reading&quot; isn't properly closed with '\n' and
+the next line is just appended there. That's annoying, as I always fetch mail
+via a wrapper, which calls &quot;fetchmail -v&quot; and extracts and colorizes the
+interesting information. Something like:
+
+  3       99299   &lt;&lt; my.provider.com
+  1/3     84243   ## oversized ## 
+  2/3     5056    *osg users
+  3/3     10000   *git     
+
+Looks like you want the space only if outlevel &gt; O_VERBOSE, not &gt;=.  (?)
+
+m.
+
+
+
+PS: gcc 4.4.1, libc 2.10.1, Linux 2.6.31.6 (x86_64)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001205.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.12.it.po'
+</A></li>
+	<LI>Next message: <A HREF="001207.html">[fetchmail-devel] [BUG] \n missing in -v output
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1206">[ date ]</a>
+              <a href="thread.html#1206">[ thread ]</a>
+              <a href="subject.html#1206">[ subject ]</a>
+              <a href="author.html#1206">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

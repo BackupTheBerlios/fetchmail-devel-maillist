@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RFC%3A%20Workaround%20for%20comcast%20bug%20-%206.3.X%20or%206.4.X%20stuff%3F&In-Reply-To=%3C43ea8d070601041036k1f9ff53ex%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000622.html">
+   <LINK REL="Next"  HREF="000624.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?</H1>
+    <B>Rob MacGregor</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20RFC%3A%20Workaround%20for%20comcast%20bug%20-%206.3.X%20or%206.4.X%20stuff%3F&In-Reply-To=%3C43ea8d070601041036k1f9ff53ex%40mail.gmail.com%3E"
+       TITLE="[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?">rob.macgregor at gmail.com
+       </A><BR>
+    <I>Wed Jan  4 19:36:17 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000622.html">[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?
+</A></li>
+        <LI>Next message: <A HREF="000624.html">[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#623">[ date ]</a>
+              <a href="thread.html#623">[ thread ]</a>
+              <a href="subject.html#623">[ subject ]</a>
+              <a href="author.html#623">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 04/01/06, Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; wrote:
+&gt;<i> Greetings,
+</I>&gt;<i>
+</I>&gt;<i> I prepared this patch in response to the many comcast (&quot;Maillennium&quot;)
+</I>&gt;<i> problem reports all across the net, which blacklists the POP3 TOP
+</I>&gt;<i> command on servers that greet us with &quot;Maillennium POP3/PROXY server&quot;.
+</I>&gt;<i>
+</I>&gt;<i> I'm asking for comments: do others think avoiding the truncation of
+</I>&gt;<i> messages after approx. 82 kB justifies this incompatible bug fix (it is
+</I>&gt;<i> incompatible because it marks messages read on the server)?
+</I>
+I think that, assuming the warning is logged every time fetchmail
+starts up (ie once in daemon mode, every time when run by hand), then
+this isn't a bad thing.
+
+I'm in favour of fetchmail being as flexible as it can when dealing
+with remote POP/IMAP/whatever servers.  If it becomes necessary to
+build a table of cludges to cope with badly broken servers, just so
+that fetchmail isn't labelled as being incompatible (and the usual
+&quot;well it works under Windows, so it must be a Linux thing&quot;), I think
+it's a small price to pay.
+
+Of course, I'm not the one doing the coding, so I don't have to suffer
+the mess that'll result :)
+
+&gt;<i> Should we apply this patch on the 6.3.X branch or should it wait for
+</I>&gt;<i> 6.4.X?
+</I>
+I'd probably go with 6.3.X - it could be argued that this is a bug
+fix.  I suppose it depends on when 6.4.0 is likely.  If it's going to
+be a long time off then it's probably worth adding the patch now.  If
+however 6.4.0 is likely in the next 6 months or so, then I'd say
+waiting to 6.4.0 shouldn't be too much of a pain.
+
+&gt;<i> I also found out that many people try to ask on random forums,
+</I>&gt;<i> vendor-forums such as SUSE, independent forums, rather than asking on
+</I>&gt;<i> the official fetchmail support lists, and apparently without checking
+</I>&gt;<i> the FAQ first.  How do users procure information where to post their
+</I>&gt;<i> question?
+</I>
+I think they pull them from their &lt;censored&gt;.  Sadly fetchmail is far
+from unique here, I've seen behaviour like this many times.
+
+&gt;<i> (I'd like to post a prominent notice referring them to our FAQ and lists.)
+</I>
+How about including the URLs of the FAQ and the lists in the output of
+the help output, and the FAQ URL above the output of &quot;fetchmail -v -v&quot;
+and above?
+
+Probably wouldn't hurt to include the URL for the FAQ in the man page,
+at the top (yes, the fetchmail page URL is at the bottom, but who
+reads that far?).  Also at the bottom of the list footer?  Ram it in
+their faces :-)
+
+Finally, I think that as long as ESRs page exists and makes no
+reference to the new project, there are going to be problems.
+
+--
+                 Please keep list traffic on the list.
+Rob MacGregor
+      Whoever fights monsters should see to it that in the process he
+        doesn't become a monster.                  Friedrich Nietzsche
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000622.html">[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?
+</A></li>
+	<LI>Next message: <A HREF="000624.html">[fetchmail-devel] RFC: Workaround for comcast bug - 6.3.X or 6.4.X stuff?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#623">[ date ]</a>
+              <a href="thread.html#623">[ thread ]</a>
+              <a href="subject.html#623">[ subject ]</a>
+              <a href="author.html#623">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

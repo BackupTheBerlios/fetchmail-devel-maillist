@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #9412] Malformed headers crashes fetchmail	6.3.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%239412%5D%20Malformed%20headers%20crashes%20fetchmail%0A%096.3.5&In-Reply-To=%3C200611091743.kA9Hhhof009484%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000816.html">
+   <LINK REL="Next"  HREF="000818.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #9412] Malformed headers crashes fetchmail	6.3.5</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%239412%5D%20Malformed%20headers%20crashes%20fetchmail%0A%096.3.5&In-Reply-To=%3C200611091743.kA9Hhhof009484%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #9412] Malformed headers crashes fetchmail	6.3.5">admin at berlios.de
+       </A><BR>
+    <I>Thu Nov  9 18:43:43 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000816.html">[fetchmail-devel] Contents of file `fetchmail-6.3.6-rc1.pl.po'
+</A></li>
+        <LI>Next message: <A HREF="000818.html">[fetchmail-devel] New Russian PO file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#817">[ date ]</a>
+              <a href="thread.html#817">[ thread ]</a>
+              <a href="subject.html#817">[ subject ]</a>
+              <a href="author.html#817">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #9412, was updated on 2006-Nov-09 12:43
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: curly
+Assigned to : none
+Summary: Malformed headers crashes fetchmail 6.3.5
+
+Details: Malformed messages crash new fetchmail v6.3.5
+
+This is fetchmail release 6.3.5+RPA+SDPS+SSL+OPIE+NLS.
+FreeBSD 5.5-STABLE FreeBSD 5.5-STABLE #6: Wed Jul 12 23:42:32 EEST 2006   i386
+
+Here is example message(my hostnames and IPs replaced with xxx):
+
+Return-Path: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">intrusion963 at chan.ne.jp</A>&gt;
+Delivered-To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxx at xxx.xxx</A>
+Received: (qmail 98519 invoked from network); 9 Nov 2006 16:53:38 -0000
+Received: from unknown (HELO xxx.xxx.xxx.xxx) (60.17.169.223)
+  by xxx.xxx.xxx with SMTP; 9 Nov 2006 16:53:38 -0000
+Received: from 68.131.231.112 by 60.17.169.223; Thu, 09 Nov 2006 21:45:22 +0500
+Message-ID: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">CBQZBPOKYKCTIVWYMOZXAPD at ybb.ne.jp</A>&gt;
+From: &quot;  &#164;&#1064;&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">intrusion963 at chan.ne.jp</A>&gt;
+Reply-To: &quot;  &#164;&#1064;&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">intrusion963 at chan.ne.jp</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxx at xxx.xxx</A>
+Subject: &#1025;&#1110;C&#1045;&#183;&#169;H
+Date: Thu, 09 Nov 2006 19:47:22 +0300
+X-Mailer: AOL 2.0 for Windows US sub 363
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+        boundary=&quot;--322259919565759&quot;
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-IP:92.52.150.4
+----322259919565759
+Content-Type: text/plain;
+Content-Transfer-Encoding: base64
+
+DQqBQIFAgUCBQIFAgZ+K+Y2ljtKPl5CrgsyLyZTpj+6V8YFJiq6RU5azl7+CxYKyj7WR0oGf
+DQoNCoFAgUCCqISriqmEq4LfhKuB9ISrivmEq42lhKuPl4SrkKuEq4/uhKuV8YSrgUmEq4qu
+hKuRU4SrlrOEq5e/hKuBSYSrgUANCoFAgUCEqoSuhKqEroSqhK6EqoSuhKqEroSqhK6EqoSu
+hKqEroSqhK6EqoSuhKqEroSqhK6EqoSuhKqEroSqhK6EqoSugUANCg0KhKqEqoSqhKqEqoSq
+hKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSq
+hKqEqg0KgXmQbI3IgXqBmoGaiq6RU5azl7+QbI3IlPyBmoGajLWRSYOEg4yDi5BWjciDVIND
+g2eBpYGlgaWBeZFfgqKW2oF6DQqBUIFQgVCBUIFQgVCBUIFQgVCBUIFQgVCBUIFQgVCBUIFQ
+gVCBUIFQgVCBUIFQgVCBUIFQgVCBUIFQgVCBUIFQgVCBUIFQDQqBoZKNgaGEqoSqhKqDdoOJ
+g0ODb4NWgVuCyYKxgr6C7YLoiq6RU5O9lryCyYK1gr2C55BsjciTb5hel6aCqoSqhKqEqg0K
+gaGW2oGhgUCBQIFAi7qI0ILMkEyC0ZemgUEzMJHjgUE0MJHjgUEyMJHjgqqCzI+HgsWNoYjq
+lNSUTYKiISENCoGhISGBoSCBqIGoICCBQIFAaHR0cDovL2F2b3cucGFpb3BhaS5jb20vYTE0
+Lw0KhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqE
+qoSqhKqEqoSqhKqEqoSqhKqEqg0KDQqBQIFAhJ+En4SfhJ+En4SfhJ+En4SfhJ+En4SfhJ+E
+n4SfhJ+En4SfhJ+En4SfhJ+En4SfhJ+En4SfhJ+BmQ0KgUCBQJBsjciCzJJVk9+CyZHOgreC
+6ZVzlp6DeINYg2eCUiEhgWmNVZeqgsmW8JengsSCxIm6grOCooFqDQqBQIFAgUCBQIFAgUCB
+QIFAgZqBQE5vMYFAgUCBQIFAgUCBQIFAgnKCZIJ3gqqDfYOTg2yDig0KgUCBQIFAgUCBQIFA
+gUCBQIGagUBObzKBQIFAgUCBQIFAgUCBQI6EgvCPl4LGgrWCxIypgsSCrYLqgsiCog0KgUCB
+QIFAgUCBQIFAgUCBQIGagUBObzOBQIFAgUCBQIFAgUCBQI6plaqC8IKpgtyCwYLEgq2C6oLI
+gqINCoFAgUCEn4SfhJ+En4SfhJ+En4SfhJ+En4SfhJ+En4SfhJ+En4SfhJ+En4SfhJ+En4Sf
+hJ+En4SfhJ+En4GZDQqBQIFAgUCBQINBg5ODUIFbg2eCzIyLicqK+Y2lj5eQq5NvmF6CzJPg
+glWKhIjIj+OCzJJVk9+Cs4LxDQqBQIFAgUCBQILNjp6K1JNJgsmVc4tLkaWQRYvGgsyC5oKk
+gsWCt4LMgsWDgYFbg4uCzINeg0ODfoOTg08NCoFAgUCBQIFAie+CpoLpjp6K1JHRgsiCx4LN
+lsiWp4LJlbeCq49vgrWCxIKogq2CxoNYg4CBW4NZgskNCoFAgUCBQIFAg0GDfIKqjuaC6oLp
+gsWCtYLlgqSBQYnvgsGCvYzjgs2U3o+XkkKCzJVzlp6C8Inwj8ENCoFAgUCBQIFAgreC6YK+
+gq+CxYK3gUENCoFAICAgICAgIIFAgUCBQIFAaHR0cDovL3dpbGUucGFpb3BhaS5jb20vYTE0
+Lw0KgUCBQA0KDQqBQISqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqEqoSqhKqE
+qoSqhKqEqoSqhKqEqoSqhKqEqoSqgZwNCoFAgZ+BQIFAjcWQVoLMj5GCq42egt2C8I/tgsmD
+YINGg2KDToK1gsSUTYKij5eQq4LJgs2RpoOBgVuDiw0KgUCBn4FAgUCPkYKrjZ6C3ZPgl2WC
+xZZ7ibmC8JPHgt2J8IKrjuWTsYyggvCO5oLqgs6CoILGgs2OdoKigsyC3ILcDQqBQIGfgUCB
+QJedkXqCxoy7jsCCzI23gsmDWINng4yDWILwirSCtoLEgqKC6ZBsjciCqoKpgsiC6JFfgqKW
+2oFJgUkNCg0KhJ+En4SfhJ+En4SfhJ+En4SfhJ+En4FcgVyBXISfhJ+En4SfhJ+En4SfhJ+E
+n4SfhJ+En4SfhJ+En4SfhJ+En4SfhJ+Enw0KgZ+Bn4F8gXyBfIF8kGyNyILJkeWQbItDgUmC
+t4KugsmJ74Kmgr+C4YKkgruCzJTpjI2CzYFIgXyBfIF8gXyBn4GfDQqBQIFAgUCBQIFAgUCB
+QIFAgUCBQIFAgUCBQIFAgUCBQIFAgUCBQIFAgUCBQIFAgUCBQIFAgUCBQIFAgUCBQIFAgUAN
+CoFAgUCBQIF5gm+CYoOBgVuDi4F6kk6CyYLgkm2C54LqgriCyY5ngqaC3IK3gUkNCoFAgUCB
+QIqukVOWs5e/gsWLQ4x5gsmXmJdwj2+XiILcgreBSYK7gsyOZ4KiguKCt4KzgqqBQZBsjciB
+QQ0KgUCBQIFAgm6Ca4FBgsmR5Y1ElV2BSYNpg0ODVoOHgsWPb4nvgqaC6YKpgueBQYnfjIOC
+yI9vie+CooLggUWBRYFFDQqBQIFAIIFAgUCBQIFAgUBodHRwOi8vZGVhdGhiZWQucGFpb3Bh
+aS5jb20vYTE0Lw0KDQqBQIFAgUCBeYKigsKCxYLggUGCx4KxgsWC4IFCgXqDcINcg1KDk4GV
+jGeR0ZNkmGKRzomeDQqBQIFAgUCOZI6WgUGJxo6WkoaCzI2HitSCyYLNjGeR0YLFi3iT+oFB
+g0GDdINegVuCzY6pke6CxVBDgsYNCoFAgUCBQI/tgsmNxZBWj+6V8YLwg2CDRoNig06Pb5eI
+gumCqYLng2CDg4OTg1iC8Iypk6aCt46WgqqWs4KiDQqBQIFAgUCBQIFAgUCBQGh0dHA6Ly90
+cmF2ZXN0eS5wYWlvcGFpLmNvbS9hMTQvDQoNCoFAgUCBQIF5km6I5pankoWBeoKyi9+PioOG
+gVuDVYFbjJ+N9YtAlFwNCoFAgUCBQI6plaqCzI9agvGCxYKigumSbojmgsyMn431gs2C4IK/
+guuC8YFBjUSC3YLJjYeC7YK5gr2C7YKqgtyC3A0KgUCBQIFAjJ+N9YKqicKUXIK+gqmC54FB
+l52ReoLMkYqO6ILwgreCzoLigq2MqYLCgq+Pb4K5gtyCt4FCDQqBQCAgICAgICCBQIFAIGh0
+dHA6Ly93YXJlaG91c2UucGFpb3BhaS5jb20vYTE0Lw0KDQqBn4GfgXyBfIF8gXyBfIF8gXyB
+fIF8gXyBfIF8gXyBfIF8gXyBfIF8gXyBfIF8gXyBfIF8gXyBfIF8gXyBfIF8gXyBn4GfDQoN
+CoFAj5eQq4LJkryQ2oOBgVuDi4KqkZeC6oLcgreBQiiBpoqukVOWs5e/gaYpDQoNCoF1g2qD
+YoNOg2yBW4OAgXaO0ZbtgUCCU4JRjc4NCoFtg16DQ4Nng4uBbpTplqeCzJf2iKSC8JJUgrWC
+xILcgreBQg0KgXWWe5W2gXaWopZTkGyCxoy+gu2C6oLEgUGC4IKkglWUToFCgUKBQg0KjcWP
+iYLMglGUTorUgs2BQY6AgsmVqIu2gqKCxZC2gquCxIKrgtyCtYK9gUINCo3Fi9+CyYLIgsGC
+xIFBlXaCqpZTgq2CyILBgsSOboLfgsSVdoLMiKSCyZXvgtyC6oLEgqKCvYKxgsaCyYtDgsOC
+q4FBDQqCsYLqgqmC54LHgqSV6YLngrWCxIKigq+CzoKigqKCzIKpgUiCu4LxgsiCsYLGgs6C
+qYLogvCNbIKmgsSCooLcgreBQg0KgruCtYLEiOqQbILFgs2TmoKmgvCMqYLCgq+C54LqgriC
+yYKigr2I14LJk2+YXoK1gtyCtYK9gUINCoLNgraC34LcgrWCxI7Rlu2CxoKigqKC3IK3gUIN
+CoFAgUCBQIFAgUCBQIFADQqBQIFAgUCBQIFAgUCBQIGrgXmO0ZbtgrOC8YLWg4GBW4OLkZeQ
+TYF6gasNCoFAgUAgICAgICAgaHR0cDovL2NvZmZlci5wYWlvcGFpLmNvbS9hMTQvDQoNCoFt
+g2qDYoNOg2yBW4OAgW6CoIKrgUCCUYJXjc4NCoFtg16DQ4Nng4uBboikkGyCs4LxgsmCyILB
+gsQNCoFtlnuVtoFuie+CwYLEjsCN24LJg1qDYoNOg1iCqoK1gr2CooLFgreBQg0KklWT34LM
+iKSP7oLJgqmCyILoi1GCpoLEgtyCt4FjDQqCsYLMg32Dk4Nsg4qJu4LwgseCpIK1gsSC4JXP
+gqaCvYKigvGCxYK3gUINCoFAgUCBQIFAgUCBQIFADQqBQIFAgUCBQIFAgUCBQIGrgXmCoIKr
+grOC8YLWg4GBW4OLkZeQTYF6gasNCoFAgUCBQCAgICBodHRwOi8vZ2lhbnRlc3MucGFpb3Bh
+aS5jb20vYTE0Lw0KDQoNCg0KDQo=g
+
+----322259919565759--
+
+
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=9412&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=9412&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000816.html">[fetchmail-devel] Contents of file `fetchmail-6.3.6-rc1.pl.po'
+</A></li>
+	<LI>Next message: <A HREF="000818.html">[fetchmail-devel] New Russian PO file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#817">[ date ]</a>
+              <a href="thread.html#817">[ thread ]</a>
+              <a href="subject.html#817">[ subject ]</a>
+              <a href="author.html#817">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

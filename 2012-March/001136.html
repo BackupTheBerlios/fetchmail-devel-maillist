@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> No subject
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2012-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20No%20subject&In-Reply-To=%3Cmailman.3.1331728682.32742.fetchmail-devel%40lists.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001546.html">
+   <LINK REL="Next"  HREF="000823.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>No subject</H1>
+    <B></B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20No%20subject&In-Reply-To=%3Cmailman.3.1331728682.32742.fetchmail-devel%40lists.berlios.de%3E"
+       TITLE="No subject">
+       </A><BR>
+    <I>Wed Mar 14 13:37:50 CET 2012</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001546.html">[fetchmail-devel] [patch][RFC] proper kill management of the	MDA	process
+</A></li>
+        <LI>Next message: <A HREF="000823.html">No subject
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1136">[ date ]</a>
+              <a href="thread.html#1136">[ thread ]</a>
+              <a href="subject.html#1136">[ subject ]</a>
+              <a href="author.html#1136">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>struct uidlist
+{
+    union
+    {
+       unsigned char *id;
+       long int nid;                   /* IMAP ids are integers! */
+    };
+    int                num;
+    int                mark;           /* UID-index information */
+#define UID_UNSEEN     0               /* hasn't been seen */
+#define UID_SEEN       1               /* seen, but not deleted */
+#define UID_DELETED    2               /* this message has been deleted */
+#define UID_EXPUNGED   3               /* this message has been expunged */
+#define UID_OVERSIZED  4               /* this message is oversized */
+#define UID_SKIPPED    5               /* this message has been skipped */
+#define UID_OLD_DELETED        6       /* this message was deleted but not expunged! */
+#define UID_ERROR      99              /* processing error */
+    time_t     dltime;                 /* time of delivery */
+    int                errcount;       /* count of errors while downloading this mail */
+    int                size;           /* size of the mail */
+    struct uidlist *next;
+};
+
+&gt;<i> I'm considering a general solution that doesn't require such an analysis,  
+</I>&gt;<i> but solves all of the issues at the same time.
+</I>&gt;<i> 
+</I>&gt;<i> WRT tracking the DELE/QUIT races in POP3, I am wondering about the  
+</I>&gt;<i> handling of the QUIT. Can we see a difference between &quot;server hasn't  
+</I>&gt;<i> received QUIT&quot; and &quot;we haven't seen the answer&quot;? In other words, will the  
+</I>&gt;<i> server's TCP stack hand the QUIT command to the server application  
+</I>&gt;<i> software even if TCP couldn't send the ACK? I think it will, because the  
+</I>&gt;<i> ACK itself needn't be ACKed and the server often won't care if we don't  
+</I>&gt;<i> see the +OK after QUIT...
+</I>&gt;<i> 
+</I>&gt;<i> The other option is top track UIDs with &quot;to be deleted&quot; and &quot;deleted, QUIT  
+</I>&gt;<i> +OK pending&quot; and &quot;deleted, QUIT acknowledged&quot;:
+</I>&gt;<i> 
+</I>&gt;<i> - &quot;QUIT acknowledged&quot; is easy, we don't save that state per UID, but just  
+</I>&gt;<i> drop the corresponding UID as the server will do the same.
+</I>&gt;<i> 
+</I>&gt;<i> - &quot;to be deleted&quot; means we're positively sure that the transaction was  
+</I>&gt;<i> rolled back (because we haven't sent the QUIT command) - we need a  
+</I>&gt;<i> workaround server option though, because some servers can be configured to  
+</I>&gt;<i> spoil the protocol dangerously and commit DELEtes on loss of connection  
+</I>&gt;<i> unless there's a RSET. We can assume the server won't reassign the UID  
+</I>&gt;<i> until the next cycle (*)
+</I>&gt;<i> 
+</I>&gt;<i> - &quot;deleted, QUIT +OK pending&quot; is for your borderline case, we've sent the  
+</I>&gt;<i> QUIT to the TCP/IP stack but haven't seen the +OK response. If we see more  
+</I>&gt;<i> than half of the UIDs marked QUIT +OK pending in the next cycle, we'll  
+</I>&gt;<i> mark them &quot;to be deleted&quot;, if it's less than half, we'll forget them and  
+</I>&gt;<i> re-fetch. The other option is to hash a subset of whitespace-normalized  
+</I>&gt;<i> message headers (Received, Message-ID, perhaps others, making sure to  
+</I>&gt;<i> avoid X-Status or other mutable headers) to accompany the UID. We could  
+</I>&gt;<i> hash headers as they pass by in forwarding and only re-fetch them in your  
+</I>&gt;<i> &quot;we send QUIT but don't see +OK&quot; case if we don't trust the UID. I wonder  
+</I>&gt;<i> if we should do that.
+</I>
+Well, the 'UID_OLD_DELETED' mark mentioned above was meant to address these
+cases.
+
+&gt;<i> WRT getting stuck on one message, we could record message UIDs and mark  
+</I>&gt;<i> them as &quot;fetch attempted before&quot;, perhaps with a counter. We'd set this  
+</I>&gt;<i> state if we ever send a TOP or RETR for a new message and keep this state  
+</I>&gt;<i> for the next poll cycle. This would be less than &quot;seen&quot;. On the next poll  
+</I>&gt;<i> cycle, we'll fetch new messages before those marked &quot;fetch attempted  
+</I>&gt;<i> before&quot;. This would allow new mail to be fetched even if we get stuck on  
+</I>&gt;<i> particular messages through server, fetchmail, or MTA/MDA bugs. If we add  
+</I>&gt;<i> a counter, we can mark a message &quot;broken&quot; if the counter exceeds a  
+</I>&gt;<i> threshold and give up on it without deleting it, and request manual  
+</I>&gt;<i> intervention from the postmaster (in multidrop) or addressee (in  
+</I>&gt;<i> singledrop).
+</I>
+The 'errcount' field mentioned above was meant for this purpose.
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001546.html">[fetchmail-devel] [patch][RFC] proper kill management of the	MDA	process
+</A></li>
+	<LI>Next message: <A HREF="000823.html">No subject
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1136">[ date ]</a>
+              <a href="thread.html#1136">[ thread ]</a>
+              <a href="subject.html#1136">[ subject ]</a>
+              <a href="author.html#1136">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

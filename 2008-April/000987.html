@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Add MAPI support to fetchmail
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2008-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20MAPI%20support%20to%20fetchmail&In-Reply-To=%3Cm3k5iv61p5.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000986.html">
+   <LINK REL="Next"  HREF="000993.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Add MAPI support to fetchmail</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20MAPI%20support%20to%20fetchmail&In-Reply-To=%3Cm3k5iv61p5.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Add MAPI support to fetchmail">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Apr 18 09:51:02 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000986.html">[fetchmail-devel] Add MAPI support to fetchmail
+</A></li>
+        <LI>Next message: <A HREF="000993.html">[fetchmail-devel] Add MAPI support to fetchmail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#987">[ date ]</a>
+              <a href="thread.html#987">[ thread ]</a>
+              <a href="subject.html#987">[ subject ]</a>
+              <a href="author.html#987">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&quot;Yangyan Li&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">yangyan.li1986 at gmail.com</A>&gt; writes:
+
+&gt;<i> Hi Matthias,
+</I>&gt;<i>  
+</I>&gt;<i> <A HREF="http://lwn.net/Articles/192409/">http://lwn.net/Articles/192409/</A> tells us why it's useful for FLOSS to
+</I>&gt;<i> talk with MAPI, and OpenChange are working on two different aspects:
+</I>&gt;<i> provide interoperability with Exchange protocols and provide a
+</I>&gt;<i> transparent replacement to Microsoft Exchange Server with native
+</I>&gt;<i> Exchange protocols support and direct communication with Microsoft
+</I>&gt;<i> Outlook.
+</I>&gt;<i>  
+</I>&gt;<i> Fetchmail will be able to pull mail from Exchange, as well as push
+</I>&gt;<i> mail to Exhange, if MAPI support is added. It seems that there are few
+</I>&gt;<i> software under linux platform which support MAPI. One I know is
+</I>&gt;<i> Evolution, which provides MAPI support with a plugin developed by
+</I>&gt;<i> OpenChange. So it will be useful to add MAPI support to Fetchmail.
+</I>&gt;<i>  
+</I>&gt;<i> It's not decided whether I am the chosen one of this GSoC project, and
+</I>&gt;<i> this will be decided before April 21, 2008. However, I'd like to
+</I>&gt;<i> contribute to this project even if I'm not the chosen one.
+</I>
+Yangyan, back to technical issues, I think there are two places that
+need to be changed.
+
+For pulling mail, a new protocol (&quot;MAPI&quot; or &quot;MSMAPI&quot;) would have to be
+added, fetchmail's internal interface has a sort-of poor man's
+object-oriented interface in C as there's a struct containing a set of
+function pointers (look for struct method, for instance at the end of
+imap.c).
+
+For pushing mail over MAPI, sink.c would have to be amended to, and I'm
+not so happy with the current shape of sink.c since it uses lots of
+&quot;if&quot;s and indirections to determine if it's supposed to talk SMTP
+(default), LMTP, or to an MDA.
+
+I would very much like to see sink.c sort of &quot;disentangled&quot; first. There
+is a reason why it is the way it's now, because it used to support (and
+technically still does) &quot;fallback&quot;, i. e. if the SMTP server goes down,
+retry through an MDA, however I convinced Eric to switch this off by
+default long ago, and before I slipped into becoming the de-facto
+fetchmail maintainer. If we lose this &quot;fallback&quot; functionality along the
+way of cleaning up sink.c, I don't mind.
+
+Relevant parts to look at are said sink.c, driver.c, transact.c, and
+possibly a few of the fetching protocols (imap.c, pop3.c), and a second
+thought needs to be spent on the issue on who (server vs. computer
+running fetchmail) will track what messages have been downloaded
+yet. For POP3, both modes are possible (LAST vs. UIDL), but I do
+recommend UIDL. IMAP does not yet support fetchmail-side tracking
+(UID/UIDVALIDITY); while there's a patch on the BerliOS patch tracker,
+it does not comprise UIDVALIDITY, so I haven't merged it yet.
+
+Be sure to check todo.html and TODO.txt (these are not identical!) so
+you know which context you're working in and what my short- and
+long-term ideas are (I would not call them &quot;plans&quot; yet).
+
+Feel free to ask further questions or describe how you'd like to
+contribute. I think we can then branch fetchmail and negotiate
+Subversion (SVN) access for you with Graham.
+
+The final issue I'd like to raise for this mail is that of licensing,
+any third-party libraries should be GPLv2-compatible and
+GPLv3-compatible and also AGPL-(Affero GPL) compatible so that I can
+keep your parts should I rewrite major other parts of fetchmail and
+maybe put them under the AGPL later on.
+
+Hope that helps as an early starting point.
+
+Best regards,
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000986.html">[fetchmail-devel] Add MAPI support to fetchmail
+</A></li>
+	<LI>Next message: <A HREF="000993.html">[fetchmail-devel] Add MAPI support to fetchmail
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#987">[ date ]</a>
+              <a href="thread.html#987">[ thread ]</a>
+              <a href="subject.html#987">[ subject ]</a>
+              <a href="author.html#987">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

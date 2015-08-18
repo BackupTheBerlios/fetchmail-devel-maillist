@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: deleting oversized messages
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3Cm3irxnn8wg.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000435.html">
+   <LINK REL="Next"  HREF="000437.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: deleting oversized messages</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20deleting%20oversized%20messages&In-Reply-To=%3Cm3irxnn8wg.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: deleting oversized messages">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Aug 30 10:09:19 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000435.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+        <LI>Next message: <A HREF="000437.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#436">[ date ]</a>
+              <a href="thread.html#436">[ thread ]</a>
+              <a href="subject.html#436">[ subject ]</a>
+              <a href="author.html#436">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;&gt;<i> No need, I found a similar report (IIRC in bugs.debian.org) and
+</I>&gt;&gt;<i> investigated. The upcoming fetchmail release and IIRC the latest -pre
+</I>&gt;&gt;<i> release from BerliOS.de also will delete oversized messages if NOT run
+</I>&gt;&gt;<i> in daemon mode - be sure to use the --flush option.
+</I>&gt;<i>
+</I>&gt;<i> The 'flush' option is very dangerous as it can even delete mails which
+</I>&gt;<i> have been read by another email client. In particular, if one has the
+</I>&gt;<i> habit of checking a remote mailbox through an interactive email
+</I>&gt;<i> client, new mails can get marked as read. Then, when fetchmail polls
+</I>&gt;<i> that mailbox, it will think that those mails have already been
+</I>&gt;<i> downloaded and just delete those mails due to the 'flush' option.
+</I>
+Nice to see you back, and to see you've found the new site.
+
+&gt;<i> Here, I am assuming a setup like:
+</I>&gt;<i>
+</I>&gt;<i> poll server
+</I>&gt;<i>     protocol imap	# or &quot;pop3 no uidl&quot;
+</I>&gt;<i>     fetchall
+</I>&gt;<i>     limit 1000000
+</I>&gt;<i>     flush		# this has been put to delete oversized only
+</I>&gt;<i>
+</I>&gt;<i> Without the 'flush' option, mails which are read through another email
+</I>&gt;<i> client also get downloaded without problems. With the 'flush' option,
+</I>&gt;<i> such apparently read mails get deleted.
+</I>
+Yup. There's also a difference between &quot;flush&quot; and &quot;nokeep&quot;. I believe
+if it's not deliberate, then it's at least useful enough to warrant
+further documentation.
+
+&gt;<i> I had created a patch which adds another option to fetchmail. The old
+</I>&gt;<i> patch (against 6.2.4) along with some discussion can be found at:
+</I>&gt;<i>
+</I>&gt;<i> &lt;<A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2003-October/008017.html">http://lists.ccil.org/pipermail/fetchmail-friends/2003-October/008017.html</A>&gt;.
+</I>&gt;<i>
+</I>&gt;<i> Eric was against adding new options, hence that patch was not accepted
+</I>&gt;<i> then. If the idea of the above patch is acceptable, I can recreate it
+</I>&gt;<i> for the latest fetchmail. In any case, it would be better if the
+</I>&gt;<i> 'flush' option is not overloaded to delete oversized mails.
+</I>
+Well, I have some plans for fetchmail, and I believe your option (as
+well as others) might fit in the medium term - not on short notice
+though.
+
+WRT release management, I hope to release 6.3.0 in early September, only
+trouble is I have zero feedback on the *RC stuff yet. Does it work for
+people? Does it fail? Do the recent IPv6 patches break anything?
+
+Anyways, with 6.3.0 out, I will open a 6.3.X side branch for bugfixes
+only, and continue development in the trunk.
+
+The most important change will be to switch fetchmail to client-side
+tracking which mail it has seen. POP3 LAST and IMAP \Seen flags will be
+removed and we'll no longer care about them. If fetchmail understands
+itself as mail transfer agent, this translates to &quot;transport each message
+exactly once, and do it reliably&quot;. OK, we may sometimes transfer a
+message twice, but we must not skip or lose any message unless the user
+explicitly tells us to discard it.
+
+Perhaps this change already involves some database for the UIDs (perhaps
+SQLite3), and I plan to reuse your &quot;one fetchids per server&quot; patches at
+least in part, that you wrote two years ago.
+
+This would enable us to add a &quot;delete after N days&quot; sort of thing later
+that users have been longing for for so long. A sponsor is needed for
+this work however. (ESR's fetchmail version already deletes mail and has
+limited client-side tracking support (&quot;POP3 UIDL&quot;), so there is no
+reason why it would not delete mail after some days or as the mailbox
+grows too large.)
+
+Taking a step back from the blackboard, we may need to go less from
+offering fixed options with a small functionality, but offer fewer but
+more flexible options. Read: interfaces where users can hook up
+scripts/programs that decide which messages get deleted, perhaps in
+which order messages are fetched, and such. This is a long-term plan
+though.
+
+Some details at &lt;<A HREF="http://fetchmail.berlios.de/design-notes.html">http://fetchmail.berlios.de/design-notes.html</A>&gt;.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000435.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+	<LI>Next message: <A HREF="000437.html">[fetchmail-devel] Re: deleting oversized messages
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#436">[ date ]</a>
+              <a href="thread.html#436">[ thread ]</a>
+              <a href="subject.html#436">[ subject ]</a>
+              <a href="author.html#436">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

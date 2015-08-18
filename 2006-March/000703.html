@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Incorrect header line and lost mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3Cemma1wx1s8z6.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000702.html">
+   <LINK REL="Next"  HREF="000704.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Incorrect header line and lost mails</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3Cemma1wx1s8z6.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: Incorrect header line and lost mails">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Mar 17 10:42:37 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000702.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000704.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#703">[ date ]</a>
+              <a href="thread.html#703">[ thread ]</a>
+              <a href="subject.html#703">[ subject ]</a>
+              <a href="author.html#703">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+
+&gt;<i> Apart from the issue of fixing, what is missing is documentation on
+</I>&gt;<i> this. There is no place where it is written what configuration should
+</I>&gt;<i> a user use to derive the best mileage from fetchmail. Maybe, some FAQ
+</I>&gt;<i> entry like:
+</I>
+Looks good.
+
+&gt;<i> =========================================================================
+</I>&gt;<i> C#. What protocol should I choose with my mailserver? My mailserver
+</I>&gt;<i> supports both IMAP and POP3.
+</I>&gt;<i>
+</I>&gt;<i> fetchmail, by default, uses first IMAP and then POP3 (protocol auto).
+</I>
+Should we deprecate this &quot;protocol&quot; in fetchmail proper so we can
+remove it in 6.4.0?  I have a strong itch to do just that.
+
+Somebody got any objections?
+
+fetchmailconf could still probe for protocols (but needs to be told
+about SSL) -- and actually, someone should overhaul it (and rework the
+ergonomic properties. The current layout of the Tk interface is pretty
+unergonomic and in some places astonishing for the user.)
+
+&gt;<i> This doesn't work when you are keeping mails on the mailserver or when
+</I>&gt;<i> there are errors (like socket errors or deliver errors) after a few
+</I>&gt;<i> mails have been downloaded.
+</I>&gt;<i>
+</I>&gt;<i> So, as a first step, you should necessarily choose between IMAP and
+</I>&gt;<i> POP3.
+</I>&gt;<i>
+</I>&gt;<i> - If your mailserver is delivering to multiple folders, choose IMAP.
+</I>&gt;<i>   
+</I>&gt;<i> - If you want to download all mails and not leave a copy on the
+</I>&gt;<i> server, choose IMAP.
+</I>
+In --all --nokeep setups, POP3 is usually simpler - any particular
+reason why you suggest IMAP here?
+
+&gt;<i> - If you intend to keep mails on the server, check if your server
+</I>&gt;<i>   supports UIDL. If it does, choose POP3 and enable the &quot;uidl&quot; option.
+</I>&gt;<i>   With POP3 and UIDL, it is even possible to access the mailbox
+</I>&gt;<i>   through multiple e-mail clients without affecting fetchmail.
+</I>&gt;<i>
+</I>&gt;<i> - If you intend to keep mails on the server, but your server does not
+</I>&gt;<i>   support UIDL, choose IMAP. However, you should not access the
+</I>
+Make that &quot;MUST NOT&quot; access...
+
+&gt;<i>   mailbox through other e-mail clients as fetchmail will not be
+</I>&gt;<i>   able to download all new mails.
+</I>&gt;<i>
+</I>&gt;<i> - If you are having a slow connection to the mailserver and/or expect
+</I>&gt;<i>   frequent socket errors from the mailserver, choose IMAP and do not
+</I>&gt;<i>   leave a copy on the mailserver.
+</I>
+This, too, is something POP3+UIDL should handle.
+
+&gt;&gt;<i> My basic idea is: say we have u UIDLs stored, and the server has m
+</I>&gt;&gt;<i> messages. Then, send &quot;UIDL&quot; u+1 &quot;UIDL&quot; u+2 ... &quot;UIDL&quot; m pipelined
+</I>&gt;&gt;<i> (non-blocking) (or, on future RANGE capable POP3 servers, &quot;UIDL&quot; u+1 &quot;-&quot;
+</I>&gt;&gt;<i> m), and if ANY seen message is in that range, do slow UIDL. No binary
+</I>&gt;&gt;<i> search with many round trips. Of course, this needs to track deletions
+</I>&gt;&gt;<i> properly and if another client client deletes messages, needs to back
+</I>&gt;&gt;<i> down and fetch the whole list. Perhaps sanity checking the last known
+</I>&gt;&gt;<i> UIDL helps detecting third-party deletions on the assumption that the
+</I>&gt;&gt;<i> likelyhood of the server recycling a UID is low.
+</I>&gt;<i>
+</I>&gt;<i> This might not work with &quot;no keep&quot; when fetchmail is not sure if the
+</I>&gt;<i> mails marked by fetchmail for deletion have actually been expunged or
+</I>&gt;<i> not.
+</I>
+But fetchmail knows if it has seen &quot;+OK&quot; or rather EPIPE in response to
+a QUIT command, and in no other case than having successfully sent
+&quot;QUIT&quot; can it assume the messages have been expunged.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000702.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000704.html">[fetchmail-devel] Re: Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#703">[ date ]</a>
+              <a href="thread.html#703">[ thread ]</a>
+              <a href="subject.html#703">[ subject ]</a>
+              <a href="author.html#703">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

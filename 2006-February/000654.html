@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail-users%5D%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3Cm3hd6zw82v.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000651.html">
+   <LINK REL="Next"  HREF="000656.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20%5Bfetchmail-users%5D%20Incorrect%20header%20line%20and%20lost%20mails&In-Reply-To=%3Cm3hd6zw82v.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails">matthias.andree at gmx.de
+       </A><BR>
+    <I>Thu Feb 16 18:02:16 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000651.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+        <LI>Next message: <A HREF="000656.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#654">[ date ]</a>
+              <a href="thread.html#654">[ thread ]</a>
+              <a href="subject.html#654">[ subject ]</a>
+              <a href="author.html#654">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Frederic Marchal &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">frederic.marchal at wowcompany.com</A>&gt; writes:
+
+&gt;<i> I expect this mail will be wrapped so here is the explanation. The
+</I>&gt;<i> References header is one long line and is wrapped at some point after
+</I>&gt;<i> the &lt;43ea8d070602140508w6af9d34aq5c which leaves the
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">222caec13d56c9 at mail.gmail.com</A>&gt; all by itself on a line. You have
+</I>&gt;<i> received that e-mail and can compare it to your copy
+</I>&gt;<i>
+</I>&gt;<i> On my side, the References line is truncated at column 263. rfc821
+</I>&gt;<i> specifies a maximum line length of 1000 characters but an implementation
+</I>&gt;<i> should be prepared for longer lines or reject the mail. It is not what
+</I>&gt;<i> is happening here.
+</I>&gt;<i>
+</I>&gt;<i> The culprit may be Mercury/32 or the Wingate proxy which is not listed
+</I>&gt;<i> in the header.
+</I>
+Is there any chance we might isolate the bug before we fix it? 
+
+Even if that isn't of immediate help for you, documenting this properly
+might help other people solve their problem, and we may be able to write
+a workaround in the least intrusive way.
+
+&gt;<i> Anyway, I can't change any of them and nothing prevent the mail from
+</I>&gt;<i> being delivered. Moreover I can read it in thunderbird without any
+</I>&gt;<i> warning or inconvenience.
+</I>
+I think given the vast number of varieties how messages can be broken,
+and one workaround might break another, the best bet is probably to wrap
+the message up as a MIME message/rfc822 attachment that contains a short
+introductory text that tells the end user the message contained broken
+headers.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000651.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+	<LI>Next message: <A HREF="000656.html">[fetchmail-devel] Re: [fetchmail-users] Incorrect header line and lost mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#654">[ date ]</a>
+              <a href="thread.html#654">[ thread ]</a>
+              <a href="subject.html#654">[ subject ]</a>
+              <a href="author.html#654">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

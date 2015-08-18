@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] mapi again
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20mapi%20again&In-Reply-To=%3C20090827125213.GA22595%40fedora7.2kgames.t2.corp%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001166.html">
+   <LINK REL="Next"  HREF="001168.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] mapi again</H1>
+    <B>mojmir svoboda</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20mapi%20again&In-Reply-To=%3C20090827125213.GA22595%40fedora7.2kgames.t2.corp%3E"
+       TITLE="[fetchmail-devel] mapi again">mojmir.svoboda at 2kczech.com
+       </A><BR>
+    <I>Thu Aug 27 14:52:13 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001166.html">[fetchmail-devel] [Bug #16134] Incorrect library check in configure
+</A></li>
+        <LI>Next message: <A HREF="001168.html">[fetchmail-devel] mapi again
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1167">[ date ]</a>
+              <a href="thread.html#1167">[ thread ]</a>
+              <a href="subject.html#1167">[ subject ]</a>
+              <a href="author.html#1167">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>hello again,
+i have few things on my mind:
+
+1. portability of fetchmail
+- what all platforms do you support/want to support?
+	(i've seen some linuxes, bsds, are there more?)
+- same about compilers?
+	(gcc.. what about the bunch of others?)
+- are there any restrictions about C language used in fetchmail?
+	(variadic macros for example etc)
+- any crucial advice concerning fetchmail development?
+
+2. mapi
+i have found the problem with the overwrite of address, but
+have no fix yet. the problem occurs when value of tag
+PR_SENT_REPRESENTING_NAME does not contain FQDN (fully qualified
+domain name... is that the name?), because it gets scrambled
+by the reply_hack function from transact.c
+
+this can be fixed by using PR_SENDER_EMAIL_ADDRESS, but it's
+not perfect, since it contains weird stuff like 
+
+	From: /O=TAKE-TWOINTERACTIVE/OU=2KGB/CN=RECIPIENTS/CN=<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">AAA.BBB at 2kgbrn.2kgames.t2.corp</A>
+
+so ideally the solution would be like:
+  if (PR_SENT_REPRESENTING_NAME is in form <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">foo at FQDN</A>)
+	  use PR_SENT_REPRESENTING_NAME
+  else
+	  use PR_SENDER_EMAIL_ADDRESS;
+
+perhaps there's some flag in the mapi protocol but i can only
+guess... so:
+
+3. documentation for mapi...
+...would be great. do you have any, please?
+
+4. mapi todo
+- the problem above
+- AND the same problem applying to To: and Cc: fields
+- threading of messages does not work
+- valgrind reporting some memory stuff (reads beyond etc)
+- fetching messages is quite slow
+- when &gt; 1000 messages, fetchmail says it cannot open MDA
+  with some IO error. it fails in sink.c:open_mda_sink after
+  the popen.
+	  report(stderr, GT_(&quot;MDA open failed\n&quot;));
+  perhaps some descriptor leak? do you have any ideas, please?
+- flushing messages is also quite slow
+- messages like:
+	- xxx:54 was not the expected length (1032 actual != 4863 expected)
+
+
+kind regards,
+mojmir
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001166.html">[fetchmail-devel] [Bug #16134] Incorrect library check in configure
+</A></li>
+	<LI>Next message: <A HREF="001168.html">[fetchmail-devel] mapi again
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1167">[ date ]</a>
+              <a href="thread.html#1167">[ thread ]</a>
+              <a href="subject.html#1167">[ subject ]</a>
+              <a href="author.html#1167">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH-3%5D%20Re%3A%20fetchmail%20IMAP%20bug%20-%20causes%0A%20some%20mails%20to%20not%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3Cop.u6wt0ts51e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001217.html">
+   <LINK REL="Next"  HREF="001219.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH-3%5D%20Re%3A%20fetchmail%20IMAP%20bug%20-%20causes%0A%20some%20mails%20to%20not%20be%20delivered%20when%20using%20IDLE&In-Reply-To=%3Cop.u6wt0ts51e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Jan 22 02:20:43 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001217.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+        <LI>Next message: <A HREF="001219.html">[fetchmail-devel] imap search improvements
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1218">[ date ]</a>
+              <a href="thread.html#1218">[ thread ]</a>
+              <a href="subject.html#1218">[ subject ]</a>
+              <a href="author.html#1218">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Dear Sunil, dear readers,
+
+Am 18.01.2010, 09:32 Uhr, schrieb Sunil Shetye  
+&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt;:
+
+&gt;<i> Quoting from Matthias Andree's mail on Thu, Jan 14, 2010:
+</I>&gt;&gt;<i> Perhaps a separate imap_untagged_parse() function would be more  
+</I>&gt;&gt;<i> suitable here,
+</I>&gt;&gt;<i> and possibly called from inside imap_ok()? See below.
+</I>&gt;<i>
+</I>&gt;<i> Ok, I have made a separate imap_untagged_response() to parse the
+</I>&gt;<i> untagged response. Other key changes:
+</I>&gt;<i>
+</I>&gt;<i> - use  stage == STAGE_GETAUTH &amp;&amp; !strncmp(buf, &quot;* CAPABILITY&quot;, 12)
+</I>&gt;<i>   - instead of  strstr(buf, &quot; CAPABILITY&quot;)
+</I>&gt;<i>
+</I>&gt;<i> - use  stage == STAGE_GETAUTH &amp;&amp; !strncmp(buf, &quot;* PREAUTH&quot;, 9)
+</I>&gt;<i>   - instead of  strstr(buf, &quot; PREAUTH&quot;)
+</I>&gt;<i>
+</I>&gt;<i> - use  stage == STAGE_GETRANGE &amp;&amp; !check_only &amp;&amp; strstr(buf,  
+</I>&gt;<i> &quot;[READ-ONLY]&quot;)
+</I>&gt;<i>   - instead of  !check_only &amp;&amp; strstr(buf, &quot;[READ-ONLY]&quot;)
+</I>&gt;<i>
+</I>&gt;<i> - log  &quot;* BYE&quot;  message
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> These changes should save a lot of string comparisons during runtime.
+</I>
+OK, makes sense (plus we don't want these anywhere on the line but just  
+after the non-tag).
+
+&gt;<i> In order to address this, I have made one more intermediate function
+</I>&gt;<i> imap_response(). Caller-specific parsers will call imap_response() in
+</I>&gt;<i> a loop and others will continue calling imap_ok().
+</I>
+Good.
+
+&gt;<i> Please check if this patch addresses all the issues raised.
+</I>
+To me it seems fine, based on the testing that you and Matt have been  
+doing, I've committed the change (r5459).
+
+Thanks to the two of you, and to Timo Sirainen, for the help with  
+resolving this issue.
+
+Best regards
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001217.html">[fetchmail-devel] [PATCH-3] Re: fetchmail IMAP bug - causes some mails to not be delivered when using IDLE
+</A></li>
+	<LI>Next message: <A HREF="001219.html">[fetchmail-devel] imap search improvements
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1218">[ date ]</a>
+              <a href="thread.html#1218">[ thread ]</a>
+              <a href="subject.html#1218">[ subject ]</a>
+              <a href="author.html#1218">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

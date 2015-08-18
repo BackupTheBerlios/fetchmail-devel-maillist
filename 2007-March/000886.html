@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Patch to the man page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Patch%20to%20the%20man%20page&In-Reply-To=%3C45FA5693.8080900%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000885.html">
+   <LINK REL="Next"  HREF="000888.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Patch to the man page</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Patch%20to%20the%20man%20page&In-Reply-To=%3C45FA5693.8080900%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Patch to the man page">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Mar 16 09:34:27 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000885.html">[fetchmail-devel] Patch to the man page
+</A></li>
+        <LI>Next message: <A HREF="000888.html">[fetchmail-devel] fetchmail 6.3.8-rc1 release candidate
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#886">[ date ]</a>
+              <a href="thread.html#886">[ thread ]</a>
+              <a href="subject.html#886">[ subject ]</a>
+              <a href="author.html#886">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Rob MacGregor schrieb:
+
+&gt;<i> Please find attached a quick patch that:
+</I>
+Thank you.
+
+&gt;<i> 1) Documents in the man page (rather than just the FAQ) the fact that
+</I>&gt;<i> socks support is a compile time option
+</I>
+OK, added a remark that socks provides no interfaces for run-time
+configuration that fetchmail could use.
+
+&gt;<i> 2) Makes use of the envelope header in the multidrop example in the
+</I>&gt;<i> hope that it'll encourage others to use it :)
+</I>
+OK
+
+&gt;<i> 3) Provides advice in the MDA section that qmail-inject should be
+</I>&gt;<i> avoided (as per Matthias's regular comments)
+</I>
+Well, the issue at hand was that qmail-inject was not being given the
+recipient as command-line options, but instead had to rely on parsing
+the headers. This kind of abuse can happen with the sendmail interface
+too. I've revised the whole --mda action based on your patch and made
+the distinction between missing the %T and qmail-inject's nonstandard
+interfaces clearer.
+
+&gt;<i> For future features can I suggest/request that:
+</I>&gt;<i> 
+</I>&gt;<i> a) In multi-drop mode if the envelope header isn't explicitly
+</I>&gt;<i> specified a warning is logged (&quot;WARNING: Multidrop mode selected but
+</I>&gt;<i> no envelope header specified.  This may lead to incorrectly delivered
+</I>&gt;<i> email&quot;)
+</I>
+Looks we already have this for recent 6.3.X releases.
+
+Perhaps we could make the &quot;no 6.2.X support&quot; policy even stricter (and
+not let users get away with &quot;I know I have to update&quot;) for this list to
+avoid discussing fixed issues like this one :-)
+
+fetchmail.c (SVN version on branches/BRANCH_6-3):
+
+            /*
+             * can't handle multidrop mailboxes without &quot;envelope&quot;
+             * option, this causes truckloads full of support complaints
+             * &quot;all mail forwarded to postmaster&quot;
+             */
+            if (MULTIDROP(ctl) &amp;&amp; !ctl-&gt;server.envelope)
+            {
+                report(stderr, GT_(&quot;warning: multidrop for %s requires
+envelope option!\n&quot;), ctl-&gt;server.pollname);
+                report(stderr, GT_(&quot;warning: Do not ask for support if
+all mail goes to postmaster!\n&quot;));
+            }
+
+&gt;<i> b) When the envelope header is specified, but it isn't found, a
+</I>&gt;<i> warning is logged and the mail is forwarded to the postmaster
+</I>&gt;<i> (&quot;WARNING: Envelope header $HEADER found, cannot identify the
+</I>&gt;<i> recipient.  Forwarding to the postmaster&quot;)
+</I>
+Will consider, it's on the 6.4 TODO.txt.
+
+THank you!
+
+Best,
+MA
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000885.html">[fetchmail-devel] Patch to the man page
+</A></li>
+	<LI>Next message: <A HREF="000888.html">[fetchmail-devel] fetchmail 6.3.8-rc1 release candidate
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#886">[ date ]</a>
+              <a href="thread.html#886">[ thread ]</a>
+              <a href="subject.html#886">[ subject ]</a>
+              <a href="author.html#886">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

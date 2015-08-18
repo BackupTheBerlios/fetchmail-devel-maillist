@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] stops to download mails with underscore
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20stops%20to%20download%20mails%20with%20underscore&In-Reply-To=%3C20050714185209.GB1253%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000370.html">
+   <LINK REL="Next"  HREF="000364.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] stops to download mails with underscore</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20stops%20to%20download%20mails%20with%20underscore&In-Reply-To=%3C20050714185209.GB1253%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] stops to download mails with underscore">B.Candler at pobox.com
+       </A><BR>
+    <I>Thu Jul 14 20:52:09 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000370.html">[fetchmail-devel] stops to download mails with underscore
+</A></li>
+        <LI>Next message: <A HREF="000364.html">[fetchmail-devel] stops to download mails with underscore
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#361">[ date ]</a>
+              <a href="thread.html#361">[ thread ]</a>
+              <a href="subject.html#361">[ subject ]</a>
+              <a href="author.html#361">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Thu, Jul 14, 2005 at 05:49:00PM +0100, Rob MacGregor wrote:
+&gt;<i> &gt; When I deleted the offending email from the POP3 server, fetchmail
+</I>&gt;<i> &gt; served me again
+</I>&gt;<i> 
+</I>&gt;<i> Possibly related to the fact that according to RFC 1035 the use of &quot;_&quot;
+</I>&gt;<i> is not valid in the domain part of a name.  The only valid characters
+</I>&gt;<i> are letters, numbers and the hyphen.
+</I>&gt;<i> 
+</I>&gt;<i> <A HREF="http://www.faqs.org/rfcs/rfc1035.html">http://www.faqs.org/rfcs/rfc1035.html</A>
+</I>&gt;<i> 
+</I>&gt;<i> Not that it helps you I know, but at least it gives you a pointer as
+</I>&gt;<i> to where the problem may lie (beyond the stupidity of the person who's
+</I>&gt;<i> responsible for that domain, and the software that lets them publish
+</I>&gt;<i> the DNS record).
+</I>
+I think the problem is not that the local smtp server is rejecting the mail
+with a 501 response (which it is entitled to do, for any policy reason); the
+problem is that the SMTP conversation is getting stuck at this point.
+Fetchmail ought to be able to recover from this situation.
+
+Regards,
+
+Brian.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000370.html">[fetchmail-devel] stops to download mails with underscore
+</A></li>
+	<LI>Next message: <A HREF="000364.html">[fetchmail-devel] stops to download mails with underscore
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#361">[ date ]</a>
+              <a href="thread.html#361">[ thread ]</a>
+              <a href="subject.html#361">[ subject ]</a>
+              <a href="author.html#361">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

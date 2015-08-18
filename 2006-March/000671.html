@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060302071758.GA1317%40session.bombay.retortsoft.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000668.html">
+   <LINK REL="Next"  HREF="000677.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD</H1>
+    <B>Sunil Shetye</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060302071758.GA1317%40session.bombay.retortsoft.com%3E"
+       TITLE="[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD">shetye at bombay.retortsoft.com
+       </A><BR>
+    <I>Thu Mar  2 08:17:58 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000668.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+        <LI>Next message: <A HREF="000677.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#671">[ date ]</a>
+              <a href="thread.html#671">[ thread ]</a>
+              <a href="subject.html#671">[ subject ]</a>
+              <a href="author.html#671">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quoting from Matthias Andree's mail on Wed, Mar 01, 2006:
+&gt;<i> Sunil Shetye &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">shetye at bombay.retortsoft.com</A>&gt; writes:
+</I>&gt;<i> &gt; Well, I am still &quot;NOOP&quot;ing. There is a problem in the current code.
+</I>&gt;<i> &gt; What is happening is that gen_transact() is being followed by
+</I>&gt;<i> &gt; imap_ok(). Internally, gen_transact() calls gen_recv() which calls
+</I>&gt;<i> &gt; imap_ok(). So, imap_ok() is being called twice! The second call to
+</I>&gt;<i> &gt; imap_ok() is incorrect as there is actually no &quot;tag&quot; to compare. So,
+</I>&gt;<i> &gt; replacing imap_ok() by sleep() is the right thing to do.
+</I>&gt;<i> 
+</I>&gt;<i> I wonder. This code is ESR's original 
+</I>&gt;<i> 
+</I>&gt;<i> -----
+</I>&gt;<i> r3829 | esr | 2003-07-22 04:32:07 +0200 (Di, 22 Jul 2003) | 2 lines
+</I>&gt;<i> 
+</I>&gt;<i> Support faked IDLE.
+</I>&gt;<i> -----
+</I>&gt;<i> 
+</I>&gt;<i> (straight from SVN)
+</I>&gt;<i> 
+</I>&gt;<i> and has apparently never worked.
+</I>
+The credit for this goes to Chris Boyle. Surprising that there is no
+mention in the logs and NEWS.
+
+&lt;<A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2003-July/007705.html">http://lists.ccil.org/pipermail/fetchmail-friends/2003-July/007705.html</A>&gt;
+&lt;<A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2003-July/007713.html">http://lists.ccil.org/pipermail/fetchmail-friends/2003-July/007713.html</A>&gt;
+
+[On a side note, I tried searching for this string
+&quot;site:lists.ccil.org idle noop patch&quot; on google and did not get the
+above links. The same string gave correct results on yahoo.]
+
+-- 
+Sunil Shetye.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000668.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+	<LI>Next message: <A HREF="000677.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#671">[ date ]</a>
+              <a href="thread.html#671">[ thread ]</a>
+              <a href="subject.html#671">[ subject ]</a>
+              <a href="author.html#671">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

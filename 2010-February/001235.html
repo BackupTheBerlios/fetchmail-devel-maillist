@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] HEADS UP: fetchmail repository converted and moved
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20HEADS%20UP%3A%20fetchmail%20repository%20converted%20and%20moved&In-Reply-To=%3Cop.u7r9hmst1e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001234.html">
+   <LINK REL="Next"  HREF="001240.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] HEADS UP: fetchmail repository converted and moved</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20HEADS%20UP%3A%20fetchmail%20repository%20converted%20and%20moved&In-Reply-To=%3Cop.u7r9hmst1e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] HEADS UP: fetchmail repository converted and moved">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Feb  8 01:40:24 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001234.html">[fetchmail-devel] New Japanese PO file for 'fetchmail' (version	6.3.14)
+</A></li>
+        <LI>Next message: <A HREF="001240.html">[fetchmail-devel] HEADS UP: fetchmail repository converted and moved
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1235">[ date ]</a>
+              <a href="thread.html#1235">[ thread ]</a>
+              <a href="subject.html#1235">[ subject ]</a>
+              <a href="author.html#1235">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Greetings,
+
+I have converted the fetchmail source code repository to Git[1] and moved  
+it to a new host[2] in Norway.
+
+[1] <A HREF="http://git-scm.com/">http://git-scm.com/</A>
+
+[2] <A HREF="http://gitorious.org/fetchmail/">http://gitorious.org/fetchmail/</A>
+
+The latter offers access for git clone (through Git and HTTP protocols)  
+and an online repository browser, and the site runs free software.
+
+I took the opportunity to rename branches a bit so as to adhere to Git  
+conventions, and to make the most current software (BRANCH_6-3) the  
+default checkout. Here's the list of correspondences between former SVN  
+and current Git branches:
+
+old SVN	new Git
+--------------------
+BRANCH_6-3  master (default branch, get this)
+BRANCH_MAPI BRANCH_MAPI (development branch for MAPI integration, by  
+Yang-Yan Li and Mojmir Svoboda)
+trunk	    oldtrunk [3] (obsolete)
+vendor*     vendor* (this was used for SVN module imports)
+BRANCH_6-2  none (abandoned, branch converted to a tag)
+
+The RELEASE_* and SNAPSHOT_* tags have been converted unchanged.
+
+[3] This used to be a &quot;future&quot; version in the days of the early fetchmail  
+6.3.n releases, but I stopped merging BRANCH_6-3 back intro trunk a long  
+time ago because it was such a hassle in Subversion, and it's now  
+outdated.	
+
+Now, this means that:
+
+- if you have uncommitted changes in the Subversion tree, update as soon  
+as possible from SVN, and please contact me so we can arrange for a merge,  
+possibly on your personal topic branch.
+
+- mknod.org/svn/... URLs (links) will get outdated rather soon now,  
+because Graham is about to decommission the service.
+
+
+My deepest thanks go out to Graham Wilson (in Bcc:) who has voluntarily  
+hosted the former Subversion repository for so many years, even after he  
+quit co-maintaining fetchmail. It's been a good time with reliable service  
+and it helped fetchmail development a lot. Thanks a million.
+
+Let me know if you have any further questions.
+
+Best
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001234.html">[fetchmail-devel] New Japanese PO file for 'fetchmail' (version	6.3.14)
+</A></li>
+	<LI>Next message: <A HREF="001240.html">[fetchmail-devel] HEADS UP: fetchmail repository converted and moved
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1235">[ date ]</a>
+              <a href="thread.html#1235">[ thread ]</a>
+              <a href="subject.html#1235">[ subject ]</a>
+              <a href="author.html#1235">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

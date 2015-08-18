@@ -1,0 +1,511 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #19024] wrong permissions on .fetchids
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2013-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2319024%5D%20wrong%20permissions%20on%20.fetchids&In-Reply-To=%3C201306252003.r5PK3W0O013691%40www.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001635.html">
+   <LINK REL="Next"  HREF="001637.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #19024] wrong permissions on .fetchids</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2319024%5D%20wrong%20permissions%20on%20.fetchids&In-Reply-To=%3C201306252003.r5PK3W0O013691%40www.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #19024] wrong permissions on .fetchids">admin at berlios.de
+       </A><BR>
+    <I>Tue Jun 25 22:03:32 CEST 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001635.html">[fetchmail-devel] [Bug #19024] wrong permissions on .fetchids
+</A></li>
+        <LI>Next message: <A HREF="001637.html">[fetchmail-devel] idle polling on multiple servers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1636">[ date ]</a>
+              <a href="thread.html#1636">[ thread ]</a>
+              <a href="subject.html#1636">[ subject ]</a>
+              <a href="author.html#1636">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #19024, was updated on 2013-Jun-16 15:59
+Here is a current snapshot of the bug.
+
+Project: fetchmail
+Category: None
+Status: Closed
+Resolution: Invalid
+Bug Group: None
+Priority: 5
+Submitted by: martinwodrich
+Assigned to : m-a
+Summary: wrong permissions on .fetchids
+
+Details: I have one fetchmail poll where I set 'keep' and 'no fetchall'.
+After I start fetchmail the .fetchids-File have read-write owner and
+read group. The next time fetchmail stops with the error that 
+read-write-execute owner is the maximum allowed permissions.
+
+I uderstand that fetchmail stops with wrong permissions, but thats the permission that it hase self set.
+
+I use fetchmail 6.3.26.
+
+
+Follow-Ups:
+
+Date: 2013-Jun-25 22:03
+By: m-a
+
+Comment:
+Your fetchmail behaves properly, sets a umask of 077, runs open(..., 0666) which should end up with a mode 0600 file according to various standards (including traditional Unix behaviour), yet the resulting file permissions are 0640. 
+
+It looks as though the umask call was ignored and as though the system had retained the original 027 umask for file creation. The system is broken and in violation of decade-old standards. This is a kernel or libc bug affecting umask() and open(), and nothing fetchmail could do anything about.
+
+If you have a choice of kernel and/or libc versions, try different ones, if you can't or that does not help, take this up to the server's provider.
+
+I am now closing this bug.
+-------------------------------------------------------
+
+Date: 2013-Jun-25 18:48
+By: martinwodrich
+
+Comment:
+I get this:
+
+------------------- snip ------------------------------------
+(18:35:11) [~] env LC_ALL=C strace -etrace=file,umask fetchmail -Nd0
+execve(&quot;/kunden/xxxxxx_xxxxx/bin/fetchmail&quot;, [&quot;fetchmail&quot;, &quot;-Nd0&quot;], [/* 20 vars */]) = 0
+access(&quot;/etc/ld.so.preload&quot;, R_OK)      = -1 ENOENT (No such file or directory)
+open(&quot;/etc/ld.so.cache&quot;, O_RDONLY)      = 3
+open(&quot;/lib/libcrypt.so.1&quot;, O_RDONLY)    = 3
+open(&quot;/lib/libresolv.so.2&quot;, O_RDONLY)   = 3
+open(&quot;/usr/lib/libssl.so.1.0.0&quot;, O_RDONLY) = 3
+open(&quot;/usr/lib/libcrypto.so.1.0.0&quot;, O_RDONLY) = 3
+open(&quot;/lib/libc.so.6&quot;, O_RDONLY)        = 3
+open(&quot;/lib/libdl.so.2&quot;, O_RDONLY)       = 3
+open(&quot;/lib/libz.so.1&quot;, O_RDONLY)        = 3
+stat64(&quot;/kunden/xxxxxx_xxxxx/.fetchmailrc&quot;, {st_mode=S_IFREG|0700, st_size=548, ...}) = 0
+stat64(&quot;/kunden/xxxxxx_xxxxx/.fetchmailrc&quot;, {st_mode=S_IFREG|0700, st_size=548, ...}) = 0
+open(&quot;/kunden/xxxxxx_xxxxx/.fetchmailrc&quot;, O_RDONLY) = 3
+The nodetach option is in effect, ignoring logfile option.
+stat64(&quot;/kunden/xxxxxx_xxxxx/.fetchids&quot;, {st_mode=S_IFREG|0700, st_size=21000, ...}) = 0
+lstat64(&quot;/kunden/xxxxxx_xxxxx/.fetchids&quot;, {st_mode=S_IFREG|0700, st_size=21000, ...}) = 0
+open(&quot;/kunden/xxxxxx_xxxxx/.fetchids&quot;, O_RDONLY) = 3
+open(&quot;/kunden/xxxxxx_xxxxx/.netrc&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+open(&quot;/kunden/xxxxxx_xxxxx/.fetchmail.pid&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+umask(077)                              = 027
+open(&quot;/kunden/xxxxxx_xxxxx/.fetchmail.pid&quot;, O_WRONLY|O_CREAT|O_EXCL, 0666) = 3
+stat64(&quot;/kunden/394333_40476/.fetchmailrc&quot;, {st_mode=S_IFREG|0700, st_size=548, ...}) = 0
+open(&quot;/etc/resolv.conf&quot;, O_RDONLY)      = 3
+open(&quot;/etc/gai.conf&quot;, O_RDONLY)         = 3
+open(&quot;/etc/nsswitch.conf&quot;, O_RDONLY)    = 3
+open(&quot;/etc/ld.so.cache&quot;, O_RDONLY)      = 3
+open(&quot;/lib/tls/i686/sse2/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/lib/tls/i686/sse2&quot;, 0xfb57f0cc) = -1 ENOENT (No such file or directory)
+open(&quot;/lib/tls/i686/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/lib/tls/i686&quot;, 0xfb57f0cc)     = -1 ENOENT (No such file or directory)
+open(&quot;/lib/tls/sse2/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/lib/tls/sse2&quot;, 0xfb57f0cc)     = -1 ENOENT (No such file or directory)
+open(&quot;/lib/tls/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/lib/tls&quot;, 0xfb57f0cc)          = -1 ENOENT (No such file or directory)
+open(&quot;/lib/i686/sse2/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/lib/i686/sse2&quot;, 0xfb57f0cc)    = -1 ENOENT (No such file or directory)
+open(&quot;/lib/i686/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/lib/i686&quot;, 0xfb57f0cc)         = -1 ENOENT (No such file or directory)
+open(&quot;/lib/sse2/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/lib/sse2&quot;, 0xfb57f0cc)         = -1 ENOENT (No such file or directory)
+open(&quot;/lib/libnss_db.so.2&quot;, O_RDONLY)   = -1 ENOENT (No such file or directory)
+stat64(&quot;/lib&quot;, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open(&quot;/usr/lib/tls/i686/sse2/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/usr/lib/tls/i686/sse2&quot;, 0xfb57f0cc) = -1 ENOENT (No such file or directory)
+open(&quot;/usr/lib/tls/i686/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/usr/lib/tls/i686&quot;, 0xfb57f0cc) = -1 ENOENT (No such file or directory)
+open(&quot;/usr/lib/tls/sse2/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/usr/lib/tls/sse2&quot;, 0xfb57f0cc) = -1 ENOENT (No such file or directory)
+open(&quot;/usr/lib/tls/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/usr/lib/tls&quot;, 0xfb57f0cc)      = -1 ENOENT (No such file or directory)
+open(&quot;/usr/lib/i686/sse2/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/usr/lib/i686/sse2&quot;, 0xfb57f0cc) = -1 ENOENT (No such file or directory)
+open(&quot;/usr/lib/i686/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/usr/lib/i686&quot;, 0xfb57f0cc)     = -1 ENOENT (No such file or directory)
+open(&quot;/usr/lib/sse2/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/usr/lib/sse2&quot;, 0xfb57f0cc)     = -1 ENOENT (No such file or directory)
+open(&quot;/usr/lib/libnss_db.so.2&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+stat64(&quot;/usr/lib&quot;, {st_mode=S_IFDIR|0755, st_size=36864, ...}) = 0
+open(&quot;/etc/ld.so.cache&quot;, O_RDONLY)      = 3
+open(&quot;/lib/libnss_files.so.2&quot;, O_RDONLY) = 3
+open(&quot;/etc/services&quot;, O_RDONLY|O_CLOEXEC) = 3
+fetchmail: No mail for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxxx at xxx.de</A> at popmail.xxxx.de
+open(&quot;/etc/services&quot;, O_RDONLY|O_CLOEXEC) = 3
+stat64(&quot;/dev/random&quot;, {st_mode=S_IFCHR|0666, st_rdev=makedev(1, 8), ...}) = 0
+open(&quot;/dev/urandom&quot;, O_RDONLY|O_NOCTTY|O_NONBLOCK) = 4
+open(&quot;/etc/ssl/cert.pem&quot;, O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
+stat64(&quot;/etc/ssl/certs/5ad8a5d6.0&quot;, {st_mode=S_IFREG|0644, st_size=1261, ...}) = 0
+open(&quot;/etc/ssl/certs/5ad8a5d6.0&quot;, O_RDONLY|O_LARGEFILE) = 4
+stat64(&quot;/etc/ssl/certs/5ad8a5d6.1&quot;, 0xfb58195c) = -1 ENOENT (No such file or directory)
+open(&quot;/usr/share/zoneinfo/CET-1CEST-2,M3.5.0/2,M10.5.0/3&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+open(&quot;/etc/services&quot;, O_RDONLY|O_CLOEXEC) = 3
+stat64(&quot;/dev/random&quot;, {st_mode=S_IFCHR|0666, st_rdev=makedev(1, 8), ...}) = 0
+open(&quot;/etc/ssl/cert.pem&quot;, O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
+stat64(&quot;/etc/ssl/certs/5ad8a5d6.0&quot;, {st_mode=S_IFREG|0644, st_size=1261, ...}) = 0
+open(&quot;/etc/ssl/certs/5ad8a5d6.0&quot;, O_RDONLY|O_LARGEFILE) = 4
+stat64(&quot;/etc/ssl/certs/5ad8a5d6.1&quot;, 0xfb58195c) = -1 ENOENT (No such file or directory)
+280 messages (280 seen) for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxxxx at xxxx.com</A> at pop3.xxxxx.com (29284479 octets).
+unlink(&quot;/kunden/xxxxxx_xxxxx/.fetchids_&quot;) = -1 ENOENT (No such file or directory)
+open(&quot;/kunden/xxxxxx_xxxxx/.fetchids_&quot;, O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+rename(&quot;/kunden/xxxxxx_xxxxx/.fetchids_&quot;, &quot;/kunden/394333_40476/.fetchids&quot;) = 0
+unlink(&quot;/kunden/xxxxxx_xxxxx/.fetchids_&quot;) = -1 ENOENT (No such file or directory)
+open(&quot;/kunden/xxxxxx_xxxxx/.fetchids_&quot;, O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+rename(&quot;/kunden/xxxxxx_xxxxx/.fetchids_&quot;, &quot;/kunden/xxxxxx_xxxxx/.fetchids&quot;) = 0
+unlink(&quot;/kunden/xxxxxx_xxxxx/.fetchmail.pid&quot;) = 0
+(18:35:37) [~]
+------------------- snip ------------------------------------
+
+The .fetchids have the permissions rw-r-----
+after this.
+
+My normal startscript is this:
+-------------------- snip -----------------
+#!/bin/bash
+cd /kunden/xxxxxx_xxxxx/
+bin/fetchmail -f .fetchmailrc
+chmod 600 .fetchids
+------------------- snip -----------------
+
+The last line is my workaround.
+
+And the binary have been compiled on the same maschine. No compiler warnings.
+
+
+
+
+
+-------------------------------------------------------
+
+Date: 2013-Jun-25 09:37
+By: m-a
+
+Comment:
+Please run:
+
+env LC_ALL=C strace -etrace=file,umask fetchmail -Nd0
+
+and see what you get.  You should be seeing something like:
+
+...
+umask(077)                              = 0...
+...
+unlink(&quot;/home/mandree/.fetchids_&quot;)      = -1 ENOENT (No such file or directory)
+open(&quot;/home/mandree/.fetchids_&quot;, O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4
+rename(&quot;/home/mandree/.fetchids_&quot;, &quot;/home/mandree/.fetchids&quot;) = 0
+unlink(&quot;/home/mandree/.fetchids_&quot;)      = -1 ENOENT (No such file or directory)
+open(&quot;/home/mandree/.fetchids_&quot;, O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4
+rename(&quot;/home/mandree/.fetchids_&quot;, &quot;/home/mandree/.fetchids&quot;) = 0
+unlink(&quot;/home/mandree/.fetchmail.pid&quot;)  = 0
+
+And in that situation, the .fetchids permissions will be 0666 &amp; ~077 == 0600.
+
+If that is not the case, check the way how fetchmail is being started, if the start script modifies the .fetchids permission; and if that is not the case, kernel bugs are to be suspected; note that the Kernel has Xen/Paravirtualization and GRSecurity patches applied.
+
+
+Have you compiled fetchmail on the same computer?
+Were there any compiler warnings beyond non-constant format strings?
+-------------------------------------------------------
+
+Date: 2013-Jun-22 11:11
+By: martinwodrich
+
+Comment:
+It looks nearly obscur:
+----------------------- snip ---------------------------------------
+(11:06:17) [~] env LC_ALL=C df -P -T /kunden/xxxxxx_xxxxx/.fetchids
+Filesystem     Type 1024-blocks     Used Available Capacity Mounted on
+/dev/md1       ext3  1031607072 84081952 895123236       9% /
+(11:06:56) [~] mount -v /
+mount: according to mtab, /dev/md1 is already mounted on /
+mount failed
+----------------------- snip ---------------------------------------
+
+I can only see that ext3 is used.
+
+lsb_release -a
+gives only command not found.
+
+-------------------------------------------------------
+
+Date: 2013-Jun-22 10:18
+By: m-a
+
+Comment:
+Thank you.
+
+Regarding the system, lsb_release -a might shed some light, but I do not think this relevant here.
+
+Based on your logs, I have revisited relevant source code, and fetchmail does not set the permissions explicitly. It uses the fopen() function, which is documented to set mode 0666 &amp;= ~(process_umask). Fetchmail sets the umask to 077 after opening the log file, so the resulting idfile (.fetchids) mode is 0600 (octal) meaning only the user has read/write permissions, nothing more.
+This works for me or others at least on Solaris 10, FreeBSD, NetBSD, Linux, Cygwin (on NTFS file systems).
+
+I am now suspecting that the filesystem hosting your .fetchids file is to blame here (read: insufficient) and does not offer UNIX-standard permissions.
+
+Can you try running:
+
+env LC_ALL=C df -P -T /kunden/xxxxxx_xxxxx/.fetchids 
+
+This should (by way of -T) shed some light on the file system type, for me it looks like this on Linux
+
+$ LC_ALL=C df -P -T .fetchids 
+Filesystem                Type 1024-blocks      Used Available Capacity Mounted on
+/dev/mapper/vgcrypt0-home ext4   182636724 145107628  35673608      81% /home
+
+and like this on FreeBSD:
+
+$ LC_ALL=C df -P -T .fetchmailrc 
+Filesystem      Type 512-blocks     Used     Avail Capacity  Mounted on
+/dev/label/usr  ufs   174671692 53919452 106778508    34%    /usr
+
+Meaning Linux resides on ext4, FreeBSD on ufs.
+
+If you can figure out the mount options and show it, that would also help; &quot;mount -v /usr&quot; (or whatever is in the rightmost column) should do that.
+
+-------------------------------------------------------
+
+Date: 2013-Jun-21 20:25
+By: martinwodrich
+
+Comment:
+1. My operating system:
+
+It is a management Server from Domainfactory. I can not see with os version. But it looks like an gentoo linux.
+
+2. Compiler Version:
+I build it from source with gcc 4.4.5
+
+3. SMTP listener or MTA
+I forward it to the DF Mailsystem and I don't exaktly
+know what it is.
+
+4. command line options:
+None. Everything in .fetchmailrc
+
+5.  env LC_ALL=C fetchmail -V:
+(xxxx for anon)
+---------------- snip -------------
+This is fetchmail release 6.3.26+SSL+NLS.
+
+Copyright (C) 2002, 2003 Eric S. Raymond
+Copyright (C) 2004 Matthias Andree, Eric S. Raymond,
+                   Robert M. Funk, Graham Wilson
+Copyright (C) 2005 - 2012 Sunil Shetye
+Copyright (C) 2005 - 2013 Matthias Andree
+Fetchmail comes with ABSOLUTELY NO WARRANTY. This is free software, and you
+are welcome to redistribute it under certain conditions. For details,
+please see the file COPYING in the source or documentation directory.
+This product includes software developed by the OpenSSL Project
+for use in the OpenSSL Toolkit. (<A HREF="http://www.openssl.org/">http://www.openssl.org/</A>)
+
+Fallback MDA: (none)
+Linux xxxlxxxx.ispgateway.de 2.6.32.53-grsec-pvops-xen-x64 #4 SMP Wed May 30 15:30:38 CEST 2012 x86_64 GNU/Linux
+Taking options from command line and /kunden/xxxxxx_xxxxx/.fetchmailrc
+Logfile is /kunden/xxxxxx_xxxxx/logs/fetchmail.log
+Idfile is /kunden/xxxxxx_xxxxx/.fetchids
+Fetchmail will forward misaddressed multidrop messages to ssh-xxxxxx-xxxxxx.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxxx at xxxx.de</A>@xxxl.xxxx.de:
+  True name of server is xxxl.xxxx.de.
+  Protocol is POP3.
+  All available authentication methods will be tried.
+  Server nonresponse timeout is 300 seconds (default).
+  Default mailbox selected.
+  All messages will be retrieved (--all on).
+  Fetched messages will not be kept on the server (--keep off).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Oversized messages will not be flushed before message retrieval (--limitflush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 3 out of 4 polls (--fastuidl 4).
+  Messages will be SMTP-forwarded to: localhost (default)
+  Single-drop mode: 1 local name recognized.
+  No UIDs saved from this host.
+Options for retrieving from <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxxlxxxx at xxxxxxx.com</A>@xxxl.xxxx.com:
+  True name of server is xxxl.xxxx.com.
+  Protocol is POP3.
+  All available authentication methods will be tried.
+  SSL encrypted sessions enabled.
+  Server nonresponse timeout is 300 seconds (default).
+  Default mailbox selected.
+  Only new messages will be retrieved (--all off).
+  Fetched messages will be kept on the server (--keep on).
+  Old messages will not be flushed before message retrieval (--flush off).
+  Oversized messages will not be flushed before message retrieval (--limitflush off).
+  Rewrite of server-local addresses is enabled (--norewrite off).
+  Carriage-return stripping is disabled (stripcr off).
+  Carriage-return forcing is disabled (forcecr off).
+  Interpretation of Content-Transfer-Encoding is enabled (pass8bits off).
+  MIME decoding is disabled (mimedecode off).
+  Idle after poll is disabled (idle off).
+  Nonempty Status lines will be kept (dropstatus off)
+  Delivered-To lines will be kept (dropdelivered off)
+  Fetch message size limit is 100 (--fetchsizelimit 100).
+  Do binary search of UIDs during 3 out of 4 polls (--fastuidl 4).
+  Messages will be SMTP-forwarded to: localhost (default)
+  Single-drop mode: 1 local name recognized.
+  279 UIDs saved.
+---------------- snip -------------
+
+6. env LC_ALL=C fetchmail --nodetach -vvv --nosyslog:
+---------------- snip -------------
+The nodetach option is in effect, ignoring logfile option.
+File /kunden/xxxxxxx_xxxxxx/.fetchids must have no more than -rwx------ (0700) permissions.
+---------------- snip -------------
+
+---------------- snip -------------
+fetchmail: POP3&lt; 227 5950B70D-EED5-11E1-9AD6-00215AD7B4D6
+fetchmail: POP3&lt; 228 D70BC20C-EFA7-11E1-9878-00215AD7E9BE
+fetchmail: POP3&lt; 229 C41611CE-F080-11E1-95C3-002264C1D724
+fetchmail: POP3&lt; 230 04652131-F084-11E1-A389-00215AD85762
+fetchmail: POP3&lt; 231 A28AFEA2-F512-11E1-81AB-00237DE3346E
+fetchmail: POP3&lt; 232 0A1C55EE-F51B-11E1-BE2F-00237DE3F118
+fetchmail: POP3&lt; 233 883CC126-F65C-11E1-A4E6-00215AD8530E
+fetchmail: POP3&lt; 234 12F484A8-F83A-11E1-AF3E-00215AD856DE
+fetchmail: POP3&lt; 235 81A933FE-F83D-11E1-8385-002264C1D622
+fetchmail: POP3&lt; 236 BF3EAA84-FB32-11E1-AB68-00237DE4A79E
+fetchmail: POP3&lt; 237 F24B9F27-FB62-11E1-9210-00215AD8015C
+fetchmail: POP3&lt; 238 51ED2403-FE03-11E1-91AE-00237DE33968
+fetchmail: POP3&lt; 239 15278205-FE58-11E1-B0E8-002264C1546C
+fetchmail: POP3&lt; 240 62020634-FE60-11E1-9A73-00215AD80C02
+fetchmail: POP3&lt; 241 1BAD751E-FFA0-11E1-BD4F-00215AD7F150
+fetchmail: POP3&lt; 242 D4489BF2-0357-11E2-91DA-00237DE460E6
+fetchmail: POP3&lt; 243 765249C0-087B-11E2-B486-00215AD80204
+fetchmail: POP3&lt; 244 8763B08D-0C6B-11E2-8C05-00215AD8C1E8
+fetchmail: POP3&lt; 245 2A6EEC94-0F00-11E2-8705-00215AD7E6DC
+fetchmail: POP3&lt; 246 29DDE636-130B-11E2-AE57-00215AD80BAE
+fetchmail: POP3&lt; 247 52743AF4-16DC-11E2-8C15-00215AD86594
+fetchmail: POP3&lt; 248 B58AE66E-29DC-11E2-B7E2-00215AD71B16
+fetchmail: POP3&lt; 249 7E564F9A-347A-11E2-8D1F-00237DE4AEFA
+fetchmail: POP3&lt; 250 6F5283D2-3DE2-11E2-8ED1-00237DE49BAA
+fetchmail: POP3&lt; 251 F6795BE0-4721-11E2-95BB-002264C153FA
+fetchmail: POP3&lt; 252 CACBAC5D-4FE2-11E2-B524-00237DE46176
+fetchmail: POP3&lt; 253 4C0D5B30-5B9E-11E2-8939-002264C1CA12
+fetchmail: POP3&lt; 254 28EEEDED-6D2E-11E2-BC3D-00237DE4A7A4
+fetchmail: POP3&lt; 255 B74EE6DE-70A1-11E2-A095-00215AD9A2AC
+fetchmail: POP3&lt; 256 F0480DA0-70A3-11E2-AA89-00237DE4A5C4
+fetchmail: POP3&lt; 257 85FEB433-7169-11E2-96F3-00237DE3F1F6
+fetchmail: POP3&lt; 258 51A00311-7235-11E2-AB02-00237DE46158
+fetchmail: POP3&lt; 259 1C502051-7550-11E2-B44B-00215AD7F73C
+fetchmail: POP3&lt; 260 E9ED2B45-77B3-11E2-A4C9-001E0BCBB978
+fetchmail: POP3&lt; 261 537C5525-80A3-11E2-BDEC-002264C248A4
+fetchmail: POP3&lt; 262 912C534F-98AB-11E2-98DB-002264C17D50
+fetchmail: POP3&lt; 263 31D24280-9CB6-11E2-B568-00237DE3F1E4
+fetchmail: POP3&lt; 264 008A7C3B-B038-11E2-96E3-E83935B1F46A
+fetchmail: POP3&lt; 265 580BF826-CAEC-11E2-B67B-00237DE3337C
+fetchmail: POP3&lt; 266 7D04574A-D4C6-11E2-ABC7-00215AD7BB74
+fetchmail: POP3&lt; 267 5AE39AF7-D515-11E2-9EAF-00215AD99EEE
+fetchmail: POP3&lt; 268 3844288E-D51F-11E2-973C-00237DE41650
+fetchmail: POP3&lt; 269 535A66F0-D589-11E2-A55E-002264C18E30
+fetchmail: POP3&lt; 270 D94F77A5-D5C7-11E2-93A1-00237DE4A738
+fetchmail: POP3&lt; 271 DFC9E8A9-D5CB-11E2-965F-00215AD7BD84
+fetchmail: POP3&lt; 272 E562193C-D5D4-11E2-BD36-00215AD6DB42
+fetchmail: POP3&lt; 273 3BE8FCBF-D65A-11E2-A02F-00237DE41AA2
+fetchmail: POP3&lt; 274 0618D098-D65B-11E2-AC67-00215AD7BB68
+fetchmail: POP3&lt; 275 2906681A-D676-11E2-9D5B-00215AD9BD2E
+fetchmail: POP3&lt; 276 B25F3D68-D6A4-11E2-90DB-00237DE334CE
+fetchmail: POP3&lt; 277 741BD345-D82E-11E2-A91D-00237DE3362A
+fetchmail: POP3&lt; 278 6121A55D-D8EA-11E2-81AD-00215AD88AE2
+fetchmail: POP3&lt; 279 8A339207-D972-11E2-8676-00215AD7C2D0
+fetchmail: POP3&lt; .
+279 messages (279 seen) for <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">xxxx at xxxx.com</A> at xxx.xx.com (29276876 octets).
+fetchmail: POP3&gt; QUIT
+fetchmail: POP3&lt; +OK mailbox unchanged, POP3 server signing off
+fetchmail: 6.3.26 querying xxxx.xxx.com (protocol POP3) at Fri Jun 21 20:18:25 2013: poll completed
+New UID list from  xxxx.xxx.com: 9EC5B8AB-5881-423F-AA87-870B61C26B98 = SEEN, 618811EC-0B22-4F6C-9CE4-37271855C351 = SEEN, 9029165C-5412-4BCB-BE33-7D40AB512430 = SEEN, 6B76AB31-DFA6-4C13-A3D5-4A29DC026BA7 = SEEN, 1C89869B-A7C8-4378-8DDA-67F760EA6CCD = SEEN, 90316904-068E-4C1F-B076-B3AAA777D29E = SEEN, 8BEEF86F-1434-42E9-9826-B62054098701 = SEEN, 210C237C-05F4-4EBD-8881-120BA061524C = SEEN, 39C71C14-A36F-4F22-8B6F-6767B5878002 = SEEN, C8C0E874-E8A6-4269-BCB1-A855BAF71241 = SEEN, 199932D6-1ECF-433E-BF99-86B47765D962 = SEEN, CA288BB3-74B3-4A53-A793-2503AC82A0FD = SEEN, 010AE62A-E3B4-42C6-9302-ED6AFC917C74 = SEEN, 6DBB5123-1954-4006-B618-80F22CB5F7B0 = SEEN, 3A5FAF98-054F-406E-ABA7-9AA826417228 = SEEN, C7D966AC-BA7E-11DE-A6D3-00215AD6EEE6 = SEEN, A610D5E3-CD3F-11DE-94C7-00237DE3348C = SEEN, F96A946C-CDDF-11DE-851F-00237DE4A66C = SEEN, ACF7446A-D0B8-11DE-A237-00237DE4144C = SEEN, E7066D5C-D197-11DE-85EE-00215AD8020A = SEEN, DC02DFF0-D67E-11DE-A3A0-002264C1D2C0 = SEEN, 3583FBAF-D6!
+ 9A-11DE-8182-00215AD9BD52 = SEEN, 4269D896-D69A-11DE-9273-001CC4EDA760 = SEEN, 8FEF8050-D69A-11DE-81E2-002264C17D76 = SEEN, 5A7FCD45-D6D2-11DE-AA81-002264C160FE = SEEN, 8A198BFA-D74A-11DE-A54C-002264C2088E = SEEN, 086BCB3D-D75E-11DE-9485-00237DE334A4 = SEEN, F112F8D5-D82A-11DE-87D7-00237DE4A2D6 = SEEN, 9F5E9B5B-D85E-11DE-A536-00237DE3FE6C = SEEN, 5A725D32-D9A2-11DE-8FC7-00215AD7EA6C = SEEN, 13CEF9E8-D9A7-11DE-9C88-00215AD6A6C2 = SEEN, 66F40636-F7D5-11DE-AE2E-002264C20648 = SEEN, 67532A61-F7D5-11DE-96C6-00215AD7F15C = SEEN, 52455DE5-1133-11DF-A634-00237DE3F16C = SEEN, 7600BDA3-1A85-11DF-AA1E-00237DE39D2A = SEEN, 11AFDAFB-2952-11DF-9A37-00237DE49BAA = SEEN, 51399BFE-41A1-11DF-B9AC-00215AD856A8 = SEEN, 4A52CD54-59FD-11DF-8EAB-00237DE3398C = SEEN, 14C88724-71FB-11DF-A2C2-00237DE4A7E0 = SEEN, 3331D567-77A8-11DF-84C2-002264C17F4C = SEEN, 0B53847E-8F62-11DF-B583-002264C18BA0 = SEEN, 9660D277-90E5-11DF-9D3C-00215AD7C1BA = SEEN, 222F4084-CC84-11DF-938F-00215AD80A40 = SEEN, FDB6334B-!
+ CEE9-11DF-A8D2-00215AD7A4F8 = SEEN, 31111009-D173-11DF-91FF-00!
+ 215AD9BE
+3E = SEEN, E5B884ED-D201-11DF-938F-00215AD80A40 = SEEN, 6D7573CF-D38A-11DF-9DAC-00215AD7DB90 = SEEN, 90AEE818-D6E5-11DF-A7DF-00215AD7B292 = SEEN, 2B4B7E12-D7AB-11DF-934D-002264C17BFC = SEEN, DE1F0498-DAEC-11DF-96A1-00237DE378D2 = SEEN, 860C9EB9-DEA4-11DF-A484-00215AD88078 = SEEN, 2D3530A6-E40B-11DF-928B-00237DE3F57C = SEEN, EC88FB89-EB43-11DF-8599-00215AD7DBA2 = SEEN, 73CBD107-EB75-11DF-A111-002264C15472 = SEEN, 10D91D6B-EE34-11DF-A45B-00215AD7CA40 = SEEN, 3BF1430D-F1BE-11DF-9C44-00215AD99524 = SEEN, E2DD5214-F338-11DF-A484-00215AD88078 = SEEN, 7525B5D8-F48B-11DF-9590-00215AD80A40 = SEEN, 31990FAD-F4AC-11DF-A619-002264C17D04 = SEEN, DE4C9FE8-F7DD-11DF-848C-00237DE3ED50 = SEEN, 845EF428-FD55-11DF-831E-002264C17B68 = SEEN, 43883956-FE67-11DF-BDA2-00237DE41A96 = SEEN, 0DF73265-06EF-11E0-A5A4-00215AD814CA = SEEN, D203A652-087B-11E0-9E74-00215AD6B006 = SEEN, 4AC9A926-0A14-11E0-B3FF-00215AD7DB90 = SEEN, A1F00319-1DAF-11E0-B53D-00215AD71368 = SEEN, A6E37856-1DC8-11E0-9262-00215AD7B!
+ 214 = SEEN, C4BF90C4-1DC8-11E0-9262-00215AD7B214 = SEEN, 9E47AD8B-1F6D-11E0-9C87-00215AD7FE52 = SEEN, 90002C06-20AB-11E0-A48D-00215AD582C4 = SEEN, BCFD3D7C-219B-11E0-89CD-00237DE334FE = SEEN, 38626A8D-22F8-11E0-8DB4-002264C18BA0 = SEEN, C3EF1776-23FC-11E0-B738-00215AD80BC6 = SEEN, 1586AE3C-241F-11E0-82F5-002264C1943E = SEEN, 616AE7EF-2466-11E0-A3B8-00215AD7AB7C = SEEN, CC3DDC94-265C-11E0-94A0-002264C24CF0 = SEEN, 1D227A65-2799-11E0-B1BA-00215AD8241C = SEEN, 1D13108C-2863-11E0-BD29-00215AD84CB4 = SEEN, 6BA57467-2867-11E0-8DB4-002264C18BA0 = SEEN, 4A44FDC7-286A-11E0-A3BD-00237DE49D36 = SEEN, 5C38507F-2921-11E0-8EF8-00215AD88AE2 = SEEN, E9E9D219-2971-11E0-9829-00215AD9BE3E = SEEN, 9D3DE2DD-29E8-11E0-A9E9-00215AD80C26 = SEEN, CCF21B87-2BCE-11E0-B32F-00215AD99F1E = SEEN, 1C9E1EC7-2E2F-11E0-81F4-002264C20648 = SEEN, D0FF0B1B-2E93-11E0-A5BD-00237DE4A7E0 = SEEN, 81127FA9-2F97-11E0-A8EE-00215AD88C5C = SEEN, D1EA70CC-3022-11E0-9C0B-00237DE3F246 = SEEN, 5176896B-3023-11E0-99C9-002264C!
+ 249B4 = SEEN, 64C3897A-3023-11E0-8277-00215AD9BE50 = SEEN, 8BE!
+ A4304-32
+D9-11E0-9F69-00215AD85762 = SEEN, 43DDB502-335D-11E0-91B5-002264C19722 = SEEN, D1B120A2-3418-11E0-9319-00237DE33630 = SEEN, 43211275-3419-11E0-9319-00237DE33630 = SEEN, 9E30A3F3-3467-11E0-B110-002264C28142 = SEEN, 2300F250-3471-11E0-87CD-002264C195E2 = SEEN, FA4F8F96-3616-11E0-8791-00237DE3398C = SEEN, 7B748E75-3686-11E0-9099-00237DE3ECB4 = SEEN, 7E44DB4E-36A2-11E0-A9E9-00215AD80C26 = SEEN, 7FDF76E8-38DA-11E0-8403-00237DE3346E = SEEN, 0A895A94-38FA-11E0-BF41-002264C15472 = SEEN, 1C2489CC-3914-11E0-9829-00215AD9BE3E = SEEN, 82CB92B9-3939-11E0-B600-00215AD7C1BA = SEEN, 9611C972-399F-11E0-885D-00215AD72EE8 = SEEN, DC096C49-3A77-11E0-BBBC-00237DE41A9C = SEEN, 05185A55-3ACD-11E0-A318-002264C20738 = SEEN, 4B9856A2-3AE0-11E0-B1E7-002264C1D610 = SEEN, 61EC8952-3D3D-11E0-8D1F-00237DE4A26A = SEEN, 507F33B0-3E5C-11E0-8868-002264C20846 = SEEN, 070F7874-3E6C-11E0-AEF4-00215AD7D6C8 = SEEN, 7BD80C3E-3E73-11E0-A9E9-00215AD80C26 = SEEN, D16031FD-412B-11E0-B0B0-00215AD9BD28 = SEEN, BE78F77D-4!
+ 4D8-11E0-BAC5-00215AD8577A = SEEN, F83E10B7-4B13-11E0-A9BA-00215AD7DBBA = SEEN, 26E4AD54-4BEC-11E0-897D-00215AD801A4 = SEEN, 1F36CC9F-4E7E-11E0-8078-00215AD7B292 = SEEN, 99265C2A-4F1E-11E0-94B2-001CC4EDEDB2 = SEEN, CC50660E-4FBF-11E0-BCF0-00237DE334FE = SEEN, 062AE805-5311-11E0-8442-00237DE4A20A = SEEN, CE8BC8CD-538E-11E0-A841-00215AD84B9A = SEEN, A93B3677-53A8-11E0-AB41-00215AD7ABB2 = SEEN, 405BAF2A-5445-11E0-8124-00215AD9A39E = SEEN, AD6D78AC-546D-11E0-A890-00237DE3FB1A = SEEN, EC90AB11-5517-11E0-BC14-00215AD965AC = SEEN, 4E6DA9E7-5847-11E0-988B-00215AD7CA40 = SEEN, 08142C16-5920-11E0-BEDC-002264C17B86 = SEEN, 817D1588-595F-11E0-A961-00215AD7C620 = SEEN, 5A78CF92-5960-11E0-AEE7-00215AD81A52 = SEEN, 0C5352B3-5B7D-11E0-88C6-00215AD7E9BE = SEEN, BFD3946F-5CF1-11E0-B038-002264C197EE = SEEN, F255CF9A-5E85-11E0-B10E-00215AD7133E = SEEN, D59B409B-5ED3-11E0-8C4C-002264C17BFC = SEEN, BE897C0E-602D-11E0-8611-00215AD9E644 = SEEN, 9CBC3316-6080-11E0-A999-00237DE4A336 = SEEN, 622B8784!
+ -6083-11E0-A3AB-00215AD9B87A = SEEN, 46E59730-6C72-11E0-A2F9-0!
+ 0237DE4A
+750 = SEEN, 02C048E4-6E9C-11E0-A645-002264C24384 = SEEN, 81C57B3E-747D-11E0-9049-00237DE335F4 = SEEN, DCB97874-755F-11E0-991E-00215AD9659A = SEEN, 3BD1DDB4-78AD-11E0-8672-00237DE33606 = SEEN, 80CFBA71-78AD-11E0-BE59-00237DE46104 = SEEN, 45E2ED01-7BB9-11E0-B09C-00237DE4A79E = SEEN, 0220ECF3-8BBD-11E0-8835-00237DE45604 = SEEN, 31471B0F-9529-11E0-8895-00237DE3E436 = SEEN, BD1D0EAF-9539-11E0-B8AD-00237DE33486 = SEEN, 9FF1B168-9605-11E0-9066-002264C17C86 = SEEN, 451CC3AE-961A-11E0-B556-00215AD8C1F4 = SEEN, AE6CFA78-9793-11E0-93B7-00215AD81A52 = SEEN, E69F8A71-9794-11E0-9DB6-002264C1943E = SEEN, 0A8AF75B-9855-11E0-B213-00237DE3F534 = SEEN, FD66CE42-9868-11E0-9CD0-00215AD880F0 = SEEN, 638009AA-986D-11E0-9F14-002264C249B4 = SEEN, D993D55E-9879-11E0-AAB0-001CC4EDA742 = SEEN, DE15FCA8-991E-11E0-A26E-00215AD9A7A6 = SEEN, 6D41C9B0-9927-11E0-ACDE-00237DE3337C = SEEN, 9BBEAACB-992C-11E0-A50E-00215AD71750 = SEEN, 8C1BFA32-9936-11E0-AA9A-00215AD9E698 = SEEN, 1EE7EE01-99C8-11E0-9DCF-002264C1!
+ 54BA = SEEN, 7B3F4976-99EB-11E0-913C-00237DE3F5BE = SEEN, A2B951D9-99F8-11E0-A7DE-00215AD7ABB2 = SEEN, CF6055FD-9A0E-11E0-8609-00215AD7BB44 = SEEN, 0C80C9A5-9A86-11E0-8935-00215AD9BC44 = SEEN, A13B8AEE-9A9B-11E0-9053-00237DE335B8 = SEEN, A7290271-9AB7-11E0-B98A-00237DE461BE = SEEN, D731BB30-9AC3-11E0-9C0C-00215AD97132 = SEEN, 62EE2303-9AC9-11E0-A500-00215AD6EEC8 = SEEN, A7CC48EF-9AD1-11E0-96DA-00237DE4A660 = SEEN, AE3A8C33-9B79-11E0-AEA2-00237DE49966 = SEEN, BCE7F400-9C3C-11E0-8EBB-00237DE4617C = SEEN, 4A24DAD7-9C49-11E0-9998-00215AD7E9BE = SEEN, 7D710BCB-9C60-11E0-B556-00215AD8C1F4 = SEEN, 6A4CC9EA-9CA2-11E0-807C-00215AD7F73C = SEEN, C95900F6-9D0A-11E0-B2BA-00215AD8577A = SEEN, 56BC7F70-9D11-11E0-AB36-00215AD88084 = SEEN, 1EC5E526-9D13-11E0-8457-00215AD80BF6 = SEEN, 9D4D22B3-9D2F-11E0-A2D1-00215AD6E7D4 = SEEN, 4FD814E8-9D84-11E0-93E9-002264C19764 = SEEN, E69CE50D-9DBD-11E0-B2BA-00215AD8577A = SEEN, B4038F07-9DCF-11E0-8236-00237DE416AA = SEEN, 99BDF919-9E00-11E0-8BD6-00237D!
+ E4A738 = SEEN, 2D3F2B8A-A276-11E0-B017-002264C18BA0 = SEEN, 01!
+ E5AF20-A
+2E1-11E0-BCE0-00237DE49966 = SEEN, 2454ED8C-A2EA-11E0-B072-002264C20AA4 = SEEN, 572D42A8-A584-11E0-BD68-00237DE461B2 = SEEN, BB54EB5E-AAF2-11E0-AF0D-00215AD8818C = SEEN, 5AEAE06A-AD89-11E0-919B-002264C2433C = SEEN, 2EF450D3-B7D3-11E0-84E7-00237DE4A312 = SEEN, 2FB655CE-C8A6-11E0-922D-002264C17D7C = SEEN, 1B735565-D0ED-11E0-AF61-00215AD8577A = SEEN, F4DCF555-D419-11E0-A454-00237DE4A318 = SEEN, DDD8A02C-D90A-11E0-99BC-002264C1C798 = SEEN, 0BE0C97F-E15B-11E0-A6C6-00215AD7F150 = SEEN, 317AFA00-E525-11E0-9FE6-00215AD9DF9E = SEEN, 32759E16-EA29-11E0-B7EB-002264C17D5E = SEEN, E4F0476A-006B-11E1-96D8-00215AD84B9A = SEEN, DCB0744E-20E9-11E1-859E-002264C196B6 = SEEN, 9C5F39EE-28FD-11E1-88F5-00215AD7AB8E = SEEN, CF0E6512-3783-11E1-A9B4-00237DE3F534 = SEEN, F8944057-3EE4-11E1-A538-00237DE3360C = SEEN, 831849E3-49CF-11E1-9FA7-00215AD965B8 = SEEN, EE2D79DA-4AA1-11E1-BD14-00237DE469D4 = SEEN, 02717AF7-4C2C-11E1-8091-00237DE3F246 = SEEN, 1D537E2F-4D1C-11E1-89B5-002264C1C78C = SEEN, 45BABA70-!
+ 5242-11E1-8313-00215AD9BCC2 = SEEN, BAFE7347-6F47-11E1-9F58-00237DE3F1E4 = SEEN, 3B85155E-6F5D-11E1-A49B-00215AD73F30 = SEEN, 7FDF9656-7A47-11E1-B0A7-002264C20AA4 = SEEN, 0EAEDBAF-7CC4-11E1-B97E-00237DE4A62A = SEEN, 3DCBE8F9-8BD4-11E1-819F-002264C17BD4 = SEEN, DAF5A900-A10B-11E1-88DC-002264C197E8 = SEEN, D10D54ED-ACCF-11E1-8E55-00237DE4A6EA = SEEN, 571E2D88-AFCF-11E1-94C9-00237DE4A1B0 = SEEN, 6F08F7AA-B00E-11E1-BEC4-00237DE417B8 = SEEN, 05FF698C-B244-11E1-9D00-00215AD9BC56 = SEEN, 572ACB9E-B728-11E1-9F15-00237DE4611C = SEEN, A49AACD8-B897-11E1-905B-00215AD8818C = SEEN, 4000F48A-C46B-11E1-B646-00215AD9A392 = SEEN, AAC55B69-C54B-11E1-B0F9-00215AD7BB3E = SEEN, 21915342-C730-11E1-BAC5-00237DE3F1F6 = SEEN, 90532031-D031-11E1-927E-00215AD9DF9E = SEEN, DA317791-D4F1-11E1-8B52-00215AD82410 = SEEN, 5D05D031-DBF3-11E1-ADDD-00215AD75280 = SEEN, B4EE0CF4-E076-11E1-9872-00237DE4161A = SEEN, E8946C2F-E240-11E1-B7D0-002264C24384 = SEEN, 926199B1-E77D-11E1-9A39-001E0BCBD4F2 = SEEN, BBA2934!
+ B-E882-11E1-AEC7-002264C15418 = SEEN, 5950B70D-EED5-11E1-9AD6-!
+ 00215AD7
+B4D6 = SEEN, D70BC20C-EFA7-11E1-9878-00215AD7E9BE = SEEN, C41611CE-F080-11E1-95C3-002264C1D724 = SEEN, 04652131-F084-11E1-A389-00215AD85762 = SEEN, A28AFEA2-F512-11E1-81AB-00237DE3346E = SEEN, 0A1C55EE-F51B-11E1-BE2F-00237DE3F118 = SEEN, 883CC126-F65C-11E1-A4E6-00215AD8530E = SEEN, 12F484A8-F83A-11E1-AF3E-00215AD856DE = SEEN, 81A933FE-F83D-11E1-8385-002264C1D622 = SEEN, BF3EAA84-FB32-11E1-AB68-00237DE4A79E = SEEN, F24B9F27-FB62-11E1-9210-00215AD8015C = SEEN, 51ED2403-FE03-11E1-91AE-00237DE33968 = SEEN, 15278205-FE58-11E1-B0E8-002264C1546C = SEEN, 62020634-FE60-11E1-9A73-00215AD80C02 = SEEN, 1BAD751E-FFA0-11E1-BD4F-00215AD7F150 = SEEN, D4489BF2-0357-11E2-91DA-00237DE460E6 = SEEN, 765249C0-087B-11E2-B486-00215AD80204 = SEEN, 8763B08D-0C6B-11E2-8C05-00215AD8C1E8 = SEEN, 2A6EEC94-0F00-11E2-8705-00215AD7E6DC = SEEN, 29DDE636-130B-11E2-AE57-00215AD80BAE = SEEN, 52743AF4-16DC-11E2-8C15-00215AD86594 = SEEN, B58AE66E-29DC-11E2-B7E2-00215AD71B16 = SEEN, 7E564F9A-347A-11E2-8D1F-00237DE!
+ 4AEFA = SEEN, 6F5283D2-3DE2-11E2-8ED1-00237DE49BAA = SEEN, F6795BE0-4721-11E2-95BB-002264C153FA = SEEN, CACBAC5D-4FE2-11E2-B524-00237DE46176 = SEEN, 4C0D5B30-5B9E-11E2-8939-002264C1CA12 = SEEN, 28EEEDED-6D2E-11E2-BC3D-00237DE4A7A4 = SEEN, B74EE6DE-70A1-11E2-A095-00215AD9A2AC = SEEN, F0480DA0-70A3-11E2-AA89-00237DE4A5C4 = SEEN, 85FEB433-7169-11E2-96F3-00237DE3F1F6 = SEEN, 51A00311-7235-11E2-AB02-00237DE46158 = SEEN, 1C502051-7550-11E2-B44B-00215AD7F73C = SEEN, E9ED2B45-77B3-11E2-A4C9-001E0BCBB978 = SEEN, 537C5525-80A3-11E2-BDEC-002264C248A4 = SEEN, 912C534F-98AB-11E2-98DB-002264C17D50 = SEEN, 31D24280-9CB6-11E2-B568-00237DE3F1E4 = SEEN, 008A7C3B-B038-11E2-96E3-E83935B1F46A = SEEN, 580BF826-CAEC-11E2-B67B-00237DE3337C = SEEN, 7D04574A-D4C6-11E2-ABC7-00215AD7BB74 = SEEN, 5AE39AF7-D515-11E2-9EAF-00215AD99EEE = SEEN, 3844288E-D51F-11E2-973C-00237DE41650 = SEEN, 535A66F0-D589-11E2-A55E-002264C18E30 = SEEN, D94F77A5-D5C7-11E2-93A1-00237DE4A738 = SEEN, DFC9E8A9-D5CB-11E2-965F-00215!
+ AD7BD84 = SEEN, E562193C-D5D4-11E2-BD36-00215AD6DB42 = SEEN, 3!
+ BE8FCBF-
+D65A-11E2-A02F-00237DE41AA2 = SEEN, 0618D098-D65B-11E2-AC67-00215AD7BB68 = SEEN, 2906681A-D676-11E2-9D5B-00215AD9BD2E = SEEN, B25F3D68-D6A4-11E2-90DB-00237DE334CE = SEEN, 741BD345-D82E-11E2-A91D-00237DE3362A = SEEN, 6121A55D-D8EA-11E2-81AD-00215AD88AE2 = SEEN, 8A339207-D972-11E2-8676-00215AD7C2D0 = SEEN
+fetchmail: swapping UID lists
+fetchmail: Query status=1 (NOMAIL)
+fetchmail: Writing fetchids file.
+fetchmail: normal termination, status 1
+fetchmail: Writing fetchids file.
+---------------- snip -------------
+
+-------------------------------------------------------
+
+Date: 2013-Jun-21 19:45
+By: m-a
+
+Comment:
+Make that <A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#G3">http://www.fetchmail.info/fetchmail-FAQ.html#G3</A>
+-------------------------------------------------------
+
+Date: 2013-Jun-21 19:44
+By: m-a
+
+Comment:
+Thank you for taking the time to report this problem.
+
+However, we need further information in order to be able to 
+investigate and eventually fix the problem.
+
+Please see <A HREF="http://fetchmail.info/fetchmail-FAQ.html#G3">http://fetchmail.info/fetchmail-FAQ.html#G3</A> for a 
+checklist of pieces of information that you need to report.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=19024&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=19024&amp;group_id=1824</A>
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001635.html">[fetchmail-devel] [Bug #19024] wrong permissions on .fetchids
+</A></li>
+	<LI>Next message: <A HREF="001637.html">[fetchmail-devel] idle polling on multiple servers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1636">[ date ]</a>
+              <a href="thread.html#1636">[ thread ]</a>
+              <a href="subject.html#1636">[ subject ]</a>
+              <a href="author.html#1636">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

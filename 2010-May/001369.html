@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Some PATRICIA numbers
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3Cop.vcuaf7e31e62zd%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001368.html">
+   <LINK REL="Next"  HREF="001370.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Some PATRICIA numbers</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Some%20PATRICIA%20numbers&In-Reply-To=%3Cop.vcuaf7e31e62zd%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Some PATRICIA numbers">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon May 17 09:44:21 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001368.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+        <LI>Next message: <A HREF="001370.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1369">[ date ]</a>
+              <a href="thread.html#1369">[ thread ]</a>
+              <a href="subject.html#1369">[ subject ]</a>
+              <a href="author.html#1369">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 16.05.2010, 23:33 Uhr, schrieb Rainer Weikusat:
+
+&gt;<i> The trie implementation is meanwhile complete and I have done some
+</I>&gt;<i> preliminary benchmarks. I fear that the 'insert' cost will turn out to
+</I>&gt;<i> be somewhat higher, but the results for searches are promising. The
+</I>&gt;<i> largest .fetchids file I have here contains 7275 UIDs. Assuming the
+</I>&gt;<i> trie has already been created, iterating over the input file a
+</I>&gt;<i> thousand times and searching for every UID needs 3.93s on average,
+</I>&gt;<i> meaning the average time for a single search is about 5.4E-7 seconds
+</I>&gt;<i> (3Ghz P4). Doing a plain linear search for every UID needs about 16.6
+</I>&gt;<i> seconds on average[*] or about 2.3E-4 seconds per search.
+</I>&gt;<i>
+</I>&gt;<i> 	[*] For ten searches. I didn't have the patience to wait for
+</I>&gt;<i> 	1000 :-&gt;
+</I>
+Hi Rainer,
+
+this looks good.  Without trying to downplay your efforts, I'd also say  
+that this was somewhat expected. In other words, your numbers confirm that  
+the trie works as expected and does not degenerate into a linear list in  
+your test cases.
+   Insertion into the data structure is fastest for a pre-allocated array,  
+then appending to a list that has a tail pointer. Inserting into trees,  
+tries, heaps, and thereabouts always takes a bit longer because it  
+encloses a search for the node where you'll be forking the branches. It is  
+some sort of &quot;ordered&quot; insertion. This is the price we (happily!) pay for  
+quicker retrievals and searches.
+
+The important part here is that, given N UIDs in a list, the costly  
+operations &quot;insert all UIDs&quot; and &quot;for each UID retrieved from the server,  
+check if we've already seen it&quot; are reduced to O(N log N) when they used  
+to cost O(N^2) for larger N (i. e. asymptotically).
+
+I'm really looking forward to your code :-)
+
+Best regards
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001368.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+	<LI>Next message: <A HREF="001370.html">[fetchmail-devel] Some PATRICIA numbers
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1369">[ date ]</a>
+              <a href="thread.html#1369">[ thread ]</a>
+              <a href="subject.html#1369">[ subject ]</a>
+              <a href="author.html#1369">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

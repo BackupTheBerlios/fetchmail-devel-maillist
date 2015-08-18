@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail 6.3.6-rc2 release candidate
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.3.6-rc2%20release%20candidate&In-Reply-To=%3C20061112232437.GB31883%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000820.html">
+   <LINK REL="Next"  HREF="000822.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail 6.3.6-rc2 release candidate</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%206.3.6-rc2%20release%20candidate&In-Reply-To=%3C20061112232437.GB31883%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] fetchmail 6.3.6-rc2 release candidate">matthias.andree at gmx.de
+       </A><BR>
+    <I>Mon Nov 13 00:24:37 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000820.html">[fetchmail-devel] Contents of file `fetchmail-6.3.6-rc1.ru.po'
+</A></li>
+        <LI>Next message: <A HREF="000822.html">[fetchmail-devel] [Bug #9449] Malformed headers causes segfault
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#821">[ date ]</a>
+              <a href="thread.html#821">[ thread ]</a>
+              <a href="subject.html#821">[ subject ]</a>
+              <a href="author.html#821">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Greetings,
+
+I have uploaded a new fetchmail 6.3.6 release candidate to the usual
+download location: &lt;<A HREF="http://home.pages.de/~mandree/fetchmail/">http://home.pages.de/~mandree/fetchmail/</A>&gt;
+
+WARNING: This message sets the Reply-To: header.
+When replying to me personally, you need to edit the To: header!
+
+Important changes in fetchmail 6.3.6-rc2 since 6.3.5:
+
+# SECURITY FIX (INCOMPATIBLE):
+* Using at least one of the options &quot;sslproto 'tls1'&quot;, &quot;sslfingerprint&quot; or
+  &quot;sslcertck&quot; enforces STARTTLS for POP3 and IMAP and terminates the connection
+  if unsuccessful. The same configuration causes permanent connection failure
+  with POP2 unless --ssl is used.
+  fetchmail 6.3.5 and older had no way to enforce TLS. With those older
+  versions, TLS was always opportunistic, but fetchmail would happily transmit
+  the password in cleartext if STARTTLS failed. --ssl --sslcertck
+  configurations however have been safe.
+  Reported by and fixed in cooperation with Isaac Wilcox.
+
+# BUG FIXES:
+* Repair --logfile, broken in 6.3.5. BerliOS Bug #9059,
+  reported by Brian Harring.
+
+Happy fetching,
+Matthias Andree
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFFV601vmGDOQUufZURAryzAKDzJkmHq8v353OmWZ7OuSHe+eepEACgnqnQ
+l2VReNobhAHaFXTw+QOJisg=
+=TFX+
+-----END PGP SIGNATURE-----
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000820.html">[fetchmail-devel] Contents of file `fetchmail-6.3.6-rc1.ru.po'
+</A></li>
+	<LI>Next message: <A HREF="000822.html">[fetchmail-devel] [Bug #9449] Malformed headers causes segfault
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#821">[ date ]</a>
+              <a href="thread.html#821">[ thread ]</a>
+              <a href="subject.html#821">[ subject ]</a>
+              <a href="author.html#821">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

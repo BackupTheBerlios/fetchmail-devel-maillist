@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [PATCH] imap: introduce imapsearchmax	parameter
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20imap%3A%20introduce%20imapsearchmax%0A%09parameter&In-Reply-To=%3C4DBD0CD3.8030007%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001480.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [PATCH] imap: introduce imapsearchmax	parameter</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BPATCH%5D%20imap%3A%20introduce%20imapsearchmax%0A%09parameter&In-Reply-To=%3C4DBD0CD3.8030007%40gmx.de%3E"
+       TITLE="[fetchmail-devel] [PATCH] imap: introduce imapsearchmax	parameter">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun May  1 09:33:39 CEST 2011</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001480.html">[fetchmail-devel] [PATCH] imap: introduce imapsearchmax	parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1479">[ date ]</a>
+              <a href="thread.html#1479">[ thread ]</a>
+              <a href="subject.html#1479">[ subject ]</a>
+              <a href="author.html#1479">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 23.04.2011 01:28, schrieb Andrea Righi:
+&gt;<i> To retrieve new messages from a IMAP folder we use the IMAP SEARCH
+</I>&gt;<i> command, but we limit the messages processed by the query to 1000.
+</I>&gt;<i> This limit is hard-coded and it cannot be changed at runtime.
+</I>&gt;<i> 
+</I>&gt;<i> This value is not the best option in some cases, especially for large
+</I>&gt;<i> folders, because we need to submit a query each 1000 messages.
+</I>&gt;<i> 
+</I>&gt;<i> The following patch introduces a new option (imapsearchmax) that can be
+</I>&gt;<i> used to change this limit at runtime.
+</I>
+Note that Exchange 2010 may also need a server-side fix then. If we're
+not up in the 2000+ range we apparently don't trigger it:
+
+<A HREF="http://support.microsoft.com/kb/2494798/en-us">http://support.microsoft.com/kb/2494798/en-us</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001480.html">[fetchmail-devel] [PATCH] imap: introduce imapsearchmax	parameter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1479">[ date ]</a>
+              <a href="thread.html#1479">[ thread ]</a>
+              <a href="subject.html#1479">[ subject ]</a>
+              <a href="author.html#1479">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

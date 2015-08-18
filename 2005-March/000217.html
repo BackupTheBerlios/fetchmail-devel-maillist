@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] lost UIDs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20lost%20UIDs&In-Reply-To=%3Cm3u0np1qkj.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000216.html">
+   <LINK REL="Next"  HREF="000218.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] lost UIDs</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20lost%20UIDs&In-Reply-To=%3Cm3u0np1qkj.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] lost UIDs">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun Mar  6 03:00:28 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000216.html">[fetchmail-devel] lost UIDs
+</A></li>
+        <LI>Next message: <A HREF="000218.html">[fetchmail-devel] lost UIDs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#217">[ date ]</a>
+              <a href="thread.html#217">[ thread ]</a>
+              <a href="subject.html#217">[ subject ]</a>
+              <a href="author.html#217">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+
+&gt;<i> Actually, the right code is:
+</I>&gt;<i>
+</I>&gt;<i>     if (ctl-&gt;newsaved)
+</I>&gt;<i>     {
+</I>&gt;<i>         /* old state of mailbox may now be irrelevant */
+</I>&gt;<i>         struct idlist **temp = &amp;ctl-&gt;oldsaved;
+</I>&gt;<i>         if (outlevel &gt;= O_DEBUG)
+</I>&gt;<i>             report(stdout, GT_(&quot;swapping UID lists\n&quot;));
+</I>&gt;<i>         ctl-&gt;oldsaved = ctl-&gt;newsaved;
+</I>&gt;<i>         ctl-&gt;newsaved = (struct idlist *) NULL;
+</I>&gt;<i>         free_str_list(temp);
+</I>&gt;<i>     }
+</I>
+Of course it's not, we'll be erasing everything.
+
+Right code is (watch where the &amp; is!)
+
+    if (ctl-&gt;newsaved)
+    {
+        /* old state of mailbox may now be irrelevant */
+        struct idlist *temp = ctl-&gt;oldsaved;
+        if (outlevel &gt;= O_DEBUG)
+            report(stdout, GT_(&quot;swapping UID lists\n&quot;));
+        ctl-&gt;oldsaved = ctl-&gt;newsaved;
+        ctl-&gt;newsaved = (struct idlist *) NULL;
+        free_str_list(&amp;temp);
+    }
+
+Committed as SVN revision 4021.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000216.html">[fetchmail-devel] lost UIDs
+</A></li>
+	<LI>Next message: <A HREF="000218.html">[fetchmail-devel] lost UIDs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#217">[ date ]</a>
+              <a href="thread.html#217">[ thread ]</a>
+              <a href="subject.html#217">[ subject ]</a>
+              <a href="author.html#217">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: r3995 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r3995%20-%20trunk&In-Reply-To=%3C20041112170921.GA20041%40quux.local%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000188.html">
+   <LINK REL="Next"  HREF="000200.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: r3995 - trunk</H1>
+    <B>Graham Wilson</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20r3995%20-%20trunk&In-Reply-To=%3C20041112170921.GA20041%40quux.local%3E"
+       TITLE="[fetchmail-devel] Re: r3995 - trunk">graham at mknod.org
+       </A><BR>
+    <I>Fri Nov 12 18:09:21 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000188.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+        <LI>Next message: <A HREF="000200.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wed, Nov 10, 2004 at 09:14:37PM +0100, Matthias Andree wrote:
+&gt;<i> Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">graham at mknod.org</A>&gt; writes:
+</I>&gt;<i> &gt; What is this and why do we need it?
+</I>&gt;<i> 
+</I>&gt;<i> This is the best GPL-compatible snprintf/sscanf replacement (including
+</I>&gt;<i> varargs variants) that I've been able to find as a separate project.
+</I>
+Why do we want it as a separate project?
+
+&gt;<i> The idea is to get rid of insecure and ugly coding practices such as
+</I>&gt;<i> using [v]sprintf or strcat on older systems that lack [v]snprintf, and
+</I>&gt;<i> the way we'd seen this integrated in the code was messy:
+</I>&gt;<i> 
+</I>&gt;<i> [...]
+</I>
+I agree that it is a good idea to get rid of sprintf throughout the
+code. Thanks for spearheading the effort.
+
+&gt;<i> I'm not fixed on Trio, if you know something better, we can flush Trio
+</I>&gt;<i> and use something else,
+</I>
+I would have gone with a single file implementation of snprintf instead
+of using the whole Trio. I don't see why we need to add 54 files when we
+could just add one. For example, mutt is known to have a good snprintf
+implmentation.
+
+What would you think about using that?
+
+&gt;<i> but I'm not willing to allow the ugly old structure back in.
+</I>
+Agreed.
+
+-- 
+gram
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000188.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+	<LI>Next message: <A HREF="000200.html">[fetchmail-devel] Re: r3995 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #10972] Fetchmail refetches big messages	repeatedly
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2310972%5D%20Fetchmail%20refetches%20big%20messages%0A%09repeatedly&In-Reply-To=%3C200705022251.l42MpfeY010153%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000920.html">
+   <LINK REL="Next"  HREF="000923.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #10972] Fetchmail refetches big messages	repeatedly</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%2310972%5D%20Fetchmail%20refetches%20big%20messages%0A%09repeatedly&In-Reply-To=%3C200705022251.l42MpfeY010153%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #10972] Fetchmail refetches big messages	repeatedly">admin at berlios.de
+       </A><BR>
+    <I>Thu May  3 00:51:41 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000920.html">[fetchmail-devel] [Bug #10957] mailbox emptied even though I used	--keep
+</A></li>
+        <LI>Next message: <A HREF="000923.html">[fetchmail-devel] New Vietnamese PO file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#922">[ date ]</a>
+              <a href="thread.html#922">[ thread ]</a>
+              <a href="subject.html#922">[ subject ]</a>
+              <a href="author.html#922">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #10972, was updated on 2007-May-03 00:51
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: bviktor
+Assigned to : none
+Summary: Fetchmail refetches big messages repeatedly
+
+Details: If downloading a message takes more time than the configured timeout value, fetchmail does not mark it as read, or delete it from the server, even if it has been delivered correctly. This makes it refetch the same message repeatedly (like a mail loop).
+
+I'm using fetchmail on a Debian &quot;etch&quot; server with the following configuration:
+
+fetchmail -V:
+&quot;This is fetchmail release 6.3.6+NTLM+SDPS+SSL+NLS.&quot;
+
+fetchmailrc:
+
+set syslog
+set daemon 120
+
+defaults
+    timeout 60, fetchall
+
+poll &quot;mail.web-server.hu&quot; protocol POP3: user &quot;***&quot; there with password &quot;***&quot; is &quot;***&quot; here
+fetchall nokeep ssl;
+
+The server I'm connecting to is a bit broken SSL-wise: 
+
+Server certificate verification error: self signed certificate
+Server CommonName mismatch: localhost != mail.web-server.hu
+
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10972&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10972&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000920.html">[fetchmail-devel] [Bug #10957] mailbox emptied even though I used	--keep
+</A></li>
+	<LI>Next message: <A HREF="000923.html">[fetchmail-devel] New Vietnamese PO file for `fetchmail'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#922">[ date ]</a>
+              <a href="thread.html#922">[ thread ]</a>
+              <a href="subject.html#922">[ subject ]</a>
+              <a href="author.html#922">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

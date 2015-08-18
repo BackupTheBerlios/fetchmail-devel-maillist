@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Assorted minor bugs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3C20041108122829.GB1394%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000183.html">
+   <LINK REL="Next"  HREF="000184.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Assorted minor bugs</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3C20041108122829.GB1394%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] Assorted minor bugs">B.Candler at pobox.com
+       </A><BR>
+    <I>Mon Nov  8 13:28:29 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000183.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+        <LI>Next message: <A HREF="000184.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#180">[ date ]</a>
+              <a href="thread.html#180">[ thread ]</a>
+              <a href="subject.html#180">[ subject ]</a>
+              <a href="author.html#180">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> A second step (longer-term than the next release), i. e. after the next
+</I>&gt;<i> official release, should then make strict checking the default and offer
+</I>&gt;<i> the user options to relax checking for the case when the configuration
+</I>&gt;<i> (client or server) cannot be fixed on short notice.
+</I>
+I agree, except that if you specify an explicit fingerprint that should also
+make the certificate checking non-strict.
+
+That is, if you *know* the public key of the end-point you're talking to,
+then you don't care if it has been signed or by whom or when. With
+--sslfingerprint you're effectively using the ssh model, rather than the ssl
+model, for preventing man-in-the-middle attacks.
+
+Regards,
+
+Brian.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000183.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+	<LI>Next message: <A HREF="000184.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#180">[ date ]</a>
+              <a href="thread.html#180">[ thread ]</a>
+              <a href="subject.html#180">[ subject ]</a>
+              <a href="author.html#180">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] POP3 UIDL behavior
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2009-January/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20POP3%20UIDL%20behavior&In-Reply-To=%3C49814866.60605%40rollernet.us%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001047.html">
+   <LINK REL="Next"  HREF="001036.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] POP3 UIDL behavior</H1>
+    <B>Seth Mattinen</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20POP3%20UIDL%20behavior&In-Reply-To=%3C49814866.60605%40rollernet.us%3E"
+       TITLE="[fetchmail-devel] POP3 UIDL behavior">sethm at rollernet.us
+       </A><BR>
+    <I>Thu Jan 29 07:10:46 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001047.html">[fetchmail-devel] POP3 UIDL behavior
+</A></li>
+        <LI>Next message: <A HREF="001036.html">[fetchmail-devel] [Bug #15103] Fetchmail Fails with ASSP	(http://assp.sourceforge.net/)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1048">[ date ]</a>
+              <a href="thread.html#1048">[ thread ]</a>
+              <a href="subject.html#1048">[ subject ]</a>
+              <a href="author.html#1048">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>And here's the debug output using my patched version of fetchmail:
+
+
+fetchmail:/var/lib/fetchmail/test# cat uidl
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 0001179e45a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 0001179f45a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 000117a045a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 000117a145a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 0001179e45a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 0001179f45a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 000117a045a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 000117a145a1729f
+
+fetchmail:/var/lib/fetchmail/test# su fetchmail -c 'fetchmail --quit -f 
+/var/lib/fetchmail/test/fetchmailrc --pidfile 
+/var/lib/fetchmail/test/fetchmail.pid -i /var/lib/fetchmail/test/uidl -vvN'
+fetchmail: Old UID list from mail.mattinen.org: 0001179e45a1729f 
+0001179f45a1729f 000117a045a1729f 000117a145a1729f 0001179e45a1729f 
+0001179f45a1729f 000117a045a1729f 000117a145a1729f &lt;empty&gt;
+fetchmail: Scratch list of UIDs: &lt;empty&gt;
+fetchmail: starting fetchmail 6.3.9 daemon
+fetchmail: 6.3.9 querying mail.mattinen.org (protocol POP3) at Wed 28 
+Jan 2009 10:08:20 PM PST: poll started
+fetchmail: Trying to connect to 67.118.43.90/995...connected.
+fetchmail: Issuer Organization: Courier Mail Server
+fetchmail: Issuer CommonName: mail.mattinen.org
+fetchmail: Server CommonName: mail.mattinen.org
+fetchmail: mail.mattinen.org key fingerprint: 
+0D:B9:98:10:A0:C7:B6:4C:70:92:6C:EE:C6:BB:99:1C
+fetchmail: Server certificate verification error: self signed certificate
+fetchmail: Server certificate verification error: certificate has expired
+fetchmail: POP3&lt; +OK Dovecot ready.
+fetchmail: POP3&gt; CAPA
+fetchmail: POP3&lt; +OK
+fetchmail: POP3&lt; CAPA
+fetchmail: POP3&lt; TOP
+fetchmail: POP3&lt; UIDL
+fetchmail: POP3&lt; RESP-CODES
+fetchmail: POP3&lt; PIPELINING
+fetchmail: POP3&lt; USER
+fetchmail: POP3&lt; SASL PLAIN
+fetchmail: POP3&lt; .
+fetchmail: POP3&gt; USER sethm
+fetchmail: POP3&lt; +OK
+fetchmail: POP3&gt; PASS *
+fetchmail: POP3&lt; +OK Logged in.
+fetchmail: selecting or re-polling default folder
+fetchmail: POP3&gt; STAT
+fetchmail: POP3&lt; +OK 4 1792
+fetchmail: POP3&gt; UIDL
+fetchmail: POP3&lt; +OK
+fetchmail: POP3&lt; 1 0001179e45a1729f
+fetchmail: POP3&lt; 2 0001179f45a1729f
+fetchmail: POP3&lt; 3 000117a045a1729f
+fetchmail: POP3&lt; 4 000117a145a1729f
+fetchmail: POP3&lt; .
+fetchmail: 4 messages (4 seen) for sethm at mail.mattinen.org (1792 octets).
+fetchmail: skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A>:1 not flushed
+fetchmail: skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A>:2 not flushed
+fetchmail: skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A>:3 not flushed
+fetchmail: skipping message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A>:4 not flushed
+fetchmail: POP3&gt; QUIT
+fetchmail: POP3&lt; +OK Logging out.
+fetchmail: 6.3.9 querying mail.mattinen.org (protocol POP3) at Wed 28 
+Jan 2009 10:08:20 PM PST: poll completed
+fetchmail: New UID list from mail.mattinen.org: 0001179e45a1729f = 1 
+0001179f45a1729f = 1 000117a045a1729f = 1 000117a145a1729f = 1 &lt;empty&gt;
+fetchmail: swapping UID lists
+fetchmail: Query status=1 (NOMAIL)
+fetchmail: Writing fetchids file.
+fetchmail: sleeping at Wed 28 Jan 2009 10:08:20 PM PST for 15 seconds
+fetchmail: terminated with signal 2
+fetchmail: Writing fetchids file.
+
+fetchmail:/var/lib/fetchmail/test# cat uidl
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 0001179e45a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 0001179f45a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 000117a045a1729f
+<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at mail.mattinen.org</A> 000117a145a1729f
+
+
+Nothing in the configuration was changed and the same uidl file 
+(including the duplicates, which were weeded out) was used. Note the 
+oldlist is now populated at start time whereas it wasn't with the 
+unpatched version.
+
+-- 
+Seth Mattinen		<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">sethm at rollernet.us</A>
+Roller Network LLC
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001047.html">[fetchmail-devel] POP3 UIDL behavior
+</A></li>
+	<LI>Next message: <A HREF="001036.html">[fetchmail-devel] [Bug #15103] Fetchmail Fails with ASSP	(http://assp.sourceforge.net/)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1048">[ date ]</a>
+              <a href="thread.html#1048">[ thread ]</a>
+              <a href="subject.html#1048">[ subject ]</a>
+              <a href="author.html#1048">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] stops to download mails with underscore
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20stops%20to%20download%20mails%20with%20underscore&In-Reply-To=%3C200507141544.07097.rfunk%40funknet.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000361.html">
+   <LINK REL="Next"  HREF="000365.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] stops to download mails with underscore</H1>
+    <B>Rob Funk</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20stops%20to%20download%20mails%20with%20underscore&In-Reply-To=%3C200507141544.07097.rfunk%40funknet.net%3E"
+       TITLE="[fetchmail-devel] stops to download mails with underscore">rfunk at funknet.net
+       </A><BR>
+    <I>Thu Jul 14 21:44:06 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000361.html">[fetchmail-devel] stops to download mails with underscore
+</A></li>
+        <LI>Next message: <A HREF="000365.html">[fetchmail-devel] stops to download mails with underscore
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#364">[ date ]</a>
+              <a href="thread.html#364">[ thread ]</a>
+              <a href="subject.html#364">[ subject ]</a>
+              <a href="author.html#364">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Brian Candler wrote:
+&gt;<i> I think the problem is not that the local smtp server is rejecting the
+</I>&gt;<i> mail with a 501 response (which it is entitled to do, for any policy
+</I>&gt;<i> reason); the problem is that the SMTP conversation is getting stuck at
+</I>&gt;<i> this point. Fetchmail ought to be able to recover from this situation.
+</I>
+Fetchmail's header validation has long been a source of stuck mail 
+problems, but if I remember correctly, it's done so that fetchmail can 
+bounce the mail if necessary, as well as not be responsible for passing 
+bad headers downstream.
+
+Part of the problem is that fetchmail seems to be operating in an 
+SMTP-style mode where invalid headers can be rejected without first 
+accepting the mail. POP and IMAP we really can't just refuse to accept a 
+message with an invalid sender address and expect the upstream sender to 
+fix it.  We need to take the mail and do *something* with it.
+
+This is something I don't think we can fix for the upcoming release, but 
+should be on the list of things to address in the following release.
+
+-- 
+==============================|   &quot;A microscope locked in on one point
+ Rob Funk &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">rfunk at funknet.net</A>&gt; |Never sees what kind of room that it's in&quot;
+ <A HREF="http://www.funknet.net/rfunk">http://www.funknet.net/rfunk</A> |    -- Chris Mars, &quot;Stuck in Rewind&quot;
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000361.html">[fetchmail-devel] stops to download mails with underscore
+</A></li>
+	<LI>Next message: <A HREF="000365.html">[fetchmail-devel] stops to download mails with underscore
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#364">[ date ]</a>
+              <a href="thread.html#364">[ thread ]</a>
+              <a href="subject.html#364">[ subject ]</a>
+              <a href="author.html#364">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

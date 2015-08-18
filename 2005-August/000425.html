@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bart666%40poczta.onet.pl%3A%20Bug%23322683%3A%20fetchmail%20can%27t%20get%20some%20%22special%22%20messages%20from%20pop3%20o2.pl%5D&In-Reply-To=%3C20050812161546.GA7334%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000424.html">
+   <LINK REL="Next"  HREF="000426.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5Bart666%40poczta.onet.pl%3A%20Bug%23322683%3A%20fetchmail%20can%27t%20get%20some%20%22special%22%20messages%20from%20pop3%20o2.pl%5D&In-Reply-To=%3C20050812161546.GA7334%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]">B.Candler at pobox.com
+       </A><BR>
+    <I>Fri Aug 12 18:15:46 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000424.html">[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+</A></li>
+        <LI>Next message: <A HREF="000426.html">[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Fri, Aug 12, 2005 at 10:14:21AM +0200, Nico Golde wrote:
+&gt;<i> 1 list dla artii at poczta.o2.pl. (5193 octets).
+</I>&gt;<i> fetchmail: POP3&gt; LIST 1
+</I>&gt;<i> fetchmail: POP3&lt; +OK 1 5193
+</I>&gt;<i> fetchmail: POP3&gt; RETR 1
+</I>&gt;<i> fetchmail: POP3&lt; +OK 
+</I>&gt;<i> fetchmail: SMTP&gt; MAIL
+</I>&gt;<i> FROM:&lt;bounce-debian-security=artii=<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">o2.pl at lists.debian.org</A>&gt; BODY=8BITMIME
+</I>&gt;<i> SIZE=5193
+</I>&gt;<i> fetchmail: SMTP&lt; 250 Ok
+</I>&gt;<i> fetchmail: SMTP&gt; RCPT TO:&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">art at lorien.pl</A>&gt;
+</I>&gt;<i> fetchmail: SMTP&lt; 250 Ok
+</I>&gt;<i> fetchmail: SMTP&gt; DATA
+</I>&gt;<i> fetchmail: SMTP&lt; 354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
+</I>&gt;<i> #********************fetchmail: message <A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">artii at poczta.o2.pl</A>:1 was not the
+</I>&gt;<i> expected length (4411 actual != 5193 expected)
+</I>
+IMO this is definitely a fetchmail bug.
+
+fetchmail should read data until \r\n.\r\n which marks the end of the
+message. Even though RFC1939 insists that the size from a 'LIST' command
+needs to be calculated exactly, it is bizarre for a client to perform a LIST
+command, then issue a RETR, then blindly read that number of bytes, when it
+could just scan the stream for \r\n.\r\n in the first place.
+
+Why does fetchmail do this silly thing?
+
+Regards,
+
+Brian.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000424.html">[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+</A></li>
+	<LI>Next message: <A HREF="000426.html">[fetchmail-devel] [art666 at poczta.onet.pl: Bug#322683: fetchmail can't get some &quot;special&quot; messages from pop3 o2.pl]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

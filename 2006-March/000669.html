@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060301153235.GA5527%40zoidberg.homeip.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000677.html">
+   <LINK REL="Next"  HREF="000672.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD</H1>
+    <B>Casper Gripenberg</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%20%28%3F%29%20fetchmail%206.3.2%20hangs%20with%20%27idle%27%20on%20OpenBSD&In-Reply-To=%3C20060301153235.GA5527%40zoidberg.homeip.net%3E"
+       TITLE="[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD">casper.gripenberg at kotiportti.fi
+       </A><BR>
+    <I>Wed Mar  1 16:32:35 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000677.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+        <LI>Next message: <A HREF="000672.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#669">[ date ]</a>
+              <a href="thread.html#669">[ thread ]</a>
+              <a href="subject.html#669">[ subject ]</a>
+              <a href="author.html#669">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wed, Mar 01, 2006 at 01:35:16PM +0530, Sunil Shetye wrote:
+&gt;<i> As far as the delay part goes, even with IMAP servers supporting IDLE,
+</I>&gt;<i> a delay of one minute is expected as IMAP servers checkpoint the
+</I>&gt;<i> folder every one minute or so. Of course, it will actually depend on
+</I>&gt;<i> the IMAP server configuration and implementation, 
+</I>
+Ok I see. On the IMAP server I use the mail delivery is instant. 
+I tried it with direct telnet to the smtp server, and as soon as 
+I send the mail I see it on the IMAP side. There is absolutely 
+no delay.
+
+&gt;<i> but the point is
+</I>&gt;<i> that a small delay is acceptable. Here, the maximum delay will be 28
+</I>&gt;<i> seconds, which should be acceptable.
+</I>&gt;<i>
+</I>&gt;<i> Could you log to syslog and send the output (with your patch)? I want
+</I>&gt;<i> to see the time aspect of this. In particular, I want to see if there
+</I>&gt;<i> is a delay between the &quot;NOOP&quot; response and the &quot;EXISTS&quot; response. If
+</I>&gt;<i> there is a delay, then your average delay will actually be 14 seconds.
+</I>
+Here is the output. I cleaned it up a bit, and it includes my
+mta output too, so you can see when my testmail leaves my machine.
+
+11:51:10 : 0 messages waiting after first poll
+11:51:10 : IMAP&gt; A0004 NOOP
+11:51:10 : IMAP&lt; A0004 OK NOOP completed
+11:51:38 : IMAP&gt; A0005 NOOP
+11:51:38 : IMAP&lt; A0005 OK NOOP completed
+11:51:54 sendmail[16018]: k219psZR016018: from=casper, size=60, class=0, nrcpts=1, msgid=&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">200603010951.k219psZR016018 at xxxxx</A>&gt;, relay=<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">casper at localhost</A>
+11:51:55 sm-mta[30673]: k219psb5030673: from=&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">casper at xxxxx</A>&gt;, size=392, class=0, nrcpts=1, msgid=&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">200603010951.k219psZR016018 at xxxxx</A>&gt;, proto=ESMTP, daemon=MTA, relay=<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">casper at localhost</A> [127.0.0.1]
+11:51:55 sendmail[16018]: k219psZR016018: to=<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">casper.gripenberg at kotiportti.fi</A>, ctladdr=casper (1000/1000), delay=00:00:01, xdelay=00:00:01, mailer=relay, pri=30050, relay=localhost. [127.0.0.1], dsn=2.0.0, stat=Sent (k219psb5030673 Message accepted for delivery)
+11:51:55 : IMAP&lt; * 1 EXISTS
+11:51:55 : IMAP&gt; A0006 EXPUNGE
+11:51:55 : IMAP&lt; * 1 RECENT
+11:51:55 : IMAP&lt; A0006 OK EXPUNGE completed
+11:51:55 : 1 message waiting after expunge
+11:51:55 : IMAP&gt; A0007 SEARCH UNSEEN NOT DELETED
+11:51:55 : IMAP&lt; * SEARCH 1
+11:51:55 : 1 is unseen
+11:51:55 : IMAP&lt; A0007 OK SEARCH completed
+11:51:55 : 1 is first unseen
+11:51:55 : 1 message for xxxxx at mail.kolumbus.fi.
+
+&gt;<i> The problem with your patch is that it forces recentcount to be equal
+</I>&gt;<i> to count. You have a simple setup where all mails are always
+</I>&gt;<i> downloaded and deleted from the server. In this scenario, the number
+</I>&gt;<i> before EXISTS and RECENT will always be equal. However, there are
+</I>&gt;<i> people who have a setup where some seen mails are there on the
+</I>&gt;<i> mailserver and fetchmail is running with &quot;no fetchall&quot;. So, forcing
+</I>&gt;<i> recentcount to count is not correct.
+</I>
+Ok. Right. It was a shoot from the hip fix. I just wanted to avoid the
+delay if possible. But if it's not avoidable in any proper way then
+that is the way it is. I guess people can live with getting their 
+e-mails a few seconds later, it's not THAT critical :) But for me
+the delay in there will still bother me..can't help it, sorry :)
+For anyone else, I guess they will never know. I would have never
+known hadn't I started investigating the problem anyway.
+
+Casper
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000677.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+	<LI>Next message: <A HREF="000672.html">[fetchmail-devel] Re: BUG (?) fetchmail 6.3.2 hangs with 'idle' on OpenBSD
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#669">[ date ]</a>
+              <a href="thread.html#669">[ thread ]</a>
+              <a href="subject.html#669">[ subject ]</a>
+              <a href="author.html#669">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

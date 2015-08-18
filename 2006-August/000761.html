@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Continuation%20of%20%22Domino%20IMAP%20and%20missing%0A%09Content-Transfer-Encoding%22&In-Reply-To=%3C44D894F4.70708%40raytheon.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000760.html">
+   <LINK REL="Next"  HREF="000762.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;</H1>
+    <B>Jason Ostermann</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Continuation%20of%20%22Domino%20IMAP%20and%20missing%0A%09Content-Transfer-Encoding%22&In-Reply-To=%3C44D894F4.70708%40raytheon.com%3E"
+       TITLE="[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;">josterm at raytheon.com
+       </A><BR>
+    <I>Tue Aug  8 15:43:16 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000760.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+        <LI>Next message: <A HREF="000762.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#761">[ date ]</a>
+              <a href="thread.html#761">[ thread ]</a>
+              <a href="subject.html#761">[ subject ]</a>
+              <a href="author.html#761">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> Heck, can't vendors be bothered to repair the known defects in their
+</I>&gt;<i> software or at least sponsor workarounds in third-party software they
+</I>&gt;<i> are breaking?
+</I>
+Agreed. Of course, if I had a say (or if any of my fellow 80,000 minions 
+had a say) we'd not be using Lotus.
+
+&gt;<i> Some alternatives to FETCH 1234 RFC822.HEADER (where 1234 is the message
+</I>&gt;<i> number) I could think of:
+</I>&gt;<i> 
+</I>&gt;<i>   BODY.PEEK[HEADER]
+</I>Still missing fields.
+
+&gt;<i>   BODY.PEEK[MIME]   - nonstandard, may cause BAD reply
+</I>BAD Invalid Fetch argument body.peek[mime]
+
+&gt;<i>   BODY.PEEK[0.MIME] - nonstandard, may cause BAD reply
+</I>BAD Invalid Fetch argument body.peek[o.mime]
+
+&gt;<i>   BODY.PEEK[HEADER.FIELDS (MIME-Version Content-Type Content-Transfer-Encoding Content-Disposition)]
+</I>This returned the fields, although only the Content-Transfer-Encoding 
+was missing from the RFC822 header output.
+
+&gt;<i>   BODY.PEEK[HEADER.FIELDS.NOT (foo)]
+</I>&gt;<i> 
+</I>&gt;<i> Does any of these provide you with the full header when RFC822.HEADER is
+</I>&gt;<i> incomplete?
+</I>&gt;<i> 
+</I>&gt;<i> What does
+</I>&gt;<i> 
+</I>&gt;<i>   FETCH 1 BODYSTRUCTURE
+</I>&gt;<i> 
+</I>&gt;<i> give you (replace 1 by the number of a 'broken' message)?
+</I>
+* 574 FETCH (BODYSTRUCTURE (&quot;text&quot; &quot;html&quot;  (&quot;charset&quot; &quot;ISO-8859-1&quot;) NIL 
+NIL &quot;quoted-printable&quot; 1287 22 NIL NIL NIL))
+I don't know how to parse this output, although the strings presented 
+are correct. Don't know what the numbers are supposed to reflect.
+
+
+&gt;<i> A full IMAP4r1 session might look like:
+</I>&gt;<i> 
+</I>&gt;<i> A LOGIN USER SECRETPASSWORDGOESHERE
+</I>&gt;<i> B SELECT INBOX
+</I>&gt;<i> C FETCH 1 BODY.PEEK[HEADER]
+</I>&gt;<i> D LOGOUT
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Generally, fetchmail has support for protocols that can only retrieve
+</I>&gt;<i> full messages (POP3, for instance, uses that), so some hacking away at
+</I>&gt;<i> imap.c might be sufficient to make the rest of fetchmail believe that
+</I>&gt;<i> IMAP could only support full messages. The protocol interface is OOP
+</I>&gt;<i> style (yes it's clumsy in C, but it works), in that driver.c/transact.c
+</I>&gt;<i> call protocol (imap.c/pop3.c) methods^Wfunctions.
+</I>&gt;<i> 
+</I>&gt;<i> Best would be a workaround that could automatically kick in, since
+</I>&gt;<i> that's easiest for users and distributors.
+</I>&gt;<i> 
+</I>&gt;<i> Such code might require minor internal rearrangements, such as moving
+</I>&gt;<i> what used to be hard-wired protocol attributes into methods that query
+</I>&gt;<i> the capabilities of the current connection.
+</I>&gt;<i> 
+</I>
+I've used structs of function pointers to do similar things in the past. 
+Few surprises in that area. =)
+Sadly, I didn't manage to do an imap isolated patch yesterday. To get my 
+hack to work, I mutilated imap.c to make the getsizes, getpartialsizes 
+and fetch body NULL and changed fetch_headers to submit FETCH %d 
+(BODY[]). I also had to change driver.c by adding len-=msgblk.msglen 
+before the readbody. Otherwise, it'd try to read the whole message size 
+off of the socket. I was very confused by the last bit, as it seemed 
+that changing the fetch body to NULL should've induced driver.c to do 
+the same to handle the POP protocols. I expect I missed something somewhere.
+
+Is there a way to identify an imap server? The banner on login only states:
+* OK IMAP Server Ready Tue, 8 Aug 2006 08:37:04 -0500
+
+
+Thanks!
+Jason
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000760.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+	<LI>Next message: <A HREF="000762.html">[fetchmail-devel] Continuation of &quot;Domino IMAP and missing	Content-Transfer-Encoding&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#761">[ date ]</a>
+              <a href="thread.html#761">[ thread ]</a>
+              <a href="subject.html#761">[ subject ]</a>
+              <a href="author.html#761">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

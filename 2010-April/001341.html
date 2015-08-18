@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] save_str problems.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C8739yjw79w.fsf%40fever.mssgmbh.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001340.html">
+   <LINK REL="Next"  HREF="001342.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] save_str problems.</H1>
+    <B>Rainer Weikusat</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20save_str%20problems.&In-Reply-To=%3C8739yjw79w.fsf%40fever.mssgmbh.com%3E"
+       TITLE="[fetchmail-devel] save_str problems.">rweikusat at mssgmbh.com
+       </A><BR>
+    <I>Sun Apr 25 23:29:15 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001340.html">[fetchmail-devel] save_str problems.
+</A></li>
+        <LI>Next message: <A HREF="001342.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1341">[ date ]</a>
+              <a href="thread.html#1341">[ thread ]</a>
+              <a href="subject.html#1341">[ subject ]</a>
+              <a href="author.html#1341">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Matthias Andree &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">matthias.andree at gmx.de</A>&gt; writes:
+&gt;<i> <A HREF="http://gitorious.org/fetchmail/fetchmail/commits/for-rainer/">http://gitorious.org/fetchmail/fetchmail/commits/for-rainer/</A>
+</I>&gt;<i>
+</I>&gt;<i> You can download this as tarball, but you still need to follow the
+</I>&gt;<i> build-from-Git instructions (basically, run autoreconf -isv first).
+</I>&gt;<i>
+</I>&gt;<i> It contains a lightweight version of your patch (see the two latest
+</I>&gt;<i> commits). The fastuidl fix is less efficient, but also less needed since
+</I>&gt;<i> the amount of UIDs added is ld N there, so we get O(n log n) complexity
+</I>&gt;<i> for parsing the UIDL responses. The UIDL fix is O(n) for the actual
+</I>&gt;<i> insertion, but remains O(n^2) for &quot;message seen yet?&quot; detection.
+</I>
+This looks very suspiciously like my first attempt at making a 'quick'
+improvement to this code. It will yield about half of the benefit of
+the patch I sent (for 'our' application), because this method cannot
+be used for the fastuidl path in pop3_is_old (as you wrote, I profiled
+this before making the more complicated change). It is also (sorry for
+being so blunt) not very well done. Because of the
+
+    /* do it nonrecursively so the list is in the right order */
+    for (end = idl; *end; end = &amp;(*end)-&gt;next)
+        continue;
+
+in save_str_quick, the value passed to the routine should be the
+address of the pointer which needs to be changed when appending to the
+list, eg, assuming the 'savep' change:
+
+---------
+int ok;
+unsigned int first_nr, last_nr, try_nr;
+char id [IDLEN+1];
+struct idlist *savep = NULL; /** pointer to cache save_str result, speeds up saves */
+first_nr = 0;
+last_nr = count + 1;
+
+[...]
+
+last_nr = try_nr;
+/* save it */
+savep = save_str(savep ? &amp;savep : &amp;ctl-&gt;oldsaved, id, UID_UNSEEN);
+savep-&gt;val.status.num = try_nr;
+---------
+
+a better implementation would be
+
+--------------------------
+int ok;
+unsigned int first_nr, last_nr, try_nr;
+char id [IDLEN+1];
+struct idlist **svp, *sv;
+first_nr = 0;
+last_nr = count + 1;
+svp = &amp;ctl-&gt;oldsaved;
+
+[...]
+
+last_nr = try_nr;
+/* save it */
+sv = save_str(svp, id, UID_UNSEEN);
+sv-&gt;val.status.num = try_nr;
+svp = &amp;sv-&gt;next;
+---------------------------
+
+which has the nice bonus property that it doesn't have the conditional
+which goes one way during the first iteration and the other way during
+all that follow inside the loop (the idea isn't mine, I originally
+learnt about it because of some years-old USENET posting of a guy
+whose name I've unfortunately forgotten). I am also rather concerned
+about use of bandwidth than speed. Presently, I am dealing with 76
+POP3 accounts and about a meg of stored UIDs I'd need to download
+every five minutes in order to determine that presently, nothing needs
+to be downloaded (this refers to fastuidl in general, assuming I
+understood the principle correctly without really analyzing the code).
+
+So, thank you very much for your effort, but I'll stick with the
+version in the private fork I am anyway maintaining because of the
+additional features (like 'object-oriented/ vtabled sinks') whose
+usefulness would be very limited outside this particular
+application and/or whose implementation is rather 'commercial' (eg
+#ifdefing away the concurrency control code) than aesthetically/
+technically pleasing. The savedend-change was just something I
+considered to be more generally useful, hence I 'backported' it to
+6.3.16 from my HEAD and sent it to the list.
+
+BTW, I had a look at the UIDL patch and whoever wrote that should
+probably spend some time reading RFC4549 (Synchronization Operations
+for Disconnected IMAP4 Clients) which is what I am going to add to the
+imap-code because using the \Seen flag as 'message is old' indicator
+[reportedly] interferes with the gmail web interface.
+
+NB: Nothing of this text is meant as an insult even if it may sound
+like one. I am a computer person and not a person person and my
+knowledge regarding 'how to deal with other human beings' is still
+very limited, not the least because 'other human beings' are usually
+drunk, male persons desiring to hit me because I have (again) done
+something wrongly I neither understood nor recognized.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001340.html">[fetchmail-devel] save_str problems.
+</A></li>
+	<LI>Next message: <A HREF="001342.html">[fetchmail-devel] save_str problems.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1341">[ date ]</a>
+              <a href="thread.html#1341">[ thread ]</a>
+              <a href="subject.html#1341">[ subject ]</a>
+              <a href="author.html#1341">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

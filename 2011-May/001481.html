@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] fetchmail fix coordination and future planning (was: [PATCH] imap: introduce imapsearchmax parameter)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-May/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20fix%20coordination%20and%20future%20planning%0A%20%28was%3A%20%5BPATCH%5D%20imap%3A%20introduce%20imapsearchmax%20parameter%29&In-Reply-To=%3C4DBFFF34.4000600%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001480.html">
+   <LINK REL="Next"  HREF="001482.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] fetchmail fix coordination and future planning (was: [PATCH] imap: introduce imapsearchmax parameter)</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20fetchmail%20fix%20coordination%20and%20future%20planning%0A%20%28was%3A%20%5BPATCH%5D%20imap%3A%20introduce%20imapsearchmax%20parameter%29&In-Reply-To=%3C4DBFFF34.4000600%40gmx.de%3E"
+       TITLE="[fetchmail-devel] fetchmail fix coordination and future planning (was: [PATCH] imap: introduce imapsearchmax parameter)">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue May  3 15:12:20 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001480.html">[fetchmail-devel] [PATCH] imap: introduce imapsearchmax	parameter
+</A></li>
+        <LI>Next message: <A HREF="001482.html">[fetchmail-devel] fetchmail fix coordination and future	planning (was: [PATCH] imap: introduce imapsearchmax parameter)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1481">[ date ]</a>
+              <a href="thread.html#1481">[ thread ]</a>
+              <a href="subject.html#1481">[ subject ]</a>
+              <a href="author.html#1481">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 03.05.2011 06:05, schrieb Sunil Shetye:
+&gt;<i> Hi,
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> ----- Original Message -----
+</I>&gt;&gt;<i> So, at the IMAP protocol level, we have run out of options.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I will check if the fetchmail parsing can be improved directly in 
+</I>&gt;&gt;<i> fetchmail itself.
+</I>&gt;<i> 
+</I>&gt;<i> Attached are the patches which should solve this issue.
+</I>&gt;<i> 
+</I>&gt;<i> The first patch has nothing to do with this issue. It only removes excess calls to strlen().
+</I>&gt;<i> 
+</I>&gt;<i> The second patch works by sending a &quot;SEARCH UNSEEN&quot; command and reading the response in batches (when required).
+</I>&gt;<i> 
+</I>&gt;<i> Andrea, please test the patches for your mailbox.
+</I>&gt;<i> 
+</I>&gt;<i> Matthias, please evaluate the patches for incorporation in fetchmail.
+</I>
+Hi Sunil,
+
+the first patch is easy, accepted, thank you.
+
+
+As so the second (with _split and caching), I wonder if it's the right
+approach. It looks a bit as though we're curing the symptoms instead of
+the cause.  The cause is a buffer too small to handle the response, and
+the cure would be to make the buffer dynamic and possibly resize it if
+we don't get a \r?\n in it.
+
+
+A dynamic buffer could also save us the strcpy(argbuf, buf) copy which,
+IMO, is quite wasteful.
+
+
+What I propose is to have three branches, details below the list:
+
+- one for 6.3.X (new name to be devised), for a final release and
+possibly later critical/security fixes
+
+- one for a new 6.4.X or 7.X.X branch (master) where such fixes as the
+IMAP search ranges can be made
+
+- one for the future 7.X.X or 8.X.X branch (next) for radical changes
+such as the C++ migration and major structural changes.
+
+
+Details:
+
+1 - create a side branch from master for 6.3.X, revert the SSLv2
+removal, fix STARTTLS timeouts (the code is almost completed) and clear
+up the MD5 mess.  Release 6.3.20 from the side branch.
+
+
+2 - master advances to 7.0.X, sporting feature removals from the &quot;next&quot;
+branch (7.0.0-alpha2) such as IMAP2, POP2, SSLv2, support for pre-SUSv3
+systems and other cleanups, but not the C++ migration.  Revamp the
+socket handling, using dynamic buffers, use Rainer's patch to speed up
+POP3 UID handling with PATRICIA data structures (this gives us the edge
+over getmail ;-))
+
+  - The SSL handling is not done properly, but needs to be.
+Look at the _ssl_ctx and all that stuff, we're wasting humongous amounts
+of static memory (FD_SETSIZE is 1024 on my system, and sizeof(SSL) is
+512, so we waste 512 kibiB of RAM just for SSL support) just because the
+socket code sticks to simple ints, rather than using a proper structure
+of our own.
+
+
+
+3 - next advances to 8.0.X including a C++ migration, with major overhaul:
+
+  - I have started converting the code (on the &quot;next&quot; branch in Git) to
+C++ with Standard Template Library and Boost.  Boost is, for the biggest
+part, a headers-only library, so it doesn't create additional run-time
+dependencies, and it is peer-reviewed by the C++ gurus and often the
+basis for future standards &lt;<A HREF="http://www.boost.org/">http://www.boost.org/</A>&gt;. IMAPCapa* is an
+example of how compact the code is.
+
+    C++ features such as the string type, or STL containers such as
+vector, map, set, list/deque/stack; or Boost functions for intervals,
+will greatly simplify the code.  As will exceptions.
+
+
+  - I plan to support UID-based fetches in IMAP too, so we can fetch
+from READ-ONLY folders and need no longer tamper with \Seen flags.
+
+    In that case, UIDs are strictly monotonically increasing (unless
+UIDVALIDITY has changed), so we know for certain where we need to start
+the SEARCH or FETCH, too, so we avoid empty fetches. (Note Boost's
+Interval type!)
+
+
+  - I plan to support pipelined operation for common protocols to avoid
+the roundtrip delays incurred through lock-step behaviour.  It's not
+possible everywhere (for instance, when doing a binary search for POP3
+UIDLs), but should help maxing out the wires or WiFi even in a single
+thread once we get to downloading.
+
+
+  - I want to clean up the code to an extent where we can ultimately
+fetch from several accounts in parallel.
+
+
+Opinions, comments, remarks, concerns, ideas are solicited.
+
+Thanks.
+
+Best regards,
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001480.html">[fetchmail-devel] [PATCH] imap: introduce imapsearchmax	parameter
+</A></li>
+	<LI>Next message: <A HREF="001482.html">[fetchmail-devel] fetchmail fix coordination and future	planning (was: [PATCH] imap: introduce imapsearchmax parameter)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1481">[ date ]</a>
+              <a href="thread.html#1481">[ thread ]</a>
+              <a href="subject.html#1481">[ subject ]</a>
+              <a href="author.html#1481">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

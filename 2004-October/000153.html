@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: Not Yet Reviewed Queue is Empty!
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Not%20Yet%20Reviewed%20Queue%20is%20Empty%21&In-Reply-To=%3Cm3sm8j9c27.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000151.html">
+   <LINK REL="Next"  HREF="000152.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: Not Yet Reviewed Queue is Empty!</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20Not%20Yet%20Reviewed%20Queue%20is%20Empty%21&In-Reply-To=%3Cm3sm8j9c27.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] Re: Not Yet Reviewed Queue is Empty!">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Wed Oct 13 11:56:00 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000151.html">[fetchmail-devel] Re: Not Yet Reviewed Queue is Empty!
+</A></li>
+        <LI>Next message: <A HREF="000152.html">[fetchmail-devel] Not Yet Reviewed Queue is Empty!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#153">[ date ]</a>
+              <a href="thread.html#153">[ thread ]</a>
+              <a href="subject.html#153">[ subject ]</a>
+              <a href="author.html#153">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Graham Wilson &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">graham at mknod.org</A>&gt; writes:
+
+&gt;<i> Once we've figured out how were going to build release tarballs, I'd
+</I>&gt;<i> like to look at the differences between the 6.2.5 tarball and the 6.2.6
+</I>&gt;<i> tarball, and make sure we are aware of all of the changes.
+</I>&gt;<i>
+</I>&gt;<i> Hmm... come to think of it, should this release be 6.3.0? This is the
+</I>&gt;<i> first release in a while, and the maintainers have changed. Seems to me
+</I>&gt;<i> to warrant more than a patch version number increased.
+</I>
+I'm reading the numer as major.minor.patchlevel.
+
+The maintainer change doesn't warrant the minor bump, but the automake
+switchover does, so I'd also vote for 6.3.0.
+
+I'd suggest we bump minor if we add features or make large compatible
+changes; and we bump major for incompatible changes, and patchlevel for
+bugfixes.
+
+We absolutely MUST refrain from doing ESR's nonsense of calling .0
+patchlevels &quot;gold&quot;. The latest patchlevel with the same major.minor is
+&quot;gold&quot;, currently 6.2.5, rather than 6.2.0 - and we need to communicate
+this change in versioning to our users.
+
+I'd also suggest that we do bugfix patches only on patchlevels
+henceforth, similar to what the GCC team do (they are a bit more radical
+and will just fix regressions, not even regular bugs).
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000151.html">[fetchmail-devel] Re: Not Yet Reviewed Queue is Empty!
+</A></li>
+	<LI>Next message: <A HREF="000152.html">[fetchmail-devel] Not Yet Reviewed Queue is Empty!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#153">[ date ]</a>
+              <a href="thread.html#153">[ thread ]</a>
+              <a href="subject.html#153">[ subject ]</a>
+              <a href="author.html#153">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [BUG] IMAP client doesn't read literals properly
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-October/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBUG%5D%20IMAP%20client%20doesn%27t%20read%20literals%20properly&In-Reply-To=%3Cm3r7o0naaz.fsf%40merlin.emma.line.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000162.html">
+   <LINK REL="Next"  HREF="000157.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [BUG] IMAP client doesn't read literals properly</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBUG%5D%20IMAP%20client%20doesn%27t%20read%20literals%20properly&In-Reply-To=%3Cm3r7o0naaz.fsf%40merlin.emma.line.org%3E"
+       TITLE="[fetchmail-devel] [BUG] IMAP client doesn't read literals properly">ma at dt.e-technik.uni-dortmund.de
+       </A><BR>
+    <I>Fri Oct 15 01:34:44 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000162.html">[fetchmail-devel] warning message charset fix: progress indicator 2/3 (was: Re: warning message charset fix: progress indicator 1/3.)
+</A></li>
+        <LI>Next message: <A HREF="000157.html">[fetchmail-devel] Rodolfo's hang (from fetchmail-friends)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>While debugging Rodolfo Borges' &quot;no '\n' at the last line&quot; bug-report on
+fetchmail-friends, I found that the IMAP reader doesn't properly detect
+the end of the mail; sample output:
+
+fetchmail: IMAP&gt; A0009 FETCH 372 BODY.PEEK[TEXT]
+fetchmail: IMAP&lt; * 372 FETCH (BODY[TEXT] {4}
+fetchmail: IMAP&lt; test)
+fetchmail: IMAP&lt; A0009 OK Fetch completed.
+
+and the ) that is part of the untagged FETCH reply from the 2nd line
+becomes part of the message.
+
+The curly brace notation, {N} means that there will be N octets after
+the end of the line - and the 4 is pretty clearly a 4, not a 5 -- see
+RFC-3501 (IMAP v4) for details.
+
+I presume one of the many workarounds broke the protocol for working
+servers. Haven't had time to R&amp;D a proper fix yet, apparently, fetchmail
+ignores the length.
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000162.html">[fetchmail-devel] warning message charset fix: progress indicator 2/3 (was: Re: warning message charset fix: progress indicator 1/3.)
+</A></li>
+	<LI>Next message: <A HREF="000157.html">[fetchmail-devel] Rodolfo's hang (from fetchmail-friends)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

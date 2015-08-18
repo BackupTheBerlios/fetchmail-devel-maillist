@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] flaw concerning fetchmail 6.3.21 error message
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-September/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20flaw%20concerning%20fetchmail%206.3.21%20error%20message&In-Reply-To=%3C4E84F1F9.1010202%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001526.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] flaw concerning fetchmail 6.3.21 error message</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20flaw%20concerning%20fetchmail%206.3.21%20error%20message&In-Reply-To=%3C4E84F1F9.1010202%40gmx.de%3E"
+       TITLE="[fetchmail-devel] flaw concerning fetchmail 6.3.21 error message">matthias.andree at gmx.de
+       </A><BR>
+    <I>Fri Sep 30 00:32:25 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001526.html">[fetchmail-devel] flaw concerning fetchmail 6.3.21 error message
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1527">[ date ]</a>
+              <a href="thread.html#1527">[ thread ]</a>
+              <a href="subject.html#1527">[ subject ]</a>
+              <a href="author.html#1527">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 29.09.2011 21:01, schrieb Oskar Schirmer:
+&gt;<i> Use Case:
+</I>&gt;<i>   fetching mail from a server using pop3s, port 995,
+</I>&gt;<i>   with option &quot;ssl&quot; given, but no sslproto explicitely
+</I>&gt;<i>   selected.
+</I>&gt;<i>   Operating System: Linux, Slackware 12.2.
+</I>&gt;<i>   Compiler: gcc 4.2.4
+</I>&gt;<i>   Pop3 Server: qmail
+</I>&gt;<i>   Fetchmail versions tested: 6.3.8 and 6.3.21
+</I>&gt;<i> 
+</I>&gt;<i> Problem:
+</I>&gt;<i>   on each invocation, fetchmail states the following
+</I>&gt;<i>   error message, which is superfluous:
+</I>&gt;<i> 
+</I>&gt;<i> Invalid SSL protocol '' specified, using default (SSLv23).
+</I>&gt;<i> 
+</I>&gt;<i>   [note: when giving some &quot;sslproto xy&quot;, this message is
+</I>&gt;<i>    given twice, with an empty protocol name on the second line]
+</I>&gt;<i> 
+</I>&gt;<i> Reason for Symptom:
+</I>&gt;<i>   socket.c checks given protocol names to be one of &quot;ssl2&quot;, &quot;ssl3&quot;, etc,
+</I>&gt;<i>   but fails to check against empty string &quot;&quot;. As it checks against
+</I>&gt;<i>   NULL string, though, the reason for the bug may be confusion in
+</I>&gt;<i>   &quot;no protocol given&quot; value policy internal to fetchmail sources
+</I>&gt;<i>   (i.e. empty string vs. null string). A better solution than the
+</I>&gt;<i>   one given here might resolve this policy issue, instead.
+</I>
+Thanks, Oskar.
+
+That warrants investigation, but I don't see this here with recent
+fetchmail versions, only with older ones.  That doesn't preclude that
+there are buggy code paths triggered by a configuration I haven't yet
+tested, or by your network environment (server behaviour - note qmail's
+POP3 server has some bugs).
+
+Please help me and show me how to reproduce this, according to
+<A HREF="http://www.fetchmail.info/fetchmail-FAQ.html#G3">http://www.fetchmail.info/fetchmail-FAQ.html#G3</A> - note however I'll
+probably not be able to look into that before next week.
+
+Thanks again.
+
+Best regards,
+Matthias
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001526.html">[fetchmail-devel] flaw concerning fetchmail 6.3.21 error message
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1527">[ date ]</a>
+              <a href="thread.html#1527">[ thread ]</a>
+              <a href="subject.html#1527">[ subject ]</a>
+              <a href="author.html#1527">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

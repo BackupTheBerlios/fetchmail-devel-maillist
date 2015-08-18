@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] [Bug #7858] -f - or --fetchmailrc - attempts to stat &quot;-&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2006-June/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%237858%5D%20-f%20-%20or%20--fetchmailrc%20-%20attempts%20to%20stat%20%22-%22&In-Reply-To=%3C200606111829.k5BITf8K024052%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000750.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] [Bug #7858] -f - or --fetchmailrc - attempts to stat &quot;-&quot;</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20%5BBug%20%237858%5D%20-f%20-%20or%20--fetchmailrc%20-%20attempts%20to%20stat%20%22-%22&In-Reply-To=%3C200606111829.k5BITf8K024052%40unicorn.berlios.de%3E"
+       TITLE="[fetchmail-devel] [Bug #7858] -f - or --fetchmailrc - attempts to stat &quot;-&quot;">admin at berlios.de
+       </A><BR>
+    <I>Sun Jun 11 20:29:41 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000750.html">[fetchmail-devel] [Patch #1122] do not stat &quot;-&quot; file (stdin)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#749">[ date ]</a>
+              <a href="thread.html#749">[ thread ]</a>
+              <a href="subject.html#749">[ subject ]</a>
+              <a href="author.html#749">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #7858, was updated on 2006-Jun-11 18:29
+Here is a current snapshot of the bug.
+
+Project: Community Fetchmail
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: pauamma
+Assigned to : none
+Summary: -f - or --fetchmailrc - attempts to stat &quot;-&quot;
+
+Details: When stdin is specified as the fetchmail run-control file
+with -f - or --fetchmailrc -, fetchmail will attempt to
+stat(2) &quot;-&quot; (so it can check later whether it was changed),
+but even if there's a file by that name, it has nothing to
+do with stdin anyway.
+
+Suggested fix: I don't think it makes any sense to check for
+updates when stdin is used, so skipping the stat altogether
+is probably the right thing. Assuming that check is needed
+for some reason, it should probably use fstat(2) instead,
+assuming it's portable enough.
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=7858&amp;group_id=1824">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=7858&amp;group_id=1824</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000750.html">[fetchmail-devel] [Patch #1122] do not stat &quot;-&quot; file (stdin)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#749">[ date ]</a>
+              <a href="thread.html#749">[ thread ]</a>
+              <a href="subject.html#749">[ subject ]</a>
+              <a href="author.html#749">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

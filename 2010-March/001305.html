@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] CR missing in messages of 6.3.15-beta2 ?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2010-March/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20CR%20missing%20in%20messages%20of%206.3.15-beta2%20%3F&In-Reply-To=%3C4BAF6BB2.7010702%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001304.html">
+   <LINK REL="Next"  HREF="001307.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] CR missing in messages of 6.3.15-beta2 ?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20CR%20missing%20in%20messages%20of%206.3.15-beta2%20%3F&In-Reply-To=%3C4BAF6BB2.7010702%40gmx.de%3E"
+       TITLE="[fetchmail-devel] CR missing in messages of 6.3.15-beta2 ?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Sun Mar 28 16:46:10 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001304.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.15.ja.po'
+</A></li>
+        <LI>Next message: <A HREF="001307.html">[fetchmail-devel] CR missing in messages of 6.3.15-beta2 ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1305">[ date ]</a>
+              <a href="thread.html#1305">[ thread ]</a>
+              <a href="subject.html#1305">[ subject ]</a>
+              <a href="author.html#1305">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>(sorry for breaking the threading and the late reply, this message was lost in
+transit of eaten by my spam filter; I'm replying from the web archives where I
+lack message-id headers)
+
+Fr&#233;d&#233;ric Marchal wrote:
+
+&gt;<i> Hello,
+</I>&gt;<i> 
+</I>&gt;<i> I just noticed that the message printed in rfc822.c at line 76:
+</I>&gt;<i> 
+</I>&gt;<i>     if (outlevel &gt;= O_DEBUG)
+</I>&gt;<i> 	report_build(stdout, GT_(&quot;About to rewrite %s&quot;), buf);
+</I>&gt;<i> 
+</I>&gt;<i> doesn't end with a \n. The next message written at line 212 is therefore 
+</I>&gt;<i> concatenated with this one.
+</I>
+That's bad and I think it's a bug. I think I'll fix it after the 6.3.15 release
+so as not to break the translations of this message.
+
+&gt;<i> The same may be true for the message printed in driver.c starting at line 619:
+</I>&gt;<i> 
+</I>&gt;<i> 		report_build(stdout, GT_(&quot;reading message %s@%s:%d of %d&quot;),
+</I>&gt;<i> 			     ctl-&gt;remotename, ctl-&gt;server.truename,
+</I>&gt;<i> 			     num, count);
+</I>&gt;<i> 
+</I>&gt;<i> 		if (len &gt; 0)
+</I>&gt;<i> 		    report_build(stdout, wholesize ? GT_(&quot; (%d octets)&quot;)
+</I>&gt;<i> 				 : GT_(&quot; (%d header octets)&quot;), len);
+</I>&gt;<i> 
+</I>&gt;<i> In my log, it is concatenated with the above mentioned message.
+</I>
+Can you show a sample for that?  I think the LF is deliberately missing here,
+because we want to add the dots ticker, but OTOH if that's not going to be
+displayed, we do need the LF.
+
+Thanks for your report.
+
+-- 
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001304.html">[fetchmail-devel] Contents of PO file 'fetchmail-6.3.15.ja.po'
+</A></li>
+	<LI>Next message: <A HREF="001307.html">[fetchmail-devel] CR missing in messages of 6.3.15-beta2 ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1305">[ date ]</a>
+              <a href="thread.html#1305">[ thread ]</a>
+              <a href="subject.html#1305">[ subject ]</a>
+              <a href="author.html#1305">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

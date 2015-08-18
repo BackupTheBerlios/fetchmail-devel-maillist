@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Re: BUG: RFC violations by translated mails
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-August/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%3A%20RFC%20violations%20by%20translated%20mails&In-Reply-To=%3C20040819083840.GA65200%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000124.html">
+   <LINK REL="Next"  HREF="000127.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Re: BUG: RFC violations by translated mails</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Re%3A%20BUG%3A%20RFC%20violations%20by%20translated%20mails&In-Reply-To=%3C20040819083840.GA65200%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] Re: BUG: RFC violations by translated mails">B.Candler at pobox.com
+       </A><BR>
+    <I>Thu Aug 19 10:38:40 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000124.html">[fetchmail-devel] Re: BUG: RFC violations by translated mails
+</A></li>
+        <LI>Next message: <A HREF="000127.html">[fetchmail-devel] Re: BUG: RFC violations by translated mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wed, Aug 18, 2004 at 04:14:52PM -0500, Graham Wilson wrote:
+&gt;<i> On Wed, Aug 18, 2004 at 07:19:28PM +0200, Matthias Andree wrote:
+</I>&gt;<i> &gt; #1 request transliteration from translators.  This won't work for
+</I>&gt;<i> &gt;    languages that don't use a Latin character set but, for instance,
+</I>&gt;<i> &gt;    Cyrillic, Greek or Thai to name just three. It works for some
+</I>&gt;<i> &gt;    characters, those I know:
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;    ??=ae, ??=oe, ??=ue, ??=ss (sz in special cases when the preceding vowel
+</I>&gt;<i> &gt;    is long and ss would be ambiguous), ??=ae, ??=aa, ??=oe, ??=oe, ??=c
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; #2 request that national characters be pre-encoded as RFC-2047 (for the
+</I>&gt;<i> &gt;    Subject) or as quoted-printable for the body. Major hassle for the
+</I>&gt;<i> &gt;    translators.
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; #3 let fetchmail do proper MIME encoding of Subject and body.
+</I>&gt;<i> 
+</I>&gt;<i> #4  Is it possible to only send messages in English using US-ASCII. I
+</I>&gt;<i>     know that is probably unfair to a lot of our users, but it really
+</I>&gt;<i>     seems like the cleanest solution to me.
+</I>
+#5  if (ch&lt;32 || ch&gt;126) ch = '?';
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000124.html">[fetchmail-devel] Re: BUG: RFC violations by translated mails
+</A></li>
+	<LI>Next message: <A HREF="000127.html">[fetchmail-devel] Re: BUG: RFC violations by translated mails
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

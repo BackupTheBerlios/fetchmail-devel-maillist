@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Assorted minor bugs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2004-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3C20041108102407.GA1180%40uk.tiscali.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000176.html">
+   <LINK REL="Next"  HREF="000178.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Assorted minor bugs</H1>
+    <B>Brian Candler</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Assorted%20minor%20bugs&In-Reply-To=%3C20041108102407.GA1180%40uk.tiscali.com%3E"
+       TITLE="[fetchmail-devel] Assorted minor bugs">B.Candler at pobox.com
+       </A><BR>
+    <I>Mon Nov  8 11:24:07 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000176.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+        <LI>Next message: <A HREF="000178.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#177">[ date ]</a>
+              <a href="thread.html#177">[ thread ]</a>
+              <a href="subject.html#177">[ subject ]</a>
+              <a href="author.html#177">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> *Shrug* I don't see how it's printed three times. It's printed once on
+</I>&gt;<i> my computer.
+</I>
+There's some more detailled output at
+<A HREF="http://lists.ccil.org/pipermail/fetchmail-friends/2004-April/008516.html">http://lists.ccil.org/pipermail/fetchmail-friends/2004-April/008516.html</A>
+
+Basically, each verify callback operation causes this warning to be shown,
+and with fetchmail -v you get this in addition to the other verification
+warning associated with that callback. So with fetchmail -v I get (snipped a
+little):
+
+fetchmail: Server CommonName mismatch: webmail.example.com != pop3.example.com
+fetchmail: Warning: server certificate verification: unable to get local issuer certificate
+fetchmail: Server CommonName mismatch: webmail.example.com != pop3.example.com
+fetchmail: Warning: server certificate verification: certificate not trusted
+fetchmail: Server CommonName mismatch: webmail.example.com != pop3.example.com
+fetchmail: Warning: server certificate verification: unable to verify the first certificate
+
+That's with 6.2.5, I've not tried your snapshot yet.
+
+Now, if I run fetchmail without -v, then the intervening verification errors
+are not shown, so I just see the CN mismatch errors three times. Perhaps you
+only see them once because you have root certs installed in the correct
+places, or maybe it's a difference in our versions of openssl.
+
+&gt;<i> Anyways, I would not want to limit this warning to verbose
+</I>&gt;<i> or strict mode or similar, it's an important information and needs to be
+</I>&gt;<i> printed unconditionally.
+</I>
+Well, I disagree that this information is any more important than
+&quot;certificate not trusted&quot; or &quot;unable to verify signature&quot; or the various
+other errors that only fetchmail -v or fetchmail sslcertck will show.
+
+In particular: fetchmail (without -v) will not generate any warning for a
+self-signed certificate where the CN is correct. However, if you have a
+valid signed certificate from a known CA, but the hostname does not match,
+you get the warning (three times in my case).
+
+Both are violations of the SSL trust model. In the latter case, you know
+that the server admin did at least manage to persuade a known and trusted CA
+to sign a certificate, albeit for a different hostname. Whereas, in the
+first case you could be the subject of a man-in-the-middle attack, and you
+get no warning at all.
+
+That's why my preferred solution was to silence this message without -v or
+sslcertck: because more serious messages are already silenced.
+
+Regards,
+
+Brian.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000176.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+	<LI>Next message: <A HREF="000178.html">[fetchmail-devel] Assorted minor bugs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#177">[ date ]</a>
+              <a href="thread.html#177">[ thread ]</a>
+              <a href="subject.html#177">[ subject ]</a>
+              <a href="author.html#177">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>

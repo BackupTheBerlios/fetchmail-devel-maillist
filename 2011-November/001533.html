@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [fetchmail-devel] Add feature: add header to messages?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/fetchmail-devel/2011-November/index.html" >
+   <LINK REL="made" HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20feature%3A%20add%20header%20to%20messages%3F&In-Reply-To=%3C4ECAF692.4040107%40gmx.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001531.html">
+   <LINK REL="Next"  HREF="001534.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[fetchmail-devel] Add feature: add header to messages?</H1>
+    <B>Matthias Andree</B> 
+    <A HREF="mailto:fetchmail-devel%40lists.berlios.de?Subject=Re%3A%20%5Bfetchmail-devel%5D%20Add%20feature%3A%20add%20header%20to%20messages%3F&In-Reply-To=%3C4ECAF692.4040107%40gmx.de%3E"
+       TITLE="[fetchmail-devel] Add feature: add header to messages?">matthias.andree at gmx.de
+       </A><BR>
+    <I>Tue Nov 22 02:10:42 CET 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001531.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+        <LI>Next message: <A HREF="001534.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1533">[ date ]</a>
+              <a href="thread.html#1533">[ thread ]</a>
+              <a href="subject.html#1533">[ subject ]</a>
+              <a href="author.html#1533">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 15.11.2011 14:29, schrieb Jonathan Kamens:
+
+&gt;<i> We've run into a fetchmail use case which doesn't seem to be easily
+</I>&gt;<i> solved with existing functionality, and I'm writing to ask (a) are we
+</I>&gt;<i> missing something and (b) if not, would the fetchmail maintainers
+</I>&gt;<i> consider accepting a patch to solve the problem?
+</I>
+Hi Jonathan,
+
+if I understand you correctly, (a) would apply, but as a second line of
+defence, I'm willing to consider (b).
+
+&gt;<i> The mailboxes receiving these messages are often BCC'd, which means that
+</I>&gt;<i> the recipient address doesn't appear in To or CC. Furthermore, the mail
+</I>&gt;<i> servers we're downloading from unfortunately don't insert
+</I>&gt;<i> X-Delivered-To, or Received lines showing the recipient address, or
+</I>&gt;<i> anything like that. In short, there's no way to tell from looking at the
+</I>&gt;<i> message fed into the MDA what address it was sent to.
+</I>
+And configuring a filter on the upstream server isn't possible either?
+Sounds like a rather limited service to me.
+
+&gt;<i> We could hard-code a command-line option for the custom MDA command
+</I>&gt;<i> identifying the mailbox, but as far as I can tell, that fails if you've
+</I>&gt;<i> got more than one account in the .fetchmailrc file, because I don't
+</I>&gt;<i> believe it's possible to specify different MDA settings for different
+</I>&gt;<i> accounts (am I wrong about that?).
+</I>
+Yes, you're wrong - luckily ;-) The MDA setting is a user-specific
+setting, so you can generate a modified rcfile that uses a distinct mda
+script (or arguments) for each user.  Now, that's for the easy case
+where you have one destination address per upstream account.  It won't
+work with --mda on the command line though.
+
+For more complex cases that can't be solved that way, I'd be willing to
+consider patches against fetchmail's 7 alpha versions (the &quot;master&quot;
+branch in Git), such as the proposed one.
+
+&gt;<i> So, my questions are (a) is there a way I'm missing to solve this
+</I>&gt;<i> problem, (b) if not, and we implemented the functionality I described,
+</I>&gt;<i> would the maintainers take a patch, and (c) if not, is there some other
+</I>&gt;<i> way to solve this problem that the maintainers would suggest we
+</I>&gt;<i> implement instead?
+</I>
+I'd have to ponder a bit about (c) if the (a) doesn't help.
+
+Hope that helps.
+
+Best regards,
+Matthias Andree
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001531.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+	<LI>Next message: <A HREF="001534.html">[fetchmail-devel] Add feature: add header to messages?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1533">[ date ]</a>
+              <a href="thread.html#1533">[ thread ]</a>
+              <a href="subject.html#1533">[ subject ]</a>
+              <a href="author.html#1533">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/fetchmail-devel">More information about the fetchmail-devel
+mailing list</a><br>
+</body></html>
